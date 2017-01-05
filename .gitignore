@@ -5,7 +5,7 @@
 .idea/workspace.xml
 .idea/tasks.xml
 .idea/
-*.iml
+argos-backend.iml
 
 ## File-based project format:
 *.iws
