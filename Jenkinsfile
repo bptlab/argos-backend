@@ -1,7 +1,9 @@
 node {
-	stage 'Checkout'
+	stage('Checkout') {
 		checkout scm
+	}
 
-	stage 'Build'
+	stage('Build') {
 		sh """mvn -s $MAVEN_SETTINGS clean install $SONAR_MAVEN_GOAL -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.branch=${env.BRANCH_NAME/-/}"""
+	}
 }
