@@ -8,6 +8,7 @@ import spark.Service;
 import static spark.Service.ignite;
 
 public class ArgosImpl implements Argos {
+	protected static final String EXAMPLE_EVENT_QUERY = "SELECT * FROM FeedbackData";
 
 	@Override
 	public void run() {
@@ -17,7 +18,7 @@ public class ArgosImpl implements Argos {
 		unicornEventReceiver.setup(sparkService);
 
 		EventSubscriber unicornEventSubscriber = new EventSubscriberImpl();
-		unicornEventSubscriber.subscribeToEventPlatform("http://localhost:8989", "/api/events/receiver", "{key: \"key\", value: \"value\"}");
+		unicornEventSubscriber.subscribeToEventPlatform(EXAMPLE_EVENT_QUERY);
 	}
 
 	private Service startServer() {

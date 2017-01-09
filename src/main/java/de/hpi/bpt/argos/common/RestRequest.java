@@ -10,4 +10,6 @@ public interface RestRequest {
 	int getResponseCode();
 
 	String getResponse();
+
+	boolean isSuccessful();
 }

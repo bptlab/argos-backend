@@ -12,6 +12,9 @@ import java.net.URL;
 
 public class RestRequestImpl implements RestRequest {
 	protected static final Logger logger = LoggerFactory.getLogger(RestRequestImpl.class);
+	protected static final int HTTP_SUCCESS_CODE = 200;
+
+	public static final String ERROR_RECEIVING_RESPONSE = "error while receiving response";
 
 	protected HttpURLConnection connection;
 
@@ -57,7 +60,7 @@ public class RestRequestImpl implements RestRequest {
 			responseReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 		} catch (IOException e) {
 			logExceptionWhileReceivingResponse(e);
-			return "";
+			return ERROR_RECEIVING_RESPONSE;
 		}
 
 		String responseString;
@@ -70,10 +73,15 @@ public class RestRequestImpl implements RestRequest {
 			responseReader.close();
 		} catch (IOException e) {
 			logExceptionWhileReceivingResponse(e);
-			return "";
+			return ERROR_RECEIVING_RESPONSE;
 		}
 
 		return response.toString();
+	}
+
+	@Override
+	public boolean isSuccessful() {
+		return getResponseCode() == HTTP_SUCCESS_CODE;
 	}
 
 	protected void logException(String head, Throwable exception) {
