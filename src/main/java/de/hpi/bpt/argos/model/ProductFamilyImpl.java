@@ -90,7 +90,7 @@ public class ProductFamilyImpl implements ProductFamily {
 		setNumberOfDevices(1337);
 		setNumberOfEvents(9001);
 		setProductionStart(new Date(2199, 1, 1, 0, 0, 0));
-		setState(ProductFamilyState.RED);
+		setState(ProductFamilyState.ERROR);
 		setName("example family");
 		setId(42);
 
