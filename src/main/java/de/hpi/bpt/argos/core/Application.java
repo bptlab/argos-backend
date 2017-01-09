@@ -2,7 +2,7 @@ package de.hpi.bpt.argos.core;
 
 public class Application {
 	public static void main(String[] args) {
-		IArgos argos = new Argos();
+		Argos argos = new ArgosImpl();
 		argos.run();
 	}
 }

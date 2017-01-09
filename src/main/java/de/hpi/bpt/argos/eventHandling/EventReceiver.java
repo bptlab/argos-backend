@@ -4,24 +4,10 @@ import spark.Request;
 import spark.Response;
 import spark.Service;
 
-public class EventReceiver implements IEventReceiver {
-	protected final String EVENT_RECEIVER_ENDPOINT = "/api/events/receiver";
-	protected final String REQUEST_HANDLED = "request handled.";
+public interface EventReceiver {
+	void setup(Service sparkService);
 
-	@Override
-	public void setup(Service sparkService) {
-		sparkService.post(EVENT_RECEIVER_ENDPOINT, (request, response) -> receiveEvent(request, response));
-	}
+	String receiveEvent(Request request, Response response);
 
-	@Override
-	public String receiveEvent(Request request, Response response) {
-		System.out.println(request.body());
-
-		return finishRequest();
-	}
-
-	@Override
-	public String finishRequest() {
-		return REQUEST_HANDLED;
-	}
+	String finishRequest();
 }
