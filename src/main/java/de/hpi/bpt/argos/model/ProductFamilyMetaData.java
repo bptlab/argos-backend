@@ -1,6 +1,8 @@
 package de.hpi.bpt.argos.model;
 
-public interface ProductFamilyMetaData {
+import de.hpi.bpt.argos.serialization.Serializable;
+
+public interface ProductFamilyMetaData extends Serializable{
 	String getLabel();
 
 	void setLabel(String label);

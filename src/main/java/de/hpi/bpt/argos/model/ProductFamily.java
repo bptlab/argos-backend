@@ -1,8 +1,10 @@
 package de.hpi.bpt.argos.model;
 
+import de.hpi.bpt.argos.serialization.Serializable;
+
 import java.util.Date;
 
-public interface ProductFamily {
+public interface ProductFamily extends Serializable {
 	int getNumberOfDevices();
 
 	void setNumberOfDevices(int numberOfDevices);
@@ -30,4 +32,6 @@ public interface ProductFamily {
 	ProductFamilyMetaData getMetaData();
 
 	void setMetaData(ProductFamilyMetaData productFamilyMetaData);
+
+	void setExampleData();
 }

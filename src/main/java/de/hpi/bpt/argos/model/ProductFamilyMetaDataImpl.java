@@ -1,6 +1,10 @@
 package de.hpi.bpt.argos.model;
 
+import com.google.gson.Gson;
+
 public class ProductFamilyMetaDataImpl implements ProductFamilyMetaData {
+	protected static final Gson serializer = new Gson();
+
 	protected String label;
 	protected String brand;
 	protected int orderNumber;
@@ -44,5 +48,10 @@ public class ProductFamilyMetaDataImpl implements ProductFamilyMetaData {
 	@Override
 	public void setStatusDescription(String statusDescription) {
 		this.statusDescription = statusDescription;
+	}
+
+	@Override
+	public String toJson() {
+		return serializer.toJson(this);
 	}
 }

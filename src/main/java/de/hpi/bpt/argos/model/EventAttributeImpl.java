@@ -1,6 +1,10 @@
 package de.hpi.bpt.argos.model;
 
+import com.google.gson.Gson;
+
 public class EventAttributeImpl implements EventAttribute {
+	protected static final Gson serializer = new Gson();
+
 	protected String name;
 	protected String type;
 
@@ -22,5 +26,10 @@ public class EventAttributeImpl implements EventAttribute {
 	@Override
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	@Override
+	public String toJson() {
+		return serializer.toJson(this);
 	}
 }

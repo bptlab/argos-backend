@@ -1,19 +1,19 @@
 package de.hpi.bpt.argos.eventHandling;
 
+import de.hpi.bpt.argos.common.RestEndpointImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 import spark.Service;
 
-public class EventReceiverImpl implements EventReceiver {
+public class EventReceiverImpl extends RestEndpointImpl implements EventReceiver {
 	private static final Logger logger = LoggerFactory.getLogger(EventReceiverImpl.class);
-	protected static final String EVENT_RECEIVER_ENDPOINT = "/api/events/receiver";
-	protected static final String REQUEST_HANDLED = "request handled.";
+	protected static final String POST_EVENT = "/api/events/receiver";
 
 	@Override
 	public void setup(Service sparkService) {
-		sparkService.post(EVENT_RECEIVER_ENDPOINT, this::receiveEvent);
+		sparkService.post(POST_EVENT, this::receiveEvent);
 	}
 
 	@Override
@@ -21,11 +21,6 @@ public class EventReceiverImpl implements EventReceiver {
 		logInfoForReceivedEvent(request);
 
 		return finishRequest();
-	}
-
-	@Override
-	public String finishRequest() {
-		return REQUEST_HANDLED;
 	}
 
 	protected void logInfo(String head) {

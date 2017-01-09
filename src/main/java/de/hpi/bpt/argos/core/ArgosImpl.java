@@ -1,5 +1,7 @@
 package de.hpi.bpt.argos.core;
 
+import de.hpi.bpt.argos.api.ProductFamilyEndpoint;
+import de.hpi.bpt.argos.api.ProductFamilyEndpointImpl;
 import de.hpi.bpt.argos.eventHandling.*;
 import de.hpi.bpt.argos.eventHandling.EventReceiver;
 import de.hpi.bpt.argos.eventHandling.EventSubscriber;
@@ -19,6 +21,9 @@ public class ArgosImpl implements Argos {
 
 		EventSubscriber unicornEventSubscriber = new EventSubscriberImpl();
 		unicornEventSubscriber.subscribeToEventPlatform(EXAMPLE_EVENT_QUERY);
+
+		ProductFamilyEndpoint productFamilyEndpoint = new ProductFamilyEndpointImpl();
+		productFamilyEndpoint.setup(sparkService);
 	}
 
 	private Service startServer() {
