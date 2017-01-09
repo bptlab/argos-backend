@@ -6,4 +6,8 @@ public interface RestRequest {
 	HttpURLConnection getConnection();
 
 	void setContent(String requestContent);
+
+	int getResponseCode();
+
+	String getResponse();
 }

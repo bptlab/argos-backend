@@ -14,7 +14,7 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 	protected static final String DEFAULT_ACCEPT_TYPE = "text/plain";
 
 	@Override
-	public RestRequest createPostRequest(String host, String uri, String contentType, String acceptType) {
+	public RestRequest createRequest(String host, String uri, String requestMethod, String contentType, String acceptType) {
 		RestRequest request = createBasicRequest(host, uri);
 
 		if (request == null) {
@@ -22,7 +22,7 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 		}
 
 		try {
-			request.getConnection().setRequestMethod("POST");
+			request.getConnection().setRequestMethod(requestMethod);
 		} catch (ProtocolException e) {
 			logExceptionInRequestCreation(e);
 			return null;
@@ -32,6 +32,11 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 		request.getConnection().setRequestProperty("Accept", acceptType);
 
 		return request;
+	}
+
+	@Override
+	public RestRequest createPostRequest(String host, String uri, String contentType, String acceptType) {
+		return createRequest(host, uri, "POST", contentType, acceptType);
 	}
 
 	@Override
