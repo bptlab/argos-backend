@@ -121,6 +121,13 @@ public class PushNotificationServerImpl implements PushNotificationServer {
 				for(int i = 0; i < clients.size(); i++) {
 					PushNotificationClient client = clients.get(i);
 
+					if (client.getSocket().isClosed()) {
+						logInfoClientConnectionClosed(client);
+						clients.remove(i);
+						i--;
+						continue;
+					}
+
 					if (client.isAuthenticated()) {
 						continue;
 					}
@@ -166,6 +173,10 @@ public class PushNotificationServerImpl implements PushNotificationServer {
 
 		protected void logInfoClientDropped(PushNotificationClient client) {
 			logInfo("dropped client: " + client.getSocket().getInetAddress().toString());
+		}
+
+		protected void logInfoClientConnectionClosed(PushNotificationClient client) {
+			logInfo("client connection closed: " + client.getSocket().getInetAddress().toString());
 		}
 	}
 }
