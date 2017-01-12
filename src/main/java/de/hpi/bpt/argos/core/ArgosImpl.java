@@ -5,6 +5,7 @@ import de.hpi.bpt.argos.api.ProductFamilyEndpointImpl;
 import de.hpi.bpt.argos.eventHandling.*;
 import de.hpi.bpt.argos.eventHandling.EventReceiver;
 import de.hpi.bpt.argos.eventHandling.EventSubscriber;
+import de.hpi.bpt.argos.model.ProductFamily;
 import de.hpi.bpt.argos.socket.PushNotificationServer;
 import de.hpi.bpt.argos.socket.PushNotificationServerFactory;
 import de.hpi.bpt.argos.socket.PushNotificationServerFactoryImpl;
@@ -19,31 +20,39 @@ public class ArgosImpl implements Argos {
 	protected static final Logger logger = LoggerFactory.getLogger(ArgosImpl.class);
 	protected static final String EXAMPLE_EVENT_QUERY = "SELECT * FROM FeedbackData";
 
+	protected static final int DEFAULT_PORT = 8989;
+	protected static final int DEFAULT_NUMBER_OF_THREADS = 8;
+
+	protected Service sparkService;
+	protected EventReceiver eventReceiver;
+	protected EventSubscriber eventSubscriber;
+	protected ProductFamilyEndpoint productFamilyEndpoint;
+
 	@Override
-	public void run() {
-		Service sparkService = startServer();
+	public void run(int port, int numberOfThreads) {
+		sparkService = startServer(port, numberOfThreads);
 
-		EventReceiver unicornEventReceiver = new EventReceiverImpl();
-		unicornEventReceiver.setup(sparkService);
+		eventReceiver = new EventReceiverImpl();
+		eventReceiver.setup(sparkService);
 
-		EventSubscriber unicornEventSubscriber = new EventSubscriberImpl();
-		//unicornEventSubscriber.subscribeToEventPlatform(EXAMPLE_EVENT_QUERY);
+		eventSubscriber = new EventSubscriberImpl();
+		// TODO: subscribe to unicorn
 
-		ProductFamilyEndpoint productFamilyEndpoint = new ProductFamilyEndpointImpl();
+		productFamilyEndpoint = new ProductFamilyEndpointImpl();
 		productFamilyEndpoint.setup(sparkService);
 
-		PushNotificationServerFactory notificationServerFactory = new PushNotificationServerFactoryImpl();
-		PushNotificationServer notificationServer = notificationServerFactory.createServer();
-
-		if (notificationServer == null) {
-			logError("can't create notification server");
-		}
+		// TODO: setup websocket and security
 	}
 
-	private Service startServer() {
+	@Override
+	public void run() {
+		run(DEFAULT_PORT, DEFAULT_NUMBER_OF_THREADS);
+	}
+
+	private Service startServer(int port, int numberOfThreads) {
 		return ignite()
-				.port(8989)
-				.threadPool(8);
+				.port(port)
+				.threadPool(numberOfThreads);
 	}
 
 	protected void logError(String head) {
