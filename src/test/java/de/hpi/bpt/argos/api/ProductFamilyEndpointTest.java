@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 public class ProductFamilyEndpointTest {
     private static final int TEST_PORT = 9001;
     private static final int TEST_NUMBER_OF_THREADS = 8;
-    private static final String TEST_HOST = "http://0.0.0.0:" + TEST_PORT;
+    private static final String TEST_HOST = "http://localhost:" + TEST_PORT;
     private static final String TEST_REQUEST_METHOD = "GET";
     private static final String TEST_CONTENT_TYPE = "application/json";
     private static final String TEST_ACCEPT_TYPE = "text/plain";
