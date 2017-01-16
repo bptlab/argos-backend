@@ -103,7 +103,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
      * @param validateInputResult - function to be tested on the parsed integer as validation
      */
 	protected void validateInputInteger(String inputValue, Function<Integer, Boolean> validateInputResult) {
-	    //TODO: test fails with a less generic exception (InputMismatchException)
+	    //TODO: api fails with a less generic exception (InputMismatchException)
 		try {
 			int integer = Integer.parseInt(inputValue);
 			if (!validateInputResult.apply(integer)) {

@@ -5,11 +5,11 @@ import de.hpi.bpt.argos.common.RestRequestFactory;
 import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
 import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.core.ArgosImpl;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;;
+import org.junit.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class ProductFamilyEndpointTest {
     private static final int TEST_PORT = 9001;
@@ -20,31 +20,31 @@ public class ProductFamilyEndpointTest {
     private static final String TEST_ACCEPT_TYPE = "text/plain";
     private static final int INVALID_REQUEST_RESPONSE_CODE = 404;
 
-    private Argos argos;
-    private RestRequestFactory requestFactory;
+    private static Argos argos;
+    private static RestRequestFactory requestFactory;
     private RestRequest request;
 
-    @BeforeEach
-    void setUp() {
+    @BeforeClass
+    public static void setUp() {
         argos = new ArgosImpl();
         argos.run(TEST_PORT, TEST_NUMBER_OF_THREADS);
         requestFactory = new RestRequestFactoryImpl();
     }
 
-    @AfterEach
-    void tearDown() {
+    @AfterClass
+    public static void tearDown() {
         argos.shutdown();
     }
 
     @Test
-    void getProductFamilies() {
+    public void testGetProductFamilies() {
         request = requestFactory.createRequest(TEST_HOST, getProductFamiliesUri(), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE);
 
         assertEquals(request.isSuccessful(), true);
     }
 
     @Test
-    void getProductFamilyOverview() {
+    public void testGetProductFamilyOverview() {
         request = requestFactory.createRequest(TEST_HOST, getProductFamilyOverviewUri(42), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE);
         assertEquals(true, request.isSuccessful());
 
@@ -60,7 +60,7 @@ public class ProductFamilyEndpointTest {
     }
 
     @Test
-    void getEventsForProductFamily() {
+    public void testGetEventsForProductFamily() {
         request = requestFactory.createRequest(TEST_HOST, getEventsForProductFamilyUri(42, 1337, 0, 10), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,
                 TEST_ACCEPT_TYPE);
         assertEquals(true, request.isSuccessful());
@@ -85,7 +85,8 @@ public class ProductFamilyEndpointTest {
         return String.format("/api/product/%1$s", productId);
     }
 
-    private String getEventsForProductFamilyUri(Object productId, Object eventTypeId, Object indexFrom, Object indexTo) {
+    private String getEventsForProductFamilyUri(Object productId, Object eventTypeId, Object indexFrom, Object
+            indexTo) {
         return String.format("/api/product/%1$s/eventtype/%2$s/%3$s/%4$s", productId, eventTypeId, indexFrom, indexTo);
     }
 }
