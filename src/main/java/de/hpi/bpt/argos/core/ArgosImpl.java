@@ -2,20 +2,21 @@ package de.hpi.bpt.argos.core;
 
 import de.hpi.bpt.argos.api.ProductFamilyEndpoint;
 import de.hpi.bpt.argos.api.ProductFamilyEndpointImpl;
-import de.hpi.bpt.argos.eventHandling.*;
-import de.hpi.bpt.argos.eventHandling.EventReceiver;
-import de.hpi.bpt.argos.eventHandling.EventSubscriber;
-import de.hpi.bpt.argos.model.ProductFamily;
-import de.hpi.bpt.argos.socket.PushNotificationServer;
-import de.hpi.bpt.argos.socket.PushNotificationServerFactory;
-import de.hpi.bpt.argos.socket.PushNotificationServerFactoryImpl;
-import org.omg.PortableServer.ThreadPolicyOperations;
+import de.hpi.bpt.argos.event_handling.EventReceiver;
+import de.hpi.bpt.argos.event_handling.EventReceiverImpl;
+import de.hpi.bpt.argos.event_handling.EventSubscriber;
+import de.hpi.bpt.argos.event_handling.EventSubscriberImpl;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Service;
 
 import static spark.Service.ignite;
 
+/**
+ * {@inheritDoc}
+ * This is the implementation.
+ */
 public class ArgosImpl implements Argos {
 	protected static final Logger logger = LoggerFactory.getLogger(ArgosImpl.class);
 	protected static final String EXAMPLE_EVENT_QUERY = "SELECT * FROM FeedbackData";
@@ -28,6 +29,9 @@ public class ArgosImpl implements Argos {
 	protected EventSubscriber eventSubscriber;
 	protected ProductFamilyEndpoint productFamilyEndpoint;
 
+    /**
+     * {@inheritDoc}
+     */
 	@Override
 	public void run(int port, int numberOfThreads) {
 		sparkService = startServer(port, numberOfThreads);
@@ -44,22 +48,38 @@ public class ArgosImpl implements Argos {
 		// TODO: setup websocket and security
 	}
 
+    /**
+     * {@inheritDoc}
+     */
 	@Override
 	public void run() {
 		run(DEFAULT_PORT, DEFAULT_NUMBER_OF_THREADS);
 	}
 
-	@Override
+    /**
+     * {@inheritDoc}
+     */
+    @Override
 	public void shutdown() {
 		sparkService.stop();
 	}
 
+    /**
+     * This method starts the Spark service on a given port with a given number of threads.
+     * @param port - port to be used as an integer
+     * @param numberOfThreads - number of threads to be used as an integer
+     * @return - returns a spark service object
+     */
 	private Service startServer(int port, int numberOfThreads) {
 		return ignite()
 				.port(port)
 				.threadPool(numberOfThreads);
 	}
 
+    /**
+     * This method logs errors on error level
+     * @param head - error message to be logged
+     */
 	protected void logError(String head) {
 		logger.error(head);
 	}

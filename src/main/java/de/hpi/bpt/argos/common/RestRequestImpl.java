@@ -10,6 +10,10 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * {@inheritDoc}
+ * This is the implementation.
+ */
 public class RestRequestImpl implements RestRequest {
 	protected static final Logger logger = LoggerFactory.getLogger(RestRequestImpl.class);
 	protected static final int HTTP_SUCCESS_CODE = 200;
@@ -18,15 +22,26 @@ public class RestRequestImpl implements RestRequest {
 
 	protected HttpURLConnection connection;
 
+	/**
+	 * Constructor for RestRequest, instantiates new connection
+	 * @param url - URL object that should be requested
+	 * @throws IOException - throws IOException in case of failure (e.g. network problems)
+	 */
 	public RestRequestImpl(URL url) throws IOException {
 		connection = (HttpURLConnection)url.openConnection();
 	}
 
+    /**
+     * {@inheritDoc}
+     */
 	@Override
 	public HttpURLConnection getConnection() {
 		return connection;
 	}
 
+    /**
+     * {@inheritDoc}
+     */
 	@Override
 	public void setContent(String requestContent) {
 		connection.setDoOutput(true);
@@ -42,6 +57,9 @@ public class RestRequestImpl implements RestRequest {
 		}
 	}
 
+    /**
+     * {@inheritDoc}
+     */
 	@Override
 	public int getResponseCode() {
 		try {
@@ -52,6 +70,9 @@ public class RestRequestImpl implements RestRequest {
 		}
 	}
 
+    /**
+     * {@inheritDoc}
+     */
 	@Override
 	public String getResponse() {
 		BufferedReader responseReader;
@@ -79,19 +100,35 @@ public class RestRequestImpl implements RestRequest {
 		return response.toString();
 	}
 
+    /**
+     * {@inheritDoc}
+     */
 	@Override
 	public boolean isSuccessful() {
 		return getResponseCode() == HTTP_SUCCESS_CODE;
 	}
 
+	/**
+     * This method logs an exception on error level.
+     * @param head - string message to be logged
+     * @param exception - throwable exception to be logged
+     */
 	protected void logException(String head, Throwable exception) {
 		logger.error(head, exception);
 	}
 
+    /**
+     * This method logs an exception in content setting.
+     * @param exception - throwable exception to be logged
+     */
 	protected void logExceptionInContentSetting(Throwable exception) {
 		logException("can't set content: ", exception);
 	}
 
+    /**
+     * This method logs an exception while receiving the response.
+     * @param exception - throwable exception to be logged
+     */
 	protected void logExceptionWhileReceivingResponse(Throwable exception) {
 		logException("can't receive response: ", exception);
 	}
