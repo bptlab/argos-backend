@@ -49,6 +49,11 @@ public class ArgosImpl implements Argos {
 		run(DEFAULT_PORT, DEFAULT_NUMBER_OF_THREADS);
 	}
 
+	@Override
+	public void shutdown() {
+		sparkService.stop();
+	}
+
 	private Service startServer(int port, int numberOfThreads) {
 		return ignite()
 				.port(port)

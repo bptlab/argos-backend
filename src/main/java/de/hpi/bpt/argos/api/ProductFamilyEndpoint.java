@@ -8,4 +8,6 @@ public interface ProductFamilyEndpoint extends RestEndpoint {
 	String getProductFamilies(Request request, Response response);
 
 	String getProductFamilyOverview(Request request, Response response);
+
+	String getEventsForProductFamily(Request request, Response response);
 }

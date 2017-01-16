@@ -4,4 +4,6 @@ public interface Argos {
 	void run(int port, int numberOfThreads);
 
 	void run();
+
+	void shutdown();
 }
