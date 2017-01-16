@@ -34,7 +34,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 
 
     /**
-     * Constructor for ProductFamilyEndpointImpl, instantiates productFamilies as empty
+     * Constructor for ProductFamilyEndpointImpl, instantiates productFamilies as empty.
      */
     public ProductFamilyEndpointImpl() {
 		productFamilies = new HashSet<>();
@@ -98,7 +98,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	}
 
     /**
-     * This method validates the input as an integer that is given as a string with a generic validation function
+     * This method validates the input as an integer that is given as a string with a generic validation function.
      * @param inputValue - string to be tested
      * @param validateInputResult - function to be tested on the parsed integer as validation
      */
@@ -116,7 +116,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	}
 
     /**
-     * This method logs a string on info level
+     * This method logs a string on info level.
      * @param head - string to be logged
      */
 	protected void logInfo(String head) {
@@ -124,7 +124,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	}
 
     /**
-     * This method logs a string on error level
+     * This method logs a string on error level.
      * @param head - string to be logged
      */
     protected void logError(String head) {
@@ -132,7 +132,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
     }
 
     /**
-     * This method logs an info, if a request is received via url and the associated method was called
+     * This method logs an info, if a request is received via url and the associated method was called.
      * @param request - Spark request object to be logged
      */
     protected void logInfoForReceivedRequest(Request request) {
@@ -140,7 +140,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	}
 
     /**
-     * This methods logs an info, if the product families (json) are sent as a response
+     * This methods logs an info, if the product families (json) are sent as a response.
      * @param json - product families encoded as json string
      */
 	protected void logInfoForSendingProductFamilies(String json) {
@@ -148,7 +148,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	}
 
     /**
-     * This methods logs an error, if the input validation can't cast the inputValue type
+     * This methods logs an error, if the input validation can't cast the inputValue type.
      * @param inputValue - inputValue from url
      * @param expectedInputType - expected inputType (must be a Java Class
      */

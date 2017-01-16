@@ -35,7 +35,7 @@ public class EventReceiverImpl extends RestEndpointImpl implements EventReceiver
 
 
     /**
-     * This message logs a given head on info level
+     * This message logs a given head on info level.
      * @param head - string to be logged
      */
     protected void logInfo(String head) {

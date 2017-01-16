@@ -5,7 +5,7 @@ package de.hpi.bpt.argos.core;
  */
 public interface Argos {
     /**
-     * This method starts the Argos application on the given port with a given number of threads
+     * This method starts the Argos application on the given port with a given number of threads.
      * @param port - port to be launched on as integer
      * @param numberOfThreads - number of threads to use to run Argos application as integer
      */

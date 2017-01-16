@@ -23,7 +23,7 @@ public class RestRequestImpl implements RestRequest {
 	protected HttpURLConnection connection;
 
 	/**
-	 * Constructor for RestRequest, instantiates new connection
+	 * Constructor for RestRequest, instantiates new connection.
 	 * @param url - URL object that should be requested
 	 * @throws IOException - throws IOException in case of failure (e.g. network problems)
 	 */

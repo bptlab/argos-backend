@@ -7,13 +7,13 @@ import spark.Service;
  */
 public interface RestEndpoint {
 	/**
-	* The setup method adds the defined routes to spark's routes and associates them with methods
+	* The setup method adds the defined routes to spark's routes and associates them with methods.
 	* @param sparkService - Instance of Spark service started in Argos
      */
 	void setup(Service sparkService);
 
 	/**
-	 * This method is called at the end of a request handling and returns a string
+	 * This method is called at the end of a request handling and returns a string.
 	 * @return - String that notifies about the successful handling of a request
 	 */
 	//TODO: Do we really need this method?

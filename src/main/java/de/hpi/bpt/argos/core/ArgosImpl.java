@@ -77,7 +77,7 @@ public class ArgosImpl implements Argos {
 	}
 
     /**
-     * This method logs errors on error level
+     * This method logs errors on error level.
      * @param head - error message to be logged
      */
 	protected void logError(String head) {

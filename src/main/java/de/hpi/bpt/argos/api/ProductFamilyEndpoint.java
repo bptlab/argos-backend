@@ -6,12 +6,12 @@ import spark.Response;
 
 /**
  *  This interface extends the RestEndpoint. It provides three routes as defined in the product interface and
- *  the associated methods
+ *  the associated methods.
  */
 public interface ProductFamilyEndpoint extends RestEndpoint {
 
     /**
-     * This method is called via API and returns all product families currently registered in the database
+     * This method is called via API and returns all product families currently registered in the database.
      * @param request - Spark defined parameter containing request object
      * @param response - Spark defined parameter containing response object
      * @return - returns a JSON string of a list of product families
@@ -19,7 +19,7 @@ public interface ProductFamilyEndpoint extends RestEndpoint {
     String getProductFamilies(Request request, Response response);
 
     /**
-     * This method is called via API and returns details of the specified product family (url parameter)
+     * This method is called via API and returns details of the specified product family (url parameter).
      * @param request - Spark defined parameter containing request object
      * @param response - Spark defined parameter containing response object
      * @return - returns a JSON string of details of the specified product family
@@ -28,7 +28,7 @@ public interface ProductFamilyEndpoint extends RestEndpoint {
 
     /**
      * This method is called via API and returns all events for a specified product family currently registered
-     * in the database
+     * in the database.
      * @param request - Spark defined parameter containing request object
      * @param response - Spark defined parameter containing response object
      * @return - returns a JSON string of a list of all events for a specified product family

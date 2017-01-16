@@ -6,7 +6,7 @@ import spark.Response;
 
 /**
  * This interface represents an event receiver that is called when an event is sent from the event processing platform.
- * It extends the the RestEndpoint.
+ * It extends the RestEndpoint.
  */
 public interface EventReceiver extends RestEndpoint {
     /**
