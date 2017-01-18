@@ -4,6 +4,10 @@ import com.google.gson.Gson;
 
 import java.util.Date;
 
+/**
+ * {@inheritDoc}
+ * This is the implementation.
+ */
 public class ProductFamilyImpl implements ProductFamily {
 	protected static final Gson serializer = new Gson();
 
@@ -15,76 +19,121 @@ public class ProductFamilyImpl implements ProductFamily {
 	protected int id;
 	protected ProductFamilyMetaData metaData;
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getNumberOfDevices() {
 		return numberOfDevices;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setNumberOfDevices(int numberOfDevices) {
 		this.numberOfDevices = numberOfDevices;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getNumberOfEvents() {
 		return numberOfEvents;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setNumberOfEvents(int numberOfEvents) {
 		this.numberOfEvents = numberOfEvents;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Date getProductionStart() {
 		return productionStart;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setProductionStart(Date productionStart) {
 		this.productionStart = productionStart;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ProductFamilyState getState() {
 		return state;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setState(ProductFamilyState state) {
 		this.state = state;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setName(String name) {
 		this.name = name;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getId() {
 		return id;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setId(int id) {
 		this.id = id;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ProductFamilyMetaData getMetaData() {
 		return metaData;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setMetaData(ProductFamilyMetaData metaData) {
 		this.metaData = metaData;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setExampleData() {
 		setNumberOfDevices(1337);
@@ -103,6 +152,9 @@ public class ProductFamilyImpl implements ProductFamily {
 		setMetaData(exampleMetaData);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toJson() {
 		return serializer.toJson(this);

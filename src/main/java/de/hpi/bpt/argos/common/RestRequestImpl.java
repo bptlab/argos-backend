@@ -28,7 +28,7 @@ public class RestRequestImpl implements RestRequest {
 	 * @throws IOException - throws IOException in case of failure (e.g. network problems)
 	 */
 	public RestRequestImpl(URL url) throws IOException {
-		connection = (HttpURLConnection)url.openConnection();
+		connection = (HttpURLConnection) url.openConnection();
 	}
 
     /**

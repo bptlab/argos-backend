@@ -17,7 +17,7 @@ public class EventQueryImpl implements EventQuery {
     /**
      * This is a constructor for the EventQueryImpl object and sets the event query string, using the default
      * notification url.
-     * @param queryString
+     * @param queryString - event query string to be set
      */
 	public EventQueryImpl(String queryString) {
 		this(queryString, DEFAULT_NOTIFICATION_PATH);
@@ -26,7 +26,8 @@ public class EventQueryImpl implements EventQuery {
     /**
      * This is a constructor for the EventQueryImpl object and sets the event query string, using the given
      * notification url.
-     * @param queryString
+     * @param queryString - event query string to be set
+	 * @param notificationPath - notification path to be called from the event processing platform
      */
     public EventQueryImpl(String queryString, String notificationPath) {
 		setQueryString(queryString);

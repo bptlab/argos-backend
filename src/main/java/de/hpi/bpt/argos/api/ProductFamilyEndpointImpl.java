@@ -24,6 +24,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	protected static final Gson serializer = new Gson();
 	protected static final Logger logger = LoggerFactory.getLogger(ProductFamilyEndpointImpl.class);
 
+	protected static final int HTTP_ERROR_NOT_FOUND = 404;
 	protected static final String GET_PRODUCT_FAMILIES = "/api/product";
 	protected static final String GET_PRODUCT_FAMILY_OVERVIEW = "/api/product/:productId";
 	protected static final String GET_EVENTS_FOR_PRODUCT_FAMILY = "/api/product/:productId/eventtype/:eventTypeId/:indexFrom/:indexTo";
@@ -111,7 +112,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 			}
 		} catch (Exception e) {
 			logErrorWhileInputValidation(inputValue, "Integer");
-			halt(404, e.getMessage());
+			halt(HTTP_ERROR_NOT_FOUND, e.getMessage());
 		}
 	}
 

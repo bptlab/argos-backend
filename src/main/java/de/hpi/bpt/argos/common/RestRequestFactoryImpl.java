@@ -58,7 +58,7 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 	}
 
 	/**
-	 * This method creates a basic RestRequest object and sets host and uri
+	 * This method creates a basic RestRequest object and sets host and uri.
 	 * @param host - host as a string to be set
 	 * @param uri - uri as a string to be set
 	 * @return - returns a RestRequest object to be worked with later on
