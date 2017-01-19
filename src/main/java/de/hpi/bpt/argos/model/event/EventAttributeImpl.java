@@ -1,4 +1,4 @@
-package de.hpi.bpt.argos.model;
+package de.hpi.bpt.argos.model.event;
 
 import com.google.gson.Gson;
 

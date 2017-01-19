@@ -2,8 +2,8 @@ package de.hpi.bpt.argos.api;
 
 import com.google.gson.Gson;
 import de.hpi.bpt.argos.common.RestEndpointImpl;
-import de.hpi.bpt.argos.model.ProductFamily;
-import de.hpi.bpt.argos.model.ProductFamilyImpl;
+import de.hpi.bpt.argos.model.product.ProductFamily;
+import de.hpi.bpt.argos.model.product.ProductFamilyImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -31,8 +31,6 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 
 	protected Set<ProductFamily> productFamilies;
 
-	private ProductFamily exampleFamily;
-
 
     /**
      * Constructor for ProductFamilyEndpointImpl, instantiates productFamilies as empty.
@@ -49,11 +47,6 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 		sparkService.get(GET_PRODUCT_FAMILIES, this::getProductFamilies);
 		sparkService.get(GET_PRODUCT_FAMILY_OVERVIEW, this::getProductFamilyOverview);
 		sparkService.get(GET_EVENTS_FOR_PRODUCT_FAMILY, this::getEventsForProductFamily);
-
-		// EXAMPLE DATA
-		exampleFamily = new ProductFamilyImpl();
-		exampleFamily.setExampleData();
-		productFamilies.add(exampleFamily);
 	}
 
     /**
@@ -79,8 +72,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 
 		// TODO: implement logic
 
-		// TODO: remove this example later
-		return exampleFamily.toJson();
+		return "";
 	}
 
     /**
