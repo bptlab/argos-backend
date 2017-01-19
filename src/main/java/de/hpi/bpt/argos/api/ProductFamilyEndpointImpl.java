@@ -2,6 +2,8 @@ package de.hpi.bpt.argos.api;
 
 import com.google.gson.Gson;
 import de.hpi.bpt.argos.common.RestEndpointImpl;
+import de.hpi.bpt.argos.model.ProductFamily;
+import de.hpi.bpt.argos.model.ProductFamilyImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;

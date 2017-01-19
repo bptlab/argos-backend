@@ -10,7 +10,7 @@ info:
 
 # Describe your paths here
 paths:
-  /api/productfamily:
+  /api/product:
     get:
       description: Gets an array of `ProductFamily` objects.
       responses:
@@ -25,48 +25,39 @@ paths:
               properties:
                 id:
                   type: integer
+                name:
+                  type: string
+                numberOfDevices:
+                  type: integer
+                numberOfEvents:
+                  type: integer
+                productionStart:
+                  type: string
+                  format: date-time
+                state:
+                  type: string
+                  enum:
+                    - RUNNING
+                    - WARNING
+                    - ERROR
                 metaData:
                   type: object
                   properties:
-                    name:
+                    label:
                       type: string
                     brand:
                       type: string
-                products:
-                  title: ArrayOfProducts
-                  type: array
-                  items:
-                    title: Product
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                      metaData:
-                        type: object
-                        properties:
-                          name:
-                            type: string
-                          numberOfDevices:
-                            type: integer
-                          numberOfEvents:
-                            type: integer
-                          productionStart:
-                            type: string
-                            format: date
-                          orderNumber:
-                            type: integer
-                          state:
-                            type: string
-                          stateDescription:
-                            type: string
-                          
+                    orderNumber:
+                      type: integer
+                    statusDescription:
+                      type: string
   
-  /api/productfamily/{productFamilyId}:
+  /api/product/{productId}:
     get:
       description: Gets an array of `EventType` objects for a defined `ProductFamily`.
       parameters:
         -
-          name: productFamilyId
+          name: productId
           in: path
           description: Unique identifier for the `ProductFamily`
           required: true
@@ -83,6 +74,10 @@ paths:
               properties:
                 id:
                   type: integer
+                name:
+                  type: string
+                numberOfEvents:
+                  type: integer
                 attributes:
                   title: ArrayOfEventAttributes
                   type: array
@@ -94,21 +89,13 @@ paths:
                         type: string
                       type:
                         type: string
-                metaData:
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                    numberOfEvents:
-                      type: integer
-                      
                         
-  /api/productfamily/{productFamilyId}/eventtype/{eventTypeId}/{indexFrom}/{indexTo}:
+  /api/product/{productId}/eventtype/{eventTypeId}/{indexFrom}/{indexTo}:
     get:
       description: Gets an array of `Event` objects for a defined `ProductFamily` and a defined `EventType` within a certain index range.
       parameters:
         -
-          name: productFamilyId
+          name: productId
           in: path
           description: Unique identifier for the `ProductFamily`
           required: true
@@ -140,7 +127,5 @@ paths:
             type: array
             items:
               title: Event
-              description: An object which contains all attributes specified in `EventType`
               type: object
-                    
-                  
+              description: Instance of specified EventType
