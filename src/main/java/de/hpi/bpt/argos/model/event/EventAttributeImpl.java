@@ -1,6 +1,7 @@
-package de.hpi.bpt.argos.model;
+package de.hpi.bpt.argos.model.event;
 
 import com.google.gson.Gson;
+import de.hpi.bpt.argos.model.event.EventAttribute;
 
 /**
  * {@inheritDoc}

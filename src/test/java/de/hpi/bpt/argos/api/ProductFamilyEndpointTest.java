@@ -6,7 +6,7 @@ import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
 import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.core.ArgosImpl;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -71,7 +71,7 @@ public class ProductFamilyEndpointTest {
         assertEquals(INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
 
         // failure: product id not an integer
-        request = requestFactory.createRequest(TEST_HOST, getEventsForProductFamilyUri("hello_server", 1337, 0, 10), TEST_REQUEST_METHOD,
+        request = requestFactory.createRequest(TEST_HOST, getEventsForProductFamilyUri("hello_server", 2345, 15, 30), TEST_REQUEST_METHOD,
                 TEST_CONTENT_TYPE,
                 TEST_ACCEPT_TYPE);
         assertEquals(INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
