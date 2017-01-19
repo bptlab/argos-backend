@@ -1,4 +1,4 @@
-package de.hpi.bpt.argos.model;
+package de.hpi.bpt.argos.model.event;
 
 import de.hpi.bpt.argos.serialization.Serializable;
 
