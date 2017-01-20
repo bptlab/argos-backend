@@ -1,4 +1,4 @@
-package de.hpi.bpt.argos.database;
+package de.hpi.bpt.argos.api;
 
 import de.hpi.bpt.argos.common.RestRequest;
 import de.hpi.bpt.argos.common.RestRequestFactory;

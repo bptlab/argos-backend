@@ -1,4 +1,4 @@
-package de.hpi.bpt.argos.event_handling;
+package de.hpi.bpt.argos.eventHandling;
 
 import de.hpi.bpt.argos.common.RestRequest;
 import de.hpi.bpt.argos.common.RestRequestFactory;

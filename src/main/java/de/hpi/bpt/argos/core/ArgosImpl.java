@@ -4,10 +4,10 @@ import de.hpi.bpt.argos.api.ProductFamilyEndpoint;
 import de.hpi.bpt.argos.api.ProductFamilyEndpointImpl;
 import de.hpi.bpt.argos.database.DatabaseConnection;
 import de.hpi.bpt.argos.database.DatabaseConnectionImpl;
-import de.hpi.bpt.argos.event_handling.EventReceiver;
-import de.hpi.bpt.argos.event_handling.EventReceiverImpl;
-import de.hpi.bpt.argos.event_handling.EventSubscriber;
-import de.hpi.bpt.argos.event_handling.EventSubscriberImpl;
+import de.hpi.bpt.argos.eventHandling.EventReceiver;
+import de.hpi.bpt.argos.eventHandling.EventReceiverImpl;
+import de.hpi.bpt.argos.eventHandling.EventSubscriber;
+import de.hpi.bpt.argos.eventHandling.EventSubscriberImpl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

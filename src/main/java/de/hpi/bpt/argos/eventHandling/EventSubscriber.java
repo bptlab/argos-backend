@@ -1,4 +1,4 @@
-package de.hpi.bpt.argos.event_handling;
+package de.hpi.bpt.argos.eventHandling;
 
 /**
  * This interface is used to subscribe an event query on the event processing platform.
