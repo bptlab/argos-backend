@@ -133,7 +133,7 @@ public class PushNotificationServerImpl implements PushNotificationServer {
 					}
 
 					if (client.receive() && !client.isAuthenticated()) {
-						// client received data but is still not authenticated => drop client
+						// client received value but is still not authenticated => drop client
 						logInfoClientDropped(client);
 						client.close();
 						clients.remove(i);

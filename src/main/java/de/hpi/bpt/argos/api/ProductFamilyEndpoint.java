@@ -11,7 +11,7 @@ import spark.Response;
 public interface ProductFamilyEndpoint extends RestEndpoint {
 
     /**
-     * This method is called via API and returns all product families currently registered in the database.
+     * This method is called via API and returns all product families currently registered in the persistence.
      * @param request - Spark defined parameter containing request object
      * @param response - Spark defined parameter containing response object
      * @return - returns a JSON string of a list of product families
@@ -28,7 +28,7 @@ public interface ProductFamilyEndpoint extends RestEndpoint {
 
     /**
      * This method is called via API and returns all events for a specified product family currently registered
-     * in the database.
+     * in the persistence.
      * @param request - Spark defined parameter containing request object
      * @param response - Spark defined parameter containing response object
      * @return - returns a JSON string of a list of all events for a specified product family

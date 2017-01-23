@@ -1,11 +1,22 @@
 package de.hpi.bpt.argos.model.event;
 
-import de.hpi.bpt.argos.serialization.Serializable;
-
 /**
- * This interface represents an event attribute that every event type has a list of. It is serializable.
+ * This interface represents an event attribute that every event type has a list of.
  */
-public interface EventAttribute extends Serializable {
+public interface EventAttribute {
+
+	/**
+	 * This method returns the unique identifier of this event attribute.
+	 * @return - the unique identifier of this event attribute
+	 */
+	int getId();
+
+	/**
+	 * This method sets the the unique identifier of this event attribute.
+	 * @param id - the unique identifier of this event attribute
+	 */
+	void setId(int id);
+
 	/**
 	 * This method returns the name of the event attribute.
 	 * @return - the name of the event attribute as a string

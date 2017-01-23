@@ -2,12 +2,13 @@ package de.hpi.bpt.argos.model.event;
 
 import de.hpi.bpt.argos.serialization.Serializable;
 
+import java.util.List;
 import java.util.Set;
 
 /**
- * This interface represents the event types. It is serializable.
+ * This interface represents the event types.
  */
-public interface EventType extends Serializable {
+public interface EventType {
 	/**
 	 * This method returns the id of this particular event type.
 	 * @return - id as an integer
@@ -21,16 +22,28 @@ public interface EventType extends Serializable {
 	void setId(int id);
 
 	/**
-	 * This method returns the meta data of this particular event type.
-	 * @return - meta data as an EventTypeMetaData object
+	 * This method returns the name of this event type.
+	 * @return - name of this event type as a string
 	 */
-	EventTypeMetaData getMetaData();
+	String getName();
 
 	/**
-	 * This method sets the meta data of this event type.
-	 * @param metaData - meta data for this event type
+	 * This method sets the name of this event type.
+	 * @param name - the name of this event type to be set
 	 */
-	void setMetaData(EventTypeMetaData metaData);
+	void setName(String name);
+
+	/**
+	 * This method return the event subscription query of this event type.
+	 * @return - the event subscription query of this event type
+	 */
+	EventSubscriptionQuery getEventSubscriptionQuery();
+
+	/**
+	 * This method sets the event subscription query of this event type.
+	 * @param eventSubscriptionQuery - the event subscription query to be set
+	 */
+	void setEventSubscriptionQuery(EventSubscriptionQuery eventSubscriptionQuery);
 
 	/**
 	 * This method returns the set of attributes of this event type.
@@ -43,4 +56,16 @@ public interface EventType extends Serializable {
 	 * @param attributes - set of EventAttribute objects that characterize this event type
 	 */
 	void setAttributes(Set<EventAttribute> attributes);
+
+	/**
+	 * This method returns a set of events of this event type.
+	 * @return - a set of events of this event type
+	 */
+	Set<Event> getEvents();
+
+	/**
+	 * This method sets the set of events of this event type.
+	 * @param events - a set of events to be set
+	 */
+	void setEvents(Set<Event> events);
 }

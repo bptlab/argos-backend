@@ -1,8 +1,10 @@
 package de.hpi.bpt.argos.model.product;
 
-import com.google.gson.Gson;
 import de.hpi.bpt.argos.model.event.Event;
+import de.hpi.bpt.argos.model.event.EventSubscriptionQuery;
 
+import javax.persistence.*;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,12 +12,41 @@ import java.util.Set;
  * {@inheritDoc}
  * This is the implementation.
  */
+@Entity
+@Table(name = "Product")
 public class ProductImpl implements Product {
-	protected static final Gson serializer = new Gson();
 
+	@Id
+	@GeneratedValue
+	@Column(name = "Id")
 	protected int id;
+
+	@Column(name = "ProductionStart")
+	protected Date productionStart;
+
+	@Column(name = "State")
+	protected ProductState state;
+
+	@Column(name = "Name")
+	protected String name;
+
+	@Column(name = "OrderNumber")
+	protected int orderNumber;
+
+	@Column(name = "StateDescription")
+	protected String stateDescription;
+
+	@OneToMany(mappedBy = "Id", fetch = FetchType.LAZY)
 	protected Set<Event> events = new HashSet<>();
-	protected ProductMetaData metaData;
+
+	@OneToOne(mappedBy = "Id", fetch = FetchType.LAZY)
+	protected EventSubscriptionQuery transitionToRunningState;
+
+	@OneToOne(mappedBy = "Id", fetch = FetchType.LAZY)
+	protected EventSubscriptionQuery transitionToWarningState;
+
+	@OneToOne(mappedBy = "Id", fetch = FetchType.LAZY)
+	protected EventSubscriptionQuery transitionToErrorState;
 
 	/**
 	 * {@inheritDoc}
@@ -31,6 +62,94 @@ public class ProductImpl implements Product {
 	@Override
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Date getProductionStart() {
+		return productionStart;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setProductionStart(Date productionStart) {
+		this.productionStart = productionStart;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ProductState getState() {
+		return state;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setState(ProductState productState) {
+		this.state = productState;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getOrderNumber() {
+		return orderNumber;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setOrderNumber(int orderNumber) {
+		this.orderNumber = orderNumber;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getStateDescription() {
+		return stateDescription;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setStateDescription(String stateDescription) {
+		this.stateDescription = stateDescription;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public EventSubscriptionQuery getTransitionToRunningState() {
+		return transitionToRunningState;
 	}
 
 	/**
@@ -53,23 +172,39 @@ public class ProductImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ProductMetaData getMetaData() {
-		return metaData;
+	public void setTransitionToRunningSet(EventSubscriptionQuery eventSubscriptionQuery) {
+		transitionToRunningState = eventSubscriptionQuery;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setMetaData(ProductMetaData productMetaData) {
-		this.metaData = metaData;
+	public EventSubscriptionQuery getTransitionToWarningState() {
+		return transitionToWarningState;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toJson() {
-		return serializer.toJson(this);
+	public void setTransitionToWarningSet(EventSubscriptionQuery eventSubscriptionQuery) {
+		transitionToWarningState = eventSubscriptionQuery;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public EventSubscriptionQuery getTransitionToErrorState() {
+		return transitionToErrorState;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setTransitionToErrorSet(EventSubscriptionQuery eventSubscriptionQuery) {
+		transitionToErrorState = eventSubscriptionQuery;
 	}
 }

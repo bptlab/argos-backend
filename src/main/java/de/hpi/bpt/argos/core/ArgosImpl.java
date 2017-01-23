@@ -2,8 +2,8 @@ package de.hpi.bpt.argos.core;
 
 import de.hpi.bpt.argos.api.ProductFamilyEndpoint;
 import de.hpi.bpt.argos.api.ProductFamilyEndpointImpl;
-import de.hpi.bpt.argos.database.DatabaseConnection;
-import de.hpi.bpt.argos.database.DatabaseConnectionImpl;
+import de.hpi.bpt.argos.persistence.DatabaseConnection;
+import de.hpi.bpt.argos.persistence.DatabaseConnectionImpl;
 import de.hpi.bpt.argos.eventHandling.EventReceiver;
 import de.hpi.bpt.argos.eventHandling.EventReceiverImpl;
 import de.hpi.bpt.argos.eventHandling.EventSubscriber;

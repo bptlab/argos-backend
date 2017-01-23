@@ -1,16 +1,42 @@
 package de.hpi.bpt.argos.model.event;
 
-import com.google.gson.Gson;
+
+import javax.persistence.*;
 
 /**
  * {@inheritDoc}
  * This is the implementation.
  */
+@Entity
+@Table(name = "EventAttribute")
 public class EventAttributeImpl implements EventAttribute {
-	protected static final Gson serializer = new Gson();
 
+	@Id
+	@GeneratedValue
+	@Column(name = "Id")
+	protected int id;
+
+	@Column(name = "Name")
 	protected String name;
+
+	@Column(name = "Type")
 	protected String type;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getId() {
+		return id;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setId(int id) {
+		this.id = id;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -42,13 +68,5 @@ public class EventAttributeImpl implements EventAttribute {
 	@Override
 	public void setType(String type) {
 		this.type = type;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toJson() {
-		return serializer.toJson(this);
 	}
 }

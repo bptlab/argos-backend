@@ -1,7 +1,6 @@
 package de.hpi.bpt.argos.model.product;
 
-import com.google.gson.Gson;
-
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,11 +8,22 @@ import java.util.Set;
  * {@inheritDoc}
  * This is the implementation.
  */
+@Entity
+@Table(name = "ProductFamily")
 public class ProductFamilyImpl implements ProductFamily {
-	protected static final Gson serializer = new Gson();
 
+	@Id
+	@GeneratedValue
+	@Column(name = "Id")
 	protected int id;
-	protected ProductFamilyMetaData metaData;
+
+	@Column(name = "Name")
+	protected String name;
+
+	@Column(name = "Brand")
+	protected String brand;
+
+	@OneToMany(mappedBy = "Id", fetch = FetchType.LAZY)
 	protected Set<Product> products = new HashSet<>();
 
 	/**
@@ -36,16 +46,32 @@ public class ProductFamilyImpl implements ProductFamily {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ProductFamilyMetaData getMetaData() {
-		return metaData;
+	public String getName() {
+		return name;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setMetaData(ProductFamilyMetaData metaData) {
-		this.metaData = metaData;
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getBrand() {
+		return brand;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setBrand(String brand) {
+		this.brand = brand;
 	}
 
 	/**
@@ -62,13 +88,5 @@ public class ProductFamilyImpl implements ProductFamily {
 	@Override
 	public void setProducts(Set<Product> products) {
 		this.products = products;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toJson() {
-		return serializer.toJson(this);
 	}
 }

@@ -1,13 +1,11 @@
 package de.hpi.bpt.argos.model.product;
 
-import de.hpi.bpt.argos.serialization.Serializable;
-
 import java.util.Set;
 
 /**
- * This interface represents the product families. It is serializable.
+ * This interface represents the product families.
  */
-public interface ProductFamily extends Serializable {
+public interface ProductFamily {
 	/**
 	 * This method returns the unique identifier for this product family.
 	 * @return - the unique identifier for this product family as integer
@@ -21,25 +19,37 @@ public interface ProductFamily extends Serializable {
 	void setId(int id);
 
 	/**
-	 * This method returns the meta data for this product family.
-	 * @return - the meta data for this product family as ProductFamilyMetaData
+	 * This method returns the name of this product family.
+	 * @return - the name of this product family as string
 	 */
-	ProductFamilyMetaData getMetaData();
+	String getName();
 
 	/**
-	 * This method sets the meta data for this product family.
-	 * @param metaData - the meta data
+	 * This method sets the name of this product family.
+	 * @param name - the name to be set
 	 */
-	void setMetaData(ProductFamilyMetaData metaData);
+	void setName(String name);
 
 	/**
-	 * This method returns a set of products within this product family.
-	 * @return - a set of products within this product family
+	 * This method returns the brand of this product family.
+	 * @return - the name of this product family
+	 */
+	String getBrand();
+
+	/**
+	 * This method sets the brand of this product family.
+	 * @param brand - the brand of this product family
+	 */
+	void setBrand(String brand);
+
+	/**
+	 * This method return a set of products in this product family.
+	 * @return - a set of products
 	 */
 	Set<Product> getProducts();
 
 	/**
-	 * This method sets a set of products which belong to this product family.
+	 * This method sets the set of products in this product family.
 	 * @param products - a set of products to be set
 	 */
 	void setProducts(Set<Product> products);

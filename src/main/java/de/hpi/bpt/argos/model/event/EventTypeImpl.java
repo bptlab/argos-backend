@@ -1,7 +1,6 @@
 package de.hpi.bpt.argos.model.event;
 
-import com.google.gson.Gson;
-
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,12 +8,26 @@ import java.util.Set;
  * {@inheritDoc}
  * This is the implementation.
  */
+@Entity
+@Table(name = "EventType")
 public class EventTypeImpl implements EventType {
-	protected static final Gson serializer = new Gson();
 
+	@Id
+	@GeneratedValue
+	@Column(name = "Id")
 	protected  int id;
-	protected EventTypeMetaData metaData;
+
+	@Column(name = "Name")
+	protected String name;
+
+	@OneToOne(mappedBy = "Id", fetch = FetchType.LAZY)
+	protected EventSubscriptionQuery eventSubscriptionQuery;
+
+	@ManyToMany(mappedBy = "Id", fetch = FetchType.LAZY)
 	protected Set<EventAttribute> attributes = new HashSet<>();
+
+	@OneToMany(mappedBy = "Id", fetch = FetchType.LAZY)
+	protected Set<Event> events = new HashSet<>();
 
 	/**
 	 * {@inheritDoc}
@@ -36,16 +49,32 @@ public class EventTypeImpl implements EventType {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EventTypeMetaData getMetaData() {
-		return metaData;
+	public String getName() {
+		return name;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setMetaData(EventTypeMetaData metaData) {
-		this.metaData = metaData;
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public EventSubscriptionQuery getEventSubscriptionQuery() {
+		return eventSubscriptionQuery;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setEventSubscriptionQuery(EventSubscriptionQuery eventSubscriptionQuery) {
+		this.eventSubscriptionQuery = eventSubscriptionQuery;
 	}
 
 	/**
@@ -68,7 +97,15 @@ public class EventTypeImpl implements EventType {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toJson() {
-		return serializer.toJson(this);
+	public Set<Event> getEvents() {
+		return events;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setEvents(Set<Event> events) {
+		this.events = events;
 	}
 }
