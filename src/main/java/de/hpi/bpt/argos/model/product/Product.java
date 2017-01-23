@@ -2,6 +2,7 @@ package de.hpi.bpt.argos.model.product;
 
 import de.hpi.bpt.argos.model.event.Event;
 import de.hpi.bpt.argos.model.event.EventSubscriptionQuery;
+
 import java.util.Date;
 import java.util.Set;
 

@@ -1,8 +1,5 @@
 package de.hpi.bpt.argos.model.event;
 
-import de.hpi.bpt.argos.serialization.Serializable;
-
-import java.util.List;
 import java.util.Set;
 
 /**

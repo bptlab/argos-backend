@@ -1,7 +1,9 @@
 package de.hpi.bpt.argos.model.product;
 
 import de.hpi.bpt.argos.model.event.Event;
+import de.hpi.bpt.argos.model.event.EventImpl;
 import de.hpi.bpt.argos.model.event.EventSubscriptionQuery;
+import de.hpi.bpt.argos.model.event.EventSubscriptionQueryImpl;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -36,16 +38,16 @@ public class ProductImpl implements Product {
 	@Column(name = "StateDescription")
 	protected String stateDescription;
 
-	@OneToMany(mappedBy = "Id", fetch = FetchType.LAZY)
+	@OneToMany(fetch = FetchType.LAZY, targetEntity = EventImpl.class)
 	protected Set<Event> events = new HashSet<>();
 
-	@OneToOne(mappedBy = "Id", fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = EventSubscriptionQueryImpl.class)
 	protected EventSubscriptionQuery transitionToRunningState;
 
-	@OneToOne(mappedBy = "Id", fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = EventSubscriptionQueryImpl.class)
 	protected EventSubscriptionQuery transitionToWarningState;
 
-	@OneToOne(mappedBy = "Id", fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = EventSubscriptionQueryImpl.class)
 	protected EventSubscriptionQuery transitionToErrorState;
 
 	/**

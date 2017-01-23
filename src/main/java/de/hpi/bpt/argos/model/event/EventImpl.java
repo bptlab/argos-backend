@@ -1,6 +1,7 @@
 package de.hpi.bpt.argos.model.event;
 
 import de.hpi.bpt.argos.model.product.Product;
+import de.hpi.bpt.argos.model.product.ProductImpl;
 
 import javax.persistence.*;
 
@@ -17,10 +18,10 @@ public class EventImpl implements Event {
 	@Column(name = "Id")
 	protected int id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, targetEntity = ProductImpl.class)
 	protected Product product;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, targetEntity = EventTypeImpl.class)
 	protected EventType type;
 
 	/**
