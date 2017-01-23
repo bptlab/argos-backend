@@ -1,6 +1,7 @@
 package de.hpi.bpt.argos.model.event;
 
 import de.hpi.bpt.argos.model.product.Product;
+import de.hpi.bpt.argos.model.product.ProductImpl;
 import de.hpi.bpt.argos.model.product.ProductState;
 
 import javax.persistence.*;
@@ -11,7 +12,7 @@ import java.util.Date;
  * This is the implementation.
  */
 @Entity
-@Table(name = "UpdateProductState")
+@Table(name = "UpdateProductStateEvent")
 public class UpdateProductStateEventImpl implements UpdateProductStateEvent {
 
 	@Id
@@ -19,7 +20,7 @@ public class UpdateProductStateEventImpl implements UpdateProductStateEvent {
 	@Column(name = "Id")
 	protected int id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, targetEntity = ProductImpl.class)
 	protected Product product;
 
 	@Column(name = "State")

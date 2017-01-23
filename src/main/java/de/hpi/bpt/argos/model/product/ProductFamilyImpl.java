@@ -23,7 +23,7 @@ public class ProductFamilyImpl implements ProductFamily {
 	@Column(name = "Brand")
 	protected String brand;
 
-	@OneToMany(mappedBy = "Id", fetch = FetchType.LAZY)
+	@OneToMany(fetch = FetchType.LAZY, targetEntity = ProductImpl.class)
 	protected Set<Product> products = new HashSet<>();
 
 	/**

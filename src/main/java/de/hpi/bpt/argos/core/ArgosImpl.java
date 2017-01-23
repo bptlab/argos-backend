@@ -7,7 +7,7 @@ import de.hpi.bpt.argos.eventHandling.EventReceiverImpl;
 import de.hpi.bpt.argos.eventHandling.EventSubscriber;
 import de.hpi.bpt.argos.eventHandling.EventSubscriberImpl;
 
-import de.hpi.bpt.argos.model.event.EventImpl;
+import de.hpi.bpt.argos.model.event.*;
 import de.hpi.bpt.argos.model.product.Product;
 import de.hpi.bpt.argos.model.product.ProductFamily;
 import de.hpi.bpt.argos.model.product.ProductFamilyImpl;
@@ -63,7 +63,14 @@ public class ArgosImpl implements Argos {
 
 		try {
 			sessionFactory = new Configuration()
+					.addAnnotatedClass(EventDataImpl.class)
+					.addAnnotatedClass(EventSubscriptionQueryImpl.class)
+					.addAnnotatedClass(EventAttributeImpl.class)
+					.addAnnotatedClass(EventTypeImpl.class)
 					.addAnnotatedClass(ProductImpl.class)
+					.addAnnotatedClass(ProductFamilyImpl.class)
+					.addAnnotatedClass(UpdateProductStateEventImpl.class)
+					.addAnnotatedClass(EventImpl.class)
 					.configure()
 					.buildSessionFactory();
 		} catch (ServiceException e) {
@@ -71,7 +78,7 @@ public class ArgosImpl implements Argos {
 			shutdown();
 		}
 
-		Session session = sessionFactory.openSession();
+		/*Session session = sessionFactory.openSession();
 		Transaction tx = null;
 		Integer employeeID = null;
 		try{
@@ -86,7 +93,7 @@ public class ArgosImpl implements Argos {
 			e.printStackTrace();
 		}finally {
 			session.close();
-		}
+		}*/
 	}
 
     /**

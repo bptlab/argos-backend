@@ -8,6 +8,8 @@ import javax.persistence.*;
  * {@inheritDoc}
  * This is the implementation
  */
+@Entity
+@Table(name = "EventData")
 public class EventDataImpl implements EventData {
 
 	@Id
@@ -15,12 +17,10 @@ public class EventDataImpl implements EventData {
 	@Column(name = "Id")
 	protected int id;
 
-	@NaturalId
-	@JoinColumn(name = "EventAttributeId", foreignKey = @ForeignKey(name = "Id"))
+	@ManyToOne(targetEntity = EventAttributeImpl.class)
 	protected EventAttribute eventAttribute;
 
-	@NaturalId
-	@JoinColumn(name = "EventId", foreignKey = @ForeignKey(name = "Id"))
+	@ManyToOne(targetEntity = EventImpl.class)
 	protected Event event;
 
 	@Column(name = "Value")
