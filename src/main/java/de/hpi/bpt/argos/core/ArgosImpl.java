@@ -2,13 +2,22 @@ package de.hpi.bpt.argos.core;
 
 import de.hpi.bpt.argos.api.ProductFamilyEndpoint;
 import de.hpi.bpt.argos.api.ProductFamilyEndpointImpl;
-import de.hpi.bpt.argos.persistence.DatabaseConnection;
-import de.hpi.bpt.argos.persistence.DatabaseConnectionImpl;
 import de.hpi.bpt.argos.eventHandling.EventReceiver;
 import de.hpi.bpt.argos.eventHandling.EventReceiverImpl;
 import de.hpi.bpt.argos.eventHandling.EventSubscriber;
 import de.hpi.bpt.argos.eventHandling.EventSubscriberImpl;
 
+import de.hpi.bpt.argos.model.event.EventImpl;
+import de.hpi.bpt.argos.model.product.Product;
+import de.hpi.bpt.argos.model.product.ProductFamily;
+import de.hpi.bpt.argos.model.product.ProductFamilyImpl;
+import de.hpi.bpt.argos.model.product.ProductImpl;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.service.spi.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Service;
@@ -30,7 +39,7 @@ public class ArgosImpl implements Argos {
 	protected EventReceiver eventReceiver;
 	protected EventSubscriber eventSubscriber;
 	protected ProductFamilyEndpoint productFamilyEndpoint;
-	protected DatabaseConnection databaseService;
+	protected SessionFactory sessionFactory;
 
 
     /**
@@ -45,15 +54,38 @@ public class ArgosImpl implements Argos {
 
 		eventSubscriber = new EventSubscriberImpl();
 		// TODO: subscribe to unicorn
+		//eventSubscriber.subscribeToEventPlatform(EXAMPLE_EVENT_QUERY);
 
 		productFamilyEndpoint = new ProductFamilyEndpointImpl();
 		productFamilyEndpoint.setup(sparkService);
 
 		// TODO: setup websocket and security
 
-		databaseService = new DatabaseConnectionImpl();
-		if (!databaseService.createArgosDatabase()) {
+		try {
+			sessionFactory = new Configuration()
+					.addAnnotatedClass(ProductImpl.class)
+					.configure()
+					.buildSessionFactory();
+		} catch (ServiceException e) {
+			logErrorWhileConnectingToDatabaseServer(e);
 			shutdown();
+		}
+
+		Session session = sessionFactory.openSession();
+		Transaction tx = null;
+		Integer employeeID = null;
+		try{
+			tx = session.beginTransaction();
+			Product testProduct = new ProductImpl();
+			testProduct.setName("Hallo");
+			testProduct.setOrderNumber(123456789);
+			System.out.println(session.save(testProduct));
+			tx.commit();
+		}catch (HibernateException e) {
+			if (tx!=null) tx.rollback();
+			e.printStackTrace();
+		}finally {
+			session.close();
 		}
 	}
 
@@ -89,7 +121,11 @@ public class ArgosImpl implements Argos {
      * This method logs errors on error level.
      * @param head - error message to be logged
      */
-	protected void logError(String head) {
-		logger.error(head);
+	protected void logError(String head, Throwable exception) {
+		logger.error(head, exception);
+	}
+
+	protected void logErrorWhileConnectingToDatabaseServer(Throwable exception) {
+		logError("can't connect to database server: ", exception);
 	}
 }
