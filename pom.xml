@@ -8,6 +8,7 @@
     <artifactId>argos-backend</artifactId>
     <version>0.1.1</version>
     <build>
+        <finalName>argos-backend</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
