@@ -77,23 +77,6 @@ public class ArgosImpl implements Argos {
 			logErrorWhileConnectingToDatabaseServer(e);
 			shutdown();
 		}
-
-		/*Session session = sessionFactory.openSession();
-		Transaction tx = null;
-		Integer employeeID = null;
-		try{
-			tx = session.beginTransaction();
-			Product testProduct = new ProductImpl();
-			testProduct.setName("Hallo");
-			testProduct.setOrderNumber(123456789);
-			System.out.println(session.save(testProduct));
-			tx.commit();
-		}catch (HibernateException e) {
-			if (tx!=null) tx.rollback();
-			e.printStackTrace();
-		}finally {
-			session.close();
-		}*/
 	}
 
     /**
