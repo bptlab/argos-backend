@@ -1,15 +1,10 @@
 package de.hpi.bpt.argos.model.event;
 
-import de.hpi.bpt.argos.serialization.Serializable;
-
-import javax.persistence.MappedSuperclass;
-import java.util.List;
 import java.util.Set;
 
 /**
  * This interface represents the event types.
  */
-@MappedSuperclass
 public interface EventType {
 	/**
 	 * This method returns the id of this particular event type.

@@ -1,11 +1,8 @@
 package de.hpi.bpt.argos.model.event;
 
-import javax.persistence.MappedSuperclass;
-
 /**
  * This interface represents the value for one specific event attribute and one specific event.
  */
-@MappedSuperclass
 public interface EventData {
 
 	/**

@@ -2,12 +2,9 @@ package de.hpi.bpt.argos.model.event;
 
 import de.hpi.bpt.argos.model.product.Product;
 
-import javax.persistence.MappedSuperclass;
-
 /**
  * This interface represents the events.
  */
-@MappedSuperclass
 public interface Event {
 
 	/**

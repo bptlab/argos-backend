@@ -3,13 +3,11 @@ package de.hpi.bpt.argos.model.event;
 import de.hpi.bpt.argos.model.product.Product;
 import de.hpi.bpt.argos.model.product.ProductState;
 
-import javax.persistence.MappedSuperclass;
 import java.util.Date;
 
 /**
  * This interface represents events which lead to changes in product states.
  */
-@MappedSuperclass
 public interface UpdateProductStateEvent {
 
 	/**

@@ -1,12 +1,10 @@
 package de.hpi.bpt.argos.model.product;
 
-import javax.persistence.MappedSuperclass;
 import java.util.Set;
 
 /**
  * This interface represents the product families.
  */
-@MappedSuperclass
 public interface ProductFamily {
 	/**
 	 * This method returns the unique identifier for this product family.

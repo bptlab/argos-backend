@@ -1,11 +1,8 @@
 package de.hpi.bpt.argos.model.event;
 
-import javax.persistence.MappedSuperclass;
-
 /**
  * This interface represents event subscription queries.
  */
-@MappedSuperclass
 public interface EventSubscriptionQuery {
 
 	/**
