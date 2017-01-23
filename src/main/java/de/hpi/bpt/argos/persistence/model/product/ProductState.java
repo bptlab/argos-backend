@@ -1,4 +1,4 @@
-package de.hpi.bpt.argos.model.product;
+package de.hpi.bpt.argos.persistence.model.product;
 
 /**
  * This enum represents all the states a product can be in.

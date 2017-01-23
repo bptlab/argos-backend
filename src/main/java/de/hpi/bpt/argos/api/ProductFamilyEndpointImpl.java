@@ -2,8 +2,7 @@ package de.hpi.bpt.argos.api;
 
 import com.google.gson.Gson;
 import de.hpi.bpt.argos.common.RestEndpointImpl;
-import de.hpi.bpt.argos.model.product.ProductFamily;
-import de.hpi.bpt.argos.model.product.ProductFamilyImpl;
+import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;

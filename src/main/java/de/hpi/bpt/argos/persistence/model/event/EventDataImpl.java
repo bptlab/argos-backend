@@ -1,6 +1,4 @@
-package de.hpi.bpt.argos.model.event;
-
-import org.hibernate.annotations.NaturalId;
+package de.hpi.bpt.argos.persistence.model.event;
 
 import javax.persistence.*;
 

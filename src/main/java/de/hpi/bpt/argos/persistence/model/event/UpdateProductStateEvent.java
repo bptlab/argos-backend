@@ -1,7 +1,7 @@
-package de.hpi.bpt.argos.model.event;
+package de.hpi.bpt.argos.persistence.model.event;
 
-import de.hpi.bpt.argos.model.product.Product;
-import de.hpi.bpt.argos.model.product.ProductState;
+import de.hpi.bpt.argos.persistence.model.product.Product;
+import de.hpi.bpt.argos.persistence.model.product.ProductState;
 
 import java.util.Date;
 

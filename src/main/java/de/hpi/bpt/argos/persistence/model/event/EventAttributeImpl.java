@@ -1,4 +1,4 @@
-package de.hpi.bpt.argos.model.event;
+package de.hpi.bpt.argos.persistence.model.event;
 
 
 import javax.persistence.*;

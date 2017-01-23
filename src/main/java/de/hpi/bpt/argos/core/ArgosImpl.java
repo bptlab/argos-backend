@@ -7,15 +7,10 @@ import de.hpi.bpt.argos.eventHandling.EventReceiverImpl;
 import de.hpi.bpt.argos.eventHandling.EventSubscriber;
 import de.hpi.bpt.argos.eventHandling.EventSubscriberImpl;
 
-import de.hpi.bpt.argos.model.event.*;
-import de.hpi.bpt.argos.model.product.Product;
-import de.hpi.bpt.argos.model.product.ProductFamily;
-import de.hpi.bpt.argos.model.product.ProductFamilyImpl;
-import de.hpi.bpt.argos.model.product.ProductImpl;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
+import de.hpi.bpt.argos.persistence.model.event.*;
+import de.hpi.bpt.argos.persistence.model.product.ProductFamilyImpl;
+import de.hpi.bpt.argos.persistence.model.product.ProductImpl;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.spi.ServiceException;
 import org.slf4j.Logger;
@@ -40,7 +35,6 @@ public class ArgosImpl implements Argos {
 	protected EventSubscriber eventSubscriber;
 	protected ProductFamilyEndpoint productFamilyEndpoint;
 	protected SessionFactory sessionFactory;
-
 
     /**
      * {@inheritDoc}

@@ -1,4 +1,4 @@
-package de.hpi.bpt.argos.model.product;
+package de.hpi.bpt.argos.persistence.model.product;
 
 import javax.persistence.*;
 import java.util.HashSet;
