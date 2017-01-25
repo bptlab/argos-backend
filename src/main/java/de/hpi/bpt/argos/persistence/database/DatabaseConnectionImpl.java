@@ -46,6 +46,9 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 		return true;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<ProductFamily> listAllProductFamilies() {
 		Session session = databaseSessionFactory.openSession();
@@ -74,15 +77,18 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public List<EventType> listAllEventTypesForProductFamily(String productId) {
+	public List<EventType> listAllEventTypesForProduct(Integer productId) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
 			List<Event> events = session.createQuery("FROM EventImpl e WHERE e.product.id = :productId",
 					Event.class)
-					.setParameter("productId", Integer.parseInt(productId))
+					.setParameter("productId", productId)
 					.list();
 			Set<EventType> eventTypes = new HashSet<>();
 			for (Event event: events) {
@@ -91,6 +97,38 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 			tx.commit();
 			session.close();
 			return new ArrayList<>(eventTypes);
+		} catch (HibernateException exception) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			logErrorWhileGettingListOfProductFamilies(exception);
+			return new ArrayList<>();
+		}finally {
+			session.close();
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Event> listEventsForProductOfTypeInRange(Integer productId, Integer eventTypeId, Integer indexFrom, Integer
+			indexTo) {
+		Session session = databaseSessionFactory.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			List<Event> events = session.createQuery("FROM EventImpl e WHERE e.product.id = :productId AND e" +
+							".eventType.id = :eventTypeId",
+					Event.class)
+					.setParameter("productId", productId)
+					.setParameter("eventTypeId", eventTypeId)
+					.setFirstResult(indexFrom)
+					.setMaxResults(indexTo)
+					.list();
+			tx.commit();
+			session.close();
+			return events;
 		} catch (HibernateException exception) {
 			if (tx != null) {
 				tx.rollback();

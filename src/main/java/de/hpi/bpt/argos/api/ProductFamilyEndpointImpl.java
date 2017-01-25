@@ -5,8 +5,8 @@ import de.hpi.bpt.argos.api.response.ResponseFactory;
 import de.hpi.bpt.argos.api.response.ResponseFactoryImpl;
 import de.hpi.bpt.argos.common.RestEndpointImpl;
 import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
+import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.EventType;
-import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +29,8 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 
 	protected static final int HTTP_ERROR_NOT_FOUND = 404;
 	protected static final String GET_PRODUCT_FAMILIES = "/api/productfamilies";
-	protected static final String GET_PRODUCT_FAMILY_OVERVIEW = "/api/products/:productId/eventtypes";
-	protected static final String GET_EVENTS_FOR_PRODUCT_FAMILY =
+	protected static final String GET_PRODUCT_OVERVIEW = "/api/products/:productId/eventtypes";
+	protected static final String GET_EVENTS_FOR_PRODUCT =
 			"/api/products/:productId/events/:eventTypeId/:indexFrom/:indexTo";
 	protected ResponseFactory responseFactory;
 	protected DatabaseConnection databaseConnection;
@@ -46,8 +46,8 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
     @Override
 	public void setup(Service sparkService) {
 		sparkService.get(GET_PRODUCT_FAMILIES, this::getProductFamilies);
-		sparkService.get(GET_PRODUCT_FAMILY_OVERVIEW, this::getProductFamilyOverview);
-		sparkService.get(GET_EVENTS_FOR_PRODUCT_FAMILY, this::getEventsForProductFamily);
+		sparkService.get(GET_PRODUCT_OVERVIEW,this::getProductOverview);
+		sparkService.get(GET_EVENTS_FOR_PRODUCT, this::getEventsForProduct);
 	}
 
     /**
@@ -66,14 +66,14 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
      * {@inheritDoc}
      */
 	@Override
-	public String getProductFamilyOverview(Request request, Response response) {
+	public String getProductOverview(Request request, Response response) {
 		logInfoForReceivedRequest(request);
-		String productFamilyId = request.params("productId");
-		validateInputInteger(productFamilyId, (Integer input) -> input > 0);
+		Integer productId = Integer.parseInt(request.params("productId"));
+		validateInputInteger(productId, (Integer input) -> input > 0);
 
-		List<EventType> eventTypes = databaseConnection.listAllEventTypesForProductFamily(productFamilyId);
+		List<EventType> eventTypes = databaseConnection.listAllEventTypesForProduct(productId);
 		// TODO: implement logic
-
+		System.out.println(eventTypes);
 		return "";
 	}
 
@@ -81,12 +81,22 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
      * {@inheritDoc}
      */
 	@Override
-	public String getEventsForProductFamily(Request request, Response response) {
+	public String getEventsForProduct(Request request, Response response) {
 		logInfoForReceivedRequest(request);
 
-		String productFamilyId = request.params("productId");
-		validateInputInteger(productFamilyId, (Integer input) -> input > 0);
+		Integer productId = Integer.parseInt(request.params("productId"));
+		Integer eventTypeId = Integer.parseInt(request.params("eventTypeId"));
+		Integer indexFrom = Integer.parseInt(request.params("indexFrom"));
+		Integer indexTo = Integer.parseInt(request.params("indexTo"));
 
+		validateInputInteger(productId, (Integer input) -> input > 0);
+		validateInputInteger(eventTypeId, (Integer input) -> input > 0);
+		validateInputInteger(indexFrom, (Integer input) ->  input > 0);
+		validateInputInteger(indexTo, (Integer input) -> input >= indexFrom);
+
+		List<Event> events = databaseConnection.listEventsForProductOfTypeInRange(productId, eventTypeId, indexFrom,
+				indexTo);
+		System.out.println(events);
 		// TODO: implement logic
 
 		return "";
@@ -97,15 +107,14 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
      * @param inputValue - string to be tested
      * @param validateInputResult - function to be tested on the parsed integer as validation
      */
-	protected void validateInputInteger(String inputValue, Function<Integer, Boolean> validateInputResult) {
+	protected void validateInputInteger(Integer inputValue, Function<Integer, Boolean> validateInputResult) {
 	    //TODO: api fails with a less generic exception (InputMismatchException)
 		try {
-			int integer = Integer.parseInt(inputValue);
-			if (!validateInputResult.apply(integer)) {
+			if (!validateInputResult.apply(inputValue)) {
 				throw new Exception("input did not pass validation");
 			}
 		} catch (Exception e) {
-			logErrorWhileInputValidation(inputValue, "Integer");
+			logErrorWhileInputValidation(inputValue.toString(), "Integer");
 			halt(HTTP_ERROR_NOT_FOUND, e.getMessage());
 		}
 	}

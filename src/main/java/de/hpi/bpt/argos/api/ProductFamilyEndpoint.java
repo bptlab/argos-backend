@@ -24,7 +24,7 @@ public interface ProductFamilyEndpoint extends RestEndpoint {
      * @param response - Spark defined parameter containing response object
      * @return - returns a JSON string of details of the specified product family
      */
-	String getProductFamilyOverview(Request request, Response response);
+	String getProductOverview(Request request, Response response);
 
     /**
      * This method is called via API and returns all events for a specified product family currently registered
@@ -33,5 +33,5 @@ public interface ProductFamilyEndpoint extends RestEndpoint {
      * @param response - Spark defined parameter containing response object
      * @return - returns a JSON string of a list of all events for a specified product family
      */
-	String getEventsForProductFamily(Request request, Response response);
+	String getEventsForProduct(Request request, Response response);
 }
