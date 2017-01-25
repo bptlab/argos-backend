@@ -1,6 +1,8 @@
 package de.hpi.bpt.argos.api;
 
 import com.google.gson.Gson;
+import de.hpi.bpt.argos.api.response.ResponseFactory;
+import de.hpi.bpt.argos.api.response.ResponseFactoryImpl;
 import de.hpi.bpt.argos.common.RestEndpointImpl;
 import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
 import de.hpi.bpt.argos.persistence.model.event.EventType;
@@ -30,10 +32,10 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	protected static final String GET_PRODUCT_FAMILY_OVERVIEW = "/api/products/:productId/eventtypes";
 	protected static final String GET_EVENTS_FOR_PRODUCT_FAMILY =
 			"/api/products/:productId/events/:eventTypeId/:indexFrom/:indexTo";
-	protected DatabaseConnection databaseConnection;
+	protected ResponseFactory responseFactory;
 
 	public ProductFamilyEndpointImpl(DatabaseConnection databaseConnection) {
-		this.databaseConnection = databaseConnection;
+		responseFactory = new ResponseFactoryImpl(databaseConnection);
 	}
 
     /**
