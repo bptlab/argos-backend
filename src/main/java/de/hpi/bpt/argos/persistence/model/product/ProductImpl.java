@@ -38,7 +38,7 @@ public class ProductImpl implements Product {
 	@Column(name = "StateDescription")
 	protected String stateDescription;
 
-	@OneToMany(fetch = FetchType.LAZY, targetEntity = EventImpl.class)
+	@OneToMany(targetEntity = EventImpl.class)
 	protected Set<Event> events = new HashSet<>();
 
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = EventSubscriptionQueryImpl.class)
@@ -53,6 +53,7 @@ public class ProductImpl implements Product {
 	@Column(name = "NumberOfDevices")
 	protected int numberOfDevices;
 
+	@Transient
 	protected int numberOfEvents;
 
 	/**

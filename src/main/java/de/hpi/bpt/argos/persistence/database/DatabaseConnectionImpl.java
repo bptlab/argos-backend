@@ -1,25 +1,24 @@
 package de.hpi.bpt.argos.persistence.database;
 
-import de.hpi.bpt.argos.persistence.model.event.*;
-
+import de.hpi.bpt.argos.persistence.model.event.Event;
+import de.hpi.bpt.argos.persistence.model.event.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
-import de.hpi.bpt.argos.persistence.model.product.ProductFamilyImpl;
-import de.hpi.bpt.argos.persistence.model.product.ProductImpl;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.query.Query;
 import org.hibernate.service.spi.ServiceException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * {@inheritDoc}
@@ -37,14 +36,6 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	public boolean setup() {
 		try {
 			databaseSessionFactory = new Configuration()
-					.addAnnotatedClass(EventDataImpl.class)
-					.addAnnotatedClass(EventSubscriptionQueryImpl.class)
-					.addAnnotatedClass(EventAttributeImpl.class)
-					.addAnnotatedClass(EventTypeImpl.class)
-					.addAnnotatedClass(ProductImpl.class)
-					.addAnnotatedClass(ProductFamilyImpl.class)
-					.addAnnotatedClass(UpdateProductStateEventImpl.class)
-					.addAnnotatedClass(EventImpl.class)
 					.configure()
 					.buildSessionFactory();
 		} catch (ServiceException e) {
@@ -56,31 +47,12 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	}
 
 	@Override
-	public void addProduct(Product product) {
-		Session session = databaseSessionFactory.openSession();
-		Transaction tx = null;
-		try {
-			tx = session.beginTransaction();
-			session.save(product);
-			tx.commit();
-		}catch (HibernateException e) {
-			if (tx != null) {
-				tx.rollback();
-			}
-			logError("can't add product to database", e);
-		}finally {
-			session.close();
-		}
-	}
-
-	@Override
 	public List<ProductFamily> listAllProductFamilies() {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List<ProductFamily> productFamilies = session.createQuery("FROM de.hpi.bpt.argos.persistence.model.product" +
-					".ProductFamily", ProductFamily.class)
+			List<ProductFamily> productFamilies = session.createQuery("FROM ProductFamilyImpl", ProductFamily.class)
 					.list();
 			for (ProductFamily productFamily: productFamilies) {
 				for (Product product: productFamily.getProducts()) {
@@ -103,21 +75,22 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	}
 
 	@Override
-	public List<EventType> listAllEventTypesForProductFamily(String productFamilyId) {
+	public List<EventType> listAllEventTypesForProductFamily(String productId) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			Query query = session.createQuery("FROM de.hpi.bpt.argos.persistence.model.event.Event e " +
-					"WHERE e.product =3", Event.class);
-			//query.setParameter("product_Id", productFamilyId);
-			List<Event> events = query.list();
+			List<Event> events = session.createQuery("FROM EventImpl e WHERE e.product.id = :productId",
+					Event.class)
+					.setParameter("productId", Integer.parseInt(productId))
+					.list();
+			Set<EventType> eventTypes = new HashSet<>();
 			for (Event event: events) {
-				System.out.println(event.getEventType());
+				eventTypes.add(event.getEventType());
 			}
 			tx.commit();
 			session.close();
-			return new ArrayList<>();
+			return new ArrayList<>(eventTypes);
 		} catch (HibernateException exception) {
 			if (tx != null) {
 				tx.rollback();

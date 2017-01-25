@@ -43,7 +43,7 @@ public interface Product {
 
 	/**
 	 * This method sets the state of this product.
-	 * @return - the product state to be set
+	 * @param productState - the product state to be set
 	 */
 	void setState(ProductState productState);
 
@@ -79,7 +79,7 @@ public interface Product {
 
 	/**
 	 * This method sets the status description of this product.
-	 * @return - the status description of this product to be set
+	 * @param stateDescription - the status description of this product to be set
 	 */
 	void setStateDescription(String stateDescription);
 
@@ -137,11 +137,26 @@ public interface Product {
 	 */
 	void setNumberOfDevices(int numberOfDevices);
 
+	/**
+	 * This method returns the number of devices that are installed from this product families.
+	 * @return - the number of devices installed as an integer
+	 */
 	int getNumberOfDevices();
 
+	/**
+	 * This method sets the number of events that occurred for this product.
+	 * @return - the number of events occurred as an integer
+	 */
 	int getNumberOfEvents();
 
+	/**
+	 * This method sets the number of events that occurred for this product.
+	 * @param numberOfEvents - the number of events occurred
+	 */
 	void setNumberOfEvents(int numberOfEvents);
 
+	/**
+	 * This method sets the number of events intelligently.
+	 */
 	void setNumberOfEvents();
 }

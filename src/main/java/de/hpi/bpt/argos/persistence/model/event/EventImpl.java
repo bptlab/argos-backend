@@ -18,10 +18,11 @@ public class EventImpl implements Event {
 	@Column(name = "Id")
 	protected int id;
 
-	@ManyToOne(fetch = FetchType.LAZY, targetEntity = ProductImpl.class)
+	@ManyToOne(targetEntity = ProductImpl.class)
+	@JoinColumn(name = "product_Id")
 	protected Product product;
 
-	@ManyToOne(fetch = FetchType.LAZY, targetEntity = EventTypeImpl.class)
+	@ManyToOne(targetEntity = EventTypeImpl.class)
 	protected EventType eventType;
 
 	/**

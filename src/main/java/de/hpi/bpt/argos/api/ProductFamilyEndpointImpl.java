@@ -33,8 +33,10 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	protected static final String GET_EVENTS_FOR_PRODUCT_FAMILY =
 			"/api/products/:productId/events/:eventTypeId/:indexFrom/:indexTo";
 	protected ResponseFactory responseFactory;
+	protected DatabaseConnection databaseConnection;
 
 	public ProductFamilyEndpointImpl(DatabaseConnection databaseConnection) {
+		this.databaseConnection = databaseConnection;
 		responseFactory = new ResponseFactoryImpl(databaseConnection);
 	}
 
@@ -55,10 +57,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	public String getProductFamilies(Request request, Response response) {
 		logInfoForReceivedRequest(request);
 
-		@SuppressWarnings("unchecked")
-		List<ProductFamily> productFamilies = databaseConnection.listAllProductFamilies();
-
-		String json = serializer.toJson("");
+		String json = responseFactory.getAllProductFamilies();
 		logInfoForSendingProductFamilies(json);
 		return json;
 	}

@@ -26,7 +26,7 @@ public class EventTypeImpl implements EventType {
 	@ManyToMany(fetch = FetchType.LAZY, targetEntity = EventAttributeImpl.class)
 	protected Set<EventAttribute> attributes = new HashSet<>();
 
-	@OneToMany(fetch = FetchType.LAZY, targetEntity = EventImpl.class)
+	@OneToMany(targetEntity = EventImpl.class)
 	protected Set<Event> events = new HashSet<>();
 
 	/**
