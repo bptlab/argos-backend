@@ -32,14 +32,14 @@ public interface Event {
 	void setProductId(Product product);
 
 	/**
-	 * This method returns the event type of this event.
-	 * @return - the event type of this event as an EventyType object
+	 * This method returns the event eventType of this event.
+	 * @return - the event eventType of this event as an EventyType object
 	 */
-	EventType getType();
+	EventType getEventType();
 
 	/**
-	 * This method sets the event type of this event.
-	 * @param type - the event type
+	 * This method sets the event eventType of this event.
+	 * @param type - the event eventType
 	 */
 	void setEventType(EventType type);
 }

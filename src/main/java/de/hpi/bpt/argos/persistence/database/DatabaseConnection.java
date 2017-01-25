@@ -1,5 +1,11 @@
 package de.hpi.bpt.argos.persistence.database;
 
+import de.hpi.bpt.argos.persistence.model.event.EventType;
+import de.hpi.bpt.argos.persistence.model.product.Product;
+import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
+
+import java.util.List;
+
 /**
  * This interface represents data connections which are used to communicate with the data base.
  */
@@ -10,4 +16,14 @@ public interface DatabaseConnection {
 	 * @return - true if the connection was established
 	 */
 	boolean setup();
+
+	/**
+	 * Adds a product to the database
+	 * @param product - the product to be added
+	 */
+	void addProduct(Product product);
+
+	List<ProductFamily> listAllProductFamilies();
+
+	List<EventType> listAllEventTypesForProductFamily(String productFamilyId);
 }

@@ -50,6 +50,11 @@ public class ProductImpl implements Product {
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = EventSubscriptionQueryImpl.class)
 	protected EventSubscriptionQuery transitionToErrorState;
 
+	@Column(name = "NumberOfDevices")
+	protected int numberOfDevices;
+
+	protected int numberOfEvents;
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -170,6 +175,20 @@ public class ProductImpl implements Product {
 		this.events = events;
 	}
 
+	@Override
+	public void setNumberOfEvents() {
+		this.numberOfEvents = this.events.size();
+	}
+
+	@Override
+	public void setNumberOfEvents(int numberOfEvents) {
+		this.numberOfEvents = numberOfEvents;
+	}
+
+	@Override
+	public int getNumberOfEvents() {
+		return this.events.size();
+	}
 	/**
 	 * {@inheritDoc}
 	 */
@@ -208,5 +227,15 @@ public class ProductImpl implements Product {
 	@Override
 	public void setTransitionToErrorSet(EventSubscriptionQuery eventSubscriptionQuery) {
 		transitionToErrorState = eventSubscriptionQuery;
+	}
+
+	@Override
+	public int getNumberOfDevices() {
+		return numberOfDevices;
+	}
+
+	@Override
+	public void setNumberOfDevices(int numberOfDevices) {
+		this.numberOfDevices = numberOfDevices;
 	}
 }

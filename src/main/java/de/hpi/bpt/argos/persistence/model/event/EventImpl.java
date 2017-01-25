@@ -22,7 +22,7 @@ public class EventImpl implements Event {
 	protected Product product;
 
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = EventTypeImpl.class)
-	protected EventType type;
+	protected EventType eventType;
 
 	/**
 	 * {@inheritDoc}
@@ -60,15 +60,15 @@ public class EventImpl implements Event {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EventType getType() {
-		return type;
+	public EventType getEventType() {
+		return eventType;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setEventType(EventType type) {
-		this.type = type;
+	public void setEventType(EventType eventType) {
+		this.eventType = eventType;
 	}
 }

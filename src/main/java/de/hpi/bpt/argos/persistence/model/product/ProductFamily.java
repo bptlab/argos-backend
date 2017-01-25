@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.persistence.model.product;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -46,11 +47,17 @@ public interface ProductFamily {
 	 * This method return a set of products in this product family.
 	 * @return - a set of products
 	 */
-	Set<Product> getProducts();
+	List<Product> getProducts();
 
 	/**
 	 * This method sets the set of products in this product family.
 	 * @param products - a set of products to be set
 	 */
-	void setProducts(Set<Product> products);
+	void setProducts(List<Product> products);
+
+	/**
+	 * This method adds a product to the product family.
+	 * @param product - the product to be added
+	 */
+	void addProduct(Product product);
 }

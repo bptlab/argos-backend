@@ -1,7 +1,7 @@
 package de.hpi.bpt.argos.persistence.model.event;
 
 /**
- * This interface represents an event attribute that every event type has a list of.
+ * This interface represents an event attribute that every event eventType has a list of.
  */
 public interface EventAttribute {
 
@@ -30,14 +30,14 @@ public interface EventAttribute {
 	void setName(String name);
 
 	/**
-	 * This method returns the type of the event attribute.
-	 * @return - the type of the event attribute as a string
+	 * This method returns the eventType of the event attribute.
+	 * @return - the eventType of the event attribute as a string
 	 */
 	String getType();
 
 	/**
-	 * This method sets the type of the event attribute.
-	 * @param type - the event attribute's type
+	 * This method sets the eventType of the event attribute.
+	 * @param type - the event attribute's eventType
 	 */
 	void setType(String type);
 }

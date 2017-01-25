@@ -2,15 +2,17 @@ package de.hpi.bpt.argos.api;
 
 import com.google.gson.Gson;
 import de.hpi.bpt.argos.common.RestEndpointImpl;
+import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
+import de.hpi.bpt.argos.persistence.model.event.EventType;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 import spark.Service;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.function.Function;
 
 import static spark.Spark.halt;
@@ -24,18 +26,14 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	protected static final Logger logger = LoggerFactory.getLogger(ProductFamilyEndpointImpl.class);
 
 	protected static final int HTTP_ERROR_NOT_FOUND = 404;
-	protected static final String GET_PRODUCT_FAMILIES = "/api/product";
-	protected static final String GET_PRODUCT_FAMILY_OVERVIEW = "/api/product/:productId";
-	protected static final String GET_EVENTS_FOR_PRODUCT_FAMILY = "/api/product/:productId/eventtype/:eventTypeId/:indexFrom/:indexTo";
+	protected static final String GET_PRODUCT_FAMILIES = "/api/productfamilies";
+	protected static final String GET_PRODUCT_FAMILY_OVERVIEW = "/api/products/:productId/eventtypes";
+	protected static final String GET_EVENTS_FOR_PRODUCT_FAMILY =
+			"/api/products/:productId/events/:eventTypeId/:indexFrom/:indexTo";
+	protected DatabaseConnection databaseConnection;
 
-	protected Set<ProductFamily> productFamilies;
-
-
-    /**
-     * Constructor for ProductFamilyEndpointImpl, instantiates productFamilies as empty.
-     */
-    public ProductFamilyEndpointImpl() {
-		productFamilies = new HashSet<>();
+	public ProductFamilyEndpointImpl(DatabaseConnection databaseConnection) {
+		this.databaseConnection = databaseConnection;
 	}
 
     /**
@@ -54,7 +52,11 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	@Override
 	public String getProductFamilies(Request request, Response response) {
 		logInfoForReceivedRequest(request);
-		String json = serializer.toJson(productFamilies);
+
+		@SuppressWarnings("unchecked")
+		List<ProductFamily> productFamilies = databaseConnection.listAllProductFamilies();
+
+		String json = serializer.toJson("");
 		logInfoForSendingProductFamilies(json);
 		return json;
 	}
@@ -65,10 +67,10 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	@Override
 	public String getProductFamilyOverview(Request request, Response response) {
 		logInfoForReceivedRequest(request);
-
 		String productFamilyId = request.params("productId");
 		validateInputInteger(productFamilyId, (Integer input) -> input > 0);
 
+		List<EventType> eventTypes = databaseConnection.listAllEventTypesForProductFamily(productFamilyId);
 		// TODO: implement logic
 
 		return "";
@@ -140,7 +142,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	}
 
     /**
-     * This methods logs an error, if the input validation can't cast the inputValue type.
+     * This methods logs an error, if the input validation can't cast the inputValue eventType.
      * @param inputValue - inputValue from url
      * @param expectedInputType - expected inputType (must be a Java Class
      */

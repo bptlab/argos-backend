@@ -130,4 +130,18 @@ public interface Product {
 	 * @param eventSubscriptionQuery - the event subscription query which sets this product in Error state
 	 */
 	void setTransitionToErrorSet(EventSubscriptionQuery eventSubscriptionQuery);
+
+	/**
+	 * This method sets the number of devices currently in use of this product eventType.
+	 * @param numberOfDevices - the number of devices to be set
+	 */
+	void setNumberOfDevices(int numberOfDevices);
+
+	int getNumberOfDevices();
+
+	int getNumberOfEvents();
+
+	void setNumberOfEvents(int numberOfEvents);
+
+	void setNumberOfEvents();
 }

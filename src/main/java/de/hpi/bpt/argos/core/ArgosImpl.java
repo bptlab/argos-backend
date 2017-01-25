@@ -6,13 +6,8 @@ import de.hpi.bpt.argos.eventHandling.EventReceiver;
 import de.hpi.bpt.argos.eventHandling.EventReceiverImpl;
 import de.hpi.bpt.argos.eventHandling.EventSubscriber;
 import de.hpi.bpt.argos.eventHandling.EventSubscriberImpl;
-
-import de.hpi.bpt.argos.persistence.model.event.*;
-import de.hpi.bpt.argos.persistence.model.product.ProductFamilyImpl;
-import de.hpi.bpt.argos.persistence.model.product.ProductImpl;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.service.spi.ServiceException;
+import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
+import de.hpi.bpt.argos.persistence.database.DatabaseConnectionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Service;
@@ -34,7 +29,7 @@ public class ArgosImpl implements Argos {
 	protected EventReceiver eventReceiver;
 	protected EventSubscriber eventSubscriber;
 	protected ProductFamilyEndpoint productFamilyEndpoint;
-	protected SessionFactory sessionFactory;
+	protected DatabaseConnection databaseConnection;
 
     /**
      * {@inheritDoc}
@@ -48,29 +43,16 @@ public class ArgosImpl implements Argos {
 
 		eventSubscriber = new EventSubscriberImpl();
 		// TODO: subscribe to unicorn
-		//eventSubscriber.subscribeToEventPlatform(EXAMPLE_EVENT_QUERY);
 
-		productFamilyEndpoint = new ProductFamilyEndpointImpl();
+		databaseConnection = new DatabaseConnectionImpl();
+		if (!databaseConnection.setup()) {
+			shutdown();
+		}
+
+		productFamilyEndpoint = new ProductFamilyEndpointImpl(databaseConnection);
 		productFamilyEndpoint.setup(sparkService);
 
 		// TODO: setup websocket and security
-
-		try {
-			sessionFactory = new Configuration()
-					.addAnnotatedClass(EventDataImpl.class)
-					.addAnnotatedClass(EventSubscriptionQueryImpl.class)
-					.addAnnotatedClass(EventAttributeImpl.class)
-					.addAnnotatedClass(EventTypeImpl.class)
-					.addAnnotatedClass(ProductImpl.class)
-					.addAnnotatedClass(ProductFamilyImpl.class)
-					.addAnnotatedClass(UpdateProductStateEventImpl.class)
-					.addAnnotatedClass(EventImpl.class)
-					.configure()
-					.buildSessionFactory();
-		} catch (ServiceException e) {
-			logErrorWhileConnectingToDatabaseServer(e);
-			shutdown();
-		}
 	}
 
     /**
@@ -107,9 +89,5 @@ public class ArgosImpl implements Argos {
      */
 	protected void logError(String head, Throwable exception) {
 		logger.error(head, exception);
-	}
-
-	protected void logErrorWhileConnectingToDatabaseServer(Throwable exception) {
-		logError("can't connect to database server: ", exception);
 	}
 }
