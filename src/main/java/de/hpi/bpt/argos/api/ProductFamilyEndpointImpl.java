@@ -84,8 +84,8 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	public String getEventsForProduct(Request request, Response response) {
 		logInfoForReceivedRequest(request);
 
-		int productId = validateInputInteger(request.params("productId"), (Integer input) -> input > 0);
-		int eventTypeId = validateInputInteger(request.params("eventTypeId"), (Integer input) -> input > 0);
+		int productId = validateInputInteger(request.params("productId"), (Integer input) -> input >= 0);
+		int eventTypeId = validateInputInteger(request.params("eventTypeId"), (Integer input) -> input >= 0);
 		int indexFrom = validateInputInteger(request.params("indexFrom"), (Integer input) ->  input >= 0);
 		int indexTo = validateInputInteger(request.params("indexTo"), (Integer input) -> input >= indexFrom);
 

@@ -78,7 +78,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Map<EventType, Integer> listAllEventTypesForProduct(Integer productId) {
+	public Map<EventType, Integer> listAllEventTypesForProduct(int productId) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;
 		try {
@@ -115,8 +115,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Event> listEventsForProductOfTypeInRange(Integer productId, Integer eventTypeId, Integer indexFrom, Integer
-			indexTo) {
+	public List<Event> listEventsForProductOfTypeInRange(int productId, int eventTypeId, int indexFrom, int indexTo) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;
 		try {

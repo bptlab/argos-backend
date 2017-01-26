@@ -31,7 +31,7 @@ public interface DatabaseConnection {
 	 * @return - a map of event types that can occur for the product with the number of events that occurred for this
 	 * event type
 	 */
-	Map<EventType, Integer> listAllEventTypesForProduct(Integer productId);
+	Map<EventType, Integer> listAllEventTypesForProduct(int productId);
 
 	/**
 	 * This method makes the database call to retrieve the necessary data for the API that serves events for a
@@ -42,6 +42,5 @@ public interface DatabaseConnection {
 	 * @param indexTo - the end of the index range that the events should come from
 	 * @return - a list of events that satisfies the parameters
 	 */
-	List<Event> listEventsForProductOfTypeInRange(Integer productId, Integer eventTypeId, Integer indexFrom, Integer
-			indexTo);
+	List<Event> listEventsForProductOfTypeInRange(int productId, int eventTypeId, int indexFrom, int indexTo);
 }
