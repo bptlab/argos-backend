@@ -45,16 +45,4 @@ public interface Event {
 	 * @param type - the event eventType
 	 */
 	void setEventType(EventType type);
-
-	/**
-	 * This method returns all event data for this event.
-	 * @return - a map from event attribute to event data
-	 */
-	Map<EventAttribute, EventData> getEventData();
-
-	/**
-	 * This method sets the event data for this event.
-	 * @param eventData - the event data to be set
-	 */
-	void setEventData(Map<EventAttribute, EventData> eventData);
 }

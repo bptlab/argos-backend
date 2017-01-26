@@ -1,6 +1,7 @@
 package de.hpi.bpt.argos.persistence.database;
 
 import de.hpi.bpt.argos.persistence.model.event.Event;
+import de.hpi.bpt.argos.persistence.model.event.EventData;
 import de.hpi.bpt.argos.persistence.model.event.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
@@ -114,22 +115,34 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Event> listEventsForProductOfTypeInRange(int productId, int eventTypeId, int indexFrom, int indexTo) {
+	public List<EventData> listEventsForProductOfTypeInRange(int productId, int eventTypeId, int indexFrom, int
+			indexTo) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			List<Event> events = session.createQuery("FROM EventImpl e WHERE e.product.id = :productId AND e" +
-							".eventType.id = :eventTypeId",
-					Event.class)
-					.setParameter("productId", productId)
-					.setParameter("eventTypeId", eventTypeId)
-					.setFirstResult(indexFrom)
-					.setMaxResults(indexTo)
-					.list();
+			List<EventData> eventDataList = session.createQuery("From EventDataImpl ed " +
+							"WHERE ed.event.eventType.id = :eventTypeId AND ed.event.product.id = :productId " +
+							"AND ed.event.id >= :indexFrom AND ed.event.id <= :indexTo", EventData.class
+							)
+						.setParameter("productId", productId)
+						.setParameter("eventTypeId", eventTypeId)
+						.setParameter("indexFrom", indexFrom)
+						.setParameter("indexTo", indexTo)
+						.list();
+			Map<Event, List<EventData>> eventList = new HashMap<>();
+			for (EventData eventData: eventDataList) {
+				Event currentEvent = eventData.getEvent();
+				if (eventList.containsKey(currentEvent)) {
+					eventDataList = eventList.get(currentEvent);
+					eventDataList.add(eventData);
+				} else {
+					eventList.put(currentEvent, new ArrayList<EventData>() {{ add(eventData);}});
+				}
+
+			}
 			tx.commit();
-			session.close();
-			return events;
+			return eventDataList;
 		} catch (HibernateException exception) {
 			if (tx != null) {
 				tx.rollback();

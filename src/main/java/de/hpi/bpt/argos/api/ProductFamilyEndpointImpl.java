@@ -6,6 +6,7 @@ import de.hpi.bpt.argos.api.response.ResponseFactoryImpl;
 import de.hpi.bpt.argos.common.RestEndpointImpl;
 import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
 import de.hpi.bpt.argos.persistence.model.event.Event;
+import de.hpi.bpt.argos.persistence.model.event.EventData;
 import de.hpi.bpt.argos.persistence.model.event.EventType;
 
 import org.slf4j.Logger;
@@ -87,9 +88,11 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 		int indexFrom = validateInputInteger(request.params("indexFrom"), (Integer input) ->  input >= 0);
 		int indexTo = validateInputInteger(request.params("indexTo"), (Integer input) -> input >= indexFrom);
 
-		List<Event> events = databaseConnection.listEventsForProductOfTypeInRange(productId, eventTypeId, indexFrom,
+		List<EventData> eventDataList = databaseConnection.listEventsForProductOfTypeInRange
+				(productId, eventTypeId,
+				indexFrom,
 				indexTo);
-		System.out.println(events);
+		System.out.println(eventDataList);
 		// TODO: implement logic
 
 		return "";
