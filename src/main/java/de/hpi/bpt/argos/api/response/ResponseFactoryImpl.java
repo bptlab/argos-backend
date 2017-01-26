@@ -117,7 +117,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	}
 
 	/**
-	 * This method returns a event type base (id, name, numberOfEvents) as a JsonObject
+	 * This method returns a event type base (id, name) as a JsonObject
 	 * @param eventType - the event type which base is required
 	 * @return - a json representation of the event type's base
 	 */
