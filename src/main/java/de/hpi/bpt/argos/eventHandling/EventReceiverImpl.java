@@ -1,6 +1,8 @@
 package de.hpi.bpt.argos.eventHandling;
 
 import de.hpi.bpt.argos.common.RestEndpointImpl;
+import de.hpi.bpt.argos.common.validation.RestInputValidationService;
+import de.hpi.bpt.argos.common.validation.RestInputValidationServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -13,7 +15,16 @@ import spark.Service;
  */
 public class EventReceiverImpl extends RestEndpointImpl implements EventReceiver {
 	private static final Logger logger = LoggerFactory.getLogger(EventReceiverImpl.class);
-	protected static final String POST_EVENT = "/api/events/receiver";
+	protected static final String POST_EVENT = "/api/events/receiver/:eventTypeId";
+
+	protected RestInputValidationService inputValidation;
+
+	/**
+	 * This is a constructor for creating a new event receiver instance.
+	 */
+	public EventReceiverImpl() {
+		inputValidation = new RestInputValidationServiceImpl();
+	}
 
     /**
      * {@inheritDoc}
@@ -32,7 +43,6 @@ public class EventReceiverImpl extends RestEndpointImpl implements EventReceiver
 
 		return finishRequest();
 	}
-
 
     /**
      * This message logs a given head on info level.

@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
 import de.hpi.bpt.argos.api.response.ResponseFactoryImpl;
 import de.hpi.bpt.argos.common.RestEndpointImpl;
+import de.hpi.bpt.argos.common.validation.RestInputValidationService;
+import de.hpi.bpt.argos.common.validation.RestInputValidationServiceImpl;
 import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
 import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.EventType;
@@ -28,17 +30,19 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	protected static final Gson serializer = new Gson();
 	protected static final Logger logger = LoggerFactory.getLogger(ProductFamilyEndpointImpl.class);
 
-	protected static final int HTTP_ERROR_NOT_FOUND = 404;
 	protected static final String GET_PRODUCT_FAMILIES = "/api/productfamilies";
 	protected static final String GET_PRODUCT_OVERVIEW = "/api/products/:productId/eventtypes";
 	protected static final String GET_EVENTS_FOR_PRODUCT =
 			"/api/products/:productId/events/:eventTypeId/:indexFrom/:indexTo";
+
 	protected ResponseFactory responseFactory;
 	protected DatabaseConnection databaseConnection;
+	protected RestInputValidationService inputValidation;
 
 	public ProductFamilyEndpointImpl(DatabaseConnection databaseConnection) {
 		this.databaseConnection = databaseConnection;
 		responseFactory = new ResponseFactoryImpl(databaseConnection);
+		inputValidation = new RestInputValidationServiceImpl();
 	}
 
     /**
@@ -69,7 +73,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	@Override
 	public String getProductOverview(Request request, Response response) {
 		logInfoForReceivedRequest(request);
-		int productId = validateInputInteger(request.params("productId"), (Integer input) -> input > 0);
+		int productId = inputValidation.validateInteger(request.params("productId"), (Integer input) -> input > 0);
 		String json = responseFactory.getAllEventTypes(productId);
 		logInfoForSendingProductFamilies(json);
 		return json;
@@ -82,10 +86,10 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	public String getEventsForProduct(Request request, Response response) {
 		logInfoForReceivedRequest(request);
 
-		int productId = validateInputInteger(request.params("productId"), (Integer input) -> input >= 0);
-		int eventTypeId = validateInputInteger(request.params("eventTypeId"), (Integer input) -> input >= 0);
-		int indexFrom = validateInputInteger(request.params("indexFrom"), (Integer input) ->  input >= 0);
-		int indexTo = validateInputInteger(request.params("indexTo"), (Integer input) -> input >= indexFrom);
+		int productId = inputValidation.validateInteger(request.params("productId"), (Integer input) -> input >= 0);
+		int eventTypeId = inputValidation.validateInteger(request.params("eventTypeId"), (Integer input) -> input >= 0);
+		int indexFrom = inputValidation.validateInteger(request.params("indexFrom"), (Integer input) ->  input >= 0);
+		int indexTo = inputValidation.validateInteger(request.params("indexTo"), (Integer input) -> input >= indexFrom);
 
 		List<Event> events = databaseConnection.listEventsForProductOfTypeInRange(productId, eventTypeId, indexFrom,
 				indexTo);
@@ -93,25 +97,6 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 		// TODO: implement logic
 
 		return "";
-	}
-
-    /**
-     * This method validates the input as an integer that is given as a string with a generic validation function.
-     * @param inputValue - string to be tested
-     * @param validateInputResult - function to be tested on the parsed integer as validation
-	 * @return - returns a
-     */
-	protected int validateInputInteger(String inputValue, Function<Integer, Boolean> validateInputResult) {
-	    //TODO: api fails with a less generic exception (InputMismatchException)
-		try {
-			if (!validateInputResult.apply(Integer.parseInt(inputValue))) {
-				throw new Exception("input did not pass validation");
-			}
-		} catch (Exception e) {
-			logErrorWhileInputValidation(inputValue, "Integer");
-			halt(HTTP_ERROR_NOT_FOUND, e.getMessage());
-		}
-		return Integer.parseInt(inputValue);
 	}
 
     /**
@@ -144,14 +129,5 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
      */
 	protected void logInfoForSendingProductFamilies(String json) {
 		logInfo("sending product families: " + json);
-	}
-
-    /**
-     * This methods logs an error, if the input validation can't cast the inputValue eventType.
-     * @param inputValue - inputValue from url
-     * @param expectedInputType - expected inputType (must be a Java Class
-     */
-    protected void logErrorWhileInputValidation(String inputValue, String expectedInputType) {
-		logError(String.format("tried to cast (input) \"%1$s\" to %2$s", inputValue, expectedInputType));
 	}
 }
