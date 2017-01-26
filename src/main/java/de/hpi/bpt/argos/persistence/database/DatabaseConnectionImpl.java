@@ -98,7 +98,6 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 				}
 			}
 			tx.commit();
-			session.close();
 			return eventTypes;
 		} catch (HibernateException exception) {
 			if (tx != null) {
@@ -106,7 +105,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 			}
 			logErrorWhileGettingListOfProductFamilies(exception);
 			return new HashMap<>();
-		}finally {
+		} finally {
 			session.close();
 		}
 	}

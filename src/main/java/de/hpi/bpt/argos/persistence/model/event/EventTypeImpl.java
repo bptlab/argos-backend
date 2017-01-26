@@ -20,13 +20,13 @@ public class EventTypeImpl implements EventType {
 	@Column(name = "Name")
 	protected String name;
 
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = EventSubscriptionQueryImpl.class)
+	@OneToOne(fetch = FetchType.EAGER, targetEntity = EventSubscriptionQueryImpl.class)
 	protected EventSubscriptionQuery eventSubscriptionQuery;
 
-	@ManyToMany(fetch = FetchType.LAZY, targetEntity = EventAttributeImpl.class)
+	@ManyToMany(fetch = FetchType.EAGER, targetEntity = EventAttributeImpl.class)
 	protected Set<EventAttribute> attributes = new HashSet<>();
 
-	@OneToMany(targetEntity = EventImpl.class)
+	@OneToMany(fetch = FetchType.LAZY, targetEntity = EventImpl.class)
 	protected Set<Event> events = new HashSet<>();
 
 	/**
