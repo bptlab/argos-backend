@@ -70,11 +70,9 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	public String getProductOverview(Request request, Response response) {
 		logInfoForReceivedRequest(request);
 		int productId = validateInputInteger(request.params("productId"), (Integer input) -> input > 0);
-
-		Map<EventType, Integer> eventTypes = databaseConnection.listAllEventTypesForProduct(productId);
-		// TODO: implement logic
-		System.out.println(eventTypes);
-		return "";
+		String json = responseFactory.getAllEventTypes(productId);
+		logInfoForSendingProductFamilies(json);
+		return json;
 	}
 
     /**
