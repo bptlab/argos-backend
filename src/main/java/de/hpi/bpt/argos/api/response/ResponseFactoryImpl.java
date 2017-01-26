@@ -86,7 +86,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 
 		for(Map.Entry<Event, List<EventData>> entry : eventData.entrySet()) {
 			JsonObject jsonEvent = getEvent(entry.getValue());
-
+			jsonEvent.addProperty("id", entry.getKey().getId());
 			jsonEvents.add(jsonEvent);
 		}
 

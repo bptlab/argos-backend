@@ -58,6 +58,36 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RestRequest createGetRequest(String host, String uri, String acceptType) {
+		RestRequest request = createBasicRequest(host, uri);
+
+		if (request == null) {
+			return null;
+		}
+
+		try {
+			request.getConnection().setRequestMethod("GET");
+		} catch (ProtocolException e) {
+			logExceptionInRequestCreation(e);
+			return null;
+		}
+
+		request.getConnection().setRequestProperty("Accept", acceptType);
+		return request;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RestRequest createGetRequest(String host, String uri) {
+		return createGetRequest(host, uri, DEFAULT_ACCEPT_TYPE);
+	}
+
+	/**
 	 * This method creates a basic RestRequest object and sets host and uri.
 	 * @param host - host as a string to be set
 	 * @param uri - uri as a string to be set
@@ -84,7 +114,7 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 		return request;
 	}
 
-    /**
+	/**
      * This method logs an exception on error level.
      * @param head - string message to be logged
      * @param exception - throwable exception to be logged

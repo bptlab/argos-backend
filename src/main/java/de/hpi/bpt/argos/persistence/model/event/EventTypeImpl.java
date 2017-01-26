@@ -1,5 +1,8 @@
 package de.hpi.bpt.argos.persistence.model.event;
 
+import de.hpi.bpt.argos.eventHandling.schema.EventTypeSchemaGenerator;
+import de.hpi.bpt.argos.eventHandling.schema.EventTypeSchemaGeneratorImpl;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,6 +14,8 @@ import java.util.Set;
 @Entity
 @Table(name = "EventType")
 public class EventTypeImpl implements EventType {
+
+	protected static final EventTypeSchemaGenerator schemaGenerator = new EventTypeSchemaGeneratorImpl();
 
 	@Id
 	@GeneratedValue
@@ -25,6 +30,9 @@ public class EventTypeImpl implements EventType {
 
 	@ManyToMany(fetch = FetchType.EAGER, targetEntity = EventAttributeImpl.class)
 	protected Set<EventAttribute> attributes = new HashSet<>();
+
+	@ManyToOne(fetch = FetchType.EAGER, targetEntity = EventAttributeImpl.class)
+	protected EventAttribute timestampAttribute;
 
 	@OneToMany(fetch = FetchType.LAZY, targetEntity = EventImpl.class)
 	protected Set<Event> events = new HashSet<>();
@@ -65,6 +73,14 @@ public class EventTypeImpl implements EventType {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public String getSchema() {
+		return schemaGenerator.getEventTypeSchema(this);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public EventSubscriptionQuery getEventSubscriptionQuery() {
 		return eventSubscriptionQuery;
 	}
@@ -91,6 +107,22 @@ public class EventTypeImpl implements EventType {
 	@Override
 	public void setAttributes(Set<EventAttribute> attributes) {
 		this.attributes = attributes;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public EventAttribute getTimestampAttribute() {
+		return timestampAttribute;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setTimetampAttribute(EventAttribute eventAttribute) {
+		this.timestampAttribute = eventAttribute;
 	}
 
 	/**

@@ -31,6 +31,12 @@ public interface EventType {
 	void setName(String name);
 
 	/**
+	 * This method returns the schema representation of this event type.
+	 * @return - the schema representation of this event type
+	 */
+	String getSchema();
+
+	/**
 	 * This method return the event subscription query of this event eventType.
 	 * @return - the event subscription query of this event eventType
 	 */
@@ -49,10 +55,22 @@ public interface EventType {
 	Set<EventAttribute> getAttributes();
 
 	/**
-	 * This method sets the set of aatributes that this event eventType has.
+	 * This method sets the set of attributes that this event eventType has.
 	 * @param attributes - set of EventAttribute objects that characterize this event eventType
 	 */
 	void setAttributes(Set<EventAttribute> attributes);
+
+	/**
+	 * This method returns the timestamp attribute for this event type.
+	 * @return - the attribute which represents the timestamp
+	 */
+	EventAttribute getTimestampAttribute();
+
+	/**
+	 * This method sets the timestamp attribute for this event type.
+	 * @param eventAttribute - the timestamp attribute
+	 */
+	void setTimetampAttribute(EventAttribute eventAttribute);
 
 	/**
 	 * This method returns a set of events of this event eventType.
