@@ -4,6 +4,7 @@ import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductImpl;
 
 import javax.persistence.*;
+import java.util.Map;
 
 /**
  * {@inheritDoc}
@@ -24,6 +25,8 @@ public class EventImpl implements Event {
 
 	@ManyToOne(targetEntity = EventTypeImpl.class)
 	protected EventType eventType;
+	
+	protected Map<EventAttribute, EventData> eventData;
 
 	/**
 	 * {@inheritDoc}
@@ -71,5 +74,21 @@ public class EventImpl implements Event {
 	@Override
 	public void setEventType(EventType eventType) {
 		this.eventType = eventType;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<EventAttribute, EventData> getEventData() {
+		return eventData;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setEventData(Map<EventAttribute, EventData> eventData) {
+		this.eventData = eventData;
 	}
 }
