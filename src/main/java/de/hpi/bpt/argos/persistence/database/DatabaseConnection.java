@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.persistence.database;
 
+import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.EventData;
 import de.hpi.bpt.argos.persistence.model.event.EventType;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
@@ -42,5 +43,5 @@ public interface DatabaseConnection {
 	 * @param indexTo - the end of the index range that the events should come from
 	 * @return - a list of events that satisfies the parameters
 	 */
-	List<EventData> listEventsForProductOfTypeInRange(int productId, int eventTypeId, int indexFrom, int indexTo);
+	Map<Event, List<EventData>> listEventsForProductOfTypeInRange(int productId, int eventTypeId, int indexFrom, int indexTo);
 }

@@ -4,11 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
-import de.hpi.bpt.argos.persistence.model.event.EventAttribute;
-import de.hpi.bpt.argos.persistence.model.event.EventType;
+import de.hpi.bpt.argos.persistence.model.event.*;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -78,6 +78,25 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public String getEventsForProduct(int productId, int eventTypeId, int eventIndexFrom, int eventIndexTo) {
+		Map<Event, List<EventData>> eventData = databaseConnection.listEventsForProductOfTypeInRange(productId, eventTypeId, eventIndexFrom,
+				eventIndexTo);
+
+		JsonArray jsonEvents = new JsonArray();
+
+		for(Map.Entry<Event, List<EventData>> entry : eventData.entrySet()) {
+			JsonObject jsonEvent = getEvent(entry.getValue());
+
+			jsonEvents.add(jsonEvent);
+		}
+
+		return serializer.toJson(jsonEvents);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void setDatabaseConnection(DatabaseConnection databaseConnection) {
 		this.databaseConnection = databaseConnection;
 	}
@@ -138,8 +157,44 @@ public class ResponseFactoryImpl implements ResponseFactory {
 		JsonObject jsonEventAttribute = new JsonObject();
 		jsonEventAttribute.addProperty("id", eventAttribute.getId());
 		jsonEventAttribute.addProperty("name", eventAttribute.getName());
-		jsonEventAttribute.addProperty("type", eventAttribute.getType());
+		jsonEventAttribute.addProperty("type", eventAttribute.getType().toString());
 
 		return jsonEventAttribute;
+	}
+
+	/**
+	 * This method returns a json representation of an event (all attributes defined in EventType) as a JsonObject.
+	 * @param eventData - a list of event data for this event
+	 * @return - a json representation of the event
+	 */
+	protected JsonObject getEvent(List<EventData> eventData) {
+		JsonObject jsonEvent = new JsonObject();
+
+		for(EventData data : eventData) {
+			switch (data.getEventAttribute().getType()) {
+				case STRING: {
+					jsonEvent.addProperty(data.getEventAttribute().getName(), data.getValue());
+					break;
+				}
+				case INTEGER: {
+					jsonEvent.addProperty(data.getEventAttribute().getName(), serializer.fromJson(data.getValue(), Integer.class));
+					break;
+				}
+				case FLOAT: {
+					jsonEvent.addProperty(data.getEventAttribute().getName(), serializer.fromJson(data.getValue(), Float.class));
+					break;
+				}
+				case DATE: {
+					jsonEvent.addProperty(data.getEventAttribute().getName(), data.getValue());
+					break;
+				}
+				default: {
+					jsonEvent.addProperty(data.getEventAttribute().getName(), data.getValue());
+					break;
+				}
+			}
+		}
+
+		return jsonEvent;
 	}
 }

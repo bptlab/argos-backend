@@ -20,7 +20,7 @@ public class EventAttributeImpl implements EventAttribute {
 	protected String name;
 
 	@Column(name = "Type")
-	protected String type;
+	protected EventDataType type;
 
 	/**
 	 * {@inheritDoc}
@@ -58,7 +58,7 @@ public class EventAttributeImpl implements EventAttribute {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getType() {
+	public EventDataType getType() {
 		return type;
 	}
 
@@ -66,7 +66,7 @@ public class EventAttributeImpl implements EventAttribute {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setType(String type) {
+	public void setType(EventDataType type) {
 		this.type = type;
 	}
 }

@@ -30,14 +30,14 @@ public interface EventAttribute {
 	void setName(String name);
 
 	/**
-	 * This method returns the eventType of the event attribute.
-	 * @return - the eventType of the event attribute as a string
+	 * This method returns the EventDataType of the event attribute.
+	 * @return - the EventDataType of the event attribute
 	 */
-	String getType();
+	EventDataType getType();
 
 	/**
-	 * This method sets the eventType of the event attribute.
-	 * @param type - the event attribute's eventType
+	 * This method sets the EventDataType of the event attribute.
+	 * @param type - the event attribute's EventDataType
 	 */
-	void setType(String type);
+	void setType(EventDataType type);
 }

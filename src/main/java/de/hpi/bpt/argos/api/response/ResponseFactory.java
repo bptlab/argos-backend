@@ -26,4 +26,14 @@ public interface ResponseFactory {
 	 * @return - a json representation of all event types
 	 */
 	String getAllEventTypes(int productId);
+
+	/**
+	 * This method returns a json representation of all events for one specific product with a specific event type within a certain range.
+	 * @param productId - the product identifier
+	 * @param eventTypeId - the event type identifier
+	 * @param eventIndexFrom - the start index for the events
+	 * @param eventIndexTo - the end index of the events
+	 * @return - a json representation of the requested events
+	 */
+	String getEventsForProduct(int productId, int eventTypeId, int eventIndexFrom, int eventIndexTo);
 }

@@ -76,7 +76,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 		logInfoForReceivedRequest(request);
 		int productId = inputValidation.validateInteger(request.params("productId"), (Integer input) -> input > 0);
 		String json = responseFactory.getAllEventTypes(productId);
-		logInfoForSendingProductFamilies(json);
+		logInfoForSendingProduct(json);
 		return json;
 	}
 
@@ -92,14 +92,9 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 		int indexFrom = inputValidation.validateInteger(request.params("indexFrom"), (Integer input) ->  input >= 0);
 		int indexTo = inputValidation.validateInteger(request.params("indexTo"), (Integer input) -> input >= indexFrom);
 
-		List<EventData> eventDataList = databaseConnection.listEventsForProductOfTypeInRange
-				(productId, eventTypeId,
-				indexFrom,
-				indexTo);
-		System.out.println(eventDataList);
-		// TODO: implement logic
-
-		return "";
+		String json = responseFactory.getEventsForProduct(productId, eventTypeId, indexFrom, indexTo);
+		logInfoForSendingEvents(json);
+		return json;
 	}
 
     /**
@@ -127,10 +122,26 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	}
 
     /**
-     * This methods logs an info, if the product families (json) are sent as a response.
+     * This method logs an info, if the product families (json) are sent as a response.
      * @param json - product families encoded as json string
      */
 	protected void logInfoForSendingProductFamilies(String json) {
 		logInfo("sending product families: " + json);
+	}
+
+	/**
+	 * This method logs an info, if a product (json) is sent as a response.
+	 * @param json - product encoded as json string
+	 */
+	protected void logInfoForSendingProduct(String json) {
+		logInfo("sending product: " + json);
+	}
+
+	/**
+	 * This method logs an info, if events (json) are sent as a response.
+	 * @param json - events encoded as json string
+	 */
+	protected void logInfoForSendingEvents(String json) {
+		logInfo("sending events: " + json);
 	}
 }

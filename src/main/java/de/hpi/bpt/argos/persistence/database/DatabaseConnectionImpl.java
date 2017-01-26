@@ -115,7 +115,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<EventData> listEventsForProductOfTypeInRange(int productId, int eventTypeId, int indexFrom, int
+	public Map<Event, List<EventData>> listEventsForProductOfTypeInRange(int productId, int eventTypeId, int indexFrom, int
 			indexTo) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;
@@ -142,13 +142,13 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 
 			}
 			tx.commit();
-			return eventDataList;
+			return eventList;
 		} catch (HibernateException exception) {
 			if (tx != null) {
 				tx.rollback();
 			}
 			logErrorWhileGettingListOfProductFamilies(exception);
-			return new ArrayList<>();
+			return new HashMap<Event, List<EventData>>();
 		}finally {
 			session.close();
 		}
