@@ -5,6 +5,7 @@ import de.hpi.bpt.argos.persistence.model.event.EventType;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * This interface represents data connections which are used to communicate with the data base.
@@ -27,9 +28,10 @@ public interface DatabaseConnection {
 	 * This method makes the database call to retrieve the necessary data for the API that serves all event types for
 	 * a certain product
 	 * @param productId - the product that we want the event types for
-	 * @return - a list of event types that can occur for the product
+	 * @return - a map of event types that can occur for the product with the number of events that occurred for this
+	 * event type
 	 */
-	List<EventType> listAllEventTypesForProduct(Integer productId);
+	Map<EventType, Integer> listAllEventTypesForProduct(Integer productId);
 
 	/**
 	 * This method makes the database call to retrieve the necessary data for the API that serves events for a

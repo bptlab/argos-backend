@@ -15,6 +15,7 @@ import spark.Response;
 import spark.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import static spark.Spark.halt;
@@ -68,10 +69,9 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	@Override
 	public String getProductOverview(Request request, Response response) {
 		logInfoForReceivedRequest(request);
-		Integer productId = Integer.parseInt(request.params("productId"));
-		validateInputInteger(productId, (Integer input) -> input > 0);
+		int productId = validateInputInteger(request.params("productId"), (Integer input) -> input > 0);
 
-		List<EventType> eventTypes = databaseConnection.listAllEventTypesForProduct(productId);
+		Map<EventType, Integer> eventTypes = databaseConnection.listAllEventTypesForProduct(productId);
 		// TODO: implement logic
 		System.out.println(eventTypes);
 		return "";
@@ -84,15 +84,10 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	public String getEventsForProduct(Request request, Response response) {
 		logInfoForReceivedRequest(request);
 
-		Integer productId = Integer.parseInt(request.params("productId"));
-		Integer eventTypeId = Integer.parseInt(request.params("eventTypeId"));
-		Integer indexFrom = Integer.parseInt(request.params("indexFrom"));
-		Integer indexTo = Integer.parseInt(request.params("indexTo"));
-
-		validateInputInteger(productId, (Integer input) -> input > 0);
-		validateInputInteger(eventTypeId, (Integer input) -> input > 0);
-		validateInputInteger(indexFrom, (Integer input) ->  input > 0);
-		validateInputInteger(indexTo, (Integer input) -> input >= indexFrom);
+		int productId = validateInputInteger(request.params("productId"), (Integer input) -> input > 0);
+		int eventTypeId = validateInputInteger(request.params("eventTypeId"), (Integer input) -> input > 0);
+		int indexFrom = validateInputInteger(request.params("indexFrom"), (Integer input) ->  input >= 0);
+		int indexTo = validateInputInteger(request.params("indexTo"), (Integer input) -> input >= indexFrom);
 
 		List<Event> events = databaseConnection.listEventsForProductOfTypeInRange(productId, eventTypeId, indexFrom,
 				indexTo);
@@ -106,17 +101,19 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
      * This method validates the input as an integer that is given as a string with a generic validation function.
      * @param inputValue - string to be tested
      * @param validateInputResult - function to be tested on the parsed integer as validation
+	 * @return - returns a
      */
-	protected void validateInputInteger(Integer inputValue, Function<Integer, Boolean> validateInputResult) {
+	protected int validateInputInteger(String inputValue, Function<Integer, Boolean> validateInputResult) {
 	    //TODO: api fails with a less generic exception (InputMismatchException)
 		try {
-			if (!validateInputResult.apply(inputValue)) {
+			if (!validateInputResult.apply(Integer.parseInt(inputValue))) {
 				throw new Exception("input did not pass validation");
 			}
 		} catch (Exception e) {
-			logErrorWhileInputValidation(inputValue.toString(), "Integer");
+			logErrorWhileInputValidation(inputValue, "Integer");
 			halt(HTTP_ERROR_NOT_FOUND, e.getMessage());
 		}
+		return Integer.parseInt(inputValue);
 	}
 
     /**

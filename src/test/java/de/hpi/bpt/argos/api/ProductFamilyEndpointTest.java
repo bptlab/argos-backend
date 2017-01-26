@@ -78,15 +78,15 @@ public class ProductFamilyEndpointTest {
     }
 
     private String getProductFamiliesUri() {
-        return "/api/product";
+        return "/api/productfamilies";
     }
 
     private String getProductFamilyOverviewUri(Object productId) {
-        return String.format("/api/product/%1$s", productId);
+        return String.format("/api/products/%1$s/eventtypes", productId);
     }
 
     private String getEventsForProductFamilyUri(Object productId, Object eventTypeId, Object indexFrom, Object
             indexTo) {
-        return String.format("/api/product/%1$s/eventtype/%2$s/%3$s/%4$s", productId, eventTypeId, indexFrom, indexTo);
+        return String.format("/api/products/%1$s/events/%2$s/%3$s/%4$s", productId, eventTypeId, indexFrom, indexTo);
     }
 }

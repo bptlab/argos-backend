@@ -15,10 +15,7 @@ import org.hibernate.service.spi.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * {@inheritDoc}
@@ -81,7 +78,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<EventType> listAllEventTypesForProduct(Integer productId) {
+	public Map<EventType, Integer> listAllEventTypesForProduct(Integer productId) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;
 		try {
@@ -90,19 +87,25 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 					Event.class)
 					.setParameter("productId", productId)
 					.list();
-			Set<EventType> eventTypes = new HashSet<>();
+			Map<EventType, Integer> eventTypes = new HashMap<>();
 			for (Event event: events) {
-				eventTypes.add(event.getEventType());
+				EventType currentEventType = event.getEventType();
+				if (eventTypes.containsKey(currentEventType)) {
+					int oldNumberOfEventTypes = eventTypes.get(event.getEventType());
+					eventTypes.put(currentEventType, oldNumberOfEventTypes + 1);
+				} else {
+					eventTypes.put(currentEventType, 1);
+				}
 			}
 			tx.commit();
 			session.close();
-			return new ArrayList<>(eventTypes);
+			return eventTypes;
 		} catch (HibernateException exception) {
 			if (tx != null) {
 				tx.rollback();
 			}
 			logErrorWhileGettingListOfProductFamilies(exception);
-			return new ArrayList<>();
+			return new HashMap<>();
 		}finally {
 			session.close();
 		}
