@@ -15,6 +15,7 @@ import spark.Response;
 import spark.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import static spark.Spark.halt;
@@ -70,7 +71,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 		logInfoForReceivedRequest(request);
 		int productId = validateInputInteger(request.params("productId"), (Integer input) -> input > 0);
 
-		List<EventType> eventTypes = databaseConnection.listAllEventTypesForProduct(productId);
+		Map<EventType, Integer> eventTypes = databaseConnection.listAllEventTypesForProduct(productId);
 		// TODO: implement logic
 		System.out.println(eventTypes);
 		return "";
@@ -100,6 +101,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
      * This method validates the input as an integer that is given as a string with a generic validation function.
      * @param inputValue - string to be tested
      * @param validateInputResult - function to be tested on the parsed integer as validation
+	 * @return - returns a
      */
 	protected int validateInputInteger(String inputValue, Function<Integer, Boolean> validateInputResult) {
 	    //TODO: api fails with a less generic exception (InputMismatchException)
