@@ -123,12 +123,12 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 			tx = session.beginTransaction();
 			List<EventData> eventDataList = session.createQuery("From EventDataImpl ed " +
 							"WHERE ed.event.eventType.id = :eventTypeId AND ed.event.product.id = :productId " +
-							"AND ed.event.id >= :indexFrom AND ed.event.id <= :indexTo", EventData.class
+							"ORDER BY ed.event.id ASC", EventData.class
 							)
 						.setParameter("productId", productId)
 						.setParameter("eventTypeId", eventTypeId)
-						.setParameter("indexFrom", indexFrom)
-						.setParameter("indexTo", indexTo)
+						.setFirstResult(indexFrom)
+						.setMaxResults(indexTo)
 						.list();
 			Map<Event, List<EventData>> eventList = new HashMap<>();
 			for (EventData eventData: eventDataList) {

@@ -43,5 +43,6 @@ public interface DatabaseConnection {
 	 * @param indexTo - the end of the index range that the events should come from
 	 * @return - a list of events that satisfies the parameters
 	 */
-	Map<Event, List<EventData>> listEventsForProductOfTypeInRange(int productId, int eventTypeId, int indexFrom, int indexTo);
+	Map<Event, List<EventData>> listEventsForProductOfTypeInRange(int productId, int eventTypeId, int indexFrom, int
+			indexTo);
 }
