@@ -9,8 +9,8 @@ import de.hpi.bpt.argos.persistence.model.event.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@inheritDoc}
@@ -54,15 +54,16 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	 */
 	@Override
 	public String getAllEventTypes(int productId) {
-		List<EventType> eventTypes = databaseConnection.listAllEventTypesForProduct(productId);
+		Map<EventType, Integer> eventTypes = databaseConnection.listAllEventTypesForProduct(productId);
 
 		JsonArray jsonEventTypes = new JsonArray();
 
-		for(EventType eventType : eventTypes) {
-			JsonObject jsonEventType = getEventTypeBase(eventType);
+		for(Map.Entry<EventType, Integer> eventTypeEntry : eventTypes.entrySet()) {
+			JsonObject jsonEventType = getEventTypeBase(eventTypeEntry.getKey());
+			jsonEventType.addProperty("numberOfEvents", eventTypeEntry.getValue());
 			JsonArray jsonEventAttributes = new JsonArray();
 
-			for(EventAttribute eventAttribute : eventType.getAttributes()) {
+			for(EventAttribute eventAttribute : eventTypeEntry.getKey().getAttributes()) {
 				jsonEventAttributes.add(getEventAttribute(eventAttribute));
 			}
 
@@ -124,8 +125,6 @@ public class ResponseFactoryImpl implements ResponseFactory {
 		JsonObject jsonEventType = new JsonObject();
 		jsonEventType.addProperty("id", eventType.getId());
 		jsonEventType.addProperty("name", eventType.getName());
-		// TODO: get number of events
-		//jsonEventType.addProperty("numberOfEvents");
 
 		return jsonEventType;
 	}
