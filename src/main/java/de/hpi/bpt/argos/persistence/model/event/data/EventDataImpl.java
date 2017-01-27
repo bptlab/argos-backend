@@ -18,11 +18,11 @@ public class EventDataImpl implements EventData {
 	@Column(name = "Id")
 	protected int id;
 
-	@ManyToOne(targetEntity = EventAttributeImpl.class)
+	@ManyToOne(cascade = {CascadeType.ALL}, targetEntity = EventAttributeImpl.class)
 	protected EventAttribute eventAttribute;
 
 	@Column(name = "Value")
-	protected String value;
+	protected String value = "";
 
 	/**
 	 * {@inheritDoc}

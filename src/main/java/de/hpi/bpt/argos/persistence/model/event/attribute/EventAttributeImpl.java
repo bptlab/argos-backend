@@ -1,7 +1,7 @@
 package de.hpi.bpt.argos.persistence.model.event.attribute;
 
 
-import de.hpi.bpt.argos.persistence.model.event.EventDataType;
+import de.hpi.bpt.argos.persistence.model.event.data.EventDataType;
 
 import javax.persistence.*;
 
@@ -19,10 +19,10 @@ public class EventAttributeImpl implements EventAttribute {
 	protected int id;
 
 	@Column(name = "Name")
-	protected String name;
+	protected String name = "";
 
 	@Column(name = "Type")
-	protected EventDataType type;
+	protected EventDataType type = EventDataType.STRING;
 
 	/**
 	 * {@inheritDoc}
