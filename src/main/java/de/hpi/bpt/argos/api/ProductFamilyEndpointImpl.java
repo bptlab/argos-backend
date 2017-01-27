@@ -7,19 +7,12 @@ import de.hpi.bpt.argos.common.RestEndpointImpl;
 import de.hpi.bpt.argos.common.validation.RestInputValidationService;
 import de.hpi.bpt.argos.common.validation.RestInputValidationServiceImpl;
 import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
-import de.hpi.bpt.argos.persistence.model.event.Event;
-import de.hpi.bpt.argos.persistence.model.event.EventData;
-import de.hpi.bpt.argos.persistence.model.event.EventType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 import spark.Service;
-
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 import static spark.Spark.halt;
 

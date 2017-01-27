@@ -1,4 +1,6 @@
-package de.hpi.bpt.argos.persistence.model.event;
+package de.hpi.bpt.argos.persistence.model.event.attribute;
+
+import de.hpi.bpt.argos.persistence.model.event.EventDataType;
 
 /**
  * This interface represents an event attribute that every event eventType has a list of.

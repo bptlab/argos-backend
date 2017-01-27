@@ -1,14 +1,26 @@
 package de.hpi.bpt.argos.eventHandling;
 
 import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
-import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
-import de.hpi.bpt.argos.persistence.model.event.EventType;
+import de.hpi.bpt.argos.persistence.model.event.type.EventType;
+
+
 /**
  * This interface is used to subscribe an event query on the event processing platform.
  */
 public interface EventSubscriber {
 
-	void setupEventPlatform(String host, String eventUri, String queryUri, DatabaseConnection databaseConnection);
+	/**
+	 * This method sets up the event platform by registering all of the event types.
+	 * @param host - the event platform's host
+	 * @param eventUri - the event register uri
+	 * @param queryUri - the query register uri
+	 */
+	void setupEventPlatform(String host, String eventUri, String queryUri);
+
+	/**
+	 * This method sets up the default event platform by registering all of the event types.
+	 */
+	void setupEventPlatform();
 
 	/**
 	 * This method creates a given event type on the event processing platform (defined by host and uri).
@@ -57,4 +69,10 @@ public interface EventSubscriber {
 	 * @return - true if the event type is already registered
 	 */
 	boolean isEventTypeRegistered(EventType eventType);
+
+	/**
+	 * This method sets the database connection for this event subscriber.
+	 * @param databaseConnection - the database connection so be set
+	 */
+	void setDatabaseConnection(DatabaseConnection databaseConnection);
 }

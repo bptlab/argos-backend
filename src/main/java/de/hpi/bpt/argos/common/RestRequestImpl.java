@@ -21,6 +21,8 @@ public class RestRequestImpl implements RestRequest {
 	public static final String ERROR_RECEIVING_RESPONSE = "error while receiving response";
 
 	protected HttpURLConnection connection;
+	protected String content;
+	protected String response;
 
 	/**
 	 * Constructor for RestRequest, instantiates new connection.
@@ -39,7 +41,12 @@ public class RestRequestImpl implements RestRequest {
 		return connection;
 	}
 
-    /**
+	@Override
+	public String getContent() {
+		return content;
+	}
+
+	/**
      * {@inheritDoc}
      */
 	@Override
@@ -52,6 +59,8 @@ public class RestRequestImpl implements RestRequest {
 			outputStream.writeBytes(requestContent);
 			outputStream.flush();
 			outputStream.close();
+
+			content = requestContent;
 		} catch (IOException e) {
 			logExceptionInContentSetting(e);
 		}
@@ -75,6 +84,10 @@ public class RestRequestImpl implements RestRequest {
      */
 	@Override
 	public String getResponse() {
+		if (response != null) {
+			return response;
+		}
+
 		BufferedReader responseReader;
 
 		try {
@@ -93,11 +106,12 @@ public class RestRequestImpl implements RestRequest {
 			}
 			responseReader.close();
 		} catch (IOException e) {
-			logExceptionWhileReceivingResponse(e);
+			//logExceptionWhileReceivingResponse(e);
 			return ERROR_RECEIVING_RESPONSE;
 		}
 
-		return response.toString();
+		this.response = response.toString();
+		return this.response;
 	}
 
     /**

@@ -20,14 +20,14 @@ public class UpdateProductStateEventImpl implements UpdateProductStateEvent {
 	@Column(name = "Id")
 	protected int id;
 
-	@ManyToOne(fetch = FetchType.LAZY, targetEntity = ProductImpl.class)
+	@ManyToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = ProductImpl.class)
 	protected Product product;
 
 	@Column(name = "State")
-	protected ProductState state;
+	protected ProductState state = ProductState.RUNNING;
 
 	@Column(name = "Timestamp")
-	protected Date timestamp;
+	protected Date timestamp = new Date();
 
 	/**
 	 * {@inheritDoc}

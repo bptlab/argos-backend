@@ -1,8 +1,8 @@
 package de.hpi.bpt.argos.persistence.database;
 
-import de.hpi.bpt.argos.persistence.model.event.Event;
-import de.hpi.bpt.argos.persistence.model.event.EventData;
-import de.hpi.bpt.argos.persistence.model.event.EventType;
+import de.hpi.bpt.argos.persistence.model.event.data.Event;
+import de.hpi.bpt.argos.persistence.model.event.type.EventType;
+import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 
 import java.util.List;
@@ -43,6 +43,51 @@ public interface DatabaseConnection {
 	 * @param indexTo - the end of the index range that the events should come from
 	 * @return - a list of events that satisfies the parameters
 	 */
-	Map<Event, List<EventData>> listEventsForProductOfTypeInRange(int productId, int eventTypeId, int indexFrom, int
+	List<Event> listEventsForProductOfTypeInRange(int productId, int eventTypeId, int indexFrom, int
 			indexTo);
+
+	/**
+	 * This method makes the database call to retrieve the requested event type.
+	 * @param eventTypeId - the event type id
+	 * @return - the requested event type
+	 */
+	EventType getEventType(int eventTypeId);
+
+	/**
+	 * This method makes the database call to retrieve the requested product.
+	 * @param productOrderNumber - the product order number to search
+	 * @return - the product
+	 */
+	Product getProduct(int productOrderNumber);
+
+	/**
+	 * This method makes the database call to retrieve the requested product family.
+	 * @param name - the name of the product family
+	 * @return - the product family
+	 */
+	ProductFamily getProductFamily(String name);
+
+	/**
+	 * This method makes the database call to save the given product families.
+	 * @param productFamilies - the list of product families
+	 */
+	void saveProductFamilies(List<ProductFamily> productFamilies);
+
+	/**
+	 * This method makes the database call to retrieve all event types.
+	 * @return - a list of all event types
+	 */
+	List<EventType> listEvenTypes();
+
+	/**
+	 * This method makes the database call to save all given event types.
+	 * @param eventTypes - a list of event types to save
+	 */
+	void saveEventTypes(List<EventType> eventTypes);
+
+	/**
+	 * This method makes the database call to save all given events.
+	 * @param events - a list of events to save
+	 */
+	void saveEvents(List<Event> events);
 }

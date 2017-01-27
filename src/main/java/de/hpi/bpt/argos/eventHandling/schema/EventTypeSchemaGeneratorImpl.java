@@ -1,8 +1,8 @@
 package de.hpi.bpt.argos.eventHandling.schema;
 
-import de.hpi.bpt.argos.persistence.model.event.EventAttribute;
-import de.hpi.bpt.argos.persistence.model.event.EventDataType;
-import de.hpi.bpt.argos.persistence.model.event.EventType;
+import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
+import de.hpi.bpt.argos.persistence.model.event.data.EventDataType;
+import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 
 /**
  * {@inheritDoc}
@@ -10,7 +10,7 @@ import de.hpi.bpt.argos.persistence.model.event.EventType;
  */
 public class EventTypeSchemaGeneratorImpl implements EventTypeSchemaGenerator {
 
-	protected static final String SCHEMA_EXTENSION = ".xsd";
+	protected static final String SCHEMA_EXTENSION = "xsd";
 
 	/**
 	 * {@inheritDoc}
@@ -38,9 +38,9 @@ public class EventTypeSchemaGeneratorImpl implements EventTypeSchemaGenerator {
 	 * @return - the schema header
 	 */
 	protected String extendWithHeader(String schemaName, String innerContent) {
-		return String.format("<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
-				"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns=\"%1$s.%2$s\"" +
-				"targetNamespace=\"%1$s.%2$s\" elementFormDefault=\"qualified\">" +
+		return String.format("<?xml version='1.0' encoding='utf-8'?>" +
+				"<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema' xmlns='%1$s.%2$s' " +
+				"targetNamespace='%1$s.%2$s' elementFormDefault='qualified'>" +
 				"%3$s</xs:schema>", schemaName, SCHEMA_EXTENSION, innerContent);
 	}
 
@@ -51,7 +51,7 @@ public class EventTypeSchemaGeneratorImpl implements EventTypeSchemaGenerator {
 	 * @return - the new content
 	 */
 	protected String extendWithElement(String elementName, String innerContent) {
-		return String.format("<xs:element name=\"%1$s\">%2$s</xs:element>", elementName, innerContent);
+		return String.format("<xs:element name='%1$s'>%2$s</xs:element>", elementName, innerContent);
 	}
 
 	/**
@@ -105,6 +105,6 @@ public class EventTypeSchemaGeneratorImpl implements EventTypeSchemaGenerator {
 			}
 		}
 
-		return String.format("%1$s<xs:element name=\"%2$s\" type=\"%3$s\"/>", innerContent, elementName, typeString);
+		return String.format("%1$s<xs:element name='%2$s' type='%3$s'/>", innerContent, elementName, typeString);
 	}
 }

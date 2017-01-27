@@ -13,6 +13,12 @@ public interface RestRequest {
      */
 	HttpURLConnection getConnection();
 
+	/**
+	 * This method returns the content body of the rest request.
+	 * @return - the content body of the rest request
+	 */
+	String getContent();
+
     /**
      * This method sets the content body of the rest request.
      * @param requestContent - content body to be set as a string

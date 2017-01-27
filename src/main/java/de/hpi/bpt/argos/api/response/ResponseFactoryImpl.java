@@ -4,11 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
-import de.hpi.bpt.argos.persistence.model.event.*;
+import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
+import de.hpi.bpt.argos.persistence.model.event.data.Event;
+import de.hpi.bpt.argos.persistence.model.event.data.EventData;
+import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -79,15 +81,13 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	 */
 	@Override
 	public String getEventsForProduct(int productId, int eventTypeId, int eventIndexFrom, int eventIndexTo) {
-		Map<Event, List<EventData>> eventData = databaseConnection.listEventsForProductOfTypeInRange(productId, eventTypeId, eventIndexFrom,
+		List<Event> events = databaseConnection.listEventsForProductOfTypeInRange(productId, eventTypeId, eventIndexFrom,
 				eventIndexTo);
 
 		JsonArray jsonEvents = new JsonArray();
 
-		for(Map.Entry<Event, List<EventData>> entry : eventData.entrySet()) {
-			JsonObject jsonEvent = getEvent(entry.getValue());
-			jsonEvent.addProperty("id", entry.getKey().getId());
-			jsonEvents.add(jsonEvent);
+		for(Event event : events) {
+			jsonEvents.add(getEvent(event));
 		}
 
 		return serializer.toJson(jsonEvents);
@@ -122,17 +122,22 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	 * @return - a json representation of the product's base
 	 */
 	protected JsonObject getProductBase(Product product) {
-		JsonObject jsonProduct = new JsonObject();
-		jsonProduct.addProperty("id", product.getId());
-		jsonProduct.addProperty("name", product.getName());
-		jsonProduct.addProperty("numberOfDevices", product.getNumberOfDevices());
-		jsonProduct.addProperty("numberOfEvents", product.getNumberOfEvents());
-		jsonProduct.addProperty("productionStart", product.getProductionStart().toString());
-		jsonProduct.addProperty("orderNumber", product.getOrderNumber());
-		jsonProduct.addProperty("state", product.getState().toString());
-		jsonProduct.addProperty("stateDescription", product.getStateDescription());
+		try {
+			JsonObject jsonProduct = new JsonObject();
+			jsonProduct.addProperty("id", product.getId());
+			jsonProduct.addProperty("name", product.getName());
+			jsonProduct.addProperty("numberOfDevices", product.getNumberOfDevices());
+			jsonProduct.addProperty("numberOfEvents", product.getNumberOfEvents());
+			jsonProduct.addProperty("productionStart", product.getProductionStart().toString());
+			jsonProduct.addProperty("orderNumber", product.getOrderNumber());
+			jsonProduct.addProperty("state", product.getState().toString());
+			jsonProduct.addProperty("stateDescription", product.getStateDescription());
 
-		return jsonProduct;
+			return jsonProduct;
+		} catch (Exception exception) {
+			// TODO: log exception
+			return new JsonObject();
+		}
 	}
 
 	/**
@@ -141,11 +146,16 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	 * @return - a json representation of the event type's base
 	 */
 	protected JsonObject getEventTypeBase(EventType eventType) {
-		JsonObject jsonEventType = new JsonObject();
-		jsonEventType.addProperty("id", eventType.getId());
-		jsonEventType.addProperty("name", eventType.getName());
+		try {
+			JsonObject jsonEventType = new JsonObject();
+			jsonEventType.addProperty("id", eventType.getId());
+			jsonEventType.addProperty("name", eventType.getName());
 
-		return jsonEventType;
+			return jsonEventType;
+		} catch (Exception exception) {
+			// TODO: log exception
+			return new JsonObject();
+		}
 	}
 
 	/**
@@ -154,47 +164,58 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	 * @return - a json representation of the event attribute
 	 */
 	protected JsonObject getEventAttribute(EventAttribute eventAttribute) {
-		JsonObject jsonEventAttribute = new JsonObject();
-		jsonEventAttribute.addProperty("id", eventAttribute.getId());
-		jsonEventAttribute.addProperty("name", eventAttribute.getName());
-		jsonEventAttribute.addProperty("type", eventAttribute.getType().toString());
+		try {
+			JsonObject jsonEventAttribute = new JsonObject();
+			jsonEventAttribute.addProperty("id", eventAttribute.getId());
+			jsonEventAttribute.addProperty("name", eventAttribute.getName());
+			jsonEventAttribute.addProperty("type", eventAttribute.getType().toString());
 
-		return jsonEventAttribute;
+			return jsonEventAttribute;
+		} catch (Exception exception) {
+			// TODO: log exception
+			return new JsonObject();
+		}
 	}
 
 	/**
-	 * This method returns a json representation of an event (all attributes defined in EventType) as a JsonObject.
-	 * @param eventData - a list of event data for this event
-	 * @return - a json representation of the event
+	 * This method returns the json object for a given event.
+	 * @param event - the event to convert to json
+	 * @return - the json object for the event
 	 */
-	protected JsonObject getEvent(List<EventData> eventData) {
-		JsonObject jsonEvent = new JsonObject();
+	protected JsonObject getEvent(Event event) {
+		try {
+			JsonObject jsonEvent = new JsonObject();
+			jsonEvent.addProperty("id", event.getId());
 
-		for(EventData data : eventData) {
-			switch (data.getEventAttribute().getType()) {
-				case STRING: {
-					jsonEvent.addProperty(data.getEventAttribute().getName(), data.getValue());
-					break;
-				}
-				case INTEGER: {
-					jsonEvent.addProperty(data.getEventAttribute().getName(), serializer.fromJson(data.getValue(), Integer.class));
-					break;
-				}
-				case FLOAT: {
-					jsonEvent.addProperty(data.getEventAttribute().getName(), serializer.fromJson(data.getValue(), Float.class));
-					break;
-				}
-				case DATE: {
-					jsonEvent.addProperty(data.getEventAttribute().getName(), data.getValue());
-					break;
-				}
-				default: {
-					jsonEvent.addProperty(data.getEventAttribute().getName(), data.getValue());
-					break;
+			for (EventData data : event.getEventData()) {
+				switch (data.getEventAttribute().getType()) {
+					case STRING: {
+						jsonEvent.addProperty(data.getEventAttribute().getName(), data.getValue());
+						break;
+					}
+					case INTEGER: {
+						jsonEvent.addProperty(data.getEventAttribute().getName(), serializer.fromJson(data.getValue(), Integer.class));
+						break;
+					}
+					case FLOAT: {
+						jsonEvent.addProperty(data.getEventAttribute().getName(), serializer.fromJson(data.getValue(), Float.class));
+						break;
+					}
+					case DATE: {
+						jsonEvent.addProperty(data.getEventAttribute().getName(), data.getValue());
+						break;
+					}
+					default: {
+						jsonEvent.addProperty(data.getEventAttribute().getName(), data.getValue());
+						break;
+					}
 				}
 			}
-		}
 
-		return jsonEvent;
+			return jsonEvent;
+		} catch (Exception exception) {
+			// TODO: log exception
+			return new JsonObject();
+		}
 	}
 }

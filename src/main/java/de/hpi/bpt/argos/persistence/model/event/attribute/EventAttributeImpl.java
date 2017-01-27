@@ -1,5 +1,7 @@
-package de.hpi.bpt.argos.persistence.model.event;
+package de.hpi.bpt.argos.persistence.model.event.attribute;
 
+
+import de.hpi.bpt.argos.persistence.model.event.EventDataType;
 
 import javax.persistence.*;
 

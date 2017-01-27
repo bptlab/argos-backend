@@ -38,16 +38,17 @@ public class ArgosImpl implements Argos {
 	public void run(int port, int numberOfThreads) {
 		sparkService = startServer(port, numberOfThreads);
 
-		eventReceiver = new EventReceiverImpl();
-		eventReceiver.setup(sparkService);
-
-		eventSubscriber = new EventSubscriberImpl();
-		// TODO: subscribe to unicorn
-
 		databaseConnection = new DatabaseConnectionImpl();
 		if (!databaseConnection.setup()) {
 			shutdown();
 		}
+
+		eventReceiver = new EventReceiverImpl(databaseConnection);
+		eventReceiver.setup(sparkService);
+
+		eventSubscriber = new EventSubscriberImpl(databaseConnection);
+		eventSubscriber.setupEventPlatform();
+		// TODO: subscribe to unicorn
 
 		productFamilyEndpoint = new ProductFamilyEndpointImpl(databaseConnection);
 		productFamilyEndpoint.setup(sparkService);

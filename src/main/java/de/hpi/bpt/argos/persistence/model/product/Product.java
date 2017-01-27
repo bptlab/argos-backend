@@ -1,6 +1,6 @@
 package de.hpi.bpt.argos.persistence.model.product;
 
-import de.hpi.bpt.argos.persistence.model.event.Event;
+import de.hpi.bpt.argos.persistence.model.event.data.Event;
 import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
 
 import java.util.Date;

@@ -1,6 +1,6 @@
 package de.hpi.bpt.argos.eventHandling.schema;
 
-import de.hpi.bpt.argos.persistence.model.event.EventType;
+import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 
 /**
  * This interface represents generators which generate event type schema for the event platform.

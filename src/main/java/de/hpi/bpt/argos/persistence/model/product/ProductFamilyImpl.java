@@ -1,5 +1,7 @@
 package de.hpi.bpt.argos.persistence.model.product;
 
+import org.hibernate.annotations.NaturalId;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,12 +21,12 @@ public class ProductFamilyImpl implements ProductFamily {
 	protected int id;
 
 	@Column(name = "Name")
-	protected String name;
+	protected String name = "";
 
 	@Column(name = "Brand")
-	protected String brand;
+	protected String brand = "";
 
-	@OneToMany(fetch = FetchType.EAGER, targetEntity = ProductImpl.class)
+	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = ProductImpl.class)
 	protected List<Product> products = new ArrayList<>();
 
 	/**
