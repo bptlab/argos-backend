@@ -21,5 +21,5 @@ public interface RestEndpoint {
 	//TODO: Do we really need this method?
 	String finishRequest();
 
-	void enableCORS(String origin, String methods, String headers);
+	void enableCORS();
 }

@@ -43,11 +43,11 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
      */
     @Override
 	public void setup(Service sparkService) {
+		super.enableCORS();
+
 		sparkService.get(GET_PRODUCT_FAMILIES, this::getProductFamilies);
 		sparkService.get(GET_PRODUCT_OVERVIEW,this::getProductOverview);
 		sparkService.get(GET_EVENTS_FOR_PRODUCT, this::getEventsForProduct);
-
-		super.enableCORS("*", "*", "*");
 	}
 
     /**
