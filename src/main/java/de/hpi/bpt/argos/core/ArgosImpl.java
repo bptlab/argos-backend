@@ -10,9 +10,14 @@ import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
 import de.hpi.bpt.argos.persistence.database.DatabaseConnectionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.Filter;
+import spark.Request;
+import spark.Response;
 import spark.Service;
 
 import static spark.Service.ignite;
+import static spark.Spark.before;
+import static spark.Spark.options;
 
 /**
  * {@inheritDoc}
@@ -37,6 +42,7 @@ public class ArgosImpl implements Argos {
 	@Override
 	public void run(int port, int numberOfThreads) {
 		sparkService = startServer(port, numberOfThreads);
+		enableCORS(sparkService);
 
 		databaseConnection = new DatabaseConnectionImpl();
 		if (!databaseConnection.setup()) {
@@ -78,12 +84,41 @@ public class ArgosImpl implements Argos {
      * @param numberOfThreads - number of threads to be used as an integer
      * @return - returns a spark service object
      */
-	private Service startServer(int port, int numberOfThreads) {
+	protected Service startServer(int port, int numberOfThreads) {
 		return ignite()
 				.port(port)
 				.threadPool(numberOfThreads);
 	}
 
+
+	/**
+	 * This method enables the CORS handling for every request. This could a security leak.
+	 * @param sparkService - the sparkservice to be configured
+	 */
+	//TODO: fix the valneriddi
+	protected void enableCORS(Service sparkService) {
+		sparkService.options("/*", (request, response) -> {
+
+			String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
+			if (accessControlRequestHeaders != null) {
+				response.header("Access-Control-Allow-Headers", accessControlRequestHeaders);
+			}
+
+			String accessControlRequestMethod = request.headers("Access-Control-Request-Method");
+			if (accessControlRequestMethod != null) {
+				response.header("Access-Control-Allow-Methods", accessControlRequestMethod);
+			}
+
+			return "OK";
+		});
+
+		sparkService.before((request, response) -> {
+			response.header("Access-Control-Allow-Origin", "*");
+			response.header("Access-Control-Request-Method", "*");
+			response.header("Access-Control-Allow-Headers", "*");
+			response.type("application/json");
+		});
+	}
     /**
      * This method logs errors on error level.
      * @param head - error message to be logged

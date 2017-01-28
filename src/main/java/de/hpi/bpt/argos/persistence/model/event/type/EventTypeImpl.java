@@ -6,6 +6,8 @@ import de.hpi.bpt.argos.persistence.model.event.*;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttributeImpl;
 import de.hpi.bpt.argos.persistence.model.event.data.Event;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ public class EventTypeImpl implements EventType {
 	protected EventSubscriptionQuery eventSubscriptionQuery;
 
 	@ManyToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventAttributeImpl.class)
+	@Fetch(value = FetchMode.SUBSELECT)
 	protected List<EventAttribute> attributes = new ArrayList<>();
 
 	@ManyToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventAttributeImpl.class)

@@ -18,7 +18,7 @@ public class EventDataImpl implements EventData {
 	@Column(name = "Id")
 	protected int id;
 
-	@ManyToOne(cascade = {CascadeType.ALL}, targetEntity = EventAttributeImpl.class)
+	@ManyToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventAttributeImpl.class)
 	protected EventAttribute eventAttribute;
 
 	@Column(name = "Value")

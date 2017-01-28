@@ -10,6 +10,7 @@ import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.Filter;
 import spark.Request;
 import spark.Response;
 import spark.Service;
@@ -43,8 +44,6 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
      */
     @Override
 	public void setup(Service sparkService) {
-		super.enableCORS();
-
 		sparkService.get(GET_PRODUCT_FAMILIES, this::getProductFamilies);
 		sparkService.get(GET_PRODUCT_OVERVIEW,this::getProductOverview);
 		sparkService.get(GET_EVENTS_FOR_PRODUCT, this::getEventsForProduct);
@@ -56,6 +55,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	@Override
 	public String getProductFamilies(Request request, Response response) {
 		logInfoForReceivedRequest(request);
+		request.headers("Access-Control-Allow-Origin");
 
 		String json = responseFactory.getAllProductFamilies();
 		logInfoForSendingProductFamilies(json);

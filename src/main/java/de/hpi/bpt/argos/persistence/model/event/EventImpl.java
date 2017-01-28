@@ -31,7 +31,7 @@ public class EventImpl implements Event {
 	@ManyToOne(cascade = {CascadeType.ALL}, targetEntity = EventTypeImpl.class)
 	protected EventType eventType;
 
-	@OneToMany(cascade = {CascadeType.ALL}, targetEntity = EventDataImpl.class)
+	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventDataImpl.class)
 	protected List<EventData> eventData;
 
 	/**

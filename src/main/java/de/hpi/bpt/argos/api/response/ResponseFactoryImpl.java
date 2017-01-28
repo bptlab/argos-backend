@@ -83,7 +83,6 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	public String getEventsForProduct(int productId, int eventTypeId, int eventIndexFrom, int eventIndexTo) {
 		List<Event> events = databaseConnection.listEventsForProductOfTypeInRange(productId, eventTypeId, eventIndexFrom,
 				eventIndexTo);
-
 		JsonArray jsonEvents = new JsonArray();
 
 		for(Event event : events) {
