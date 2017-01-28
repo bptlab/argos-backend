@@ -54,6 +54,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
      */
 	@Override
 	public String getProductFamilies(Request request, Response response) {
+		super.before(request, response);
 		logInfoForReceivedRequest(request);
 
 		String json = responseFactory.getAllProductFamilies();
@@ -66,6 +67,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
      */
 	@Override
 	public String getProductOverview(Request request, Response response) {
+		super.before(request, response);
 		logInfoForReceivedRequest(request);
 		int productId = inputValidation.validateInteger(request.params("productId"), (Integer input) -> input > 0);
 		String json = responseFactory.getAllEventTypes(productId);
@@ -78,6 +80,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
      */
 	@Override
 	public String getEventsForProduct(Request request, Response response) {
+		super.before(request, response);
 		logInfoForReceivedRequest(request);
 
 		int productId = inputValidation.validateInteger(request.params("productId"), (Integer input) -> input >= 0);

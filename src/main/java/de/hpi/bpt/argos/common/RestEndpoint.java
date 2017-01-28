@@ -1,5 +1,7 @@
 package de.hpi.bpt.argos.common;
 
+import spark.Request;
+import spark.Response;
 import spark.Service;
 
 /**
@@ -18,4 +20,6 @@ public interface RestEndpoint {
 	 */
 	//TODO: Do we really need this method?
 	String finishRequest();
+
+	void before(Request request, Response response);
 }
