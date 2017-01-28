@@ -34,4 +34,21 @@ public interface RestRequestFactory {
      * @return - returns a RestRequest object using the request method POST and default content and accept types.
      */
     RestRequest createPostRequest(String host, String uri);
+
+	/**
+	 * This method returns a RestRequst object using GET request method.
+	 * @param host - the host to be requested as a string
+	 * @param uri - the uri to be requested as a string
+	 * @param acceptType - the content type value to be used as a string
+	 * @return - returns a RestRequest object using the request method GET
+	 */
+    RestRequest createGetRequest(String host, String uri, String acceptType);
+
+	/**
+	 * This method returns a RestRequst object using GET request method using the default accept type.
+	 * @param host - the host to be requested as a string
+	 * @param uri - the uri to be requested as a string
+	 * @return - returns a RestRequest object using the request method GET
+	 */
+	RestRequest createGetRequest(String host, String uri);
 }

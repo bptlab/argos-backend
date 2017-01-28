@@ -1,17 +1,18 @@
 package de.hpi.bpt.argos.api;
 
 import com.google.gson.Gson;
+import de.hpi.bpt.argos.api.response.ResponseFactory;
+import de.hpi.bpt.argos.api.response.ResponseFactoryImpl;
 import de.hpi.bpt.argos.common.RestEndpointImpl;
-import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
+import de.hpi.bpt.argos.common.validation.RestInputValidationService;
+import de.hpi.bpt.argos.common.validation.RestInputValidationServiceImpl;
+import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 import spark.Service;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Function;
 
 import static spark.Spark.halt;
 
@@ -23,19 +24,19 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	protected static final Gson serializer = new Gson();
 	protected static final Logger logger = LoggerFactory.getLogger(ProductFamilyEndpointImpl.class);
 
-	protected static final int HTTP_ERROR_NOT_FOUND = 404;
-	protected static final String GET_PRODUCT_FAMILIES = "/api/product";
-	protected static final String GET_PRODUCT_FAMILY_OVERVIEW = "/api/product/:productId";
-	protected static final String GET_EVENTS_FOR_PRODUCT_FAMILY = "/api/product/:productId/eventtype/:eventTypeId/:indexFrom/:indexTo";
+	protected static final String GET_PRODUCT_FAMILIES = "/api/productfamilies";
+	protected static final String GET_PRODUCT_OVERVIEW = "/api/products/:productId/eventtypes";
+	protected static final String GET_EVENTS_FOR_PRODUCT =
+			"/api/products/:productId/events/:eventTypeId/:indexFrom/:indexTo";
 
-	protected Set<ProductFamily> productFamilies;
+	protected ResponseFactory responseFactory;
+	protected DatabaseConnection databaseConnection;
+	protected RestInputValidationService inputValidation;
 
-
-    /**
-     * Constructor for ProductFamilyEndpointImpl, instantiates productFamilies as empty.
-     */
-    public ProductFamilyEndpointImpl() {
-		productFamilies = new HashSet<>();
+	public ProductFamilyEndpointImpl(DatabaseConnection databaseConnection) {
+		this.databaseConnection = databaseConnection;
+		responseFactory = new ResponseFactoryImpl(databaseConnection);
+		inputValidation = new RestInputValidationServiceImpl();
 	}
 
     /**
@@ -44,8 +45,8 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
     @Override
 	public void setup(Service sparkService) {
 		sparkService.get(GET_PRODUCT_FAMILIES, this::getProductFamilies);
-		sparkService.get(GET_PRODUCT_FAMILY_OVERVIEW, this::getProductFamilyOverview);
-		sparkService.get(GET_EVENTS_FOR_PRODUCT_FAMILY, this::getEventsForProductFamily);
+		sparkService.get(GET_PRODUCT_OVERVIEW,this::getProductOverview);
+		sparkService.get(GET_EVENTS_FOR_PRODUCT, this::getEventsForProduct);
 	}
 
     /**
@@ -54,7 +55,8 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	@Override
 	public String getProductFamilies(Request request, Response response) {
 		logInfoForReceivedRequest(request);
-		String json = serializer.toJson(productFamilies);
+
+		String json = responseFactory.getAllProductFamilies();
 		logInfoForSendingProductFamilies(json);
 		return json;
 	}
@@ -63,48 +65,29 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
      * {@inheritDoc}
      */
 	@Override
-	public String getProductFamilyOverview(Request request, Response response) {
+	public String getProductOverview(Request request, Response response) {
 		logInfoForReceivedRequest(request);
-
-		String productFamilyId = request.params("productId");
-		validateInputInteger(productFamilyId, (Integer input) -> input > 0);
-
-		// TODO: implement logic
-
-		return "";
+		int productId = inputValidation.validateInteger(request.params("productId"), (Integer input) -> input > 0);
+		String json = responseFactory.getAllEventTypes(productId);
+		logInfoForSendingProduct(json);
+		return json;
 	}
 
     /**
      * {@inheritDoc}
      */
 	@Override
-	public String getEventsForProductFamily(Request request, Response response) {
+	public String getEventsForProduct(Request request, Response response) {
 		logInfoForReceivedRequest(request);
 
-		String productFamilyId = request.params("productId");
-		validateInputInteger(productFamilyId, (Integer input) -> input > 0);
+		int productId = inputValidation.validateInteger(request.params("productId"), (Integer input) -> input >= 0);
+		int eventTypeId = inputValidation.validateInteger(request.params("eventTypeId"), (Integer input) -> input >= 0);
+		int indexFrom = inputValidation.validateInteger(request.params("indexFrom"), (Integer input) ->  input >= 0);
+		int indexTo = inputValidation.validateInteger(request.params("indexTo"), (Integer input) -> input >= indexFrom);
 
-		// TODO: implement logic
-
-		return "";
-	}
-
-    /**
-     * This method validates the input as an integer that is given as a string with a generic validation function.
-     * @param inputValue - string to be tested
-     * @param validateInputResult - function to be tested on the parsed integer as validation
-     */
-	protected void validateInputInteger(String inputValue, Function<Integer, Boolean> validateInputResult) {
-	    //TODO: api fails with a less generic exception (InputMismatchException)
-		try {
-			int integer = Integer.parseInt(inputValue);
-			if (!validateInputResult.apply(integer)) {
-				throw new Exception("input did not pass validation");
-			}
-		} catch (Exception e) {
-			logErrorWhileInputValidation(inputValue, "Integer");
-			halt(HTTP_ERROR_NOT_FOUND, e.getMessage());
-		}
+		String json = responseFactory.getEventsForProduct(productId, eventTypeId, indexFrom, indexTo);
+		logInfoForSendingEvents(json);
+		return json;
 	}
 
     /**
@@ -132,19 +115,26 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	}
 
     /**
-     * This methods logs an info, if the product families (json) are sent as a response.
+     * This method logs an info, if the product families (json) are sent as a response.
      * @param json - product families encoded as json string
      */
 	protected void logInfoForSendingProductFamilies(String json) {
 		logInfo("sending product families: " + json);
 	}
 
-    /**
-     * This methods logs an error, if the input validation can't cast the inputValue type.
-     * @param inputValue - inputValue from url
-     * @param expectedInputType - expected inputType (must be a Java Class
-     */
-    protected void logErrorWhileInputValidation(String inputValue, String expectedInputType) {
-		logError(String.format("tried to cast (input) \"%1$s\" to %2$s", inputValue, expectedInputType));
+	/**
+	 * This method logs an info, if a product (json) is sent as a response.
+	 * @param json - product encoded as json string
+	 */
+	protected void logInfoForSendingProduct(String json) {
+		logInfo("sending product: " + json);
+	}
+
+	/**
+	 * This method logs an info, if events (json) are sent as a response.
+	 * @param json - events encoded as json string
+	 */
+	protected void logInfoForSendingEvents(String json) {
+		logInfo("sending events: " + json);
 	}
 }

@@ -24,5 +24,14 @@
         <!-- migration settings -->
         <property name="hbm2ddl.auto">update</property>
 
+        <mapping class="de.hpi.bpt.argos.persistence.model.event.EventImpl"/>
+        <mapping class="de.hpi.bpt.argos.persistence.model.event.type.EventTypeImpl"/>
+        <mapping class="de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQueryImpl"/>
+        <mapping class="de.hpi.bpt.argos.persistence.model.event.attribute.EventAttributeImpl"/>
+        <mapping class="de.hpi.bpt.argos.persistence.model.event.data.EventDataImpl"/>
+        <mapping class="de.hpi.bpt.argos.persistence.model.event.UpdateProductStateEventImpl"/>
+        <mapping class="de.hpi.bpt.argos.persistence.model.product.ProductFamilyImpl"/>
+        <mapping class="de.hpi.bpt.argos.persistence.model.product.ProductImpl"/>
+
     </session-factory>
 </hibernate-configuration>

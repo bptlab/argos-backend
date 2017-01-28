@@ -1,9 +1,10 @@
 package de.hpi.bpt.argos.persistence.model.product;
 
-import de.hpi.bpt.argos.persistence.model.event.Event;
+import de.hpi.bpt.argos.persistence.model.event.data.Event;
 import de.hpi.bpt.argos.persistence.model.event.EventImpl;
 import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
 import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQueryImpl;
+import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -24,31 +25,37 @@ public class ProductImpl implements Product {
 	protected int id;
 
 	@Column(name = "ProductionStart")
-	protected Date productionStart;
+	protected Date productionStart = new Date();
 
 	@Column(name = "State")
-	protected ProductState state;
+	protected ProductState state = ProductState.RUNNING;
 
 	@Column(name = "Name")
-	protected String name;
+	protected String name = "";
 
 	@Column(name = "OrderNumber")
-	protected int orderNumber;
+	protected int orderNumber = 0;
 
 	@Column(name = "StateDescription")
-	protected String stateDescription;
+	protected String stateDescription = "";
 
-	@OneToMany(fetch = FetchType.LAZY, targetEntity = EventImpl.class)
+	@OneToMany(cascade = {CascadeType.ALL}, targetEntity = EventImpl.class)
 	protected Set<Event> events = new HashSet<>();
 
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = EventSubscriptionQueryImpl.class)
+	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = EventSubscriptionQueryImpl.class)
 	protected EventSubscriptionQuery transitionToRunningState;
 
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = EventSubscriptionQueryImpl.class)
+	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = EventSubscriptionQueryImpl.class)
 	protected EventSubscriptionQuery transitionToWarningState;
 
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = EventSubscriptionQueryImpl.class)
+	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = EventSubscriptionQueryImpl.class)
 	protected EventSubscriptionQuery transitionToErrorState;
+
+	@Column(name = "NumberOfDevices")
+	protected int numberOfDevices = 0;
+
+	@Transient
+	protected int numberOfEvents = 0;
 
 	/**
 	 * {@inheritDoc}
@@ -174,6 +181,30 @@ public class ProductImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public void setNumberOfEvents() {
+		this.numberOfEvents = this.events.size();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setNumberOfEvents(int numberOfEvents) {
+		this.numberOfEvents = numberOfEvents;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNumberOfEvents() {
+		return this.events.size();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void setTransitionToRunningSet(EventSubscriptionQuery eventSubscriptionQuery) {
 		transitionToRunningState = eventSubscriptionQuery;
 	}
@@ -208,5 +239,21 @@ public class ProductImpl implements Product {
 	@Override
 	public void setTransitionToErrorSet(EventSubscriptionQuery eventSubscriptionQuery) {
 		transitionToErrorState = eventSubscriptionQuery;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNumberOfDevices() {
+		return numberOfDevices;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setNumberOfDevices(int numberOfDevices) {
+		this.numberOfDevices = numberOfDevices;
 	}
 }

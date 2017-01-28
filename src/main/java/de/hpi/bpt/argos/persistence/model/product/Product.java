@@ -1,6 +1,6 @@
 package de.hpi.bpt.argos.persistence.model.product;
 
-import de.hpi.bpt.argos.persistence.model.event.Event;
+import de.hpi.bpt.argos.persistence.model.event.data.Event;
 import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
 
 import java.util.Date;
@@ -43,7 +43,7 @@ public interface Product {
 
 	/**
 	 * This method sets the state of this product.
-	 * @return - the product state to be set
+	 * @param productState - the product state to be set
 	 */
 	void setState(ProductState productState);
 
@@ -79,7 +79,7 @@ public interface Product {
 
 	/**
 	 * This method sets the status description of this product.
-	 * @return - the status description of this product to be set
+	 * @param stateDescription - the status description of this product to be set
 	 */
 	void setStateDescription(String stateDescription);
 
@@ -130,4 +130,33 @@ public interface Product {
 	 * @param eventSubscriptionQuery - the event subscription query which sets this product in Error state
 	 */
 	void setTransitionToErrorSet(EventSubscriptionQuery eventSubscriptionQuery);
+
+	/**
+	 * This method sets the number of devices currently in use of this product eventType.
+	 * @param numberOfDevices - the number of devices to be set
+	 */
+	void setNumberOfDevices(int numberOfDevices);
+
+	/**
+	 * This method returns the number of devices that are installed from this product families.
+	 * @return - the number of devices installed as an integer
+	 */
+	int getNumberOfDevices();
+
+	/**
+	 * This method sets the number of events that occurred for this product.
+	 * @return - the number of events occurred as an integer
+	 */
+	int getNumberOfEvents();
+
+	/**
+	 * This method sets the number of events that occurred for this product.
+	 * @param numberOfEvents - the number of events occurred
+	 */
+	void setNumberOfEvents(int numberOfEvents);
+
+	/**
+	 * This method sets the number of events intelligently.
+	 */
+	void setNumberOfEvents();
 }

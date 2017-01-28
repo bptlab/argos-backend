@@ -34,6 +34,16 @@ public class EventQueryImpl implements EventQuery {
 		setNotificationPath(notificationPath);
 	}
 
+	/**
+	 * This is a constructor for the EventQueryImpl object and sets the event query string, appending the event type id to the default notification
+	 * url.
+	 * @param queryString - event query string to be set
+	 * @param eventTypeId - event type id to be appended to the default notification url
+	 */
+	public EventQueryImpl(String queryString, int eventTypeId) {
+		this(queryString, String.format("%1$s/%2$s", DEFAULT_NOTIFICATION_PATH, eventTypeId));
+	}
+
     /**
      * {@inheritDoc}
      */

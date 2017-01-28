@@ -17,12 +17,11 @@ public class EventSubscriptionQueryImpl implements EventSubscriptionQuery {
 	@Column(name = "Id")
 	protected int id;
 
-	@NaturalId
 	@Column(name = "Uuid")
-	protected String uuid;
+	protected String uuid = "";
 
 	@Column(name = "QueryString")
-	protected String queryString;
+	protected String queryString = "";
 
 	/**
 	 * {@inheritDoc}

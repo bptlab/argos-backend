@@ -1,4 +1,6 @@
-package de.hpi.bpt.argos.persistence.model.event;
+package de.hpi.bpt.argos.persistence.model.event.data;
+
+import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 
 /**
  * This interface represents the value for one specific event attribute and one specific event.
@@ -28,18 +30,6 @@ public interface EventData {
 	 * @param eventAttribute - the attribute event to be set
 	 */
 	void setEventAttribute(EventAttribute eventAttribute);
-
-	/**
-	 * This method return the related event.
-	 * @return - the related event
-	 */
-	Event getEvent();
-
-	/**
-	 * This method sets the related event.
-	 * @param event - the event to be set
-	 */
-	void setEvent(Event event);
 
 	/**
 	 * This method return the value of the related event in the related attribute.

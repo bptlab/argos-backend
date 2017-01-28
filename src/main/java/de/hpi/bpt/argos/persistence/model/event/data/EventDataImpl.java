@@ -1,4 +1,7 @@
-package de.hpi.bpt.argos.persistence.model.event;
+package de.hpi.bpt.argos.persistence.model.event.data;
+
+import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
+import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttributeImpl;
 
 import javax.persistence.*;
 
@@ -15,14 +18,11 @@ public class EventDataImpl implements EventData {
 	@Column(name = "Id")
 	protected int id;
 
-	@ManyToOne(targetEntity = EventAttributeImpl.class)
+	@ManyToOne(cascade = {CascadeType.ALL}, targetEntity = EventAttributeImpl.class)
 	protected EventAttribute eventAttribute;
 
-	@ManyToOne(targetEntity = EventImpl.class)
-	protected Event event;
-
 	@Column(name = "Value")
-	protected String value;
+	protected String value = "";
 
 	/**
 	 * {@inheritDoc}
@@ -54,22 +54,6 @@ public class EventDataImpl implements EventData {
 	@Override
 	public void setEventAttribute(EventAttribute eventAttribute) {
 		this.eventAttribute = eventAttribute;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Event getEvent() {
-		return event;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setEvent(Event event) {
-		this.event = event;
 	}
 
 	/**

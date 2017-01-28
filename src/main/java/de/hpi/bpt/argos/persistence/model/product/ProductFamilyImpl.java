@@ -1,7 +1,10 @@
 package de.hpi.bpt.argos.persistence.model.product;
 
+import org.hibernate.annotations.NaturalId;
+
 import javax.persistence.*;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -18,13 +21,13 @@ public class ProductFamilyImpl implements ProductFamily {
 	protected int id;
 
 	@Column(name = "Name")
-	protected String name;
+	protected String name = "";
 
 	@Column(name = "Brand")
-	protected String brand;
+	protected String brand = "";
 
-	@OneToMany(fetch = FetchType.LAZY, targetEntity = ProductImpl.class)
-	protected Set<Product> products = new HashSet<>();
+	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = ProductImpl.class)
+	protected List<Product> products = new ArrayList<>();
 
 	/**
 	 * {@inheritDoc}
@@ -78,7 +81,7 @@ public class ProductFamilyImpl implements ProductFamily {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Set<Product> getProducts() {
+	public List<Product> getProducts() {
 		return products;
 	}
 
@@ -86,7 +89,12 @@ public class ProductFamilyImpl implements ProductFamily {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setProducts(Set<Product> products) {
+	public void setProducts(List<Product> products) {
 		this.products = products;
+	}
+
+	@Override
+	public void addProduct(Product product) {
+		this.products.add(product);
 	}
 }
