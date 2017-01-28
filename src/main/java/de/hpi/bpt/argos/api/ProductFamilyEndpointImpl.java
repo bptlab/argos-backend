@@ -13,8 +13,7 @@ import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 import spark.Service;
-
-import static spark.Spark.halt;
+import static spark.Spark.options;
 
 /**
  *  {@inheritDoc}
@@ -47,6 +46,8 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 		sparkService.get(GET_PRODUCT_FAMILIES, this::getProductFamilies);
 		sparkService.get(GET_PRODUCT_OVERVIEW,this::getProductOverview);
 		sparkService.get(GET_EVENTS_FOR_PRODUCT, this::getEventsForProduct);
+
+		super.enableCORS("*", "*", "*");
 	}
 
     /**
@@ -54,7 +55,6 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
      */
 	@Override
 	public String getProductFamilies(Request request, Response response) {
-		super.before(request, response);
 		logInfoForReceivedRequest(request);
 
 		String json = responseFactory.getAllProductFamilies();
@@ -67,7 +67,6 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
      */
 	@Override
 	public String getProductOverview(Request request, Response response) {
-		super.before(request, response);
 		logInfoForReceivedRequest(request);
 		int productId = inputValidation.validateInteger(request.params("productId"), (Integer input) -> input > 0);
 		String json = responseFactory.getAllEventTypes(productId);
@@ -80,7 +79,6 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
      */
 	@Override
 	public String getEventsForProduct(Request request, Response response) {
-		super.before(request, response);
 		logInfoForReceivedRequest(request);
 
 		int productId = inputValidation.validateInteger(request.params("productId"), (Integer input) -> input >= 0);
