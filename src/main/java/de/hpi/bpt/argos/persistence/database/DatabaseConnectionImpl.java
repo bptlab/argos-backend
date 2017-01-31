@@ -325,6 +325,33 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Event getSingleEvent(int eventId) {
+		Session session = databaseSessionFactory.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			Event event = session.createQuery("FROM EventImpl e " +
+					"WHERE e.id = :eventId", Event.class)
+					.setParameter("eventId", eventId)
+					.getSingleResult();
+
+			tx.commit();
+			return event;
+		} catch (Exception exception) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			logErrorWhileGettingEvent(exception);
+			return null;
+		} finally {
+			session.close();
+		}
+	}
+
+	/**
 	 * This methods logs exceptions to the console.
 	 * @param head - a description what happened
 	 * @param exception - the thrown exception
@@ -395,6 +422,10 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 */
 	protected void logErrorWhileGettingProductFamily(Throwable exception) {
 		logError("can't get product family from database", exception);
+	}
+
+	protected void logErrorWhileGettingEvent(Throwable exception) {
+		logError("can't get event from database", exception);
 	}
 
 	/**

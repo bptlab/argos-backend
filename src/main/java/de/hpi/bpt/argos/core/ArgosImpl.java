@@ -1,5 +1,7 @@
 package de.hpi.bpt.argos.core;
 
+import de.hpi.bpt.argos.api.EventEndpoint;
+import de.hpi.bpt.argos.api.EventEndpointImpl;
 import de.hpi.bpt.argos.api.ProductFamilyEndpoint;
 import de.hpi.bpt.argos.api.ProductFamilyEndpointImpl;
 import de.hpi.bpt.argos.eventHandling.EventReceiver;
@@ -34,6 +36,7 @@ public class ArgosImpl implements Argos {
 	protected EventReceiver eventReceiver;
 	protected EventSubscriber eventSubscriber;
 	protected ProductFamilyEndpoint productFamilyEndpoint;
+	protected EventEndpoint eventEndpoint;
 	protected DatabaseConnection databaseConnection;
 
     /**
@@ -58,6 +61,10 @@ public class ArgosImpl implements Argos {
 
 		productFamilyEndpoint = new ProductFamilyEndpointImpl(databaseConnection);
 		productFamilyEndpoint.setup(sparkService);
+
+		eventEndpoint = new EventEndpointImpl(databaseConnection);
+		eventEndpoint.setup(sparkService);
+
 
 		// TODO: setup websocket and security
 	}

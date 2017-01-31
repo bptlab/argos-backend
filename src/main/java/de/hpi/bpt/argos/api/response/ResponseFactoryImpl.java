@@ -14,6 +14,8 @@ import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import java.util.List;
 import java.util.Map;
 
+import static spark.Spark.halt;
+
 /**
  * {@inheritDoc}
  * This is the implementation.
@@ -90,6 +92,19 @@ public class ResponseFactoryImpl implements ResponseFactory {
 		}
 
 		return serializer.toJson(jsonEvents);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getSingleEvent(int eventId) {
+		Event event = databaseConnection.getSingleEvent(eventId);
+		if (event == null) {
+			halt(404, "Event not found");
+		}
+		JsonObject jsonEvent = getEvent(event);
+		return jsonEvent.toString();
 	}
 
 	/**

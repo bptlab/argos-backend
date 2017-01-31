@@ -1,6 +1,5 @@
 package de.hpi.bpt.argos.api;
 
-import com.google.gson.Gson;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
 import de.hpi.bpt.argos.api.response.ResponseFactoryImpl;
 import de.hpi.bpt.argos.common.RestEndpointImpl;
@@ -10,18 +9,15 @@ import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.Filter;
 import spark.Request;
 import spark.Response;
 import spark.Service;
-import static spark.Spark.options;
 
 /**
  *  {@inheritDoc}
  *  This is the implementation.
  */
 public class ProductFamilyEndpointImpl extends RestEndpointImpl implements ProductFamilyEndpoint {
-	protected static final Gson serializer = new Gson();
 	protected static final Logger logger = LoggerFactory.getLogger(ProductFamilyEndpointImpl.class);
 
 	protected static final String GET_PRODUCT_FAMILIES = "/api/productfamilies";
@@ -55,6 +51,8 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	@Override
 	public String getProductFamilies(Request request, Response response) {
 		logInfoForReceivedRequest(request);
+
+		//TODO: is this still neccessary?
 		request.headers("Access-Control-Allow-Origin");
 
 		String json = responseFactory.getAllProductFamilies();

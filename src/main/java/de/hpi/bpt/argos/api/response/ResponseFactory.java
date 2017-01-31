@@ -1,7 +1,6 @@
 package de.hpi.bpt.argos.api.response;
 
 import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
-import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 
 /**
  * This interface represents factories which produce rest responses.
@@ -36,4 +35,11 @@ public interface ResponseFactory {
 	 * @return - a json representation of the requested events
 	 */
 	String getEventsForProduct(int productId, int eventTypeId, int eventIndexFrom, int eventIndexTo);
+
+	/**
+	 * This method returns a json representation of an event defined by the event id.
+	 * @param eventId - the event identifier
+	 * @return - a json representation of the requested event
+	 */
+	String getSingleEvent(int eventId);
 }
