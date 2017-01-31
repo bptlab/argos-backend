@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.persistence.model.product;
 
+import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
 import de.hpi.bpt.argos.persistence.model.event.data.Event;
 import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
 
@@ -84,18 +85,6 @@ public interface Product {
 	void setStateDescription(String stateDescription);
 
 	/**
-	 * This method returns a set of events for this product.
-	 * @return - a set of events
-	 */
-	Set<Event> getEvents();
-
-	/**
-	 * This methods set a set of events for this product.
-	 * @param events - a set of events to be set
-	 */
-	void setEvents(Set<Event> events);
-
-	/**
 	 * This method returns the event subscription query which leads to a change in the state of this product.
 	 * @return - the event subscription query which sets this product in Running state
 	 */
@@ -132,31 +121,26 @@ public interface Product {
 	void setTransitionToErrorSet(EventSubscriptionQuery eventSubscriptionQuery);
 
 	/**
-	 * This method sets the number of devices currently in use of this product eventType.
-	 * @param numberOfDevices - the number of devices to be set
-	 */
-	void setNumberOfDevices(int numberOfDevices);
-
-	/**
 	 * This method returns the number of devices that are installed from this product families.
 	 * @return - the number of devices installed as an integer
 	 */
-	int getNumberOfDevices();
+	long getNumberOfDevices();
 
 	/**
-	 * This method sets the number of events that occurred for this product.
+	 * This method returns the number of events that occurred for this product.
 	 * @return - the number of events occurred as an integer
 	 */
-	int getNumberOfEvents();
+	long getNumberOfEvents();
 
 	/**
-	 * This method sets the number of events that occurred for this product.
-	 * @param numberOfEvents - the number of events occurred
+	 * This method increments the number of events for this product.
+	 * @param count - the count of how much new events were received
 	 */
-	void setNumberOfEvents(int numberOfEvents);
+	void incrementNumberOfEvents(long count);
 
 	/**
-	 * This method sets the number of events intelligently.
+	 * This method increments the number of devices for this product.
+	 * @param count - the count of how much new devices were found
 	 */
-	void setNumberOfEvents();
+	void incrementNumberOfDevices(long count);
 }
