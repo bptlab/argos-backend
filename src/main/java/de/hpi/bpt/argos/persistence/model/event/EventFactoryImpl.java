@@ -80,7 +80,7 @@ public class EventFactoryImpl implements EventFactory {
 
 			EventData data = new EventDataImpl();
 			data.setEventAttribute(attribute);
-			data.setValue(property.getValue().toString());
+			data.setValue(property.getValue().getAsString());
 			eventDataList.add(data);
 		}
 
