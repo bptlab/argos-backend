@@ -8,6 +8,8 @@ import de.hpi.bpt.argos.eventHandling.EventReceiver;
 import de.hpi.bpt.argos.eventHandling.EventReceiverImpl;
 import de.hpi.bpt.argos.eventHandling.EventSubscriber;
 import de.hpi.bpt.argos.eventHandling.EventSubscriberImpl;
+import de.hpi.bpt.argos.notifications.socket.PushNotificationClientHandler;
+import de.hpi.bpt.argos.notifications.socket.PushNotificationClientHandlerImpl;
 import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
 import de.hpi.bpt.argos.persistence.database.DatabaseConnectionImpl;
 import org.slf4j.Logger;
@@ -33,6 +35,7 @@ public class ArgosImpl implements Argos {
 	protected ProductFamilyEndpoint productFamilyEndpoint;
 	protected EventEndpoint eventEndpoint;
 	protected DatabaseConnection databaseConnection;
+	protected PushNotificationClientHandler notificationClientHandler;
 
     /**
      * {@inheritDoc}
@@ -46,6 +49,10 @@ public class ArgosImpl implements Argos {
 		if (!databaseConnection.setup()) {
 			shutdown();
 		}
+
+		// Keep this first, as spark wants to have all web sockets first
+		notificationClientHandler = new PushNotificationClientHandlerImpl();
+		notificationClientHandler.setup(sparkService);
 
 		eventReceiver = new EventReceiverImpl(databaseConnection);
 		eventReceiver.setup(sparkService);
