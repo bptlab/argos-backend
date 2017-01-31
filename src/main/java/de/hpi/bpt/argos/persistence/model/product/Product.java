@@ -118,7 +118,7 @@ public interface Product {
 	 * This method sets the event subscription query which leads to a change in the state of this product.
 	 * @param eventSubscriptionQuery - the event subscription query which sets this product in Error state
 	 */
-	void setTransitionToErrorSet(EventSubscriptionQuery eventSubscriptionQuery);
+	void setTransitionToErrorState(EventSubscriptionQuery eventSubscriptionQuery);
 
 	/**
 	 * This method returns the number of devices that are installed from this product families.

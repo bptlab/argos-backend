@@ -196,7 +196,7 @@ public class ProductImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setTransitionToErrorSet(EventSubscriptionQuery eventSubscriptionQuery) {
+	public void setTransitionToErrorState(EventSubscriptionQuery eventSubscriptionQuery) {
 		transitionToErrorState = eventSubscriptionQuery;
 	}
 
