@@ -29,6 +29,10 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	protected DatabaseConnection databaseConnection;
 	protected RestInputValidationService inputValidation;
 
+	/**
+	 * This is the constructor.
+	 * @param databaseConnection - the database connection to use
+	 */
 	public ProductFamilyEndpointImpl(DatabaseConnection databaseConnection) {
 		this.databaseConnection = databaseConnection;
 		responseFactory = new ResponseFactoryImpl(databaseConnection);
@@ -41,7 +45,7 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
     @Override
 	public void setup(Service sparkService) {
 		sparkService.get(GET_PRODUCT_FAMILIES, this::getProductFamilies);
-		sparkService.get(GET_PRODUCT_OVERVIEW,this::getProductOverview);
+		sparkService.get(GET_PRODUCT_OVERVIEW, this::getProductOverview);
 		sparkService.get(GET_EVENTS_FOR_PRODUCT, this::getEventsForProduct);
 	}
 

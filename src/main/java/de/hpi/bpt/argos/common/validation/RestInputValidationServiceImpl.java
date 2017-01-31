@@ -14,7 +14,7 @@ import static spark.Spark.halt;
 public class RestInputValidationServiceImpl implements RestInputValidationService {
 	protected Logger logger = LoggerFactory.getLogger(RestInputValidationServiceImpl.class);
 
-	protected static final int HTTP_ERROR_NOT_FOUND = 404;
+	protected static final int HTTP_ERROR = 500;
 
 	@Override
 	public int validateInteger(String inputValue, Function<Integer, Boolean> validateInputResult) {
@@ -24,7 +24,7 @@ public class RestInputValidationServiceImpl implements RestInputValidationServic
 			}
 		} catch (Exception e) {
 			logErrorWhileInputValidation(inputValue, "Integer");
-			halt(HTTP_ERROR_NOT_FOUND, e.getMessage());
+			halt(HTTP_ERROR, e.getMessage());
 		}
 		return Integer.parseInt(inputValue);
 	}

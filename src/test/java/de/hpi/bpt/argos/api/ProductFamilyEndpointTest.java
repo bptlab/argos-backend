@@ -1,46 +1,14 @@
 package de.hpi.bpt.argos.api;
 
-import de.hpi.bpt.argos.common.RestRequest;
-import de.hpi.bpt.argos.common.RestRequestFactory;
-import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
-import de.hpi.bpt.argos.core.Argos;
-import de.hpi.bpt.argos.core.ArgosImpl;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;;
 import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 
-public class ProductFamilyEndpointTest {
-    private static final int TEST_PORT = 9001;
-    private static final int TEST_NUMBER_OF_THREADS = 8;
-    private static final String TEST_HOST = "http://localhost:" + TEST_PORT;
-    private static final String TEST_REQUEST_METHOD = "GET";
-    private static final String TEST_CONTENT_TYPE = "application/json";
-    private static final String TEST_ACCEPT_TYPE = "text/plain";
-    private static final int INVALID_REQUEST_RESPONSE_CODE = 404;
-
-    private static Argos argos;
-    private static RestRequestFactory requestFactory;
-    private RestRequest request;
-
-    @BeforeClass
-    public static void setUp() {
-        argos = new ArgosImpl();
-        argos.run(TEST_PORT, TEST_NUMBER_OF_THREADS);
-        requestFactory = new RestRequestFactoryImpl();
-    }
-
-    @AfterClass
-    public static void tearDown() {
-        argos.shutdown();
-    }
-
+public class ProductFamilyEndpointTest extends EndpointParentClass {
     @Test
     public void testGetProductFamilies() {
         request = requestFactory.createRequest(TEST_HOST, getProductFamiliesUri(), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE);
 
-        assertEquals(request.isSuccessful(), true);
+        assertEquals(true, request.isSuccessful());
     }
 
     @Test
