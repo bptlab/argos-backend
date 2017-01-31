@@ -36,4 +36,6 @@ public interface ResponseFactory {
 	 * @return - a json representation of the requested events
 	 */
 	String getEventsForProduct(int productId, int eventTypeId, int eventIndexFrom, int eventIndexTo);
+
+	String getSingleEvent(int eventId);
 }

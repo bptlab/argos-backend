@@ -90,4 +90,11 @@ public interface DatabaseConnection {
 	 * @param events - a list of events to save
 	 */
 	void saveEvents(List<Event> events);
+
+	/**
+	 * This method makes the database call to retrieve a single event.
+	 * @param eventId - the id of the event to retrieve
+	 * @return - the requested event
+	 */
+	Event getSingleEvent(int eventId);
 }
