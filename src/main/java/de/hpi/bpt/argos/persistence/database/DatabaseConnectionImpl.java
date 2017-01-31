@@ -273,37 +273,6 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Event getSingleEvent(int eventId) {
-		Session session = databaseSessionFactory.openSession();
-		Transaction tx = null;
-		Query<Event> query = null;
-		try {
-			tx = session.beginTransaction();
-
-			query = session.createQuery("FROM EventImpl e " +
-							"WHERE e.id = :eventId",
-						Event.class)
-						.setParameter("eventId", eventId);
-
-			Event event = query.getSingleResult();
-
-			tx.commit();
-			return event;
-		} catch (Exception exception) {
-			if (tx != null) {
-				tx.rollback();
-			}
-			logErrorWhileGettingEntities(exception, query);
-			return null;
-		} finally {
-			session.close();
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void saveProductFamilies(List<ProductFamily> productFamilies) {
 		saveEntities(productFamilies);
 	}
