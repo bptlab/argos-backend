@@ -77,7 +77,7 @@ public interface DatabaseConnection {
 	 * This method makes the database call to retrieve all event types.
 	 * @return - a list of all event types
 	 */
-	List<EventType> listEvenTypes();
+	List<EventType> listEventTypes();
 
 	/**
 	 * This method makes the database call to save all given event types.

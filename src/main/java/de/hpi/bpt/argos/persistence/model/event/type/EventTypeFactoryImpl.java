@@ -34,7 +34,7 @@ public class EventTypeFactoryImpl implements EventTypeFactory {
 	 */
 	@Override
 	public void createSimpleEventTypes() {
-		List<EventType> existingEventTypes = databaseConnection.listEvenTypes();
+		List<EventType> existingEventTypes = databaseConnection.listEventTypes();
 		List<EventType> newEventTypes = new ArrayList<>();
 
 		newEventTypes.add(createFeedbackDataEventType());
