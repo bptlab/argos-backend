@@ -44,7 +44,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 		EventTypeFactory eventTypeFactory = new EventTypeFactoryImpl(databaseConnection);
 		eventTypeFactory.createSimpleEventTypes();
 
-		List<EventType> eventTypes = databaseConnection.listEvenTypes();
+		List<EventType> eventTypes = databaseConnection.listEventTypes();
 
 		// TODO: catch occuring errors
 		for(EventType eventType : eventTypes) {
