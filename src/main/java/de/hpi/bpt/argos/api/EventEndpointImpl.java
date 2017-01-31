@@ -21,6 +21,10 @@ public class EventEndpointImpl extends RestEndpointImpl implements EventEndpoint
     protected DatabaseConnection databaseConnection;
     protected RestInputValidationService inputValidation;
 
+    /**
+     * This is the constructor.
+     * @param databaseConnection - database connection to use
+     */
     public EventEndpointImpl(DatabaseConnection databaseConnection) {
         this.databaseConnection = databaseConnection;
         responseFactory = new ResponseFactoryImpl(databaseConnection);

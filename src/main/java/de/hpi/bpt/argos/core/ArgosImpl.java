@@ -12,14 +12,10 @@ import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
 import de.hpi.bpt.argos.persistence.database.DatabaseConnectionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.Filter;
-import spark.Request;
-import spark.Response;
+
 import spark.Service;
 
 import static spark.Service.ignite;
-import static spark.Spark.before;
-import static spark.Spark.options;
 
 /**
  * {@inheritDoc}
@@ -27,7 +23,6 @@ import static spark.Spark.options;
  */
 public class ArgosImpl implements Argos {
 	protected static final Logger logger = LoggerFactory.getLogger(ArgosImpl.class);
-	protected static final String EXAMPLE_EVENT_QUERY = "SELECT * FROM FeedbackData";
 
 	protected static final int DEFAULT_PORT = 8989;
 	protected static final int DEFAULT_NUMBER_OF_THREADS = 8;
@@ -57,7 +52,6 @@ public class ArgosImpl implements Argos {
 
 		eventSubscriber = new EventSubscriberImpl(databaseConnection);
 		eventSubscriber.setupEventPlatform();
-		// TODO: subscribe to unicorn
 
 		productFamilyEndpoint = new ProductFamilyEndpointImpl(databaseConnection);
 		productFamilyEndpoint.setup(sparkService);
@@ -67,6 +61,7 @@ public class ArgosImpl implements Argos {
 
 
 		// TODO: setup websocket and security
+		sparkService.awaitInitialization();
 	}
 
     /**
