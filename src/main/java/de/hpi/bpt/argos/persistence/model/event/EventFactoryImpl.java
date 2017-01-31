@@ -58,6 +58,8 @@ public class EventFactoryImpl implements EventFactory {
 		}
 
 		event.setProduct(product);
+		product.incrementNumberOfEvents(1);
+		databaseConnection.saveProducts(new ArrayList<Product>() {{ add(product); }});
 
 		return event;
 	}

@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.persistence.model.product;
 
+import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
 import de.hpi.bpt.argos.persistence.model.event.data.Event;
 import de.hpi.bpt.argos.persistence.model.event.EventImpl;
 import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
@@ -39,9 +40,6 @@ public class ProductImpl implements Product {
 	@Column(name = "StateDescription")
 	protected String stateDescription = "";
 
-	@OneToMany(cascade = {CascadeType.ALL}, targetEntity = EventImpl.class)
-	protected Set<Event> events = new HashSet<>();
-
 	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = EventSubscriptionQueryImpl.class)
 	protected EventSubscriptionQuery transitionToRunningState;
 
@@ -52,10 +50,11 @@ public class ProductImpl implements Product {
 	protected EventSubscriptionQuery transitionToErrorState;
 
 	@Column(name = "NumberOfDevices")
-	protected int numberOfDevices = 0;
+	protected long numberOfDevices = 0;
 
-	@Transient
-	protected int numberOfEvents = 0;
+	@Column(name = "NumberOfEvents")
+	protected long numberOfEvents = 0;
+
 
 	/**
 	 * {@inheritDoc}
@@ -165,46 +164,6 @@ public class ProductImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Set<Event> getEvents() {
-		return events;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setEvents(Set<Event> events) {
-		this.events = events;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setNumberOfEvents() {
-		this.numberOfEvents = this.events.size();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setNumberOfEvents(int numberOfEvents) {
-		this.numberOfEvents = numberOfEvents;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int getNumberOfEvents() {
-		return this.events.size();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void setTransitionToRunningSet(EventSubscriptionQuery eventSubscriptionQuery) {
 		transitionToRunningState = eventSubscriptionQuery;
 	}
@@ -245,7 +204,7 @@ public class ProductImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int getNumberOfDevices() {
+	public long getNumberOfDevices() {
 		return numberOfDevices;
 	}
 
@@ -253,7 +212,23 @@ public class ProductImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setNumberOfDevices(int numberOfDevices) {
-		this.numberOfDevices = numberOfDevices;
+	public long getNumberOfEvents() {
+		return numberOfEvents;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void incrementNumberOfEvents(long count) {
+		this.numberOfEvents += count;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void incrementNumberOfDevices(long count) {
+		this.numberOfDevices += count;
 	}
 }

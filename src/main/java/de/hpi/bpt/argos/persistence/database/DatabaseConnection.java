@@ -62,10 +62,10 @@ public interface DatabaseConnection {
 
 	/**
 	 * This method makes the database call to retrieve the requested product family.
-	 * @param name - the name of the product family
+	 * @param productFamilyName - the productFamilyName of the product family
 	 * @return - the product family
 	 */
-	ProductFamily getProductFamily(String name);
+	ProductFamily getProductFamily(String productFamilyName);
 
 	/**
 	 * This method makes the database call to save the given product families.
@@ -90,4 +90,10 @@ public interface DatabaseConnection {
 	 * @param events - a list of events to save
 	 */
 	void saveEvents(List<Event> events);
+
+	/**
+	 * This method makes the database call to save all given products.
+	 * @param products - a list of products to save
+	 */
+	void saveProducts(List<Product> products);
 }
