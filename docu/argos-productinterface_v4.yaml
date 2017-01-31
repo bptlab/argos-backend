@@ -1,0 +1,158 @@
+# Example YAML to get you started quickly.
+# Be aware that YAML has indentation based scoping.
+# Code completion support is available so start typing for available options.
+swagger: '2.0'
+
+# This is your document metadata
+info:
+  version: "0.1"
+  title: Argos-ProductInterface
+
+# Describe your paths here
+paths:
+  /api/productfamilies:
+    get:
+      description: Gets an array of `ProductFamily` objects.
+      responses:
+        200:
+          description: Successful response
+          schema:
+            title: ArrayOfProductFamilies
+            type: array
+            items:
+              title: ProductFamily
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                brand:
+                  type: string
+
+                products:
+                  title: ArrayOfProducts
+                  type: array
+                  items:
+                    title: Product
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      numberOfDevices:
+                        type: integer
+                      numberOfEvents:
+                        type: integer
+                      productionStart:
+                        type: string
+                        format: date
+                      orderNumber:
+                        type: integer
+                      state:
+                        type: string
+                      stateDescription:
+                        type: string
+
+
+
+  /api/products/{productId}/eventtypes:
+    get:
+      description: Gets an array of `EventType` objects for a defined `Product`.
+      parameters:
+        -
+          name: productId
+          in: path
+          description: Unique identifier for the `Product`
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Successful response
+          schema:
+            title: ArrayOfEventTypes
+            type: array
+            items:
+              title: EventType
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                numberOfEvents:
+                  type: integer
+                attributes:
+                  title: ArrayOfEventAttributes
+                  type: array
+                  items:
+                    title: EventAttribute
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      type:
+                        type: string
+
+  /api/products/{productId}/events/{eventTypeId}/{indexFrom}/{indexTo}:
+    get:
+      description: Gets an array of `Event` objects for a defined `Product` within a certain index range.
+      parameters:
+        -
+          name: productId
+          in: path
+          description: Unique identifier for the `Product`
+          required: true
+          type: integer
+        -
+          name: eventTypeId
+          in: path
+          description: Unique identifier for the `EventType`
+          required: true
+          type: integer
+        -
+          name: indexFrom
+          in: path
+          description: Start index for the `Event` objects to receive
+          required: true
+          type: integer
+        -
+          name: indexTo
+          in: path
+          description: End index for the `Event` objects to receive
+          required: true
+          type: integer
+
+      responses:
+        200:
+          description: Successful response
+          schema:
+            title: ArrayOfEvents
+            type: array
+            items:
+              title: Event
+              description: An object which contains all attributes specified in `EventType`
+              type: object
+
+  /api/event/{eventId}:
+    get:
+      description: Gets a single `Event` object defined by its id.
+      parameters:
+        -
+          name: eventId
+          in: path
+          description: Unique identifier for the `Event`
+          required: true
+          type: integer
+
+      responses:
+        200:
+          description: Successful response
+          schema:
+            title: Event
+            type: object
+            description: An object which contains all attributes specified in `EventType`
+                  
