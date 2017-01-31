@@ -94,7 +94,7 @@ public interface Product {
 	 * This method sets the event subscription query which leads to a change in the state of this product.
 	 * @param eventSubscriptionQuery - the event subscription query which sets this product in Running state
 	 */
-	void setTransitionToRunningSet(EventSubscriptionQuery eventSubscriptionQuery);
+	void setTransitionToRunningState(EventSubscriptionQuery eventSubscriptionQuery);
 
 	/**
 	 * This method returns the event subscription query which leads to a change in the state of this product.
@@ -106,7 +106,7 @@ public interface Product {
 	 * This method sets the event subscription query which leads to a change in the state of this product.
 	 * @param eventSubscriptionQuery - the event subscription query which sets this product in Warning state
 	 */
-	void setTransitionToWarningSet(EventSubscriptionQuery eventSubscriptionQuery);
+	void setTransitionToWarningState(EventSubscriptionQuery eventSubscriptionQuery);
 
 	/**
 	 * This method returns the event subscription query which leads to a change in the state of this product.

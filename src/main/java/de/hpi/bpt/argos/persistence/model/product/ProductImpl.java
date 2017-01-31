@@ -164,7 +164,7 @@ public class ProductImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setTransitionToRunningSet(EventSubscriptionQuery eventSubscriptionQuery) {
+	public void setTransitionToRunningState(EventSubscriptionQuery eventSubscriptionQuery) {
 		transitionToRunningState = eventSubscriptionQuery;
 	}
 
@@ -180,7 +180,7 @@ public class ProductImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setTransitionToWarningSet(EventSubscriptionQuery eventSubscriptionQuery) {
+	public void setTransitionToWarningState(EventSubscriptionQuery eventSubscriptionQuery) {
 		transitionToWarningState = eventSubscriptionQuery;
 	}
 
