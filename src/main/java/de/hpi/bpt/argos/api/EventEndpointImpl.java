@@ -15,7 +15,7 @@ import spark.Service;
  * This is the implementation.
  */
 public class EventEndpointImpl extends RestEndpointImpl implements EventEndpoint {
-    protected final String GET_SINGLE_EVENT = "/api/event/:eventId";
+    protected static final String GET_SINGLE_EVENT = "/api/event/:eventId";
 
     protected ResponseFactory responseFactory;
     protected DatabaseConnection databaseConnection;
@@ -27,15 +27,20 @@ public class EventEndpointImpl extends RestEndpointImpl implements EventEndpoint
         inputValidation = new RestInputValidationServiceImpl();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setup(Service sparkService) {
         sparkService.get(GET_SINGLE_EVENT, this::getSingleEvent);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getSingleEvent(Request request, Response response) {
         int eventId = inputValidation.validateInteger(request.params("eventId"), (Integer input) -> input > 0);
-        String json = responseFactory.getSingleEvent(eventId);
-        return json;
+        return responseFactory.getSingleEvent(eventId);
     }
 }
