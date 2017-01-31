@@ -2,6 +2,7 @@ package de.hpi.bpt.argos.notifications.socket;
 
 import de.hpi.bpt.argos.notifications.PushNotification;
 import spark.Service;
+import spark.Session;
 
 /**
  * This interface represents client handler, which serve to send push notifications.
@@ -19,4 +20,25 @@ public interface PushNotificationClientHandler {
 	 * @param notification - the notification so send
 	 */
 	void sendNotification(PushNotification notification);
+
+	/**
+	 * This method is called whenever a new client connected to the web socket. This method gets called by the Spark framework.
+	 * @param client - the new client
+	 */
+	void onClientConnected(Session client);
+
+	/**
+	 * This method is called whenever a client disconnected from the web socket. This method gets called by the Spark framework.
+	 * @param client - the disconnected client
+	 * @param statusCode - the status code
+	 * @param reason - the reason for the disconnect
+	 */
+	void onClientDisconnected(Session client, int statusCode, String reason);
+
+	/**
+	 * This method is called whenever a message from a client is received. This methid gets called by the Spark framework.
+	 * @param client - the sender of the message
+	 * @param message - the message
+	 */
+	void onMessage(Session client, String message);
 }
