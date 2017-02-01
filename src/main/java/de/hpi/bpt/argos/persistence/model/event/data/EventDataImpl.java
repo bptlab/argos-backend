@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.persistence.model.event.data;
 
+import de.hpi.bpt.argos.persistence.database.PersistenceEntityImpl;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttributeImpl;
 
@@ -11,34 +12,13 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "EventData")
-public class EventDataImpl implements EventData {
-
-	@Id
-	@GeneratedValue
-	@Column(name = "Id")
-	protected int id;
+public class EventDataImpl extends PersistenceEntityImpl implements EventData {
 
 	@ManyToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventAttributeImpl.class)
 	protected EventAttribute eventAttribute;
 
 	@Column(name = "Value")
 	protected String value = "";
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int getId() {
-		return id;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setId(int id) {
-		this.id = id;
-	}
 
 	/**
 	 * {@inheritDoc}

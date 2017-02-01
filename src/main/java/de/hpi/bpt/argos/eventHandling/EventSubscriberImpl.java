@@ -7,9 +7,8 @@ import de.hpi.bpt.argos.common.RestRequest;
 import de.hpi.bpt.argos.common.RestRequestFactory;
 import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
 import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
+import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
-import de.hpi.bpt.argos.persistence.model.event.type.EventTypeFactory;
-import de.hpi.bpt.argos.persistence.model.event.type.EventTypeFactoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,10 +29,14 @@ public class EventSubscriberImpl implements EventSubscriber {
 	protected static final String DEFAULT_EVENT_TYPE_URI = "/Unicorn/webapi/REST/EventType";
 	protected static final String EVENT_NOTIFICATION_PATH = "http://localhost:8989/api/events/receiver";
 
-	protected DatabaseConnection databaseConnection;
+	protected PersistenceEntityManager entityManager;
 
-	public EventSubscriberImpl(DatabaseConnection databaseConnection) {
-		this.databaseConnection = databaseConnection;
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setup(PersistenceEntityManager entityManager) {
+		this.entityManager = entityManager;
 	}
 
 	/**
@@ -41,10 +44,8 @@ public class EventSubscriberImpl implements EventSubscriber {
 	 */
 	@Override
 	public void setupEventPlatform(String host, String eventUri, String queryUri) {
-		EventTypeFactory eventTypeFactory = new EventTypeFactoryImpl(databaseConnection);
-		eventTypeFactory.createSimpleEventTypes();
-
-		List<EventType> eventTypes = databaseConnection.listEventTypes();
+		entityManager.createDefaultEventTypes();
+		List<EventType> eventTypes = entityManager.getEventTypes();
 
 		// TODO: catch occuring errors
 		for(EventType eventType : eventTypes) {
@@ -113,7 +114,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 		}
 
 		eventType.getEventSubscriptionQuery().setUuid(subscriptionRequest.getResponse());
-		databaseConnection.saveEventTypes(new ArrayList<EventType>() {{ add(eventType); }});
+		entityManager.updateEntity(eventType);
 		return true;
 	}
 
@@ -145,14 +146,6 @@ public class EventSubscriberImpl implements EventSubscriber {
 	@Override
 	public boolean isEventTypeRegistered(EventType eventType) {
 		return isEventTypeRegistered(DEFAULT_HOST, DEFAULT_EVENT_TYPE_URI, eventType);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setDatabaseConnection(DatabaseConnection databaseConnection) {
-		this.databaseConnection = databaseConnection;
 	}
 
 	/**

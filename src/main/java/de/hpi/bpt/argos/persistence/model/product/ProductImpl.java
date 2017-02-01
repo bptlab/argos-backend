@@ -1,16 +1,11 @@
 package de.hpi.bpt.argos.persistence.model.product;
 
-import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
-import de.hpi.bpt.argos.persistence.model.event.data.Event;
-import de.hpi.bpt.argos.persistence.model.event.EventImpl;
+import de.hpi.bpt.argos.persistence.database.PersistenceEntityImpl;
 import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
 import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQueryImpl;
-import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * {@inheritDoc}
@@ -18,12 +13,11 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "Product")
-public class ProductImpl implements Product {
+public class ProductImpl extends PersistenceEntityImpl implements Product {
 
-	@Id
-	@GeneratedValue
-	@Column(name = "Id")
-	protected int id;
+	@ManyToOne(cascade = {CascadeType.ALL}, targetEntity = ProductFamilyImpl.class)
+	@JoinColumn(name = "product_family_Id")
+	protected ProductFamily productFamily;
 
 	@Column(name = "ProductionStart")
 	protected Date productionStart = new Date();
@@ -60,16 +54,16 @@ public class ProductImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int getId() {
-		return id;
+	public ProductFamily getProductFamily() {
+		return productFamily;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setId(int id) {
-		this.id = id;
+	public void setProductFamily(ProductFamily productFamily) {
+		this.productFamily = productFamily;
 	}
 
 	/**

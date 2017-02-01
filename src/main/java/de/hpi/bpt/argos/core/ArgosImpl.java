@@ -1,20 +1,21 @@
 package de.hpi.bpt.argos.core;
 
-import de.hpi.bpt.argos.api.EventEndpoint;
-import de.hpi.bpt.argos.api.EventEndpointImpl;
-import de.hpi.bpt.argos.api.ProductFamilyEndpoint;
-import de.hpi.bpt.argos.api.ProductFamilyEndpointImpl;
-import de.hpi.bpt.argos.eventHandling.EventReceiver;
-import de.hpi.bpt.argos.eventHandling.EventReceiverImpl;
-import de.hpi.bpt.argos.eventHandling.EventSubscriber;
-import de.hpi.bpt.argos.eventHandling.EventSubscriberImpl;
-import de.hpi.bpt.argos.notifications.socket.PushNotificationClientHandler;
+import de.hpi.bpt.argos.api.CustomerRestEndpoint;
+import de.hpi.bpt.argos.api.CustomerRestEndpointImpl;
+import de.hpi.bpt.argos.api.event.EventEndpoint;
+import de.hpi.bpt.argos.api.event.EventEndpointImpl;
+import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpoint;
+import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpointImpl;
+import de.hpi.bpt.argos.eventHandling.*;
+import de.hpi.bpt.argos.notifications.ClientUpdateService;
+import de.hpi.bpt.argos.notifications.ClientUpdateServiceImpl;
 import de.hpi.bpt.argos.notifications.socket.PushNotificationClientHandlerImpl;
 import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
 import de.hpi.bpt.argos.persistence.database.DatabaseConnectionImpl;
+import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
+import de.hpi.bpt.argos.persistence.database.PersistenceEntityManagerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import spark.Service;
 
 import static spark.Service.ignite;
@@ -30,12 +31,10 @@ public class ArgosImpl implements Argos {
 	protected static final int DEFAULT_NUMBER_OF_THREADS = 8;
 
 	protected Service sparkService;
-	protected EventReceiver eventReceiver;
-	protected EventSubscriber eventSubscriber;
-	protected ProductFamilyEndpoint productFamilyEndpoint;
-	protected EventEndpoint eventEndpoint;
-	protected DatabaseConnection databaseConnection;
-	protected PushNotificationClientHandler notificationClientHandler;
+	protected PersistenceEntityManager entityManager;
+
+	protected CustomerRestEndpoint customerRestEndpoint;
+	protected EventPlatformRestEndpoint eventPlatformRestEndpoint;
 
     /**
      * {@inheritDoc}
@@ -43,32 +42,20 @@ public class ArgosImpl implements Argos {
 	@Override
 	public void run(int port, int numberOfThreads) {
 		sparkService = startServer(port, numberOfThreads);
-		enableCORS(sparkService);
 
-		databaseConnection = new DatabaseConnectionImpl();
-		if (!databaseConnection.setup()) {
+		entityManager = new PersistenceEntityManagerImpl();
+		if (!entityManager.setup()) {
 			shutdown();
 		}
 
 		// Keep this first, as spark wants to have all web sockets first
-		notificationClientHandler = new PushNotificationClientHandlerImpl();
-		notificationClientHandler.setup(sparkService);
+		customerRestEndpoint = new CustomerRestEndpointImpl();
+		customerRestEndpoint.setup(entityManager, sparkService);
 
-		eventReceiver = new EventReceiverImpl(databaseConnection);
-		eventReceiver.setup(sparkService);
+		eventPlatformRestEndpoint = new EventPlatformRestEndpointImpl();
+		eventPlatformRestEndpoint.setup(entityManager, sparkService);
 
-		eventSubscriber = new EventSubscriberImpl(databaseConnection);
-		eventSubscriber.setupEventPlatform();
-
-		productFamilyEndpoint = new ProductFamilyEndpointImpl(databaseConnection);
-		productFamilyEndpoint.setup(sparkService);
-
-		eventEndpoint = new EventEndpointImpl(databaseConnection);
-		eventEndpoint.setup(sparkService);
-
-
-		// TODO: setup websocket and security
-		sparkService.awaitInitialization();
+		enableCORS(sparkService);
 	}
 
     /**

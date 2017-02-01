@@ -1,6 +1,7 @@
 package de.hpi.bpt.argos.eventHandling;
 
 import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
+import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 
 
@@ -8,6 +9,12 @@ import de.hpi.bpt.argos.persistence.model.event.type.EventType;
  * This interface is used to subscribe an event query on the event processing platform.
  */
 public interface EventSubscriber {
+
+	/**
+	 * This method sets up the event subscriber.
+	 * @param entityManager - the entity manager to retrieve entities from
+	 */
+	void setup(PersistenceEntityManager entityManager);
 
 	/**
 	 * This method sets up the event platform by registering all of the event types.
@@ -69,10 +76,4 @@ public interface EventSubscriber {
 	 * @return - true if the event type is already registered
 	 */
 	boolean isEventTypeRegistered(EventType eventType);
-
-	/**
-	 * This method sets the database connection for this event subscriber.
-	 * @param databaseConnection - the database connection so be set
-	 */
-	void setDatabaseConnection(DatabaseConnection databaseConnection);
 }

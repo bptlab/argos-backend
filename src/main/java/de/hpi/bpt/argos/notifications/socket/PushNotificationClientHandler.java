@@ -1,8 +1,7 @@
 package de.hpi.bpt.argos.notifications.socket;
 
-import de.hpi.bpt.argos.notifications.PushNotification;
+import org.eclipse.jetty.websocket.api.Session;
 import spark.Service;
-import spark.Session;
 
 /**
  * This interface represents client handler, which serve to send push notifications.
@@ -19,7 +18,7 @@ public interface PushNotificationClientHandler {
 	 * This method sends a push notification to all connected clients.
 	 * @param notification - the notification so send
 	 */
-	void sendNotification(PushNotification notification);
+	void sendNotification(String notification);
 
 	/**
 	 * This method is called whenever a new client connected to the web socket. This method gets called by the Spark framework.

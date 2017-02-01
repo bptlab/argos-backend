@@ -1,6 +1,6 @@
 package de.hpi.bpt.argos.notifications.socket;
 
-import de.hpi.bpt.argos.notifications.PushNotification;
+import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
@@ -8,12 +8,11 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Service;
-import spark.Session;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -31,6 +30,9 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 	protected List<Session> clients;
 	protected Lock clientsLock;
 
+	/**
+	 * This constructor initializes all members with default values.
+	 */
 	public PushNotificationClientHandlerImpl() {
 		clients = new ArrayList<>();
 		clientsLock = new ReentrantLock();
@@ -48,12 +50,25 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void sendNotification(PushNotification notification) {
+	public void sendNotification(String notification) {
 		try {
 			clientsLock.tryLock(CLIENT_LOCK_TIME_OUT, CLIENT_LOCK_TIME_UNIT);
 
-			for (Session client : clients) {
-				notification.sendTo(client);
+			for(Iterator<Session> it = clients.iterator(); it.hasNext();) {
+				Session client = it.next();
+
+				try {
+					if (!client.isOpen()) {
+						it.remove();
+						continue;
+					}
+
+					client.getRemote().sendString(notification);
+
+				} catch (Exception exception) {
+					client.close();
+					it.remove();
+				}
 			}
 
 		} catch (Exception exception) {

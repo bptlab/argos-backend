@@ -16,6 +16,9 @@ public class RestInputValidationServiceImpl implements RestInputValidationServic
 
 	protected static final int HTTP_ERROR = 500;
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int validateInteger(String inputValue, Function<Integer, Boolean> validateInputResult) {
 		try {
@@ -27,6 +30,22 @@ public class RestInputValidationServiceImpl implements RestInputValidationServic
 			halt(HTTP_ERROR, e.getMessage());
 		}
 		return Integer.parseInt(inputValue);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public long validateLong(String inputValue, Function<Long, Boolean> validateInputResult) {
+		try {
+			if (validateInputResult.apply(Long.parseLong(inputValue))) {
+				throw new Exception("input did not pass validation");
+			}
+		} catch (Exception e) {
+			logErrorWhileInputValidation(inputValue, "Long");
+			halt(HTTP_ERROR, e.getMessage());
+		}
+		return Long.parseLong(inputValue);
 	}
 
 	/**

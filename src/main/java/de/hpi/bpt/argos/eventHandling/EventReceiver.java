@@ -1,7 +1,6 @@
 package de.hpi.bpt.argos.eventHandling;
 
 import de.hpi.bpt.argos.common.RestEndpoint;
-import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
 import spark.Request;
 import spark.Response;
 
@@ -15,14 +14,15 @@ public interface EventReceiver extends RestEndpoint {
      * processing platform.
      * @param request - spark request to be used
      * @param response - spark request to be used
-     * @return - returns the message body for testing purposes
-     * //TODO: update javadoc (return)
+     * @return - returns a response for the event platform
      */
 	String receiveEvent(Request request, Response response);
 
 	/**
-	 * This method sets the database connection for this event receiver.
-	 * @param databaseConnection - the database connection to be set
+	 * This method returns the basic URI to send events to path variables.
+	 * @return - the URI to send events to
 	 */
-	void setDatabaseConnection(DatabaseConnection databaseConnection);
+	static String getPostEventBaseUri() {
+		return "/api/events/receiver/:eventTypeId";
+	}
 }

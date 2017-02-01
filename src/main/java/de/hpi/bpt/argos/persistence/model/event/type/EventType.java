@@ -1,26 +1,16 @@
 package de.hpi.bpt.argos.persistence.model.event.type;
 
-import de.hpi.bpt.argos.persistence.model.event.data.Event;
+import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
+import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
 
 import java.util.List;
 
 /**
- * This interface represents the event types.
+ * This interface represents the event types. It extends persistence entity.
  */
-public interface EventType {
-	/**
-	 * This method returns the id of this particular event eventType.
-	 * @return - id as an integer
-	 */
-	int getId();
-
-	/**
-	 * This method sets the id of this event eventType.
-	 * @param id - id to be set
-	 */
-	void setId(int id);
+public interface EventType extends PersistenceEntity {
 
 	/**
 	 * This method returns the name of this event eventType.

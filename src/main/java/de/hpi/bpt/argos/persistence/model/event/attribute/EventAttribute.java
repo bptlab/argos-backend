@@ -1,23 +1,12 @@
 package de.hpi.bpt.argos.persistence.model.event.attribute;
 
+import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
 import de.hpi.bpt.argos.persistence.model.event.data.EventDataType;
 
 /**
- * This interface represents an event attribute that every event eventType has a list of.
+ * This interface represents an event attribute that every event eventType has a list of. It extends persistence entity.
  */
-public interface EventAttribute {
-
-	/**
-	 * This method returns the unique identifier of this event attribute.
-	 * @return - the unique identifier of this event attribute
-	 */
-	int getId();
-
-	/**
-	 * This method sets the the unique identifier of this event attribute.
-	 * @param id - the unique identifier of this event attribute
-	 */
-	void setId(int id);
+public interface EventAttribute extends PersistenceEntity {
 
 	/**
 	 * This method returns the name of the event attribute.

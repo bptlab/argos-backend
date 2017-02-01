@@ -2,10 +2,11 @@ package de.hpi.bpt.argos.persistence.model.event.type;
 
 import de.hpi.bpt.argos.eventHandling.schema.EventTypeSchemaGenerator;
 import de.hpi.bpt.argos.eventHandling.schema.EventTypeSchemaGeneratorImpl;
+import de.hpi.bpt.argos.persistence.database.PersistenceEntityImpl;
 import de.hpi.bpt.argos.persistence.model.event.*;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttributeImpl;
-import de.hpi.bpt.argos.persistence.model.event.data.Event;
+import de.hpi.bpt.argos.persistence.model.event.Event;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -19,14 +20,9 @@ import java.util.List;
  */
 @Entity
 @Table(name = "EventType")
-public class EventTypeImpl implements EventType {
+public class EventTypeImpl extends PersistenceEntityImpl implements EventType {
 
 	protected static final EventTypeSchemaGenerator schemaGenerator = new EventTypeSchemaGeneratorImpl();
-
-	@Id
-	@GeneratedValue
-	@Column(name = "Id")
-	protected  int id;
 
 	@Column(name = "Name")
 	protected String name = "";
@@ -49,22 +45,6 @@ public class EventTypeImpl implements EventType {
 
 	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = EventImpl.class)
 	protected List<Event> events = new ArrayList<>();
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int getId() {
-		return id;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setId(int id) {
-		this.id = id;
-	}
 
 	/**
 	 * {@inheritDoc}
