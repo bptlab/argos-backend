@@ -20,7 +20,7 @@ public class ProductEndpointImpl extends RestEndpointImpl implements ProductEndp
 	public void setup(ResponseFactory responseFactory, PersistenceEntityManager entityManager, Service sparkService) {
 		super.setup(responseFactory, entityManager, sparkService);
 		sparkService.get(ProductEndpoint.getProductBaseUri(), this::getProduct);
-		sparkService.get(ProductEndpoint.getEventTypesForProductBaseUri(),this::getEventTypesForProduct);
+		sparkService.get(ProductEndpoint.getEventTypesForProductBaseUri(), this::getEventTypesForProduct);
 		sparkService.get(ProductEndpoint.getEventsForProductBaseUri(), this::getEventsForProduct);
 	}
 

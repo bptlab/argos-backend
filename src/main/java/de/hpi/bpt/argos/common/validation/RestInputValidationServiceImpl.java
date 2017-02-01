@@ -38,7 +38,7 @@ public class RestInputValidationServiceImpl implements RestInputValidationServic
 	@Override
 	public long validateLong(String inputValue, Function<Long, Boolean> validateInputResult) {
 		try {
-			if (validateInputResult.apply(Long.parseLong(inputValue))) {
+			if (!validateInputResult.apply(Long.parseLong(inputValue))) {
 				throw new Exception("input did not pass validation");
 			}
 		} catch (Exception e) {
