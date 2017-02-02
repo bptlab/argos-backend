@@ -82,8 +82,8 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 		Query<ProductFamily> query = null;
 		try {
 			tx = session.beginTransaction();
-			query = session.createQuery("FROM ProductFamilyImpl pf " +
-							"WHERE pf.id = :productFamilyId",
+			query = session.createQuery("FROM ProductFamilyImpl pf "
+							+ "WHERE pf.id = :productFamilyId",
 						ProductFamily.class)
 						.setParameter("productFamilyId", productFamilyId);
 
@@ -112,8 +112,8 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 		Query<Product> query = null;
 		try {
 			tx = session.beginTransaction();
-			query = session.createQuery("FROM ProductImpl p " +
-							"WHERE p.id = :productId",
+			query = session.createQuery("FROM ProductImpl p "
+							+ "WHERE p.id = :productId",
 					Product.class)
 					.setParameter("productId", productId);
 
@@ -185,8 +185,8 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 			tx = session.beginTransaction();
 
 			query = session.createQuery("FROM EventImpl ev " +
-							"WHERE ev.product.id = :productId AND ev.eventType.id = :eventTypeId " +
-							"ORDER BY ev.id ASC",
+							"WHERE ev.product.id = :productId AND ev.eventType.id = :eventTypeId "
+							+ "ORDER BY ev.id ASC",
 						Event.class)
 						.setParameter("productId", productId)
 						.setParameter("eventTypeId", eventTypeId)
@@ -218,8 +218,8 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 		try {
 			tx = session.beginTransaction();
 
-			query = session.createQuery("FROM EventTypeImpl et " +
-							"WHERE et.id = :eventTypeId",
+			query = session.createQuery("FROM EventTypeImpl et "
+							+ "WHERE et.id = :eventTypeId",
 						EventType.class)
 						.setParameter("eventTypeId", eventTypeId);
 
@@ -249,8 +249,8 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 		try {
 			tx = session.beginTransaction();
 
-			query = session.createQuery("FROM ProductImpl pr " +
-							"WHERE pr.orderNumber = :orderNumber",
+			query = session.createQuery("FROM ProductImpl pr "
+							+ "WHERE pr.orderNumber = :orderNumber",
 						Product.class)
 						.setParameter("orderNumber", productOrderNumber);
 
@@ -280,8 +280,8 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 		try {
 			tx = session.beginTransaction();
 
-			query = session.createQuery("FROM ProductFamilyImpl pf " +
-							"WHERE pf.name = :productFamilyName",
+			query = session.createQuery("FROM ProductFamilyImpl pf "
+							+ "WHERE pf.name = :productFamilyName",
 						ProductFamily.class)
 						.setParameter("productFamilyName", productFamilyName);
 
@@ -340,8 +340,8 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 		try {
 			tx = session.beginTransaction();
 
-			query = session.createQuery("FROM EventImpl e " +
-							"WHERE e.id = :eventId", Event.class)
+			query = session.createQuery("FROM EventImpl e "
+							+ "WHERE e.id = :eventId", Event.class)
 						.setParameter("eventId", eventId);
 
 			Event event = query.getSingleResult();

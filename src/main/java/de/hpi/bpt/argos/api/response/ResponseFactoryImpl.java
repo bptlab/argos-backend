@@ -45,7 +45,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 
 		JsonArray jsonProductFamilies = new JsonArray();
 
-		for(ProductFamily family : productFamilies) {
+		for (ProductFamily family : productFamilies) {
 			jsonProductFamilies.add(getProductFamily(family));
 		}
 
@@ -85,12 +85,12 @@ public class ResponseFactoryImpl implements ResponseFactory {
 
 		JsonArray jsonEventTypes = new JsonArray();
 
-		for(Map.Entry<EventType, Integer> eventTypeEntry : eventTypes.entrySet()) {
+		for (Map.Entry<EventType, Integer> eventTypeEntry : eventTypes.entrySet()) {
 			JsonObject jsonEventType = getEventTypeBase(eventTypeEntry.getKey());
 			jsonEventType.addProperty("numberOfEvents", eventTypeEntry.getValue());
 			JsonArray jsonEventAttributes = new JsonArray();
 
-			for(EventAttribute eventAttribute : eventTypeEntry.getKey().getAttributes()) {
+			for (EventAttribute eventAttribute : eventTypeEntry.getKey().getAttributes()) {
 				jsonEventAttributes.add(getEventAttribute(eventAttribute));
 			}
 
@@ -109,7 +109,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 		List<Event> events = entityManager.getEvents(productId, eventTypeId, eventIndexFrom, eventIndexTo);
 		JsonArray jsonEvents = new JsonArray();
 
-		for(Event event : events) {
+		for (Event event : events) {
 			jsonEvents.add(getEvent(event));
 		}
 
@@ -138,7 +138,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 		JsonObject jsonProductFamily = getProductFamilyBase(productFamily);
 		JsonArray jsonProducts = new JsonArray();
 
-		for(Product product : productFamily.getProducts()) {
+		for (Product product : productFamily.getProducts()) {
 			jsonProducts.add(getProductBase(product));
 		}
 
@@ -187,7 +187,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	}
 
 	/**
-	 * This method returns a event type base (id, name) as a JsonObject
+	 * This method returns a event type base (id, name) as a JsonObject.
 	 * @param eventType - the event type which base is required
 	 * @return - a json representation of the event type's base
 	 */
@@ -205,7 +205,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	}
 
 	/**
-	 * This method return a event attribute (id, name, type) as a JsonObject
+	 * This method return a event attribute (id, name, type) as a JsonObject.
 	 * @param eventAttribute - the event attribute
 	 * @return - a json representation of the event attribute
 	 */

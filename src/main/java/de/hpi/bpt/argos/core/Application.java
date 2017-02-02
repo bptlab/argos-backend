@@ -5,7 +5,7 @@ package de.hpi.bpt.argos.core;
  */
 public class Application {
 	/**
-	 * default java main method
+	 * default java main method.
 	 * @param args - default parameter
 	 */
 	public static void main(String[] args) {

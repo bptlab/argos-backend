@@ -46,7 +46,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 		entityManager.createDefaultEventTypes();
 		List<EventType> eventTypes = entityManager.getEventTypes();
 
-		for(EventType eventType : eventTypes) {
+		for (EventType eventType : eventTypes) {
 			if (registerEventType(host, eventUri, eventType)) {
 				registerEventQuery(host, queryUri, eventType);
 			}

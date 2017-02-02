@@ -65,6 +65,10 @@ public interface ResponseFactory {
 		return "request finished";
 	}
 
+	/**
+	 * This method returns the http page not found code.
+	 * @return - the http page not found code
+	 */
 	static int getHttpNotFoundCode() {
 		return 404;
 	}

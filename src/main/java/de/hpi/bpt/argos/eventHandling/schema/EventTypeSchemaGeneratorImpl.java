@@ -38,10 +38,10 @@ public class EventTypeSchemaGeneratorImpl implements EventTypeSchemaGenerator {
 	 * @return - the schema header
 	 */
 	protected String extendWithHeader(String schemaName, String innerContent) {
-		return String.format("<?xml version='1.0' encoding='utf-8'?>" +
-				"<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema' xmlns='%1$s.%2$s' " +
-				"targetNamespace='%1$s.%2$s' elementFormDefault='qualified'>" +
-				"%3$s</xs:schema>", schemaName, SCHEMA_EXTENSION, innerContent);
+		return String.format("<?xml version='1.0' encoding='utf-8'?>"
+				+ "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema' xmlns='%1$s.%2$s' "
+				+ "targetNamespace='%1$s.%2$s' elementFormDefault='qualified'>"
+				+ "%3$s</xs:schema>", schemaName, SCHEMA_EXTENSION, innerContent);
 	}
 
 	/**

@@ -7,6 +7,7 @@ import spark.Service;
 /**
  * This interface is a base class for endpoint implementations, it provides setup and finishing methods.
  */
+@FunctionalInterface
 public interface RestEndpoint {
 
 	/**

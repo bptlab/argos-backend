@@ -53,7 +53,7 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 		try {
 			clientsLock.tryLock(CLIENT_LOCK_TIME_OUT, CLIENT_LOCK_TIME_UNIT);
 
-			for(Iterator<Session> it = clients.iterator(); it.hasNext();) {
+			for (Iterator<Session> it = clients.iterator(); it.hasNext();) {
 				Session client = it.next();
 
 				try {

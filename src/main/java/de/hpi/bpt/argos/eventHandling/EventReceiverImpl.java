@@ -45,7 +45,6 @@ public class EventReceiverImpl extends RestEndpointImpl implements EventReceiver
 	 * @param event - the new event
 	 */
 	protected void logInfoForReceivedEvent(Event event) {
-		logger.info(String.format("received event : (event type id) %1$s  (event id) %2$s", event.getEventType().getId
-				(), event.getId()));
+		logger.info(String.format("received event : (event type id) %1$s  (event id) %2$s", event.getEventType().getId(), event.getId()));
 	}
 }

@@ -243,7 +243,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	protected List<EventData> getEventData(EventType eventType, JsonObject jsonEvent) {
 		List<EventData> eventDataList = new ArrayList<>();
 
-		for(Map.Entry<String, JsonElement> property : jsonEvent.entrySet()) {
+		for (Map.Entry<String, JsonElement> property : jsonEvent.entrySet()) {
 			EventAttribute attribute = getAttributeForEventDataMember(eventType, property.getKey());
 
 			if (attribute == null) {
@@ -266,7 +266,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * @return - the event attribute
 	 */
 	protected EventAttribute getAttributeForEventDataMember(EventType eventType, String memberName) {
-		for(EventAttribute attribute : eventType.getAttributes()) {
+		for (EventAttribute attribute : eventType.getAttributes()) {
 			if (attribute.getName().equals(memberName)) {
 				return attribute;
 			}
@@ -282,7 +282,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * @return - the product identification
 	 */
 	protected int getProductIdentification(EventType eventType, List<EventData> eventData) {
-		for(EventData data : eventData) {
+		for (EventData data : eventData) {
 			if (data.getEventAttribute().getName().equals(eventType.getProductIdentificationAttribute().getName())) {
 				return Integer.parseInt(data.getValue());
 			}
@@ -298,7 +298,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * @return - the product family identification
 	 */
 	protected String getProductFamilyIdentification(EventType eventType, List<EventData> eventData) {
-		for(EventData data : eventData) {
+		for (EventData data : eventData) {
 			if (data.getEventAttribute().getName().equals(eventType.getProductFamilyIdentificationAttribute().getName())) {
 				return data.getValue();
 			}
@@ -314,7 +314,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * @param fetchUrl - the url where the updated/created can be fetched
 	 */
 	protected void updateEntity(PushNotificationType type, PersistenceEntity entity, String fetchUrl) {
-		for(PersistenceEntityManagerEventReceiver eventReceiver : eventReceivers) {
+		for (PersistenceEntityManagerEventReceiver eventReceiver : eventReceivers) {
 			eventReceiver.onEntityModified(type, entity, fetchUrl);
 		}
 	}

@@ -6,6 +6,7 @@ import spark.Service;
 /**
  * This interface represents a container for all rest endpoints which are offered for customers (like the frontend).
  */
+@FunctionalInterface
 public interface CustomerRestEndpoint {
 
 	/**

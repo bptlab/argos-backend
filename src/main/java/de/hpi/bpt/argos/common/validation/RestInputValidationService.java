@@ -23,6 +23,10 @@ public interface RestInputValidationService {
 	 */
 	long validateLong(String inputValue, Function<Long, Boolean> validateInputResult);
 
+	/**
+	 * This method returns the http error code.
+	 * @return - the http error code
+	 */
 	static int getHttpErrorCode() {
 		return 500;
 	}

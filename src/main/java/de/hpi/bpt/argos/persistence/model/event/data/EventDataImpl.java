@@ -8,7 +8,7 @@ import javax.persistence.*;
 
 /**
  * {@inheritDoc}
- * This is the implementation
+ * This is the implementation.
  */
 @Entity
 @Table(name = "EventData")

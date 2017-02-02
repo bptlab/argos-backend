@@ -72,5 +72,6 @@ public interface PersistenceEntityManager extends PersistenceEntityRetriever {
 	 * @param productFamilyName - the unique product family name
 	 * @return - the product family
 	 */
+	@Override
 	ProductFamily getProductFamily(String productFamilyName);
 }

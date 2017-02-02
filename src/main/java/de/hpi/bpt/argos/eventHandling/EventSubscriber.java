@@ -38,7 +38,7 @@ public interface EventSubscriber {
 	boolean registerEventType(String host, String uri, EventType eventType);
 
     /**
-     * This method creates a given event type on the default event processing platform
+     * This method creates a given event type on the default event processing platform.
      * @param eventType - the event type to be registered
      * @return - boolean if the subscription was successful
      */

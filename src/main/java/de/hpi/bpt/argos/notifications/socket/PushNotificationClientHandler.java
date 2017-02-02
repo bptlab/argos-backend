@@ -41,6 +41,10 @@ public interface PushNotificationClientHandler {
 	 */
 	void onMessage(Session client, String message);
 
+	/**
+	 * This method returns the base uri for the web socket notifications.
+	 * @return - the base uri for the web socket notifications
+	 */
 	static String getWebSocketUriBase() {
 		return "/notifications";
 	}

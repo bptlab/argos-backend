@@ -40,8 +40,7 @@ public interface PersistenceEntityRetriever {
 	Product getProduct(long productId);
 
 	/**
-	 * This method makes the database call to retrieve the necessary data for the API that serves all event types for
-	 * a certain product
+	 * This method makes the database call to retrieve the necessary data for the API that serves all event types for a certain product.
 	 * @param productId - the product that we want the event types for
 	 * @return - a map of event types that can occur for the product with the number of events that occurred for this
 	 * event type
@@ -50,7 +49,7 @@ public interface PersistenceEntityRetriever {
 
 	/**
 	 * This method makes the database call to retrieve the necessary data for the API that serves events for a
-	 * certain product of a defined event type within a defined index range
+	 * certain product of a defined event type within a defined index range.
 	 * @param productId - the product to be searched identified by its id
 	 * @param eventTypeId - the event type to be searched identified by its id
 	 * @param indexFrom - the start of the index range that the events should come from
