@@ -1,8 +1,10 @@
 package de.hpi.bpt.argos.persistence.model.event;
 
-import org.hibernate.annotations.NaturalId;
+import de.hpi.bpt.argos.persistence.database.PersistenceEntityImpl;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
  * {@inheritDoc}
@@ -10,34 +12,13 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "EventSubscriptionQuery")
-public class EventSubscriptionQueryImpl implements EventSubscriptionQuery {
-
-	@Id
-	@GeneratedValue
-	@Column(name = "Id")
-	protected int id;
+public class EventSubscriptionQueryImpl extends PersistenceEntityImpl implements EventSubscriptionQuery {
 
 	@Column(name = "Uuid")
 	protected String uuid = "";
 
 	@Column(name = "QueryString")
 	protected String queryString = "";
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int getId() {
-		return id;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setId(int id) {
-		this.id = id;
-	}
 
 	/**
 	 * {@inheritDoc}

@@ -28,7 +28,7 @@ public class ProductFamilyEndpointTest extends EndpointParentClass {
     }
 
     @Test
-    public void testGetEventsForProductFamily() {
+    public void testGetEventsForProduct() {
         request = requestFactory.createRequest(TEST_HOST, getEventsForProductFamilyUri(42, 1337, 0, 10), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,
                 TEST_ACCEPT_TYPE);
         assertEquals(true, request.isSuccessful());

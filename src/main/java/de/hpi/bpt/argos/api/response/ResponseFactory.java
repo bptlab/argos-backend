@@ -1,6 +1,6 @@
 package de.hpi.bpt.argos.api.response;
 
-import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
+import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 
 /**
  * This interface represents factories which produce rest responses.
@@ -8,10 +8,10 @@ import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
 public interface ResponseFactory {
 
 	/**
-	 * This method sets the database connection for this response factory.
-	 * @param databaseConnection - the database connection to be set
+	 * This method sets up this response factory.
+	 * @param entityManager - the entity manager to get persistence entities from
 	 */
-	void setDatabaseConnection(DatabaseConnection databaseConnection);
+	void setup(PersistenceEntityManager entityManager);
 
 	/**
 	 * This method returns a json representation of all product families.
@@ -20,11 +20,25 @@ public interface ResponseFactory {
 	String getAllProductFamilies();
 
 	/**
+	 * This method returns a json representation of one specific product family.
+	 * @param productFamilyId - the product family id
+	 * @return - a json representation of the specific product family
+	 */
+	String getProductFamily(long productFamilyId);
+
+	/**
+	 * This method returns a json representation of one specific product.
+	 * @param productId - the product id
+	 * @return - a json representation of the specific product
+	 */
+	String getProduct(long productId);
+
+	/**
 	 * This method returns a json representation of all event types for one specific product id.
 	 * @param productId - the specific product identifier
 	 * @return - a json representation of all event types
 	 */
-	String getAllEventTypes(int productId);
+	String getAllEventTypes(long productId);
 
 	/**
 	 * This method returns a json representation of all events for one specific product with a specific event type within a certain range.
@@ -34,12 +48,24 @@ public interface ResponseFactory {
 	 * @param eventIndexTo - the end index of the events
 	 * @return - a json representation of the requested events
 	 */
-	String getEventsForProduct(int productId, int eventTypeId, int eventIndexFrom, int eventIndexTo);
+	String getEventsForProduct(long productId, long eventTypeId, int eventIndexFrom, int eventIndexTo);
 
 	/**
 	 * This method returns a json representation of an event defined by the event id.
 	 * @param eventId - the event identifier
 	 * @return - a json representation of the requested event
 	 */
-	String getSingleEvent(int eventId);
+	String getEvent(long eventId);
+
+	/**
+	 * This method returns a default response to generic requests.
+	 * @return - a simple response to a request
+	 */
+	default String finishRequest() {
+		return "request finished";
+	}
+
+	static int getHttpNotFoundCode() {
+		return 404;
+	}
 }

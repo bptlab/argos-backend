@@ -1,28 +1,26 @@
 package de.hpi.bpt.argos.persistence.model.product;
 
-import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
-import de.hpi.bpt.argos.persistence.model.event.data.Event;
+import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
 import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
 
 import java.util.Date;
-import java.util.Set;
 
 /**
- * This interface represents the products.
+ * This interface represents the products. It extends persistence entity.
  */
-public interface Product {
+public interface Product extends PersistenceEntity {
 
 	/**
-	 * This method return the unique identifier of this product.
-	 * @return - the unique id of this product as integer
+	 * This method returns the product family this product is in.
+	 * @return - the product family this product is in
 	 */
-	int getId();
+	ProductFamily getProductFamily();
 
 	/**
-	 * This method sets the unique identifier for this product.
-	 * @param id - the unique id
+	 * This method sets the product family this product is in.
+	 * @param productFamily - the product family to be set
 	 */
-	void setId(int id);
+	void setProductFamily(ProductFamily productFamily);
 
 	/**
 	 * This method returns the production start date of this product.

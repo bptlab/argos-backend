@@ -42,4 +42,20 @@ public interface RestRequest {
      * @return - boolean determining success or failure
      */
 	boolean isSuccessful();
+
+	/**
+	 * This method returns the http success code.
+	 * @return - http success code
+	 */
+	static int getHttpSuccessCode() {
+		return 200;
+	}
+
+	/**
+	 * This method returns a string for a response error.
+	 * @return - error response string
+	 */
+	static String getErrorResponse() {
+		return "error while receiving response";
+	}
 }

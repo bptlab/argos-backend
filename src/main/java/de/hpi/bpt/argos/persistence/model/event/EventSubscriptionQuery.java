@@ -1,21 +1,11 @@
 package de.hpi.bpt.argos.persistence.model.event;
 
+import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
+
 /**
- * This interface represents event subscription queries.
+ * This interface represents event subscription queries. It extends persistence entity.
  */
-public interface EventSubscriptionQuery {
-
-	/**
-	 * This method return the unique identifier of this event subscription query.
-	 * @return - the unique identifier of this event subscription query
-	 */
-	int getId();
-
-	/**
-	 * This method sets the unique identifier of this event subscription query.
-	 * @param id - the unique identifier to be set
-	 */
-	void setId(int id);
+public interface EventSubscriptionQuery extends PersistenceEntity {
 
 	/**
 	 * This method returns the unique identifier of the event source for this event subscription query.

@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.persistence.model.event;
 
+import de.hpi.bpt.argos.persistence.database.PersistenceEntityImpl;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductImpl;
 import de.hpi.bpt.argos.persistence.model.product.ProductState;
@@ -13,12 +14,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "UpdateProductStateEvent")
-public class UpdateProductStateEventImpl implements UpdateProductStateEvent {
-
-	@Id
-	@GeneratedValue
-	@Column(name = "Id")
-	protected int id;
+public class UpdateProductStateEventImpl extends PersistenceEntityImpl implements UpdateProductStateEvent {
 
 	@ManyToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = ProductImpl.class)
 	protected Product product;
@@ -28,22 +24,6 @@ public class UpdateProductStateEventImpl implements UpdateProductStateEvent {
 
 	@Column(name = "Timestamp")
 	protected Date timestamp = new Date();
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int getId() {
-		return id;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setId(int id) {
-		this.id = id;
-	}
 
 	/**
 	 * {@inheritDoc}

@@ -1,23 +1,13 @@
 package de.hpi.bpt.argos.persistence.model.product;
 
+import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
+
 import java.util.List;
-import java.util.Set;
 
 /**
- * This interface represents the product families.
+ * This interface represents the product families. It extends persistence entity.
  */
-public interface ProductFamily {
-	/**
-	 * This method returns the unique identifier for this product family.
-	 * @return - the unique identifier for this product family as integer
-	 */
-	int getId();
-
-	/**
-	 * This methods sets the unique identifier for this product family.
-	 * @param id - the unique id to be set
-	 */
-	void setId(int id);
+public interface ProductFamily extends PersistenceEntity {
 
 	/**
 	 * This method returns the name of this product family.

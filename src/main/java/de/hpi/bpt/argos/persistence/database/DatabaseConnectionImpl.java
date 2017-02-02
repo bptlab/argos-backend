@@ -1,21 +1,22 @@
 package de.hpi.bpt.argos.persistence.database;
 
-import de.hpi.bpt.argos.persistence.model.event.data.Event;
+import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 import org.hibernate.service.spi.ServiceException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * {@inheritDoc}
@@ -36,7 +37,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 					.configure()
 					.buildSessionFactory();
 		} catch (ServiceException e) {
-			logErrorWhileConnectingToDatabaseServer(e);
+			logger.error("can't connect to the database server", e);
 			return false;
 		}
 
@@ -47,7 +48,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<ProductFamily> listAllProductFamilies() {
+	public List<ProductFamily> getProductFamilies() {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;
 		Query<ProductFamily> query = null;
@@ -66,7 +67,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 			}
 			logErrorWhileGettingEntities(exception, query);
 			return new ArrayList<>();
-		}finally {
+		} finally {
 			session.close();
 		}
 	}
@@ -75,7 +76,67 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Map<EventType, Integer> listAllEventTypesForProduct(int productId) {
+	public ProductFamily getProductFamily(long productFamilyId) {
+		Session session = databaseSessionFactory.openSession();
+		Transaction tx = null;
+		Query<ProductFamily> query = null;
+		try {
+			tx = session.beginTransaction();
+			query = session.createQuery("FROM ProductFamilyImpl pf " +
+							"WHERE pf.id = :productFamilyId",
+						ProductFamily.class)
+						.setParameter("productFamilyId", productFamilyId);
+
+			ProductFamily productFamily = query.uniqueResult();
+
+			tx.commit();
+			return productFamily;
+		} catch (Exception exception) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			logErrorWhileGettingEntities(exception, query);
+			return null;
+		} finally {
+			session.close();
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Product getProduct(long productId) {
+		Session session = databaseSessionFactory.openSession();
+		Transaction tx = null;
+		Query<Product> query = null;
+		try {
+			tx = session.beginTransaction();
+			query = session.createQuery("FROM ProductImpl p " +
+							"WHERE p.id = :productId",
+					Product.class)
+					.setParameter("productId", productId);
+
+			Product product = query.uniqueResult();
+
+			tx.commit();
+			return product;
+		} catch (Exception exception) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			logErrorWhileGettingEntities(exception, query);
+			return null;
+		} finally {
+			session.close();
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<EventType, Integer> getEventTypes(long productId) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;
 		Query<Event> query = null;
@@ -116,8 +177,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Event> listEventsForProductOfTypeInRange(int productId, int eventTypeId, int indexFrom, int
-			indexTo) {
+	public List<Event> getEvents(long productId, long eventTypeId, int indexFrom, int indexTo) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;
 		Query<Event> query = null;
@@ -151,7 +211,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EventType getEventType(int eventTypeId) {
+	public EventType getEventType(long eventTypeId) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;
 		Query<EventType> query = null;
@@ -244,7 +304,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<EventType> listEventTypes() {
+	public List<EventType> getEventTypes() {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;
 		Query<EventType> query = null;
@@ -273,7 +333,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Event getSingleEvent(int eventId) {
+	public Event getEvent(long eventId) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;
 		Query<Event> query = null;
@@ -303,46 +363,13 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void saveProductFamilies(List<ProductFamily> productFamilies) {
-		saveEntities(productFamilies);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void saveEventTypes(List<EventType> eventTypes) {
-		saveEntities(eventTypes);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void saveEvents(List<Event> events) {
-		saveEntities(events);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void saveProducts(List<Product> products) {
-		saveEntities(products);
-	}
-
-	/**
-	 * This method makes the database call to save a set of entities in the database server.
-	 * @param entities - a list of entities to save
-	 * @param <T> - the type of each entity
-	 */
-	protected <T> void saveEntities(List<T> entities) {
+	public void saveEntities(PersistenceEntity... entities) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
 
-			for(T entity : entities) {
+			for(PersistenceEntity entity : entities) {
 				session.saveOrUpdate(entity);
 			}
 
@@ -351,42 +378,22 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 			if (tx != null) {
 				tx.rollback();
 			}
-			logErrorWhileSavingEntities(exception);
+			logger.error("can't save entities in database", exception);
 		} finally {
 			session.close();
 		}
 	}
 
 	/**
-	 * This method logs exceptions to the console.
-	 * @param head - a description what happened
-	 * @param exception - the thrown exception
-	 */
-	protected void logError(String head, Throwable exception) {
-		logger.error(head, exception);
-	}
-
-	/**
-	 * This method logs an exception which occurs while trying to connect to the database server.
-	 * @param exception - the thrown exception
-	 */
-	protected void logErrorWhileConnectingToDatabaseServer(Throwable exception) {
-		logError("can't connect to the database server", exception);
-	}
-
-	/**
 	 * This method logs an exception which occurs while trying to get entities from the database server.
-	 * @param exception
+	 * @param exception - a thrown exception
+	 * @param query - the query that caused the exception
 	 */
 	protected void logErrorWhileGettingEntities(Throwable exception, Query query) {
-		logError("can't retrieve entities from database: " + (query != null ? query.getQueryString() : "<empty query>"), exception);
-	}
-
-	/**
-	 * This method logs an exception which occurs while trying to save entities in the database server.
-	 * @param exception - the thrown exception
-	 */
-	protected void logErrorWhileSavingEntities(Throwable exception) {
-		logError("can't save entities in database", exception);
+		String queryString = "<empty query>";
+		if (query != null) {
+			queryString = query.getQueryString();
+		}
+		logger.error(String.format("can't retrieve entities from database: %1$s", queryString), exception);
 	}
 }

@@ -1,6 +1,6 @@
 package de.hpi.bpt.argos.persistence.model.event;
 
-import de.hpi.bpt.argos.persistence.model.event.data.Event;
+import de.hpi.bpt.argos.persistence.database.PersistenceEntityImpl;
 import de.hpi.bpt.argos.persistence.model.event.data.EventData;
 import de.hpi.bpt.argos.persistence.model.event.data.EventDataImpl;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
@@ -17,12 +17,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "Event")
-public class EventImpl implements Event {
-
-	@Id
-	@GeneratedValue
-	@Column(name = "Id")
-	protected int id;
+public class EventImpl extends PersistenceEntityImpl implements Event {
 
 	@ManyToOne(cascade = {CascadeType.ALL}, targetEntity = ProductImpl.class)
 	@JoinColumn(name = "product_Id")
@@ -33,22 +28,6 @@ public class EventImpl implements Event {
 
 	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventDataImpl.class)
 	protected List<EventData> eventData;
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int getId() {
-		return id;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setId(int id) {
-		this.id = id;
-	}
 
 	/**
 	 * {@inheritDoc}

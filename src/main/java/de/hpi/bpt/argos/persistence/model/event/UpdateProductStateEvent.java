@@ -1,26 +1,15 @@
 package de.hpi.bpt.argos.persistence.model.event;
 
+import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductState;
 
 import java.util.Date;
 
 /**
- * This interface represents events which lead to changes in product states.
+ * This interface represents events which lead to changes in product states. It extends persistence entity.
  */
-public interface UpdateProductStateEvent {
-
-	/**
-	 * This method return the unique identifier for this update product state event.
-	 * @return - the unique identifier of this update product state event
-	 */
-	int getId();
-
-	/**
-	 * This method sets the unique identifier for this update product state event
-	 * @param id - the unique identifier to be set
-	 */
-	void setId(int id);
+public interface UpdateProductStateEvent extends PersistenceEntity {
 
 	/**
 	 * This method returns the related product.

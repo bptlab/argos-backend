@@ -1,11 +1,10 @@
 package de.hpi.bpt.argos.persistence.model.product;
 
-import org.hibernate.annotations.NaturalId;
+import de.hpi.bpt.argos.persistence.database.PersistenceEntityImpl;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * {@inheritDoc}
@@ -13,12 +12,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "ProductFamily")
-public class ProductFamilyImpl implements ProductFamily {
-
-	@Id
-	@GeneratedValue
-	@Column(name = "Id")
-	protected int id;
+public class ProductFamilyImpl extends PersistenceEntityImpl implements ProductFamily {
 
 	@Column(name = "Name")
 	protected String name = "";
@@ -28,22 +22,6 @@ public class ProductFamilyImpl implements ProductFamily {
 
 	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = ProductImpl.class)
 	protected List<Product> products = new ArrayList<>();
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int getId() {
-		return id;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setId(int id) {
-		this.id = id;
-	}
 
 	/**
 	 * {@inheritDoc}
