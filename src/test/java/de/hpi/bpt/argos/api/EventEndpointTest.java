@@ -11,7 +11,7 @@ public class EventEndpointTest extends EndpointParentClass {
         assertEquals(HTTP_NOT_FOUND_CODE, request.getResponseCode());
 
         // failure: event id < 0
-        request = requestFactory.createRequest(TEST_HOST, getEvent(-42), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,
+        request = requestFactory.createRequest(TEST_HOST, getEvent("-42"), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,
                 TEST_ACCEPT_TYPE);
         assertEquals(INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
 
@@ -22,6 +22,6 @@ public class EventEndpointTest extends EndpointParentClass {
 }
 
     private String getEvent(Object eventId) {
-        return String.format("/api/event/%1$s", eventId);
+        return String.format("/api/events/%1$s", eventId);
     }
 }

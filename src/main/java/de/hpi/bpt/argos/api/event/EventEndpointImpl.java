@@ -19,14 +19,14 @@ public class EventEndpointImpl extends RestEndpointImpl implements EventEndpoint
     @Override
     public void setup(ResponseFactory responseFactory, PersistenceEntityManager entityManager, Service sparkService) {
         super.setup(responseFactory, entityManager, sparkService);
-        sparkService.get(EventEndpoint.getSingleEventBaseUri(), this::getSingleEvent);
+        sparkService.get(EventEndpoint.getEventBaseUri(), this::getEvent);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getSingleEvent(Request request, Response response) {
+    public String getEvent(Request request, Response response) {
         logInfoForReceivedRequest(request);
 
         long eventId = inputValidation.validateLong(

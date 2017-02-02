@@ -17,13 +17,13 @@ public interface EventEndpoint extends RestEndpoint {
      * @param response - Spark defined parameter containing response object
      * @return - returns a JSON string of a single event object
      */
-    String getSingleEvent(Request request, Response response);
+    String getEvent(Request request, Response response);
 
     /**
      * This method returns the basic URI to retrieve single event with path variables.
      * @return - the URI to retrieve single events from
      */
-    static String getSingleEventBaseUri() {
+    static String getEventBaseUri() {
         return String.format("/api/events/%1$s", getEventIdParameter(true));
     }
 
@@ -32,8 +32,8 @@ public interface EventEndpoint extends RestEndpoint {
      * @param eventId - the event id to receive
      * @return - the URI to receive the specified event
      */
-    static String getSingleEventUri(long eventId)  {
-        return getSingleEventBaseUri().replaceAll(getEventIdParameter(true), Objects.toString(eventId, "0"));
+    static String getEventUri(long eventId)  {
+        return getEventBaseUri().replaceAll(getEventIdParameter(true), Objects.toString(eventId, "0"));
     }
 
     /**

@@ -172,7 +172,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		product.incrementNumberOfEvents(1);
 		databaseConnection.saveEntities(product, event);
 		updateEntity(PushNotificationType.UPDATE, product, ProductEndpoint.getProductUri(product.getId()));
-		updateEntity(PushNotificationType.CREATION, event, EventEndpoint.getSingleEventUri(event.getId()));
+		updateEntity(PushNotificationType.CREATION, event, EventEndpoint.getEventUri(event.getId()));
 
 		return event;
 	}
