@@ -46,6 +46,7 @@ public class ArgosImpl implements Argos {
 		eventPlatformRestEndpoint.setup(entityManager, sparkService);
 
 		enableCORS(sparkService);
+		sparkService.awaitInitialization();
 	}
 
     /**
