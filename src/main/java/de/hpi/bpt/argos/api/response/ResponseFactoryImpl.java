@@ -4,13 +4,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
-import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
-import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 import de.hpi.bpt.argos.persistence.model.event.Event;
+import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 import de.hpi.bpt.argos.persistence.model.event.data.EventData;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import static spark.Spark.halt;
  * This is the implementation.
  */
 public class ResponseFactoryImpl implements ResponseFactory {
+	protected static final Logger logger = LoggerFactory.getLogger(ResponseFactoryImpl.class);
 	protected static final Gson serializer = new Gson();
 
 	protected PersistenceEntityManager entityManager;
@@ -121,7 +123,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	public String getEvent(long eventId) {
 		Event event = entityManager.getEvent(eventId);
 		if (event == null) {
-			halt(404, "Event not found");
+			halt(ResponseFactory.getHttpNotFoundCode(), "Event not found");
 		}
 		JsonObject jsonEvent = getEvent(event);
 		return jsonEvent.toString();
@@ -179,7 +181,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 
 			return jsonProduct;
 		} catch (Exception exception) {
-			// TODO: log exception
+			logger.error("Cannot parse product base", exception);
 			return new JsonObject();
 		}
 	}
@@ -197,7 +199,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 
 			return jsonEventType;
 		} catch (Exception exception) {
-			// TODO: log exception
+			logger.error("Cannot parse event type base", exception);
 			return new JsonObject();
 		}
 	}
@@ -216,7 +218,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 
 			return jsonEventAttribute;
 		} catch (Exception exception) {
-			// TODO: log exception
+			logger.error("Cannot parse event attribute", exception);
 			return new JsonObject();
 		}
 	}
@@ -233,32 +235,31 @@ public class ResponseFactoryImpl implements ResponseFactory {
 
 			for (EventData data : event.getEventData()) {
 				switch (data.getEventAttribute().getType()) {
-					case STRING: {
+					case STRING:
 						jsonEvent.addProperty(data.getEventAttribute().getName(), data.getValue());
 						break;
-					}
-					case INTEGER: {
+
+					case INTEGER:
 						jsonEvent.addProperty(data.getEventAttribute().getName(), serializer.fromJson(data.getValue(), Integer.class));
 						break;
-					}
-					case FLOAT: {
+
+					case FLOAT:
 						jsonEvent.addProperty(data.getEventAttribute().getName(), serializer.fromJson(data.getValue(), Float.class));
 						break;
-					}
-					case DATE: {
+
+					case DATE:
 						jsonEvent.addProperty(data.getEventAttribute().getName(), data.getValue());
 						break;
-					}
-					default: {
+
+					default:
 						jsonEvent.addProperty(data.getEventAttribute().getName(), data.getValue());
 						break;
-					}
 				}
 			}
 
 			return jsonEvent;
 		} catch (Exception exception) {
-			// TODO: log exception
+			logger.error("Cannot parse event", exception);
 			return new JsonObject();
 		}
 	}

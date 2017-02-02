@@ -31,7 +31,9 @@ public class ProductEndpointImpl extends RestEndpointImpl implements ProductEndp
 	public String getProduct(Request request, Response response) {
 		logInfoForReceivedRequest(request);
 
-		long productId = inputValidation.validateLong(request.params("productId"), (Long input) -> input > 0);
+		long productId = inputValidation.validateLong(
+				request.params(ProductEndpoint.getProductIdParameter(false)),
+				(Long input) -> input > 0);
 		String json = responseFactory.getProduct(productId);
 
 		logInfoForSendingResponse(request);
@@ -45,7 +47,9 @@ public class ProductEndpointImpl extends RestEndpointImpl implements ProductEndp
 	public String getEventTypesForProduct(Request request, Response response) {
 		logInfoForReceivedRequest(request);
 
-		long productId = inputValidation.validateLong(request.params("productId"), (Long input) -> input > 0);
+		long productId = inputValidation.validateLong(
+				request.params(ProductEndpoint.getProductIdParameter(false)),
+				(Long input) -> input > 0);
 		String json = responseFactory.getAllEventTypes(productId);
 
 		logInfoForSendingResponse(request);
@@ -59,10 +63,18 @@ public class ProductEndpointImpl extends RestEndpointImpl implements ProductEndp
 	public String getEventsForProduct(Request request, Response response) {
 		logInfoForReceivedRequest(request);
 
-		long productId = inputValidation.validateLong(request.params("productId"), (Long input) -> input > 0);
-		long eventTypeId = inputValidation.validateLong(request.params("eventTypeId"), (Long input) -> input > 0);
-		int indexFrom = inputValidation.validateInteger(request.params("indexFrom"), (Integer input) ->  input >= 0);
-		int indexTo = inputValidation.validateInteger(request.params("indexTo"), (Integer input) -> input >= indexFrom);
+		long productId = inputValidation.validateLong(
+				request.params(ProductEndpoint.getProductIdParameter(false)),
+				(Long input) -> input > 0);
+		long eventTypeId = inputValidation.validateLong(
+				request.params(ProductEndpoint.getEventTypeIdParameter(false)),
+				(Long input) -> input >	0);
+		int indexFrom = inputValidation.validateInteger(
+				request.params(ProductEndpoint.getIndexFromParameter(false)),
+				(Integer input) -> input >= 0);
+		int indexTo = inputValidation.validateInteger(
+				request.params(ProductEndpoint.getIndexToParameter(false)),
+				(Integer input) -> input >= indexFrom);
 
 		String json = responseFactory.getEventsForProduct(productId, eventTypeId, indexFrom, indexTo);
 

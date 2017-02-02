@@ -2,9 +2,6 @@ package de.hpi.bpt.argos.eventHandling;
 
 import de.hpi.bpt.argos.api.response.ResponseFactory;
 import de.hpi.bpt.argos.api.response.ResponseFactoryImpl;
-import de.hpi.bpt.argos.notifications.ClientUpdateService;
-import de.hpi.bpt.argos.notifications.ClientUpdateServiceImpl;
-import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import spark.Service;
 

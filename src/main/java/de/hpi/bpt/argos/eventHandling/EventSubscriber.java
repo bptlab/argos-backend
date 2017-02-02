@@ -1,6 +1,5 @@
 package de.hpi.bpt.argos.eventHandling;
 
-import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 

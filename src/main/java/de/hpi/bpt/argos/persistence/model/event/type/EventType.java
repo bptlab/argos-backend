@@ -2,8 +2,8 @@ package de.hpi.bpt.argos.persistence.model.event.type;
 
 import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
 import de.hpi.bpt.argos.persistence.model.event.Event;
-import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
+import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 
 import java.util.List;
 

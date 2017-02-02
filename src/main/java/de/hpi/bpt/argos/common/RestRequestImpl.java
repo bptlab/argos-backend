@@ -16,9 +16,6 @@ import java.net.URL;
  */
 public class RestRequestImpl implements RestRequest {
 	protected static final Logger logger = LoggerFactory.getLogger(RestRequestImpl.class);
-	protected static final int HTTP_SUCCESS_CODE = 200;
-
-	public static final String ERROR_RECEIVING_RESPONSE = "error while receiving response";
 
 	protected HttpURLConnection connection;
 	protected String content;
@@ -62,7 +59,7 @@ public class RestRequestImpl implements RestRequest {
 
 			content = requestContent;
 		} catch (IOException e) {
-			logExceptionInContentSetting(e);
+			logger.error("Cannot set content of rest request", e);
 		}
 	}
 
@@ -74,7 +71,7 @@ public class RestRequestImpl implements RestRequest {
 		try {
 			return connection.getResponseCode();
 		} catch (IOException e) {
-			logExceptionWhileReceivingResponse(e);
+			logger.error("Cannot get response code of rest request", e);
 			return 0;
 		}
 	}
@@ -89,28 +86,23 @@ public class RestRequestImpl implements RestRequest {
 		}
 
 		BufferedReader responseReader;
+		StringBuilder restResponse = new StringBuilder();
 
 		try {
 			responseReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-		} catch (IOException e) {
-			logExceptionWhileReceivingResponse(e);
-			return ERROR_RECEIVING_RESPONSE;
-		}
+			String responseString;
 
-		String responseString;
-		StringBuilder response = new StringBuilder();
-
-		try {
 			while ((responseString = responseReader.readLine()) != null) {
-				response.append(responseString);
+				restResponse.append(responseString);
 			}
 			responseReader.close();
+
 		} catch (IOException e) {
-			//logExceptionWhileReceivingResponse(e);
-			return ERROR_RECEIVING_RESPONSE;
+			logger.error("Cannot read response of rest request", e);
+			return RestRequest.getErrorResponse();
 		}
 
-		this.response = response.toString();
+		this.response = restResponse.toString();
 		return this.response;
 	}
 
@@ -119,31 +111,6 @@ public class RestRequestImpl implements RestRequest {
      */
 	@Override
 	public boolean isSuccessful() {
-		return getResponseCode() == HTTP_SUCCESS_CODE;
-	}
-
-	/**
-     * This method logs an exception on error level.
-     * @param head - string message to be logged
-     * @param exception - throwable exception to be logged
-     */
-	protected void logException(String head, Throwable exception) {
-		logger.error(head, exception);
-	}
-
-    /**
-     * This method logs an exception in content setting.
-     * @param exception - throwable exception to be logged
-     */
-	protected void logExceptionInContentSetting(Throwable exception) {
-		logException("can't set content: ", exception);
-	}
-
-    /**
-     * This method logs an exception while receiving the response.
-     * @param exception - throwable exception to be logged
-     */
-	protected void logExceptionWhileReceivingResponse(Throwable exception) {
-		logException("can't receive response: ", exception);
+		return getResponseCode() == RestRequest.getHttpSuccessCode();
 	}
 }

@@ -14,7 +14,7 @@ public interface PushNotificationClientHandler {
 	 */
 	void setup(Service sparkService);
 
-			   /**
+	/**
 	 * This method sends a push notification to all connected clients.
 	 * @param notification - the notification so send
 	 */
@@ -40,4 +40,8 @@ public interface PushNotificationClientHandler {
 	 * @param message - the message
 	 */
 	void onMessage(Session client, String message);
+
+	static String getWebSocketUriBase() {
+		return "/notifications";
+	}
 }

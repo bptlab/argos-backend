@@ -23,7 +23,6 @@ import java.util.concurrent.locks.ReentrantLock;
 @WebSocket
 public class PushNotificationClientHandlerImpl implements PushNotificationClientHandler {
 	private static final Logger logger = LoggerFactory.getLogger(PushNotificationClientHandlerImpl.class);
-	protected static final String WEB_SOCKET_ROUTE = "/notifications";
 	protected static final long CLIENT_LOCK_TIME_OUT = 1000;
 	protected static final TimeUnit CLIENT_LOCK_TIME_UNIT = TimeUnit.MILLISECONDS;
 
@@ -43,7 +42,7 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 	 */
 	@Override
 	public void setup(Service sparkService) {
-		sparkService.webSocket(WEB_SOCKET_ROUTE, this);
+		sparkService.webSocket(PushNotificationClientHandler.getWebSocketUriBase(), this);
 	}
 
 	/**
@@ -66,6 +65,7 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 					client.getRemote().sendString(notification);
 
 				} catch (Exception exception) {
+					logger.error("Cannot send notification to client", exception);
 					client.close();
 					it.remove();
 				}
@@ -124,16 +124,7 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 	@OnWebSocketMessage
 	@Override
 	public void onMessage(Session client, String message) {
-
-	}
-
-	/**
-	 * This methods logs exceptions to the console.
-	 * @param head - a description what happened
-	 * @param exception - the thrown exception
-	 */
-	protected void logError(String head, Throwable exception) {
-		logger.error(head, exception);
+		//Is empty, since we don't react to the messages of the connected client.
 	}
 
 	/**
@@ -141,6 +132,6 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 	 * @param exception - the thrown exception
 	 */
 	protected void logErrorWhileTryingToAcquireClientsLock(Throwable exception) {
-		logError("can't acquire client list lock", exception);
+		logger.error("can't acquire client list lock", exception);
 	}
 }

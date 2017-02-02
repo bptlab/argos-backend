@@ -24,7 +24,7 @@ public interface EventEndpoint extends RestEndpoint {
      * @return - the URI to retrieve single events from
      */
     static String getSingleEventBaseUri() {
-        return "/api/events/:eventId";
+        return String.format("/api/events/%1$s", getEventIdParameter(true));
     }
 
     /**
@@ -33,7 +33,15 @@ public interface EventEndpoint extends RestEndpoint {
      * @return - the URI to receive the specified event
      */
     static String getSingleEventUri(long eventId)  {
-        return getSingleEventBaseUri().replaceAll(":eventId", Objects.toString(eventId, "0"));
+        return getSingleEventBaseUri().replaceAll(getEventIdParameter(true), Objects.toString(eventId, "0"));
     }
 
+    /**
+     * This method returns the event id path parameter.
+     * @param includePrefix - if a prefix should be included
+     * @return - event id path parameter as a string
+     */
+    static String getEventIdParameter(boolean includePrefix) {
+        return RestEndpoint.getParameter("eventId", includePrefix);
+    }
 }

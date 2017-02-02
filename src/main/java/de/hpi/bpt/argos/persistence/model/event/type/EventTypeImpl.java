@@ -3,10 +3,12 @@ package de.hpi.bpt.argos.persistence.model.event.type;
 import de.hpi.bpt.argos.eventHandling.schema.EventTypeSchemaGenerator;
 import de.hpi.bpt.argos.eventHandling.schema.EventTypeSchemaGeneratorImpl;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityImpl;
-import de.hpi.bpt.argos.persistence.model.event.*;
+import de.hpi.bpt.argos.persistence.model.event.Event;
+import de.hpi.bpt.argos.persistence.model.event.EventImpl;
+import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
+import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQueryImpl;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttributeImpl;
-import de.hpi.bpt.argos.persistence.model.event.Event;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 

@@ -29,7 +29,9 @@ public class EventEndpointImpl extends RestEndpointImpl implements EventEndpoint
     public String getSingleEvent(Request request, Response response) {
         logInfoForReceivedRequest(request);
 
-        long eventId = inputValidation.validateLong(request.params("eventId"), (Long input) -> input > 0);
+        long eventId = inputValidation.validateLong(
+                request.params(EventEndpoint.getEventIdParameter(false)),
+                (Long input) -> input > 0);
         String json = responseFactory.getEvent(eventId);
 
         logInfoForSendingResponse(request);

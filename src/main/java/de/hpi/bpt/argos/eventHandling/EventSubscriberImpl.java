@@ -6,13 +6,11 @@ import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.common.RestRequest;
 import de.hpi.bpt.argos.common.RestRequestFactory;
 import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
-import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,8 +20,9 @@ import java.util.List;
 public class EventSubscriberImpl implements EventSubscriber {
 	private static final Logger logger = LoggerFactory.getLogger(EventSubscriberImpl.class);
 	protected static final Gson serializer = new GsonBuilder().disableHtmlEscaping().create();
-
 	protected static final RestRequestFactory restRequestFactory = new RestRequestFactoryImpl();
+
+	//TODO: use properties file
 	protected static final String DEFAULT_HOST = "http://localhost:8080";
 	protected static final String DEFAULT_EVENT_QUERY_URI = "/Unicorn/webapi/REST/EventQuery/REST";
 	protected static final String DEFAULT_EVENT_TYPE_URI = "/Unicorn/webapi/REST/EventType";
@@ -47,7 +46,6 @@ public class EventSubscriberImpl implements EventSubscriber {
 		entityManager.createDefaultEventTypes();
 		List<EventType> eventTypes = entityManager.getEventTypes();
 
-		// TODO: catch occuring errors
 		for(EventType eventType : eventTypes) {
 			if (registerEventType(host, eventUri, eventType)) {
 				registerEventQuery(host, queryUri, eventType);
@@ -137,7 +135,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 			return false;
 		}
 
-		return getRequest.getResponseCode() == 200;
+		return getRequest.getResponseCode() == RestRequest.getHttpSuccessCode();
 	}
 
 	/**
@@ -149,20 +147,15 @@ public class EventSubscriberImpl implements EventSubscriber {
 	}
 
 	/**
-	 * This method logs an info.
-	 * @param head - the message to log
-	 */
-	protected void logInfo(String head) {
-		logger.info(head);
-	}
-
-	/**
 	 * This method logs an info when sending rest requests.
 	 * @param head - the title of the log message
 	 * @param request - the rest request to log
 	 */
 	protected void logRestRequestInfo(String head, RestRequest request) {
-		logInfo(String.format("%1$s : (request) %2$s -> (response) %3$d : %4$s", head, request.getContent(), request.getResponseCode(),
+		logger.info(String.format("%1$s : (request) %2$s -> (response) %3$d : %4$s",
+				head,
+				request.getContent(),
+				request.getResponseCode(),
 				request.getResponse()));
 	}
 }

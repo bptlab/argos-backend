@@ -4,7 +4,9 @@ package de.hpi.bpt.argos.persistence.model.event.attribute;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityImpl;
 import de.hpi.bpt.argos.persistence.model.event.data.EventDataType;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
  * {@inheritDoc}

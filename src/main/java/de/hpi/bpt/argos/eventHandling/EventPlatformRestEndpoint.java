@@ -1,12 +1,12 @@
 package de.hpi.bpt.argos.eventHandling;
 
-import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import spark.Service;
 
 /**
  * This interface represents a rest endpoint for receiving data from the event platform.
  */
+@FunctionalInterface //remove this annotation when adding more methods
 public interface EventPlatformRestEndpoint {
 
 	/**

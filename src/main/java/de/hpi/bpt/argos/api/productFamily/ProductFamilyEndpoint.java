@@ -41,7 +41,7 @@ public interface ProductFamilyEndpoint extends RestEndpoint {
 	 * @return - the URI to retrieve one specific product family from
 	 */
 	static String getProductFamilyBaseUri() {
-		return "/api/productfamilies/:productFamilyId";
+		return String.format("/api/productfamilies/%1$s", getProductFamilyIdParameter(true));
 	}
 
 	/**
@@ -50,6 +50,16 @@ public interface ProductFamilyEndpoint extends RestEndpoint {
 	 * @return - the URI to retrieve one specific product family from
 	 */
 	static String getProductFamilyUri(long productFamilyId) {
-		return getProductFamilyBaseUri().replaceAll(":productFamilyId", Objects.toString(productFamilyId, "0"));
+		return getProductFamilyBaseUri()
+				.replaceAll(getProductFamilyIdParameter(true), Objects.toString(productFamilyId, "0"));
+	}
+
+	/**
+	 * This method returns the product family id path parameter.
+	 * @param includePrefix - if a prefix should be included
+	 * @return - the product family id path parameter as a string
+	 */
+	static String getProductFamilyIdParameter(boolean includePrefix) {
+		return RestEndpoint.getParameter("productFamilyId", includePrefix);
 	}
 }

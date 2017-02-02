@@ -64,4 +64,8 @@ public interface ResponseFactory {
 	default String finishRequest() {
 		return "request finished";
 	}
+
+	static int getHttpNotFoundCode() {
+		return 404;
+	}
 }

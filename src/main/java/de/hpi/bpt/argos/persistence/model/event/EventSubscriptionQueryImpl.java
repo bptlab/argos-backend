@@ -2,7 +2,9 @@ package de.hpi.bpt.argos.persistence.model.event;
 
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityImpl;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 /**
  * {@inheritDoc}

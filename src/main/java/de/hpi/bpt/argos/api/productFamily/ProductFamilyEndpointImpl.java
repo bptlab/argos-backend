@@ -3,7 +3,6 @@ package de.hpi.bpt.argos.api.productFamily;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
 import de.hpi.bpt.argos.common.RestEndpointImpl;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
-
 import spark.Request;
 import spark.Response;
 import spark.Service;
@@ -43,7 +42,9 @@ public class ProductFamilyEndpointImpl extends RestEndpointImpl implements Produ
 	public String getProductFamily(Request request, Response response) {
 		logInfoForReceivedRequest(request);
 
-		long productFamilyId = inputValidation.validateLong(request.params("productFamilyId"), (Long input) -> input > 0);
+		long productFamilyId = inputValidation.validateLong(
+				request.params(ProductFamilyEndpoint.getProductFamilyIdParameter(false)),
+				(Long input) -> input > 0);
 		String json = responseFactory.getProductFamily(productFamilyId);
 
 		logInfoForSendingResponse(request);

@@ -15,7 +15,7 @@ public interface ProductEndpoint extends RestEndpoint {
 	 * This method is called via API and returns details of the specified product.
 	 * @param request - Spark defined parameter containing request object
 	 * @param response - Spark defined parameter containing response object
-	 * @return - a json representation of this product
+	 * @return - a json string representation of this product
 	 */
 	String getProduct(Request request, Response response);
 
@@ -23,7 +23,7 @@ public interface ProductEndpoint extends RestEndpoint {
 	 * This method is called via API and returns a list of event types which are defined for this product.
 	 * @param request - Spark defined parameter containing request object
 	 * @param response - Spark defined parameter containing response object
-	 * @return - a json representation of all event types for this product
+	 * @return - a json string representation of all event types for this product
 	 */
 	String getEventTypesForProduct(Request request, Response response);
 
@@ -41,7 +41,7 @@ public interface ProductEndpoint extends RestEndpoint {
 	 * @return - the URI to retrieve a product from
 	 */
 	static String getProductBaseUri() {
-		return "/api/products/:productId";
+		return String.format("/api/products/%1$s", getProductIdParameter(true));
 	}
 
 	/**
@@ -49,7 +49,7 @@ public interface ProductEndpoint extends RestEndpoint {
 	 * @return - the URI to retrieve all event types for a product from
 	 */
 	static String getEventTypesForProductBaseUri() {
-		return "/api/products/:productId/eventtypes";
+		return String.format("/api/products/%1$s/eventtypes", getProductIdParameter(true));
 	}
 
 	/**
@@ -57,7 +57,11 @@ public interface ProductEndpoint extends RestEndpoint {
 	 * @return - the URI to retrieve events for a product from
 	 */
 	static String getEventsForProductBaseUri() {
-		return "/api/products/:productId/events/:eventTypeId/:indexFrom/:indexTo";
+		return String.format("/api/products/%1$s/events/%2$s/%3$s/%4$s",
+				getProductIdParameter(true),
+				getEventTypeIdParameter(true),
+				getIndexFromParameter(true),
+				getIndexToParameter(true));
 	}
 
 	/**
@@ -66,7 +70,7 @@ public interface ProductEndpoint extends RestEndpoint {
 	 * @return - the URI to retrieve a product from
 	 */
 	static String getProductUri(long productId) {
-		return getProductBaseUri().replaceAll(":productId", Objects.toString(productId, "0"));
+		return getProductBaseUri().replaceAll(getProductIdParameter(true), Objects.toString(productId, "0"));
 	}
 
 	/**
@@ -75,7 +79,8 @@ public interface ProductEndpoint extends RestEndpoint {
 	 * @return - the URI to retrieve all event types for a product from
 	 */
 	static String getEventTypesForProductUri(long productId) {
-		return getEventTypesForProductBaseUri().replaceAll(":productId", Objects.toString(productId, "0"));
+		return getEventTypesForProductBaseUri()
+				.replaceAll(getProductIdParameter(true), Objects.toString(productId, "0"));
 	}
 
 	/**
@@ -87,9 +92,46 @@ public interface ProductEndpoint extends RestEndpoint {
 	 * @return - the URI to retrieve events within a range for products from
 	 */
 	static String getEventsForProductUri(long productId, long eventTypeId, int indexFrom, int indexTo) {
-		return getEventsForProductBaseUri().replace("productId", Objects.toString(productId, "0"))
-				.replaceAll(":eventTypeId", Objects.toString(eventTypeId, "0"))
-				.replaceAll(":indexFrom", Objects.toString(indexFrom, "0"))
-				.replaceAll(":indexTo", Objects.toString(indexTo, "0"));
+		return getEventsForProductBaseUri()
+				.replaceAll(getProductIdParameter(true), Objects.toString(productId, "0"))
+				.replaceAll(getEventTypeIdParameter(true), Objects.toString(eventTypeId, "0"))
+				.replaceAll(getIndexFromParameter(true), Objects.toString(indexFrom, "-1"))
+				.replaceAll(getIndexToParameter(true), Objects.toString(indexTo, "-2"));
+	}
+
+	/**
+	 * This method returns the product id path parameter.
+	 * @param includePrefix - if a prefix should be included
+	 * @return - the product id path parameter as a string
+	 */
+	static String getProductIdParameter(boolean includePrefix) {
+		return RestEndpoint.getParameter("productId", includePrefix);
+	}
+
+	/**
+	 * This method returns the eventtype id path parameter.
+	 * @param includePrefix - if a prefix should be included
+	 * @return - the eventtype id path parameter as a string
+	 */
+	static String getEventTypeIdParameter(boolean includePrefix) {
+		return RestEndpoint.getParameter("eventTypeId", includePrefix);
+	}
+
+	/**
+	 * This method returns the index from path parameter.
+	 * @param includePrefix - if a prefix should be included
+	 * @return - the index from path parameter as a string
+	 */
+	static String getIndexFromParameter(boolean includePrefix) {
+		return RestEndpoint.getParameter("indexFrom", includePrefix);
+	}
+
+	/**
+	 * This method returns the index to path parameter.
+	 * @param includePrefix - if a prefix should be included
+	 * @return - the index to path parameter as a string
+	 */
+	static String getIndexToParameter(boolean includePrefix) {
+		return RestEndpoint.getParameter("indexTo", includePrefix);
 	}
 }

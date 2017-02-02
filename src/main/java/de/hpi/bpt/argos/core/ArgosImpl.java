@@ -2,20 +2,11 @@ package de.hpi.bpt.argos.core;
 
 import de.hpi.bpt.argos.api.CustomerRestEndpoint;
 import de.hpi.bpt.argos.api.CustomerRestEndpointImpl;
-import de.hpi.bpt.argos.api.event.EventEndpoint;
-import de.hpi.bpt.argos.api.event.EventEndpointImpl;
-import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpoint;
-import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpointImpl;
-import de.hpi.bpt.argos.eventHandling.*;
-import de.hpi.bpt.argos.notifications.ClientUpdateService;
-import de.hpi.bpt.argos.notifications.ClientUpdateServiceImpl;
-import de.hpi.bpt.argos.notifications.socket.PushNotificationClientHandlerImpl;
-import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
-import de.hpi.bpt.argos.persistence.database.DatabaseConnectionImpl;
+import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpoint;
+import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpointImpl;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManagerImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import spark.Service;
 
 import static spark.Service.ignite;
@@ -25,7 +16,6 @@ import static spark.Service.ignite;
  * This is the implementation.
  */
 public class ArgosImpl implements Argos {
-	protected static final Logger logger = LoggerFactory.getLogger(ArgosImpl.class);
 
 	protected static final int DEFAULT_PORT = 8989;
 	protected static final int DEFAULT_NUMBER_OF_THREADS = 8;
@@ -91,7 +81,7 @@ public class ArgosImpl implements Argos {
 	 * This method enables the CORS handling for every request. This could a security leak.
 	 * @param sparkService - the sparkservice to be configured
 	 */
-	//TODO: fix the valneriddi
+	//TODO: fix the vulnerability
 	protected void enableCORS(Service sparkService) {
 		sparkService.options("/*", (request, response) -> {
 
@@ -114,12 +104,5 @@ public class ArgosImpl implements Argos {
 			response.header("Access-Control-Allow-Headers", "*");
 			response.type("application/json");
 		});
-	}
-    /**
-     * This method logs errors on error level.
-     * @param head - error message to be logged
-     */
-	protected void logError(String head, Throwable exception) {
-		logger.error(head, exception);
 	}
 }

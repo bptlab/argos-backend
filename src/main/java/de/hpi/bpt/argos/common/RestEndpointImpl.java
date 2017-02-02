@@ -38,27 +38,11 @@ public abstract class RestEndpointImpl implements RestEndpoint {
 	}
 
 	/**
-	 * This method logs a string on info level.
-	 * @param head - string to be logged
-	 */
-	protected void logInfo(String head) {
-		logger.info(head);
-	}
-
-	/**
-	 * This method logs a string on error level.
-	 * @param head - string to be logged
-	 */
-	protected void logError(String head) {
-		logger.error(head);
-	}
-
-	/**
 	 * This method logs an info, if a request is received via url and the associated method was called.
 	 * @param request - Spark request object to be logged
 	 */
 	protected void logInfoForReceivedRequest(Request request) {
-		logInfo("received request : (uri) " + request.uri() + "    (body) " + request.body());
+		logger.info("received request : (uri) " + request.uri() + "    (body) " + request.body());
 	}
 
 	/**
@@ -66,6 +50,6 @@ public abstract class RestEndpointImpl implements RestEndpoint {
 	 * @param request - the initial request
 	 */
 	protected void logInfoForSendingResponse(Request request) {
-		logInfo("sending response for request (" + request.uri() + ")");
+		logger.info("sending response for request (" + request.uri() + ")");
 	}
 }

@@ -69,7 +69,7 @@ public class ClientUpdateServiceImpl implements ClientUpdateService {
 		 */
 		@Override
 		public void run() {
-
+			//This functionality is not implemented yet.
 		}
 	}
 }

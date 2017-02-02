@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.eventHandling;
 
+import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.common.RestEndpoint;
 import spark.Request;
 import spark.Response;
@@ -23,6 +24,9 @@ public interface EventReceiver extends RestEndpoint {
 	 * @return - the URI to send events to
 	 */
 	static String getPostEventBaseUri() {
-		return "/api/events/receiver/:eventTypeId";
+		return String.format("/api/events/receiver/%1$s",
+				ProductEndpoint.getEventTypeIdParameter(true));
 	}
+
+
 }

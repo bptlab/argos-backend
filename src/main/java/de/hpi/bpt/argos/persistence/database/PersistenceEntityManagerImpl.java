@@ -13,7 +13,10 @@ import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 import de.hpi.bpt.argos.persistence.model.event.data.EventData;
 import de.hpi.bpt.argos.persistence.model.event.data.EventDataImpl;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
-import de.hpi.bpt.argos.persistence.model.product.*;
+import de.hpi.bpt.argos.persistence.model.product.Product;
+import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
+import de.hpi.bpt.argos.persistence.model.product.ProductFamilyImpl;
+import de.hpi.bpt.argos.persistence.model.product.ProductImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -304,6 +307,12 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		return "";
 	}
 
+	/**
+	 * This method notifies the event receivers about entity changes.
+	 * @param type - the type of change
+	 * @param entity - the entity that changed
+	 * @param fetchUrl - the url where the updated/created can be fetched
+	 */
 	protected void updateEntity(PushNotificationType type, PersistenceEntity entity, String fetchUrl) {
 		for(PersistenceEntityManagerEventReceiver eventReceiver : eventReceivers) {
 			eventReceiver.onEntityModified(type, entity, fetchUrl);

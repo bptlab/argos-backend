@@ -4,18 +4,19 @@ import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.query.Query;
 import org.hibernate.service.spi.ServiceException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * {@inheritDoc}
@@ -36,7 +37,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 					.configure()
 					.buildSessionFactory();
 		} catch (ServiceException e) {
-			logErrorWhileConnectingToDatabaseServer(e);
+			logger.error("can't connect to the database server", e);
 			return false;
 		}
 
@@ -362,13 +363,13 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> void saveEntities(T... entities) {
+	public void saveEntities(PersistenceEntity... entities) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
 
-			for(T entity : entities) {
+			for(PersistenceEntity entity : entities) {
 				session.saveOrUpdate(entity);
 			}
 
@@ -377,42 +378,22 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 			if (tx != null) {
 				tx.rollback();
 			}
-			logErrorWhileSavingEntities(exception);
+			logger.error("can't save entities in database", exception);
 		} finally {
 			session.close();
 		}
 	}
 
 	/**
-	 * This method logs exceptions to the console.
-	 * @param head - a description what happened
-	 * @param exception - the thrown exception
-	 */
-	protected void logError(String head, Throwable exception) {
-		logger.error(head, exception);
-	}
-
-	/**
-	 * This method logs an exception which occurs while trying to connect to the database server.
-	 * @param exception - the thrown exception
-	 */
-	protected void logErrorWhileConnectingToDatabaseServer(Throwable exception) {
-		logError("can't connect to the database server", exception);
-	}
-
-	/**
 	 * This method logs an exception which occurs while trying to get entities from the database server.
-	 * @param exception
+	 * @param exception - a thrown exception
+	 * @param query - the query that caused the exception
 	 */
 	protected void logErrorWhileGettingEntities(Throwable exception, Query query) {
-		logError("can't retrieve entities from database: " + (query != null ? query.getQueryString() : "<empty query>"), exception);
-	}
-
-	/**
-	 * This method logs an exception which occurs while trying to save entities in the database server.
-	 * @param exception - the thrown exception
-	 */
-	protected void logErrorWhileSavingEntities(Throwable exception) {
-		logError("can't save entities in database", exception);
+		String queryString = "<empty query>";
+		if (query != null) {
+			queryString = query.getQueryString();
+		}
+		logger.error(String.format("can't retrieve entities from database: %1$s", queryString), exception);
 	}
 }
