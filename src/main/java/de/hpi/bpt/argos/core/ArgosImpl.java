@@ -36,6 +36,7 @@ public class ArgosImpl implements Argos {
 		entityManager = new PersistenceEntityManagerImpl();
 		if (!entityManager.setup()) {
 			shutdown();
+			return;
 		}
 
 		// Keep this first, as spark wants to have all web sockets first
