@@ -11,7 +11,17 @@ import de.hpi.bpt.argos.api.response.ResponseFactoryImpl;
 import de.hpi.bpt.argos.notifications.ClientUpdateService;
 import de.hpi.bpt.argos.notifications.ClientUpdateServiceImpl;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
+import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
+import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQueryImpl;
+import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
+import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttributeImpl;
+import de.hpi.bpt.argos.persistence.model.event.data.EventDataType;
+import de.hpi.bpt.argos.persistence.model.event.type.EventType;
+import de.hpi.bpt.argos.persistence.model.event.type.EventTypeImpl;
 import spark.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * {@inheritDoc}

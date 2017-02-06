@@ -90,6 +90,8 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 			clientsLock.tryLock(CLIENT_LOCK_TIME_OUT, CLIENT_LOCK_TIME_UNIT);
 			clients.add(client);
 
+			logger.info("new web socket client connected: " + client.getRemoteAddress().getHostString());
+
 		} catch (Exception exception) {
 			logErrorWhileTryingToAcquireClientsLock(exception);
 

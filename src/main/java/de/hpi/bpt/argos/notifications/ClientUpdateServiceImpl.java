@@ -1,5 +1,7 @@
 package de.hpi.bpt.argos.notifications;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.notifications.socket.PushNotificationClientHandler;
 import de.hpi.bpt.argos.notifications.socket.PushNotificationClientHandlerImpl;
@@ -7,9 +9,10 @@ import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
 import spark.Service;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TimerTask;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * {@inheritDoc}
@@ -20,7 +23,8 @@ public class ClientUpdateServiceImpl implements ClientUpdateService {
 
 	protected PushNotificationClientHandler clientHandler;
 	protected Duration clientUpdateInterval;
-	protected List<JsonObject> entityUpdates;
+	protected Map<PersistenceEntity, JsonObject> entityUpdates;
+	protected ScheduledExecutorService executorService;
 
 	/**
 	 * This constructor initializes all members with default values.
@@ -28,7 +32,12 @@ public class ClientUpdateServiceImpl implements ClientUpdateService {
 	public ClientUpdateServiceImpl() {
 		clientHandler = new PushNotificationClientHandlerImpl();
 		clientUpdateInterval = DEFAULT_CLIENT_UPDATE_INTERVAL;
-		entityUpdates = new ArrayList<>();
+		entityUpdates = new HashMap<>();
+		executorService = Executors.newScheduledThreadPool(1);
+		executorService.scheduleAtFixedRate(new SendClientNotificationThread(this),
+				DEFAULT_CLIENT_UPDATE_INTERVAL.toMillis(),
+				DEFAULT_CLIENT_UPDATE_INTERVAL.toMillis(),
+				TimeUnit.MILLISECONDS);
 	}
 
 	/**
@@ -43,8 +52,25 @@ public class ClientUpdateServiceImpl implements ClientUpdateService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setClientUpdateInterval(Duration interval) {
-		clientUpdateInterval = interval;
+	public Map<PersistenceEntity, JsonObject> getEntityUpdates() {
+		return entityUpdates;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public PushNotificationClientHandler getPushNotificationClientHandler() {
+		return clientHandler;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void resetEntityUpdates() {
+		// TODO: this might cause problems, since this method is often called from another thread
+		entityUpdates.clear();
 	}
 
 	/**
@@ -59,17 +85,38 @@ public class ClientUpdateServiceImpl implements ClientUpdateService {
 		jsonUpdate.addProperty("entityId", entity.getId());
 		jsonUpdate.addProperty("dataFetchUri", fetchUri);
 
-		entityUpdates.add(jsonUpdate);
+		entityUpdates.put(entity, jsonUpdate);
 	}
 
-	protected class SendClientNotificationThread extends TimerTask {
+	protected class SendClientNotificationThread implements Runnable {
+		protected final Gson serializer = new Gson();
+
+		protected ClientUpdateService clientUpdateService;
+
+		/**
+		 * This method initializes the client update service.
+		 * @param updateService - the client update service to be set
+		 */
+		public SendClientNotificationThread(ClientUpdateService updateService) {
+			this.clientUpdateService = updateService;
+		}
 
 		/**
 		 * This method get called periodically and sends update notifications to clients.
 		 */
 		@Override
 		public void run() {
-			//This functionality is not implemented yet.
+			Map<PersistenceEntity, JsonObject> notifications = clientUpdateService.getEntityUpdates();
+			clientUpdateService.resetEntityUpdates();
+
+			JsonArray jsonNotifications = new JsonArray();
+
+			for (Map.Entry<PersistenceEntity, JsonObject> notification : notifications.entrySet()) {
+				jsonNotifications.add(notification.getValue());
+			}
+
+			String json = serializer.toJson(jsonNotifications);
+			clientUpdateService.getPushNotificationClientHandler().sendNotification(json);
 		}
 	}
 }
