@@ -1,9 +1,13 @@
 package de.hpi.bpt.argos.notifications;
 
+import com.google.gson.JsonObject;
+import de.hpi.bpt.argos.notifications.socket.PushNotificationClientHandler;
+import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManagerEventReceiver;
 import spark.Service;
 
 import java.time.Duration;
+import java.util.Map;
 
 /**
  * This interface represents services, which are responsible to update clients whenever data changes.
@@ -17,9 +21,19 @@ public interface ClientUpdateService extends PersistenceEntityManagerEventReceiv
 	void setup(Service sparkService);
 
 	/**
-	 * This method sets the interval between sending notifications, if there are any, to connected clients.
-	 * @param interval - the interval between notifications
+	 * This method returns a map of entities to json objects which represents update notifications.
+	 * @return - a map of entities to json objects which represents update notifications
 	 */
-	void setClientUpdateInterval(Duration interval);
+	Map<PersistenceEntity, JsonObject> getEntityUpdates();
 
+	/**
+	 * This method returns the push notification client handler.
+	 * @return - the push notification client handler
+	 */
+	PushNotificationClientHandler getPushNotificationClientHandler();
+
+	/**
+	 * This method removes all existing entity updates.
+	 */
+	void resetEntityUpdates();
 }
