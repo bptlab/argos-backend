@@ -7,6 +7,8 @@ import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpointImpl;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManagerImpl;
 
+import de.hpi.bpt.argos.properties.PropertyReader;
+import de.hpi.bpt.argos.properties.PropertyReaderImpl;
 import spark.Service;
 
 import static spark.Service.ignite;
@@ -16,9 +18,6 @@ import static spark.Service.ignite;
  * This is the implementation.
  */
 public class ArgosImpl implements Argos {
-
-	protected static final int DEFAULT_PORT = 8989;
-	protected static final int DEFAULT_NUMBER_OF_THREADS = 8;
 
 	protected Service sparkService;
 	protected PersistenceEntityManager entityManager;
@@ -55,7 +54,8 @@ public class ArgosImpl implements Argos {
      */
 	@Override
 	public void run() {
-		run(DEFAULT_PORT, DEFAULT_NUMBER_OF_THREADS);
+
+		run(Argos.getPort(), Argos.getThreads());
 	}
 
     /**

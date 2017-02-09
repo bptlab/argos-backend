@@ -1,5 +1,8 @@
 package de.hpi.bpt.argos.core;
 
+import de.hpi.bpt.argos.properties.PropertyReader;
+import de.hpi.bpt.argos.properties.PropertyReaderImpl;
+
 /**
  * This interface is the Argos application and provides methods for Argos administration.
  */
@@ -20,4 +23,60 @@ public interface Argos {
      * This method shuts the Argos application down and frees the used port again.
      */
 	void shutdown();
+
+	/**
+	 * This method returns the property key for the argosBackendPort property.
+	 * @return - the property key for the argosBackendPort property
+	 */
+	static String getArgosBackendPortPropertyKey() {
+		return "argosBackendPort";
+	}
+
+	/**
+	 * This method returns the property key for the argosBackendThreads property.
+	 * @return - the property key for the argosBackendThreads property
+	 */
+	static String getArgosBackendThreadsPropertyKey() {
+		return "argosBackendThreads";
+	}
+
+	/**
+	 * This method returns the port of the argos application as configured in the argos-backend.properties file.
+	 * @return - the port of the argos application as configured in the argos-backend.properties file
+	 */
+	static int getPort() {
+		PropertyReader propertyReader = new PropertyReaderImpl();
+
+		String port = propertyReader.getProperty(getArgosBackendPortPropertyKey());
+
+		if (port.length() == 0) {
+			return 0;
+		} else {
+			return Integer.parseInt(port);
+		}
+	}
+
+	/**
+	 * This method returns the number of threads of the argos application as configured in the argos-backend.properties file.
+	 * @return - the number of threads of the argos application as configured in the argos-backend.properties file
+	 */
+	static int getThreads() {
+		PropertyReader propertyReader = new PropertyReaderImpl();
+
+		String threads = propertyReader.getProperty(getArgosBackendThreadsPropertyKey());
+
+		if (threads.length() == 0) {
+			return 0;
+		} else {
+			return Integer.parseInt(threads);
+		}
+	}
+
+	/**
+	 * This method returns the host name of the argos application.
+	 * @return - the host name of the argos application
+	 */
+	static String getHost() {
+		return String.format("http://localhost:%1$d", getPort());
+	}
 }
