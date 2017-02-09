@@ -10,4 +10,16 @@ public interface DatabaseConnection extends PersistenceEntityRetriever {
 	 * @param entities - a list of entities to save
 	 */
 	void saveEntities(PersistenceEntity... entities);
+
+	static String getDatabaseConnectionHostPropertyKey() {
+		return "databaseConnectionHost";
+	}
+
+	static String getDatabaseConnectionUsernamePropertyKey() {
+		return "databaseConnectionUsername";
+	}
+
+	static String getDatabaseConnectionPasswordPropertyKey() {
+		return "databaseConnectionPassword";
+	}
 }

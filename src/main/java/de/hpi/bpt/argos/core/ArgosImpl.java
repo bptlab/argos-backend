@@ -7,6 +7,8 @@ import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpointImpl;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManagerImpl;
 
+import de.hpi.bpt.argos.properties.PropertyEditor;
+import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import spark.Service;
 
 import static spark.Service.ignite;
@@ -16,9 +18,6 @@ import static spark.Service.ignite;
  * This is the implementation.
  */
 public class ArgosImpl implements Argos {
-
-	protected static final int DEFAULT_PORT = 8989;
-	protected static final int DEFAULT_NUMBER_OF_THREADS = 8;
 
 	protected Service sparkService;
 	protected PersistenceEntityManager entityManager;
@@ -55,7 +54,8 @@ public class ArgosImpl implements Argos {
      */
 	@Override
 	public void run() {
-		run(DEFAULT_PORT, DEFAULT_NUMBER_OF_THREADS);
+
+		run(Argos.getPort(), Argos.getThreads());
 	}
 
     /**
@@ -85,8 +85,12 @@ public class ArgosImpl implements Argos {
 	 */
 	//TODO: fix the vulnerability
 	protected void enableCORS(Service sparkService) {
-		final String ALLOWED_ORIGIN = "http://localhost:3000";
-		final String ALLOWED_REQUEST_METHOD = "GET";
+
+		PropertyEditor propertyReader = new PropertyEditorImpl();
+
+		String allowedOrigin = propertyReader.getProperty(Argos.getCORSAllowedOriginPropertyKey());
+		String allowedRequestMethod = propertyReader.getProperty(Argos.getCORSAllowedRequestMethodPropertyKey());
+
 
 		sparkService.options("/api/*", (request, response) -> {
 
@@ -104,8 +108,8 @@ public class ArgosImpl implements Argos {
 		});
 
 		sparkService.before((request, response) -> {
-			response.header("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
-			response.header("Access-Control-Request-Method", ALLOWED_REQUEST_METHOD);
+			response.header("Access-Control-Allow-Origin", allowedOrigin);
+			response.header("Access-Control-Request-Method", allowedRequestMethod);
 			response.type("application/json");
 		});
 	}
