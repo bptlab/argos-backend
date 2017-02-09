@@ -88,7 +88,7 @@ public class ArgosImpl implements Argos {
 		final String ALLOWED_ORIGIN = "http://localhost:3000";
 		final String ALLOWED_REQUEST_METHOD = "GET";
 
-		sparkService.options("/*", (request, response) -> {
+		sparkService.options("/api/*", (request, response) -> {
 
 			String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
 			if (accessControlRequestHeaders != null) {
