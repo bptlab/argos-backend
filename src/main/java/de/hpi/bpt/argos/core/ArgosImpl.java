@@ -7,8 +7,8 @@ import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpointImpl;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManagerImpl;
 
-import de.hpi.bpt.argos.properties.PropertyReader;
-import de.hpi.bpt.argos.properties.PropertyReaderImpl;
+import de.hpi.bpt.argos.properties.PropertyEditor;
+import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import spark.Service;
 
 import static spark.Service.ignite;
@@ -86,7 +86,7 @@ public class ArgosImpl implements Argos {
 	//TODO: fix the vulnerability
 	protected void enableCORS(Service sparkService) {
 
-		PropertyReader propertyReader = new PropertyReaderImpl();
+		PropertyEditor propertyReader = new PropertyEditorImpl();
 
 		String allowedOrigin = propertyReader.getProperty(Argos.getCORSAllowedOriginPropertyKey());
 		String allowedRequestMethod = propertyReader.getProperty(Argos.getCORSAllowedRequestMethodPropertyKey());

@@ -2,7 +2,6 @@ package de.hpi.bpt.argos.eventHandling;
 
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
-import de.hpi.bpt.argos.properties.PropertyReader;
 
 
 /**

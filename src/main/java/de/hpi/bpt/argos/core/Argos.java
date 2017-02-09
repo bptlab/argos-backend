@@ -1,7 +1,7 @@
 package de.hpi.bpt.argos.core;
 
-import de.hpi.bpt.argos.properties.PropertyReader;
-import de.hpi.bpt.argos.properties.PropertyReaderImpl;
+import de.hpi.bpt.argos.properties.PropertyEditor;
+import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 
 /**
  * This interface is the Argos application and provides methods for Argos administration.
@@ -45,7 +45,7 @@ public interface Argos {
 	 * @return - the port of the argos application as configured in the argos-backend.properties file
 	 */
 	static int getPort() {
-		PropertyReader propertyReader = new PropertyReaderImpl();
+		PropertyEditor propertyReader = new PropertyEditorImpl();
 
 		String port = propertyReader.getProperty(getArgosBackendPortPropertyKey());
 
@@ -61,7 +61,7 @@ public interface Argos {
 	 * @return - the number of threads of the argos application as configured in the argos-backend.properties file
 	 */
 	static int getThreads() {
-		PropertyReader propertyReader = new PropertyReaderImpl();
+		PropertyEditor propertyReader = new PropertyEditorImpl();
 
 		String threads = propertyReader.getProperty(getArgosBackendThreadsPropertyKey());
 

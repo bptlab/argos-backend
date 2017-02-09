@@ -4,6 +4,8 @@ import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
+import de.hpi.bpt.argos.properties.PropertyEditor;
+import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -33,9 +35,25 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	@Override
 	public boolean setup() {
 		try {
-			databaseSessionFactory = new Configuration()
-					.configure()
-					.buildSessionFactory();
+
+			PropertyEditor propertyEditor = new PropertyEditorImpl();
+
+			Configuration configuration = new Configuration();
+
+			configuration.configure();
+			configuration.setProperty("hibernate.connection.username",
+					propertyEditor.getProperty(DatabaseConnection.getDatabaseConnectionUsernamePropertyKey()));
+
+			configuration.setProperty("hibernate.connection.password",
+					propertyEditor.getProperty(DatabaseConnection.getDatabaseConnectionPasswordPropertyKey()));
+
+			configuration.setProperty("hibernate.connection.url",
+					String.format("jdbc:mysql://%1$s/argosbackend?createDatabaseIfNotExist=true",
+							propertyEditor.getProperty(DatabaseConnection.getDatabaseConnectionHostPropertyKey())));
+
+
+			databaseSessionFactory = configuration.buildSessionFactory();
+
 		} catch (ServiceException e) {
 			logger.error("can't connect to the database server", e);
 			return false;

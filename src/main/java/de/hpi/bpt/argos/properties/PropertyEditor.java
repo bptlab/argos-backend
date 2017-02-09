@@ -3,7 +3,7 @@ package de.hpi.bpt.argos.properties;
 /**
  * This interface represents an object which is able to read properties from the argos-backend.properties file.
  */
-public interface PropertyReader {
+public interface PropertyEditor {
 
 	/**
 	 * This method returns a property value for a specific property key.
@@ -11,6 +11,13 @@ public interface PropertyReader {
 	 * @return - the value for the property key
 	 */
 	String getProperty(String propertyKey);
+
+	/**
+	 * This method sets a value for a specific property. Caution: This will not be stored permanently. You need to do this for every restart.
+	 * @param propertyKey - the key of the property to edit
+	 * @param propertyValue - the new value for the property
+	 */
+	void setProperty(String propertyKey, String propertyValue);
 
 	/**
 	 * This method returns the properties file.

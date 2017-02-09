@@ -13,26 +13,47 @@ import java.util.Properties;
  * {@inheritDoc}
  * This is the implementation.
  */
-public class PropertyReaderImpl implements PropertyReader {
-	protected static final Logger logger = LoggerFactory.getLogger(PropertyReaderImpl.class);
+public class PropertyEditorImpl implements PropertyEditor {
+	protected static final Logger logger = LoggerFactory.getLogger(PropertyEditorImpl.class);
 
 	protected static Map<String, String> propertyMap;
+
+	/**
+	 * This constructor loads the properties from the disk.
+	 */
+	public PropertyEditorImpl() {
+		loadProperties();
+	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public String getProperty(String propertyKey) {
+		return propertyMap.get(propertyKey);
+	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setProperty(String propertyKey, String propertyValue) {
+		propertyMap.put(propertyKey, propertyValue);
+	}
+
+	/**
+	 * This method loads all properties from the disk.
+	 */
+	protected void loadProperties() {
 		if (propertyMap != null) {
-			return propertyMap.get(propertyKey);
+			return;
 		}
 
 		propertyMap = new HashMap<>();
 
 		Properties properties = new Properties();
 
-		InputStream inputStream = getClass().getClassLoader().getResourceAsStream(PropertyReader.getPropertyFile());
+		InputStream inputStream = getClass().getClassLoader().getResourceAsStream(PropertyEditor.getPropertyFile());
 
 		if (inputStream != null) {
 			try {
@@ -41,13 +62,11 @@ public class PropertyReaderImpl implements PropertyReader {
 				logger.error("cannot read from property file", e);
 			}
 		} else {
-			logger.error(String.format("cannot find property file '%1$s'.", PropertyReader.getPropertyFile()));
+			logger.error(String.format("cannot find property file '%1$s'.", PropertyEditor.getPropertyFile()));
 		}
 
 		for(Object key : properties.keySet()) {
 			propertyMap.put(key.toString(), properties.getProperty(key.toString()));
 		}
-
-		return propertyMap.get(propertyKey);
 	}
 }

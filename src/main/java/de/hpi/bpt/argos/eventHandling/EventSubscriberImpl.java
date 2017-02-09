@@ -9,8 +9,8 @@ import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
 import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
-import de.hpi.bpt.argos.properties.PropertyReader;
-import de.hpi.bpt.argos.properties.PropertyReaderImpl;
+import de.hpi.bpt.argos.properties.PropertyEditor;
+import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +53,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 	@Override
 	public void setupEventPlatform() {
 
-		PropertyReader propertyReader = new PropertyReaderImpl();
+		PropertyEditor propertyReader = new PropertyEditorImpl();
 
 		String eventPlatformHost = propertyReader.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
 		String eventPlatformEventQueryUri = propertyReader.getProperty(EventSubscriber.getEventPlatformEventQueryUriPropertyKey());
@@ -90,7 +90,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 	@Override
 	public boolean registerEventType(EventType eventType) {
 
-		PropertyReader propertyReader = new PropertyReaderImpl();
+		PropertyEditor propertyReader = new PropertyEditorImpl();
 
 		String eventPlatformHost = propertyReader.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
 		String eventPlatformEventTypeUri = propertyReader.getProperty(EventSubscriber.getEventPlatformEventTypeUriPropertyKey());
@@ -134,7 +134,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 	@Override
 	public boolean registerEventQuery(EventType eventType) {
 
-		PropertyReader propertyReader = new PropertyReaderImpl();
+		PropertyEditor propertyReader = new PropertyEditorImpl();
 
 		String eventPlatformHost = propertyReader.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
 		String eventPlatformEventQueryUri = propertyReader.getProperty(EventSubscriber.getEventPlatformEventQueryUriPropertyKey());
@@ -162,7 +162,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 	@Override
 	public boolean isEventTypeRegistered(EventType eventType) {
 
-		PropertyReader propertyReader = new PropertyReaderImpl();
+		PropertyEditor propertyReader = new PropertyEditorImpl();
 
 		String eventPlatformHost = propertyReader.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
 		String eventPlatformEventTypeUri = propertyReader.getProperty(EventSubscriber.getEventPlatformEventTypeUriPropertyKey());
