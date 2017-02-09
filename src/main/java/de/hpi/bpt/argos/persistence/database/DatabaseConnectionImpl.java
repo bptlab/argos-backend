@@ -202,8 +202,8 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 		try {
 			tx = session.beginTransaction();
 
-			query = session.createQuery("FROM EventImpl ev " +
-							"WHERE ev.product.id = :productId AND ev.eventType.id = :eventTypeId "
+			query = session.createQuery("FROM EventImpl ev "
+							+ "WHERE ev.product.id = :productId AND ev.eventType.id = :eventTypeId "
 							+ "ORDER BY ev.id ASC",
 						Event.class)
 						.setParameter("productId", productId)
@@ -387,7 +387,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 		try {
 			tx = session.beginTransaction();
 
-			for(PersistenceEntity entity : entities) {
+			for (PersistenceEntity entity : entities) {
 				session.saveOrUpdate(entity);
 			}
 

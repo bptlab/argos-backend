@@ -8,7 +8,15 @@ import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 /**
  * The main class that will be called on start of the application. Creates new argos.
  */
-public class Application {
+public final class Application {
+
+	/**
+	 * This method informs the user that this class should not be instantiated, as it is a utility class.
+	 */
+	private Application() {
+		throw new IllegalAccessError("Utility class");
+	}
+
 	/**
 	 * default java main method.
 	 * @param args - default parameter

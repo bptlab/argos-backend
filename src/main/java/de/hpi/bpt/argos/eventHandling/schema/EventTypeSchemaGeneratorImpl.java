@@ -19,7 +19,7 @@ public class EventTypeSchemaGeneratorImpl implements EventTypeSchemaGenerator {
 	public String getEventTypeSchema(EventType eventType) {
 		String schema = "";
 
-		for(EventAttribute attribute : eventType.getAttributes()) {
+		for (EventAttribute attribute : eventType.getAttributes()) {
 			schema = appendElement(attribute.getName(), attribute.getType(), schema);
 		}
 

@@ -4,7 +4,14 @@ import de.hpi.bpt.argos.persistence.database.PersistenceEntityImpl;
 import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
 import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQueryImpl;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.ManyToOne;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.JoinColumn;
+import javax.persistence.FetchType;
+import javax.persistence.OneToOne;
 import java.util.Date;
 
 /**

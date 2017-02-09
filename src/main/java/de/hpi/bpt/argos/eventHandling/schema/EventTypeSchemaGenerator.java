@@ -5,6 +5,7 @@ import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 /**
  * This interface represents generators which generate event type schema for the event platform.
  */
+@FunctionalInterface
 public interface EventTypeSchemaGenerator {
 
 	/**
