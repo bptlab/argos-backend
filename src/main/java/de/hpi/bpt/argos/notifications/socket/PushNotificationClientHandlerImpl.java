@@ -69,7 +69,7 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 	}
 
 	/**
-	 * This method sends a notification to a single client
+	 * This method sends a notification to a single client.
 	 * @param client - the receiving client
 	 * @param it - an iterator on the receiving client
 	 * @param notification - the notification that the client should receive
