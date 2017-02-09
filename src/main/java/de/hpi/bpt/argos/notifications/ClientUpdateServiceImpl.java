@@ -111,10 +111,19 @@ public class ClientUpdateServiceImpl implements ClientUpdateService {
 	 */
 	@Override
 	public void onEntityModified(PushNotificationType typeOfUpdate, PersistenceEntity entity, String fetchUri) {
+		final String implementationSuffix = "Impl";
+
 		JsonObject jsonUpdate = new JsonObject();
 
+		String entityType = entity.getClass().getSimpleName();
+
+		if (entityType.endsWith(implementationSuffix)) {
+			entityType = entityType.substring(0, entityType.length() - implementationSuffix.length());
+		}
+
+
 		jsonUpdate.addProperty("updateReason", typeOfUpdate.toString());
-		jsonUpdate.addProperty("entityType", entity.getClass().getName());
+		jsonUpdate.addProperty("entityType", entityType);
 		jsonUpdate.addProperty("entityId", entity.getId());
 		jsonUpdate.addProperty("dataFetchUri", fetchUri);
 
