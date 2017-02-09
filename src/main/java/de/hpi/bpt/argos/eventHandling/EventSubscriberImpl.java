@@ -59,7 +59,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 		String eventPlatformEventQueryUri = propertyReader.getProperty(EventSubscriber.getEventPlatformEventQueryUriPropertyKey());
 		String eventPlatformEventTypeUri = propertyReader.getProperty(EventSubscriber.getEventPlatformEventTypeUriPropertyKey());
 
-		setupEventPlatform(eventPlatformHost, eventPlatformEventQueryUri, eventPlatformEventTypeUri);
+		setupEventPlatform(eventPlatformHost, eventPlatformEventTypeUri, eventPlatformEventQueryUri);
 	}
 
 	/**
