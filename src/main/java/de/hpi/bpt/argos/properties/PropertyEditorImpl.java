@@ -65,7 +65,7 @@ public class PropertyEditorImpl implements PropertyEditor {
 			logger.error(String.format("cannot find property file '%1$s'.", PropertyEditor.getPropertyFile()));
 		}
 
-		for(Object key : properties.keySet()) {
+		for (Object key : properties.keySet()) {
 			propertyMap.put(key.toString(), properties.getProperty(key.toString()));
 		}
 	}

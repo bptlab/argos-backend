@@ -6,7 +6,6 @@ import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManagerEventReceiver;
 import spark.Service;
 
-import java.time.Duration;
 import java.util.Map;
 
 /**

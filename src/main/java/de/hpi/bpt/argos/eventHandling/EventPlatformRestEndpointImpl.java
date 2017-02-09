@@ -55,9 +55,9 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 
 		newEventTypes.add(createFeedbackDataEventType());
 
-		for(EventType existingType : existingEventTypes) {
+		for (EventType existingType : existingEventTypes) {
 
-			for(int i = 0; i < newEventTypes.size(); i++) {
+			for (int i = 0; i < newEventTypes.size(); i++) {
 				if (existingType.getName().equals(newEventTypes.get(i).getName())) {
 					newEventTypes.remove(i);
 					break;

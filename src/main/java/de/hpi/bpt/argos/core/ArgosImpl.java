@@ -83,7 +83,6 @@ public class ArgosImpl implements Argos {
 	 * This method enables the CORS handling for every request. This could a security leak.
 	 * @param sparkService - the sparkservice to be configured
 	 */
-	//TODO: fix the vulnerability
 	protected void enableCORS(Service sparkService) {
 
 		PropertyEditor propertyReader = new PropertyEditorImpl();
