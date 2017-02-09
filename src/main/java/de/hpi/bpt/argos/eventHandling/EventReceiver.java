@@ -5,6 +5,8 @@ import de.hpi.bpt.argos.common.RestEndpoint;
 import spark.Request;
 import spark.Response;
 
+import java.util.Objects;
+
 /**
  * This interface represents an event receiver that is called when an event is sent from the event processing platform.
  * It extends the RestEndpoint.
@@ -28,5 +30,12 @@ public interface EventReceiver extends RestEndpoint {
 				ProductEndpoint.getEventTypeIdParameter(true));
 	}
 
-
+	/**
+	 * This method returns the URI to post events to.
+	 * @param eventTypeId - the event type id of the sent event
+	 * @return - the URI to post events to
+	 */
+	static String getPostEventUri(long eventTypeId) {
+		return getPostEventBaseUri().replaceAll(ProductEndpoint.getEventTypeIdParameter(true), Objects.toString(eventTypeId, "0"));
+	}
 }

@@ -105,14 +105,14 @@ public class EventSubscriberImpl implements EventSubscriber {
 	public boolean registerEventQuery(String host, String uri, EventType eventType) {
 		RestRequest subscriptionRequest = restRequestFactory.createPostRequest(host, uri);
 
-		String notificationPath = Argos.getHost() + EventReceiver.getPostEventBaseUri();
+		String notificationPath = Argos.getHost() + EventReceiver.getPostEventUri(eventType.getId());
 
 		if (subscriptionRequest == null) {
 			return false;
 		}
 
 		JsonObject requestContent = new JsonObject();
-		requestContent.addProperty("notificationPath", String.format("%1$s/%2$s", notificationPath, eventType.getId()));
+		requestContent.addProperty("notificationPath", notificationPath);
 		requestContent.addProperty("queryString", eventType.getEventSubscriptionQuery().getQueryString());
 
 		subscriptionRequest.setContent(serializer.toJson(requestContent));

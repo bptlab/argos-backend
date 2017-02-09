@@ -130,7 +130,7 @@ public class ClientUpdateServiceImpl implements ClientUpdateService {
 	 */
 	@Override
 	public void sendEntityUpdates() {
-		Map<PersistenceEntity, JsonObject> notifications = getEntityUpdates();
+		Map<PersistenceEntity, JsonObject> notifications = new HashMap<>(getEntityUpdates());
 		resetEntityUpdates();
 
 		JsonArray jsonNotifications = new JsonArray();
