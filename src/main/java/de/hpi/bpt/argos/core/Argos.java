@@ -79,4 +79,20 @@ public interface Argos {
 	static String getHost() {
 		return String.format("http://localhost:%1$d", getPort());
 	}
+
+	/**
+	 * This method returns the property key for the corsAllowedOrigin property.
+	 * @return - the property key for the corsAllowedOrigin property
+	 */
+	static String getCORSAllowedOriginPropertyKey() {
+		return "corsAllowedOrigin";
+	}
+
+	/**
+	 * This method returns the property key for the corsAllowedRequestMethod property.
+	 * @return - the property key for the corsAllowedRequestMethod property
+	 */
+	static String getCORSAllowedRequestMethodPropertyKey() {
+		return "corsAllowedRequestMethod";
+	}
 }

@@ -85,8 +85,12 @@ public class ArgosImpl implements Argos {
 	 */
 	//TODO: fix the vulnerability
 	protected void enableCORS(Service sparkService) {
-		final String ALLOWED_ORIGIN = "http://localhost:3000";
-		final String ALLOWED_REQUEST_METHOD = "GET";
+
+		PropertyReader propertyReader = new PropertyReaderImpl();
+
+		String allowedOrigin = propertyReader.getProperty(Argos.getCORSAllowedOriginPropertyKey());
+		String allowedRequestMethod = propertyReader.getProperty(Argos.getCORSAllowedRequestMethodPropertyKey());
+
 
 		sparkService.options("/api/*", (request, response) -> {
 
@@ -104,8 +108,8 @@ public class ArgosImpl implements Argos {
 		});
 
 		sparkService.before((request, response) -> {
-			response.header("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
-			response.header("Access-Control-Request-Method", ALLOWED_REQUEST_METHOD);
+			response.header("Access-Control-Allow-Origin", allowedOrigin);
+			response.header("Access-Control-Request-Method", allowedRequestMethod);
 			response.type("application/json");
 		});
 	}
