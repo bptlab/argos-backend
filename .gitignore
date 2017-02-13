@@ -7,6 +7,7 @@
 .idea/
 argos-backend.iml
 argos.iml
+src/main/resources/argos-backend.properties
 
 ## File-based project format:
 *.iws
