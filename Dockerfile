@@ -2,6 +2,7 @@ FROM maven:3
 
 COPY . .
 
+RUN mv src/main/resources/argos-backend_template.properties src/main/resources/argos-backend.properties
 RUN mvn clean install -DskipTests
 
 EXPOSE 8989
