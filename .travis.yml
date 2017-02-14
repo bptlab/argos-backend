@@ -1,0 +1,8 @@
+language: java
+
+before_script:
+  pwd
+  mv src/main/resources/argos-backend_template.properties src/main/resources/argos-backend.properties
+
+script:
+  mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
