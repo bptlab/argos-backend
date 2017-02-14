@@ -101,4 +101,20 @@ public interface EventType extends PersistenceEntity {
 	 * @param events - a list of events to be set
 	 */
 	void setEvents(List<Event> events);
+
+	/**
+	 * This method returns the name of the productIdentification attribute.
+	 * @return - the name of the productIdentification attribute
+	 */
+	static String getProductIdentificationAttributeName() {
+		return "productId";
+	}
+
+	/**
+	 * This method returns the name of the productFamilyIdentification attribute.
+	 * @return - the name of the productFamilyIdentification attribute
+	 */
+	static String getProductFamilyIdentificationAttributeName() {
+		return "productFamilyId";
+	}
 }

@@ -181,15 +181,6 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<EventType> createDefaultEventTypes() {
-		// TODO: implement XSD parsing
-		return new ArrayList<>();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public Product getProduct(ProductFamily productFamily, int productOrderNumber) {
 		Product product = databaseConnection.getProduct(productOrderNumber);
 

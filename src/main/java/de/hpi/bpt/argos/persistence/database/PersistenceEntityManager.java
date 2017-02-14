@@ -46,12 +46,6 @@ public interface PersistenceEntityManager extends PersistenceEntityRetriever {
 	Event createEvent(EventType eventType, String jsonEvent);
 
 	/**
-	 * This method creates all default event types and also stores them in the database if necessary.
-	 * @return - a list of all default event types.
-	 */
-	List<EventType> createDefaultEventTypes();
-
-	/**
 	 * This method returns a product or creates it, if it does not exist in the database.
 	 * @param productFamily - the family of the product
 	 * @param productOrderNumber - the unique product order number
