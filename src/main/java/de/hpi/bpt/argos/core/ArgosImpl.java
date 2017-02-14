@@ -73,9 +73,11 @@ public class ArgosImpl implements Argos {
      * @return - returns a spark service object
      */
 	protected Service startServer(int port, int numberOfThreads) {
-		return ignite()
-				.port(port)
-				.threadPool(numberOfThreads);
+		Service sparkService = ignite()
+								.port(port)
+								.threadPool(numberOfThreads);
+
+		return sparkService;
 	}
 
 
