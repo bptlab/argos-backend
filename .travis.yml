@@ -2,8 +2,11 @@ language: java
 jdk:
   - oraclejdk8
 
+services:
+  - mysql
+
 before_script:
-  pwd
+  cat ~travis/.my.cnf
   mv src/main/resources/argos-backend_template.properties src/main/resources/argos-backend.properties
 
 script:
