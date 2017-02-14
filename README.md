@@ -17,10 +17,11 @@
 
 ## Installation Guide
 1. Check the prerequisites
-1. Clone the git repository: [git@gitlab.hpi.de:bptlab/argos-backend.git](https://gitlab.hpi.de/bptlab/argos-backend/). Development branch is developer, issues are branched and merged after merge request by someone else.
+1. Clone the git repository: [https://github.com/bptlab/argos-backend.git](https://github.com/bptlab/argos-backend.git). Development branch is dev, issues are branched and merged after merge request by someone else.
 
 ## Local Deployment
 1. In your local working directory, start your favorite cli. 
+1. Copy and rename the template property file in ```src/main/resources``` to ```argos-backend.properties``` and change the values as required in your environment.
 1. Execute the command ```mvn install``` (```mvn clean install``` if you want to delete your old jar file, ```mvn install -DskipTests``` if you want to skip the tests).
 1. Go into the target directory
 1. Execute the command ```java -jar argos-backend.jar```. The backend server will start running on localhost:8989 (default).
