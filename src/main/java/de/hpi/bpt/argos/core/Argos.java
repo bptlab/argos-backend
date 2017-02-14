@@ -41,6 +41,14 @@ public interface Argos {
 	}
 
 	/**
+	 * This method returns the property key for the argosBackendPublicFiles property.
+	 * @return - the property key for the argosBackendPublicFiles property
+	 */
+	static String getArgosBackendPublicFilesPropertyKey() {
+		return "argosBackendPublicFiles";
+	}
+
+	/**
 	 * This method returns the port of the argos application as configured in the argos-backend.properties file.
 	 * @return - the port of the argos application as configured in the argos-backend.properties file
 	 */
