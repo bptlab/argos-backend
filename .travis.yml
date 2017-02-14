@@ -1,0 +1,16 @@
+language: java
+
+jdk:
+  - oraclejdk8
+addons:
+  mariadb: '10.0'
+  
+before_script:
+  - mvn verify sonar:sonar -DskipTests -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.branch=$TRAVIS_BRANCH
+  - mv src/main/resources/argos-backend_template.properties src/main/resources/argos-backend.properties
+
+script: mvn test -B -V
+
+notifications:
+  slack:
+    secure: ZwCTLyOBNOND78fAXsptY3wp/sIuLIT/hJzTdN4VNAd5kpAytOo4B4XajgmzA+p8pnIF5OP0mCcab9S1VLrBqC0DUreqTuaKQW1NwL6RyhW3wtsdtc7y66+aORr1MS0VX4FWYl2DeIUnsezLFjwTd9vukzmuF+MUHKHS06t0eubcD+e+Lm2wXoc3NoC25w0i0RSLtWKNHZCsaClLQX+42fqIHDjs58Mt8Q4Ut5vKULS094FqrmRkDXog4L6Og1QpLs5ItinF02YHzYQBs+88NBEwtLjLeArAzWHj8P8HQcw1HNbfd9dlCMxUglGJKHbHWeHuRmsUuz+sp80wlVOS4uaqDbhEB6z5r1mSN0IqHg97UMWS7wKmy3U8mUzkzc0RPLYcYHsJfychQxAEUAya+d/OLQryaiPIVA/ZZQXBmxhwHCHNhvH83mpljTmDTf5vXLuz2oLK0QRYEM9dwCU005q1Yu57HGYTJurqPwZR02Cmk5FF5IgIyIm89a/wVLK+cVR8kF88LyBqdAPkMWOwsHvMhdHODlCsQrvK178uSVXwHBGGB39C26x93cSaF1zCgDOnFkhb8T8Ar4p1JpQt/w5aIZ41kyRkQr/1aPLZWOmx7WlInCMHYJ4xTSZhj6s/3D44FeRhNHVrDkQ8u5/EP07RFN699JUO5fVECRtksWo=
