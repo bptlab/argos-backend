@@ -6,8 +6,8 @@ services:
   - mysql
 
 before_script:
-  cat ~travis/.my.cnf
-  mv src/main/resources/argos-backend_template.properties src/main/resources/argos-backend.properties
+  - cat ~travis/.my.cnf
+  - mv src/main/resources/argos-backend_template.properties src/main/resources/argos-backend.properties
 
 script:
-  mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+  mvn install -Dmaven.javadoc.skip=true -B -V
