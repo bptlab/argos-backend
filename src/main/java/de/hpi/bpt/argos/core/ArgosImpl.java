@@ -54,7 +54,6 @@ public class ArgosImpl implements Argos {
      */
 	@Override
 	public void run() {
-
 		run(Argos.getPort(), Argos.getThreads());
 	}
 
@@ -73,11 +72,16 @@ public class ArgosImpl implements Argos {
      * @return - returns a spark service object
      */
 	protected Service startServer(int port, int numberOfThreads) {
-		Service sparkService = ignite()
+		PropertyEditor propertyEditor = new PropertyEditorImpl();
+
+		Service service = ignite()
 								.port(port)
 								.threadPool(numberOfThreads);
 
-		return sparkService;
+		String publicFiles = propertyEditor.getProperty(Argos.getArgosBackendPublicFilesPropertyKey());
+		service.staticFileLocation(publicFiles);
+
+		return service;
 	}
 
 
