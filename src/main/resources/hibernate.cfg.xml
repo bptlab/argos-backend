@@ -10,9 +10,6 @@
         <property name="hibernate.connection.driver_class">
             org.mariadb.jdbc.Driver
         </property>
-        <property name="hibernate.hbm2ddl.auto">
-            validate
-        </property>
 
         <!-- migration settings -->
         <property name="hbm2ddl.auto">update</property>
