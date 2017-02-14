@@ -40,7 +40,6 @@ public class EventSubscriberImpl implements EventSubscriber {
 	 */
 	@Override
 	public void setupEventPlatform(String host, String eventTypeUri, String eventQueryUri) {
-		entityManager.createDefaultEventTypes();
 		List<EventType> eventTypes = entityManager.getEventTypes();
 
 		for (EventType eventType : eventTypes) {
