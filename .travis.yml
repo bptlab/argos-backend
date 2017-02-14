@@ -9,4 +9,4 @@ before_script:
   - mv src/main/resources/argos-backend_template.properties src/main/resources/argos-backend.properties
 
 script:
-  mvn install -Dmaven.javadoc.skip=true -B -V
+  mvn test -B -V
