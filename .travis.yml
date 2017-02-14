@@ -6,7 +6,7 @@ services:
   - mysql
 
 before_script:
-  - mvn verify sonar:sonar -DskipTests -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.branch=test
+  - mvn verify sonar:sonar -DskipTests -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.branch=$TRAVIS_BRANCH
   - mv src/main/resources/argos-backend_template.properties src/main/resources/argos-backend.properties
 
 script:
