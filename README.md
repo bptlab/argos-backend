@@ -1,6 +1,6 @@
 [![Quality Gate - Dev](https://bpt-lab.org/sonarqube/api/badges/gate?key=de.hpi.bpt:argos-backend:dev "Developer branch")](https://bpt-lab.org/sonarqube/overview?id=de.hpi.bpt%3Aargos-backend)
 [![Build Status](https://travis-ci.org/bptlab/argos-backend.svg?branch=master)](https://travis-ci.org/bptlab/argos-backend "Default branch")
-
+[![Coverage Status](https://coveralls.io/repos/github/bptlab/argos-backend/badge.svg?branch=master)](https://coveralls.io/github/bptlab/argos-backend?branch=master)
 # Argos Backend
 
 ## Prerequisites
