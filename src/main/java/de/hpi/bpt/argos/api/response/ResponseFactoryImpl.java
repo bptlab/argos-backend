@@ -9,6 +9,7 @@ import de.hpi.bpt.argos.common.validation.RestInputValidationService;
 import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpoint;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.model.event.Event;
+import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQueryImpl;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 import de.hpi.bpt.argos.persistence.model.event.data.EventData;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
@@ -186,7 +187,10 @@ public class ResponseFactoryImpl implements ResponseFactory {
 				halt(RestInputValidationService.getHttpErrorCode(), "event type name already in use, or failed to parse event type");
 			}
 
-			//eventType.setEventSubscriptionQuery(new EventSubscriptionQueryImpl());
+			if (eventType.getEventSubscriptionQuery() == null) {
+				eventType.setEventSubscriptionQuery(new EventSubscriptionQueryImpl());
+			}
+
 			eventType.getEventSubscriptionQuery().setQueryString(eventQuery);
 
 			if (!eventPlatformRestEndpoint.getEventSubscriber().registerEventType(eventType)) {
