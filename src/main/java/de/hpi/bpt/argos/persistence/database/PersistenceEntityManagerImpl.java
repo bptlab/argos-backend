@@ -501,15 +501,15 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * @param jsonEventType - the json representation of the event type
 	 * @param modifyExistingEventType - indicates whether to modify existing event types, based on the event type name
 	 * @param notifyClients - indicates whether to notify clients about the changes
-	 * @param createEventType - the function to create a new event type from
+	 * @param eventTypeCreation - the function to create a new event type from
 	 * @return - the new event type
 	 */
-	protected EventType createOrUpdateEventType(JsonObject jsonEventType, boolean modifyExistingEventType, boolean notifyClients, Function<JsonObject,
-			EventType> createEventType) {
+	protected EventType createOrUpdateEventType(JsonObject jsonEventType, boolean modifyExistingEventType, boolean notifyClients,
+												Function<JsonObject, EventType> eventTypeCreation) {
 
 		List<EventType> eventTypes = getEventTypes();
 		boolean eventTypeExisted = false;
-		EventType eventType = createEventType(jsonEventType);
+		EventType eventType = eventTypeCreation.apply(jsonEventType);
 
 		if (eventType == null) {
 			logger.error("cannot parse json into new event type. '" + jsonEventType.getAsString() + "'");

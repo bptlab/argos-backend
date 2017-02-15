@@ -187,7 +187,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 				halt(RestInputValidationService.getHttpErrorCode(), "event type name already in use, or failed to parse event type");
 			}
 
-			eventType.setEventSubscriptionQuery(new EventSubscriptionQueryImpl());
+			//eventType.setEventSubscriptionQuery(new EventSubscriptionQueryImpl());
 			eventType.getEventSubscriptionQuery().setQueryString(eventQuery);
 
 			if (!eventPlatformRestEndpoint.getEventSubscriber().registerEventType(eventType)) {

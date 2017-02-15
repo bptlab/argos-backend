@@ -64,6 +64,8 @@ public class EventTypeEndpointImpl extends RestEndpointImpl implements EventType
 	public String createEventType(Request request, Response response) {
 		logInfoForReceivedRequest(request);
 
+		responseFactory.createEventType(request.body());
+
 		return responseFactory.finishRequest();
 	}
 }
