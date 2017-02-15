@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.api;
 
+import de.hpi.bpt.argos.api.event.EventEndpoint;
 import de.hpi.bpt.argos.common.RestRequest;
 import org.junit.Test;
 
@@ -18,15 +19,15 @@ public class EventEndpointTest extends EndpointParentClass {
         // failure: event id < 0
         request = requestFactory.createRequest(TEST_HOST, getEvent("-42"), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,
                 TEST_ACCEPT_TYPE);
-        assertEquals(INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
+        assertEquals(HTTP_INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
 
         // failure: event id not an integer
         request = requestFactory.createRequest(TEST_HOST, getEvent("hello_server"), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,
                 TEST_ACCEPT_TYPE);
-        assertEquals(INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
+        assertEquals(HTTP_INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
     }
 
     private String getEvent(Object eventId) {
-        return String.format("/api/events/%1$s", eventId);
+        return EventEndpoint.getEventBaseUri().replaceAll(EventEndpoint.getEventIdParameter(true), eventId.toString());
     }
 }

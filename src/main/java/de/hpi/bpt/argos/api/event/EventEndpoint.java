@@ -7,7 +7,7 @@ import spark.Response;
 import java.util.Objects;
 
 /**
- * This interface represents the endpoint for retrieving single events.
+ * This interface represents the endpoint for retrieving events.
  */
 public interface EventEndpoint extends RestEndpoint {
 

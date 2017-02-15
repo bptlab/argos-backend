@@ -5,8 +5,6 @@ import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 
-import java.util.List;
-
 /**
  * This interface represents a factory which is able to create new persistence entities.
  */
