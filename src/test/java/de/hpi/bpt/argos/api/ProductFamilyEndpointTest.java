@@ -24,12 +24,12 @@ public class ProductFamilyEndpointTest extends EndpointParentClass {
         // failure: product id < 0
         request = requestFactory.createRequest(TEST_HOST, getProductFamilyOverviewUri(-42), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,
                 TEST_ACCEPT_TYPE);
-        assertEquals(INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
+        assertEquals(HTTP_INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
 
         // failure: product id not an integer
         request = requestFactory.createRequest(TEST_HOST, getProductFamilyOverviewUri("hello_server"), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,
                 TEST_ACCEPT_TYPE);
-        assertEquals(INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
+        assertEquals(HTTP_INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
     }
 
     @Test
@@ -41,13 +41,13 @@ public class ProductFamilyEndpointTest extends EndpointParentClass {
         // failure: product id < 0
         request = requestFactory.createRequest(TEST_HOST, getEventsForProductFamilyUri(-42, 1337, 0, 10), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,
                 TEST_ACCEPT_TYPE);
-        assertEquals(INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
+        assertEquals(HTTP_INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
 
         // failure: product id not an integer
         request = requestFactory.createRequest(TEST_HOST, getEventsForProductFamilyUri("hello_server", 1337, 0, 10), TEST_REQUEST_METHOD,
                 TEST_CONTENT_TYPE,
                 TEST_ACCEPT_TYPE);
-        assertEquals(INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
+        assertEquals(HTTP_INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
     }
 
     private String getProductFamiliesUri() {

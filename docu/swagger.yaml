@@ -5,8 +5,8 @@ swagger: '2.0'
 
 # This is your document metadata
 info:
-  version: "0.1"
-  title: Argos-ProductInterface
+  version: "1.0"
+  title: Argos-Backend
 
 # Describe your paths here
 paths:
@@ -139,6 +139,14 @@ paths:
                   type: string
                 numberOfEvents:
                   type: integer
+                productIdentificationAttributeName:
+                  type: string
+                productFamilyIdentificationAttributeName:
+                  type: string
+                timestampAttributeName:
+                  type: string
+                eventSubscriptionQuery:
+                  type: string
                 attributes:
                   title: ArrayOfEventAttributes
                   type: array
@@ -211,4 +219,90 @@ paths:
             title: Event
             type: object
             description: An object which contains all attributes specified in `EventType`
+            
+  /api/eventtypes:
+    get:
+      description: Gets an array of `EventType` objects.
+      
+      responses:
+        200:
+          description: Successful response
+          schema:
+            title: ArrayOfEventTypes
+            type: array
+            items:
+              title: EventType
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                productIdentificationAttributeName:
+                  type: string
+                productFamilyIdentificationAttributeName:
+                  type: string
+                timestampAttributeName:
+                  type: string
+                eventSubscriptionQuery:
+                  type: string
+                attributes:
+                  title: ArrayOfEventAttributes
+                  type: array
+                  items:
+                    title: EventAttribute
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      type:
+                        type: string
+                        
+  /api/eventtypes/{eventTypeId}:
+    get:
+      description: Gets a single `EventType` object defined by its id.
+      parameters:
+        -
+          name: eventTypeId
+          in: path
+          description: Unique identifier for the `EventType`
+          required: true
+          type: integer
+      
+      responses:
+        200:
+          description: Successful response
+          schema:
+            title: EventType
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              productIdentificationAttributeName:
+                type: string
+              productFamilyIdentificationAttributeName:
+                type: string
+              timestampAttributeName:
+                type: string
+              eventSubscriptionQuery:
+                type: string
+              attributes:
+                title: ArrayOfEventAttributes
+                type: array
+                items:
+                  title: EventAttribute
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    type:
+                      type: string
+      
+                
                   

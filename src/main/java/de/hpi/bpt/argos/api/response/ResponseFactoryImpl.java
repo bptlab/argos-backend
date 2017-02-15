@@ -86,16 +86,38 @@ public class ResponseFactoryImpl implements ResponseFactory {
 		JsonArray jsonEventTypes = new JsonArray();
 
 		for (Map.Entry<EventType, Integer> eventTypeEntry : eventTypes.entrySet()) {
-			JsonObject jsonEventType = getEventTypeBase(eventTypeEntry.getKey());
+			JsonObject jsonEventType = getEventType(eventTypeEntry.getKey());
 			jsonEventType.addProperty("numberOfEvents", eventTypeEntry.getValue());
-			JsonArray jsonEventAttributes = new JsonArray();
 
-			for (EventAttribute eventAttribute : eventTypeEntry.getKey().getAttributes()) {
-				jsonEventAttributes.add(getEventAttribute(eventAttribute));
-			}
-
-			jsonEventType.add("attributes", jsonEventAttributes);
 			jsonEventTypes.add(jsonEventType);
+		}
+
+		return serializer.toJson(jsonEventTypes);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEventType(long eventTypeId) {
+		EventType eventType = entityManager.getEventType(eventTypeId);
+		if (eventType == null) {
+			halt(ResponseFactory.getHttpNotFoundCode(), "Event type not found");
+		}
+		return serializer.toJson(getEventType(eventType));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getAllEventTypes() {
+		List<EventType> eventTypes = entityManager.getEventTypes();
+
+		JsonArray jsonEventTypes = new JsonArray();
+
+		for (EventType eventType : eventTypes) {
+			jsonEventTypes.add(getEventType(eventType));
 		}
 
 		return serializer.toJson(jsonEventTypes);
@@ -187,7 +209,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	}
 
 	/**
-	 * This method returns a event type base (id, name) as a JsonObject.
+	 * This method returns an event type base as a JsonObject.
 	 * @param eventType - the event type which base is required
 	 * @return - a json representation of the event type's base
 	 */
@@ -196,10 +218,38 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			JsonObject jsonEventType = new JsonObject();
 			jsonEventType.addProperty("id", eventType.getId());
 			jsonEventType.addProperty("name", eventType.getName());
+			jsonEventType.addProperty("productIdentificationAttributeName", eventType.getProductIdentificationAttribute().getName());
+			jsonEventType.addProperty("productFamilyIdentificationAttributeName", eventType.getProductFamilyIdentificationAttribute().getName());
+			jsonEventType.addProperty("timestampAttributeName", eventType.getTimestampAttribute().getName());
+			jsonEventType.addProperty("eventSubscriptionQuery", eventType.getEventSubscriptionQuery().getQueryString());
 
 			return jsonEventType;
 		} catch (Exception exception) {
 			logger.error("Cannot parse event type base", exception);
+			return new JsonObject();
+		}
+	}
+
+	/**
+	 * This method returns an event type as a JsonObject.
+	 * @param eventType - the event type
+	 * @return - a json representation of the event type
+	 */
+	protected JsonObject getEventType(EventType eventType) {
+		try {
+			JsonObject jsonEventType = getEventTypeBase(eventType);
+
+			JsonArray jsonEventAttributes = new JsonArray();
+
+			for (EventAttribute eventAttribute : eventType.getAttributes()) {
+				jsonEventAttributes.add(getEventAttribute(eventAttribute));
+			}
+
+			jsonEventType.add("attributes", jsonEventAttributes);
+
+			return jsonEventType;
+		} catch (Exception exception) {
+			logger.error("cannot parse event type", exception);
 			return new JsonObject();
 		}
 	}
