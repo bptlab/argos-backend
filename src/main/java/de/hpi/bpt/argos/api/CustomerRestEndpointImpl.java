@@ -9,7 +9,6 @@ import de.hpi.bpt.argos.api.product.ProductEndpointImpl;
 import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpoint;
 import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpointImpl;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
-import de.hpi.bpt.argos.api.response.ResponseFactoryImpl;
 import de.hpi.bpt.argos.notifications.ClientUpdateService;
 import de.hpi.bpt.argos.notifications.ClientUpdateServiceImpl;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;

@@ -2,7 +2,6 @@ package de.hpi.bpt.argos.api;
 
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
 import de.hpi.bpt.argos.common.RestRequest;

@@ -1,9 +1,7 @@
 package de.hpi.bpt.argos.eventHandling;
 
-import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
-import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import spark.Service;
 
 /**
