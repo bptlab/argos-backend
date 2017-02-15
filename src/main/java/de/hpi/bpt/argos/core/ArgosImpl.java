@@ -31,6 +31,7 @@ public class ArgosImpl implements Argos {
      */
 	@Override
 	public void run(int port, int numberOfThreads) {
+
 		sparkService = startServer(port, numberOfThreads);
 
 		entityManager = new PersistenceEntityManagerImpl();
@@ -68,7 +69,16 @@ public class ArgosImpl implements Argos {
 		sparkService.stop();
 	}
 
-    /**
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setTestMode(boolean testMode) {
+		PropertyEditor propertyEditor = new PropertyEditorImpl();
+		propertyEditor.setProperty(Argos.getArgosBackendTestModePropertyKey(), String.valueOf(testMode));
+	}
+
+	/**
      * This method starts the Spark service on a given port with a given number of threads.
      * @param port - port to be used as an integer
      * @param numberOfThreads - number of threads to be used as an integer

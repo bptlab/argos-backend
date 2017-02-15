@@ -1,5 +1,8 @@
 package de.hpi.bpt.argos.common;
 
+import de.hpi.bpt.argos.core.Argos;
+import de.hpi.bpt.argos.properties.PropertyEditor;
+import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +19,7 @@ import java.net.URL;
  */
 public class RestRequestImpl implements RestRequest {
 	protected static final Logger logger = LoggerFactory.getLogger(RestRequestImpl.class);
+	protected static final PropertyEditor propertyEditor = new PropertyEditorImpl();
 
 	protected HttpURLConnection connection;
 	protected String content;
@@ -48,6 +52,14 @@ public class RestRequestImpl implements RestRequest {
      */
 	@Override
 	public void setContent(String requestContent) {
+
+		boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
+
+		if (testMode) {
+			content = requestContent;
+			return;
+		}
+
 		connection.setDoOutput(true);
 
 		DataOutputStream outputStream;
@@ -68,6 +80,13 @@ public class RestRequestImpl implements RestRequest {
      */
 	@Override
 	public int getResponseCode() {
+
+		boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
+
+		if (testMode) {
+			return RestRequest.getHttpSuccessCode();
+		}
+
 		try {
 			return connection.getResponseCode();
 		} catch (IOException e) {
@@ -81,6 +100,13 @@ public class RestRequestImpl implements RestRequest {
      */
 	@Override
 	public String getResponse() {
+
+		boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
+
+		if (testMode) {
+			return "test mode enabled";
+		}
+
 		if (response != null) {
 			return response;
 		}
