@@ -63,21 +63,7 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 	 */
 	@Override
 	public RestRequest createGetRequest(String host, String uri, String acceptType) {
-		RestRequest request = createBasicRequest(host, uri);
-
-		if (request == null) {
-			return null;
-		}
-
-		try {
-			request.getConnection().setRequestMethod("GET");
-		} catch (ProtocolException e) {
-			logExceptionInRequestCreation(e);
-			return null;
-		}
-
-		request.getConnection().setRequestProperty("Accept", acceptType);
-		return request;
+		return createRequest(host, uri, "GET", DEFAULT_CONTENT_TYPE, acceptType);
 	}
 
 	/**
@@ -86,6 +72,22 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 	@Override
 	public RestRequest createGetRequest(String host, String uri) {
 		return createGetRequest(host, uri, DEFAULT_ACCEPT_TYPE);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RestRequest createDeleteRequest(String host, String uri) {
+		return createDeleteRequest(host, uri, DEFAULT_CONTENT_TYPE, DEFAULT_ACCEPT_TYPE);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RestRequest createDeleteRequest(String host, String uri, String contentType, String acceptType) {
+		return createRequest(host, uri, "DELETE", contentType, acceptType);
 	}
 
 	/**

@@ -34,10 +34,9 @@ public class CustomerRestEndpointImpl implements CustomerRestEndpoint {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setup(PersistenceEntityManager entityManager, Service sparkService) {
+	public void setup(PersistenceEntityManager entityManager, Service sparkService, ResponseFactory responseFactory) {
 		this.entityManager = entityManager;
-		responseFactory = new ResponseFactoryImpl();
-		responseFactory.setup(entityManager);
+		this.responseFactory = responseFactory;
 
 		// keep this first
 		clientUpdateService = new ClientUpdateServiceImpl();

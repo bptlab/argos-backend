@@ -2,6 +2,8 @@ package de.hpi.bpt.argos.eventHandling;
 
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
+import de.hpi.bpt.argos.properties.PropertyEditor;
+import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 
 
 /**
@@ -16,26 +18,9 @@ public interface EventSubscriber {
 	void setup(PersistenceEntityManager entityManager);
 
 	/**
-	 * This method sets up the event platform by registering all of the event types.
-	 * @param host - the event platform's host
-	 * @param eventTypeUri - the event type register uri
-	 * @param eventQueryUri - the event query register uri
-	 */
-	void setupEventPlatform(String host, String eventTypeUri, String eventQueryUri);
-
-	/**
 	 * This method sets up the default event platform by registering all of the event types.
 	 */
 	void setupEventPlatform();
-
-	/**
-	 * This method creates a given event type on the event processing platform (defined by host and uri).
-	 * @param host - the event processing platform's host
-	 * @param uri - the event processing platform api's uri
-	 * @param eventType - the event type to be registered
-	 * @return - boolean if the creation was successful
-	 */
-	boolean registerEventType(String host, String uri, EventType eventType);
 
     /**
      * This method creates a given event type on the default event processing platform.
@@ -45,37 +30,10 @@ public interface EventSubscriber {
 	boolean registerEventType(EventType eventType);
 
 	/**
-	 * This method subscribes to the event platform using an EventSubscriptionQuery.
-	 * @param host - the event processing platform's host
-	 * @param uri - the event processing platform api's uri
-	 * @param eventType - the event type which contains the event subscription query
-	 * @return - true if subscription was successful
+	 * This method deletes a given event type. This will delete the entry in the event processing platform as well as the entry in our database.
+	 * @param eventType - the event type to delete
 	 */
-	boolean registerEventQuery(String host, String uri, EventType eventType);
-
-	/**
-	 * This method subscribes to the default event platform using an EventSubscriptionQuery.
-	 * @param eventType - the event type which contains the event subscription query
-	 * @return - true if subscription was successful
-	 */
-	boolean registerEventQuery(EventType eventType);
-
-	/**
-	 * This method checks whether a specific event type is already registered within the event platform.
-	 * @param host - the event processing platform's host
-	 * @param uri - the event processing platform api's uri
-	 * @param eventType - the event type to be registered
-	 * @return - true if the event type is already registered
-	 */
-	boolean isEventTypeRegistered(String host, String uri, EventType eventType);
-
-	/**
-	 * This method checks whether a specific event type is already registered within the event platform.
-	 * @param eventType - the event type to be checked
-	 * @return - true if the event type is already registered
-	 */
-	boolean isEventTypeRegistered(EventType eventType);
-
+	void deleteEventType(EventType eventType);
 
 	/**
 	 * This method returns the property key for the eventPlatformHost property.
@@ -99,5 +57,55 @@ public interface EventSubscriber {
 	 */
 	static String getEventPlatformEventTypeUriPropertyKey() {
 		return "eventPlatformEventTypeUri";
+	}
+
+	/**
+	 * This method returns the property key for the eventPlatformDeleteEventTypeUri property.
+	 * @return - the property key for the eventPlatformDeleteEventTypeUri property
+	 */
+	static String getEventPlatformDeleteEventTypeUriPropertyKey() {
+		return "eventPlatformDeleteEventTypeUri";
+	}
+
+	/**
+	 * This method returns the property key for the eventPlatformDeleteEventQueryUri property.
+	 * @return - the property key for the eventPlatformDeleteEventQueryUri property
+	 */
+	static String getEventPlatformDeleteEventQueryUriPropertyKey() {
+		return "eventPlatformDeleteEventQueryUri";
+	}
+
+	/**
+	 * This method returns the URI to delete one specific event type on the event platform.
+	 * @param eventTypeName - the event type name to delete
+	 * @return - the URI to delete one specific event type
+	 */
+	static String getEventPlatformDeleteEventTypeUri(String eventTypeName) {
+		PropertyEditor propertyEditor = new PropertyEditorImpl();
+
+		String uri = propertyEditor.getProperty(getEventPlatformDeleteEventTypeUriPropertyKey());
+
+		if (uri == null) {
+			return "";
+		} else {
+			return uri.replaceAll(":1", eventTypeName);
+		}
+	}
+
+	/**
+	 * This method returns the URI to delete one specific event query on the event platform.
+	 * @param eventQueryUuid - the event query uuid to delete
+	 * @return - the URI to delete one specific event query
+	 */
+	static String getEventPlatformDeleteEventQueryUri(String eventQueryUuid) {
+		PropertyEditor propertyEditor = new PropertyEditorImpl();
+
+		String uri = propertyEditor.getProperty(getEventPlatformDeleteEventQueryUriPropertyKey());
+
+		if (uri == null) {
+			return "";
+		} else {
+			return uri.replaceAll(":1", eventQueryUuid);
+		}
 	}
 }

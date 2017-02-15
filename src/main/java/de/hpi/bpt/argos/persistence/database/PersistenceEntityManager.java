@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.persistence.database;
 
+import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
@@ -36,12 +37,43 @@ public interface PersistenceEntityManager extends PersistenceEntityRetriever {
 	void updateEntity(PersistenceEntity entity, String fetchUri);
 
 	/**
+	 * This method deletes an entity. This method also notifies clients about the changes.
+	 * @param entity - the entity to delete
+	 */
+	void deleteEntity(PersistenceEntity entity);
+
+	/**
 	 * This method returns a newly created event from its json representation.
 	 * @param eventType - the type of the event
 	 * @param jsonEvent - the json representation of the event
 	 * @return - the event
 	 */
 	Event createEvent(EventType eventType, String jsonEvent);
+
+	/**
+	 * This method returns a newly created, simple event type from its json representation.
+	 * @param jsonEventType - the json representation of the event type
+	 * @param modifyExistingEventType - true to modify an existing event type with the same name
+	 * @return - the simple event type
+	 */
+	EventType createSimpleEventType(JsonObject jsonEventType, boolean modifyExistingEventType);
+
+	/**
+	 * This method returns a newly created event type from its json representation. Notice: This event type has no valid EventSubscriptionQuery and
+	 * thus, clients will not be updated.
+	 * @param jsonEventType - the json representation of the event type
+	 * @param modifyExistingEventType - true to modify an existing event type with the same name
+	 * @return - the event type
+	 */
+	EventType createEventType(JsonObject jsonEventType, boolean modifyExistingEventType);
+
+	/**
+	 * This method updates an existing event type.
+	 * @param jsonEventType - the new json representation of the event type
+	 * @param eventTypeId - the event type id
+	 * @return - the updated event type
+	 */
+	EventType updateEventType(JsonObject jsonEventType, long eventTypeId);
 
 	/**
 	 * This method returns a product or creates it, if it does not exist in the database.

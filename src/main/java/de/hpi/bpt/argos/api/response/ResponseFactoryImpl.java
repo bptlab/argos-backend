@@ -3,8 +3,13 @@ package de.hpi.bpt.argos.api.response;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
+import de.hpi.bpt.argos.common.validation.RestInputValidationService;
+import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpoint;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.model.event.Event;
+import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQueryImpl;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 import de.hpi.bpt.argos.persistence.model.event.data.EventData;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
@@ -25,15 +30,21 @@ import static spark.Spark.halt;
 public class ResponseFactoryImpl implements ResponseFactory {
 	protected static final Logger logger = LoggerFactory.getLogger(ResponseFactoryImpl.class);
 	protected static final Gson serializer = new Gson();
+	protected static final JsonParser jsonParser = new JsonParser();
+
+	protected static final String JSON_EVENT_SUBSCRIPTION_QUERY_ATTRIBUTE = "subscriptionQuery";
+	protected static final String JSON_EVENT_TYPE_ATTRIBUTE = "eventType";
 
 	protected PersistenceEntityManager entityManager;
+	protected EventPlatformRestEndpoint eventPlatformRestEndpoint;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setup(PersistenceEntityManager entityManager) {
+	public void setup(PersistenceEntityManager entityManager, EventPlatformRestEndpoint eventPlatformRestEndpoint) {
 		this.entityManager = entityManager;
+		this.eventPlatformRestEndpoint = eventPlatformRestEndpoint;
 	}
 
 	/**
@@ -149,6 +160,46 @@ public class ResponseFactoryImpl implements ResponseFactory {
 		}
 		JsonObject jsonEvent = getEvent(event);
 		return jsonEvent.toString();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void createEventType(String requestBody) {
+		try {
+			JsonObject jsonBody = jsonParser.parse(requestBody).getAsJsonObject();
+
+			String eventQuery = jsonBody.get(JSON_EVENT_SUBSCRIPTION_QUERY_ATTRIBUTE).getAsString();
+			JsonObject jsonEventType = jsonBody.get(JSON_EVENT_TYPE_ATTRIBUTE).getAsJsonObject();
+
+			if (eventQuery == null || eventQuery.length() == 0) {
+				halt(RestInputValidationService.getHttpErrorCode(), "no event query found");
+			}
+
+			if (jsonEventType == null) {
+				halt(RestInputValidationService.getHttpErrorCode(), "no event type found");
+			}
+
+			EventType eventType = entityManager.createEventType(jsonEventType, false);
+
+			if (eventType == null) {
+				halt(RestInputValidationService.getHttpErrorCode(), "event type name already in use, or failed to parse event type");
+			}
+
+			eventType.setEventSubscriptionQuery(new EventSubscriptionQueryImpl());
+			eventType.getEventSubscriptionQuery().setQueryString(eventQuery);
+
+			if (!eventPlatformRestEndpoint.getEventSubscriber().registerEventType(eventType)) {
+				halt(RestInputValidationService.getHttpErrorCode(), "cannot register event type");
+			}
+
+			entityManager.updateEntity(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
+
+		} catch (Exception e) {
+			logger.error("cannot parse request body to event type '" + requestBody + "'", e);
+			halt(RestInputValidationService.getHttpErrorCode());
+		}
 	}
 
 	/**

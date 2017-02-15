@@ -3,11 +3,13 @@ package de.hpi.bpt.argos.eventHandling;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
 import de.hpi.bpt.argos.common.RestRequest;
 import de.hpi.bpt.argos.common.RestRequestFactory;
 import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
 import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
+import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQueryImpl;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.properties.PropertyEditor;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
@@ -35,52 +37,14 @@ public class EventSubscriberImpl implements EventSubscriber {
 		this.entityManager = entityManager;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setupEventPlatform(String host, String eventTypeUri, String eventQueryUri) {
-		List<EventType> eventTypes = entityManager.getEventTypes();
-
-		for (EventType eventType : eventTypes) {
-			if (registerEventType(host, eventTypeUri, eventType)) {
-				registerEventQuery(host, eventQueryUri, eventType);
-			}
-		}
-	}
-
 	@Override
 	public void setupEventPlatform() {
 
-		PropertyEditor propertyReader = new PropertyEditorImpl();
+		List<EventType> eventTypes = entityManager.getEventTypes();
 
-		String eventPlatformHost = propertyReader.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
-		String eventPlatformEventQueryUri = propertyReader.getProperty(EventSubscriber.getEventPlatformEventQueryUriPropertyKey());
-		String eventPlatformEventTypeUri = propertyReader.getProperty(EventSubscriber.getEventPlatformEventTypeUriPropertyKey());
-
-		setupEventPlatform(eventPlatformHost, eventPlatformEventTypeUri, eventPlatformEventQueryUri);
-	}
-
-	/**
-     * {@inheritDoc}
-     */
-	@Override
-	public boolean registerEventType(String host, String uri, EventType eventType) {
-		RestRequest createEventTypeRequest = restRequestFactory.createPostRequest(host, uri);
-
-		if (createEventTypeRequest == null) {
-			return false;
+		for (EventType eventType : eventTypes) {
+			registerEventType(eventType);
 		}
-
-		JsonObject requestContent = new JsonObject();
-		requestContent.addProperty("xsd", eventType.getSchema());
-		requestContent.addProperty("schemaName", eventType.getName());
-		requestContent.addProperty("timestampName", eventType.getTimestampAttribute().getName());
-
-		createEventTypeRequest.setContent(serializer.toJson(requestContent));
-
-		logRestRequestInfo("register event type: ", createEventTypeRequest);
-		return createEventTypeRequest.isSuccessful();
 	}
 
     /**
@@ -94,15 +58,62 @@ public class EventSubscriberImpl implements EventSubscriber {
 		String eventPlatformHost = propertyReader.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
 		String eventPlatformEventTypeUri = propertyReader.getProperty(EventSubscriber.getEventPlatformEventTypeUriPropertyKey());
 
-		return registerEventType(eventPlatformHost, eventPlatformEventTypeUri, eventType);
+		RestRequest createEventTypeRequest = restRequestFactory.createPostRequest(eventPlatformHost, eventPlatformEventTypeUri);
+
+		if (createEventTypeRequest == null) {
+			return false;
+		}
+
+		JsonObject requestContent = new JsonObject();
+		requestContent.addProperty("xsd", eventType.getSchema());
+		requestContent.addProperty("schemaName", eventType.getName());
+		requestContent.addProperty("timestampName", eventType.getTimestampAttribute().getName());
+
+		createEventTypeRequest.setContent(serializer.toJson(requestContent));
+
+		logRestRequestInfo("register event type: ", createEventTypeRequest);
+
+		if (!createEventTypeRequest.isSuccessful()) {
+			return false;
+		}
+
+		return registerEventQuery(eventType);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean registerEventQuery(String host, String uri, EventType eventType) {
-		RestRequest subscriptionRequest = restRequestFactory.createPostRequest(host, uri);
+	public void deleteEventType(EventType eventType) {
+
+		deleteEventQuery(eventType);
+
+		PropertyEditor propertyReader = new PropertyEditorImpl();
+
+		String eventPlatformHost = propertyReader.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
+		String deleteEventTypeUri = EventSubscriber.getEventPlatformDeleteEventTypeUri(eventType.getName());
+
+		RestRequest deleteEventTypeRequest = restRequestFactory.createDeleteRequest(eventPlatformHost, deleteEventTypeUri);
+
+		logger.info(String.format("deleting event type '%1$s' -> Response Code %2$d", eventType.getName(),
+				deleteEventTypeRequest.getResponseCode()));
+
+		entityManager.deleteEntity(eventType);
+	}
+
+	/**
+	 * This method subscribes to the default event platform using an EventSubscriptionQuery.
+	 * @param eventType - the event type which contains the event subscription query
+	 * @return - true if subscription was successful
+	 */
+	protected boolean registerEventQuery(EventType eventType) {
+
+		PropertyEditor propertyReader = new PropertyEditorImpl();
+
+		String eventPlatformHost = propertyReader.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
+		String eventPlatformEventQueryUri = propertyReader.getProperty(EventSubscriber.getEventPlatformEventQueryUriPropertyKey());
+
+		RestRequest subscriptionRequest = restRequestFactory.createPostRequest(eventPlatformHost, eventPlatformEventQueryUri);
 
 		String notificationPath = Argos.getHost() + EventReceiver.getPostEventUri(eventType.getId());
 
@@ -119,6 +130,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 		logRestRequestInfo("register event query: ", subscriptionRequest);
 
 		if (!subscriptionRequest.isSuccessful()) {
+			deleteEventType(eventType);
 			return false;
 		}
 
@@ -128,45 +140,24 @@ public class EventSubscriberImpl implements EventSubscriber {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * This method deletes the event subscription query for a given event type.
+	 * @param eventType - the event type, for which the event subscription query should be deleted
 	 */
-	@Override
-	public boolean registerEventQuery(EventType eventType) {
-
+	protected void deleteEventQuery(EventType eventType) {
 		PropertyEditor propertyReader = new PropertyEditorImpl();
 
 		String eventPlatformHost = propertyReader.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
-		String eventPlatformEventQueryUri = propertyReader.getProperty(EventSubscriber.getEventPlatformEventQueryUriPropertyKey());
+		String deleteEventQueryUri = EventSubscriber.getEventPlatformDeleteEventQueryUri(eventType.getEventSubscriptionQuery().getUuid());
 
-		return registerEventQuery(eventPlatformHost, eventPlatformEventQueryUri, eventType);
-	}
+		RestRequest deleteEventQueryRequest = restRequestFactory.createDeleteRequest(eventPlatformHost, deleteEventQueryUri);
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isEventTypeRegistered(String host, String uri, EventType eventType) {
-		RestRequest getRequest = restRequestFactory.createGetRequest(host, String.format("%1$s/%2$s", uri, eventType.getName()));
+		logger.info(String.format("deleting event query '%1$s' -> Response Code %2$d",
+				eventType.getEventSubscriptionQuery().getQueryString(),
+				deleteEventQueryRequest.getResponseCode()));
 
-		if (getRequest == null) {
-			return false;
-		}
-
-		return getRequest.getResponseCode() == RestRequest.getHttpSuccessCode();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isEventTypeRegistered(EventType eventType) {
-
-		PropertyEditor propertyReader = new PropertyEditorImpl();
-
-		String eventPlatformHost = propertyReader.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
-		String eventPlatformEventTypeUri = propertyReader.getProperty(EventSubscriber.getEventPlatformEventTypeUriPropertyKey());
-
-		return isEventTypeRegistered(eventPlatformHost, eventPlatformEventTypeUri, eventType);
+		entityManager.deleteEntity(eventType.getEventSubscriptionQuery());
+		eventType.setEventSubscriptionQuery(new EventSubscriptionQueryImpl());
+		entityManager.updateEntity(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
 	}
 
 	/**

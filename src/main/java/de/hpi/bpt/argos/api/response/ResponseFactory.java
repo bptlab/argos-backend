@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.api.response;
 
+import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpoint;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 
 /**
@@ -10,8 +11,9 @@ public interface ResponseFactory {
 	/**
 	 * This method sets up this response factory.
 	 * @param entityManager - the entity manager to get persistence entities from
+	 * @param eventPlatformRestEndpoint - the event platform rest endpoint to register event queries at
 	 */
-	void setup(PersistenceEntityManager entityManager);
+	void setup(PersistenceEntityManager entityManager, EventPlatformRestEndpoint eventPlatformRestEndpoint);
 
 	/**
 	 * This method returns a json representation of all product families.
@@ -69,6 +71,12 @@ public interface ResponseFactory {
 	 * @return - a json representation of the requested event
 	 */
 	String getEvent(long eventId);
+
+	/**
+	 * This method tries to create a new event type from a request body.
+	 * @param requestBody - the request body as string
+	 */
+	void createEventType(String requestBody);
 
 	/**
 	 * This method returns a default response to generic requests.

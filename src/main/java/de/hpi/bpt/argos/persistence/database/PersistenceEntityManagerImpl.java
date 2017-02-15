@@ -4,30 +4,44 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.event.EventEndpoint;
+import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpoint;
 import de.hpi.bpt.argos.notifications.PushNotificationType;
 import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.EventImpl;
+import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
+import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQueryImpl;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
+import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttributeImpl;
 import de.hpi.bpt.argos.persistence.model.event.data.EventData;
 import de.hpi.bpt.argos.persistence.model.event.data.EventDataImpl;
+import de.hpi.bpt.argos.persistence.model.event.data.EventDataType;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
+import de.hpi.bpt.argos.persistence.model.event.type.EventTypeImpl;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamilyImpl;
 import de.hpi.bpt.argos.persistence.model.product.ProductImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * {@inheritDoc}
  * This is the implementation.
  */
 public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
+	protected static final Logger logger = LoggerFactory.getLogger(PersistenceEntityManagerImpl.class);
 	protected static final JsonParser jsonParser = new JsonParser();
+
+	protected static final String JSON_NAME_ATTRIBUTE = "name";
+	protected static final String JSON_TIMESTAMP_ATTRIBUTE = "timestamp";
+	protected static final String JSON_ATTRIBUTES_ATTRIBUTE = "attributes";
 
 	protected DatabaseConnection databaseConnection;
 	protected List<PersistenceEntityManagerEventReceiver> eventReceivers;
@@ -79,6 +93,15 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	public void updateEntity(PersistenceEntity entity, String fetchUri) {
 		updateEntity(entity);
 		updateEntity(PushNotificationType.UPDATE, entity, fetchUri);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void deleteEntity(PersistenceEntity entity) {
+		databaseConnection.deleteEntities(entity);
+		updateEntity(PushNotificationType.DELETE, entity, "");
 	}
 
 	/**
@@ -172,9 +195,48 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		product.incrementNumberOfEvents(1);
 		databaseConnection.saveEntities(product, event);
 		updateEntity(PushNotificationType.UPDATE, product, ProductEndpoint.getProductUri(product.getId()));
-		updateEntity(PushNotificationType.CREATION, event, EventEndpoint.getEventUri(event.getId()));
+		updateEntity(PushNotificationType.CREATE, event, EventEndpoint.getEventUri(event.getId()));
 
 		return event;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public EventType createSimpleEventType(JsonObject jsonEventType, boolean modifyExistingEventType) {
+		return createOrUpdateEventType(jsonEventType, modifyExistingEventType, true, this::createSimpleEventType);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public EventType createEventType(JsonObject jsonEventType, boolean modifyExistingEventType) {
+		return createOrUpdateEventType(jsonEventType, modifyExistingEventType, false, this::createEventType);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public EventType updateEventType(JsonObject jsonEventType, long eventTypeId) {
+		EventType eventType = getEventType(eventTypeId);
+
+		if (eventType == null) {
+			return null;
+		}
+
+		// update name and attributes
+		EventType updatedEventType = createEventType(jsonEventType);
+		// but keep the id and the subscription query
+		updatedEventType.setId(eventTypeId);
+		updatedEventType.setEventSubscriptionQuery(eventType.getEventSubscriptionQuery());
+
+		databaseConnection.saveEntities(updatedEventType);
+		updateEntity(PushNotificationType.UPDATE, updatedEventType, EventTypeEndpoint.getEventTypeUri(eventTypeId));
+
+		return updatedEventType;
 	}
 
 	/**
@@ -191,7 +253,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 
 			productFamily.getProducts().add(product);
 			databaseConnection.saveEntities(productFamily, product);
-			updateEntity(PushNotificationType.CREATION, product, ProductEndpoint.getProductUri(product.getId()));
+			updateEntity(PushNotificationType.CREATE, product, ProductEndpoint.getProductUri(product.getId()));
 		}
 
 		return product;
@@ -219,7 +281,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 			productFamily.setName(productFamilyName);
 
 			databaseConnection.saveEntities(productFamily);
-			updateEntity(PushNotificationType.CREATION, productFamily, ProductFamilyEndpoint.getProductFamilyUri(productFamily.getId()));
+			updateEntity(PushNotificationType.CREATE, productFamily, ProductFamilyEndpoint.getProductFamilyUri(productFamily.getId()));
 		}
 
 		return productFamily;
@@ -308,5 +370,218 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		for (PersistenceEntityManagerEventReceiver eventReceiver : eventReceivers) {
 			eventReceiver.onEntityModified(type, entity, fetchUrl);
 		}
+	}
+
+	/**
+	 * This method creates a new simple event type.
+	 * @param name - the name of the event type
+	 * @return - the new event type
+	 */
+	protected EventType createSimpleEventType(String name) {
+		EventType eventType = createEventType(name);
+		eventType.getEventSubscriptionQuery().setQueryString(String.format("SELECT * FROM %1$s", name));
+		return eventType;
+	}
+
+	/**
+	 * This method creates a new simple event type.
+	 * @param jsonEventType - the json representation of the event type
+	 * @return - the new event type
+	 */
+	protected EventType createSimpleEventType(JsonObject jsonEventType) {
+		for (Map.Entry<String, JsonElement> entry : jsonEventType.entrySet()) {
+			if (entry.getKey().equals(JSON_NAME_ATTRIBUTE)) {
+				return createSimpleEventType(entry.getValue().getAsString());
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * This method creates a new event type.
+	 * @param name - the name of the event type
+	 * @return - the new event type
+	 */
+	protected EventType createEventType(String name) {
+		EventType eventType = new EventTypeImpl();
+		eventType.setName(name);
+
+		EventSubscriptionQuery subscriptionQuery = new EventSubscriptionQueryImpl();
+		eventType.setEventSubscriptionQuery(subscriptionQuery);
+
+		return eventType;
+	}
+
+	/**
+	 * This method creates a new event type.
+	 * @param jsonEventType - the json representation of the event type
+	 * @return - the new event type
+	 */
+	protected EventType createEventType(JsonObject jsonEventType) {
+		for (Map.Entry<String, JsonElement> entry : jsonEventType.entrySet()) {
+			if (entry.getKey().equals(JSON_NAME_ATTRIBUTE)) {
+				return createEventType(entry.getValue().getAsString());
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * This method parses and attaches event type attributes from a json representation of an event type.
+	 * @param eventType - the event type to attach the attributes to
+	 * @param jsonEventType - the json representation of the event type
+	 */
+	protected void parseEventTypeAttributes(EventType eventType, JsonObject jsonEventType) {
+		String timeStampAttributeName = "";
+		eventType.getAttributes().clear();
+
+		for (Map.Entry<String, JsonElement> entry : jsonEventType.entrySet()) {
+			if (entry.getKey().equals(JSON_ATTRIBUTES_ATTRIBUTE)) {
+				for (Map.Entry<String, JsonElement> attribute : entry.getValue().getAsJsonObject().entrySet()) {
+					attachEventAttribute(eventType, attribute.getKey(), attribute.getValue().getAsString());
+				}
+
+			} else if (entry.getKey().equals(JSON_TIMESTAMP_ATTRIBUTE)) {
+				timeStampAttributeName = entry.getValue().getAsString();
+				eventType.getAttributes().add(createEventAttribute(entry.getValue().getAsString(), EventDataType.DATE));
+			}
+		}
+
+		for (EventAttribute attribute : eventType.getAttributes()) {
+
+			if (attribute.getName().equals(timeStampAttributeName)) {
+				eventType.setTimestampAttribute(attribute);
+			} else if (attribute.getName().equals(EventType.getProductIdentificationAttributeName())) {
+				eventType.setProductIdentificationAttribute(attribute);
+			} else if (attribute.getName().equals(EventType.getProductFamilyIdentificationAttributeName())) {
+				eventType.setProductFamilyIdentificationAttribute(attribute);
+			}
+		}
+	}
+
+	/**
+	 * This method attaches a new event attribute to an existing event type.
+	 * @param eventType - the type which should get expanded
+	 * @param attributeName - the name of the new attribute
+	 * @param attributeType - the name of the attribute type
+	 */
+	protected void attachEventAttribute(EventType eventType, String attributeName, String attributeType) {
+		EventAttribute attribute = null;
+
+		for (EventDataType type : EventDataType.values()) {
+			if (type.name().equals(attributeType)) {
+				attribute = createEventAttribute(attributeName, type);
+				break;
+			}
+		}
+
+		if (attribute != null) {
+			eventType.getAttributes().add(attribute);
+		}
+	}
+
+	/**
+	 * This method creates a new event attribute.
+	 * @param name - the name of the attribute
+	 * @param type - the type of the attribute
+	 * @return - the new event attribute
+	 */
+	protected EventAttribute createEventAttribute(String name, EventDataType type) {
+		EventAttribute attribute = new EventAttributeImpl();
+		attribute.setName(name);
+		attribute.setType(type);
+
+		return attribute;
+	}
+
+	/**
+	 * This method creates or updates an event type, based on its json representation.
+	 * @param jsonEventType - the json representation of the event type
+	 * @param modifyExistingEventType - indicates whether to modify existing event types, based on the event type name
+	 * @param notifyClients - indicates whether to notify clients about the changes
+	 * @param createEventType - the function to create a new event type from
+	 * @return - the new event type
+	 */
+	protected EventType createOrUpdateEventType(JsonObject jsonEventType, boolean modifyExistingEventType, boolean notifyClients, Function<JsonObject,
+			EventType> createEventType) {
+
+		List<EventType> eventTypes = getEventTypes();
+		boolean eventTypeExisted = false;
+		EventType eventType = createEventType(jsonEventType);
+
+		if (eventType == null) {
+			logger.error("cannot parse json into new event type. '" + jsonEventType.getAsString() + "'");
+			return null;
+		}
+
+		for (EventType existingEventType : eventTypes) {
+			if (existingEventType.getName().equals(eventType.getName())) {
+				eventTypeExisted = true;
+
+				if (!modifyExistingEventType) {
+					return null;
+				}
+
+				eventType = existingEventType;
+				break;
+			}
+		}
+
+		parseEventTypeAttributes(eventType, jsonEventType);
+
+		if (!isValid(eventType)) {
+			logger.error("invalid event type '" + jsonEventType.toString() + "'.");
+			return null;
+		}
+
+		databaseConnection.saveEntities(eventType);
+
+		if (!notifyClients) {
+			return eventType;
+		}
+
+		if (eventTypeExisted) {
+			updateEntity(PushNotificationType.UPDATE, eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
+		} else {
+			updateEntity(PushNotificationType.CREATE, eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
+		}
+
+		return eventType;
+	}
+
+	/**
+	 * This method checks whether an event type is valid.
+	 * @param eventType - the event type to check
+	 * @return - true if event type is valid
+	 */
+	protected boolean isValid(EventType eventType) {
+		if (eventType.getName() == null || eventType.getName().length() == 0) {
+			return false;
+		}
+
+		if (!isValid(eventType.getProductIdentificationAttribute())) {
+			return false;
+		}
+
+		if (!isValid(eventType.getProductFamilyIdentificationAttribute())) {
+			return false;
+		}
+
+		if (!isValid(eventType.getTimestampAttribute())) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * This method checks whether an event attribute is valid.
+	 * @param attribute - the event attribute to check
+	 * @return - true if event attribute is valid
+	 */
+	protected boolean isValid(EventAttribute attribute) {
+		return attribute != null && attribute.getName().length() > 0;
 	}
 }

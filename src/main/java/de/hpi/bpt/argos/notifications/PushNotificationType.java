@@ -5,5 +5,6 @@ package de.hpi.bpt.argos.notifications;
  */
 public enum PushNotificationType {
 	UPDATE,
-	CREATION,
+	CREATE,
+	DELETE,
 }
