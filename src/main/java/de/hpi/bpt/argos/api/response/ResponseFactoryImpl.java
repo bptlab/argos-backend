@@ -174,30 +174,31 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			JsonObject jsonEventType = jsonBody.get(JSON_EVENT_TYPE_ATTRIBUTE).getAsJsonObject();
 
 			if (eventQuery == null || eventQuery.length() == 0) {
-				halt(RestInputValidationService.getHttpErrorCode(), "no event query found");
+				halt(RestInputValidationService.getHttpErrorCode(), "no event query given in body");
 			}
 
 			if (jsonEventType == null) {
-				halt(RestInputValidationService.getHttpErrorCode(), "no event type found");
+				halt(RestInputValidationService.getHttpErrorCode(), "no event type given in body");
 			}
 
 			EventType eventType = entityManager.createEventType(jsonEventType, false);
 
 			if (eventType == null) {
 				halt(RestInputValidationService.getHttpErrorCode(), "event type name already in use, or failed to parse event type");
+			} else {
+
+				if (eventType.getEventSubscriptionQuery() == null) {
+					eventType.setEventSubscriptionQuery(new EventSubscriptionQueryImpl());
+				}
+
+				eventType.getEventSubscriptionQuery().setQueryString(eventQuery);
+
+				if (!eventPlatformRestEndpoint.getEventSubscriber().registerEventType(eventType)) {
+					halt(RestInputValidationService.getHttpErrorCode(), "cannot register event type");
+				}
+
+				entityManager.updateEntity(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
 			}
-
-			if (eventType.getEventSubscriptionQuery() == null) {
-				eventType.setEventSubscriptionQuery(new EventSubscriptionQueryImpl());
-			}
-
-			eventType.getEventSubscriptionQuery().setQueryString(eventQuery);
-
-			if (!eventPlatformRestEndpoint.getEventSubscriber().registerEventType(eventType)) {
-				halt(RestInputValidationService.getHttpErrorCode(), "cannot register event type");
-			}
-
-			entityManager.updateEntity(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
 
 		} catch (Exception e) {
 			logger.error("cannot parse request body to event type '" + requestBody + "'", e);
