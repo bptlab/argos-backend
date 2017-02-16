@@ -181,7 +181,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 				halt(RestInputValidationService.getHttpErrorCode(), "no event type given in body");
 			}
 
-			EventType eventType = entityManager.createEventType(jsonEventType, false);
+			EventType eventType = entityManager.createEventType(jsonEventType);
 
 			if (eventType == null) {
 				halt(RestInputValidationService.getHttpErrorCode(), "event type name already in use, or failed to parse event type");

@@ -204,16 +204,16 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EventType createSimpleEventType(JsonObject jsonEventType, boolean modifyExistingEventType) {
-		return createOrUpdateEventType(jsonEventType, modifyExistingEventType, true, this::createSimpleEventType);
+	public EventType createSimpleEventType(JsonObject jsonEventType) {
+		return createEventType(jsonEventType, true, this::createSimpleEventTypeFromJson);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EventType createEventType(JsonObject jsonEventType, boolean modifyExistingEventType) {
-		return createOrUpdateEventType(jsonEventType, modifyExistingEventType, false, this::createEventType);
+	public EventType createEventType(JsonObject jsonEventType) {
+		return createEventType(jsonEventType, false, this::createEventTypeFromJson);
 	}
 
 	/**
@@ -377,8 +377,8 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * @param name - the name of the event type
 	 * @return - the new event type
 	 */
-	protected EventType createSimpleEventType(String name) {
-		EventType eventType = createEventType(name);
+	protected EventType createSimpleEventTypeFromName(String name) {
+		EventType eventType = createEventTypeFromName(name);
 		eventType.getEventSubscriptionQuery().setQueryString(String.format("SELECT * FROM %1$s", name));
 		return eventType;
 	}
@@ -388,10 +388,10 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * @param jsonEventType - the json representation of the event type
 	 * @return - the new event type
 	 */
-	protected EventType createSimpleEventType(JsonObject jsonEventType) {
+	protected EventType createSimpleEventTypeFromJson(JsonObject jsonEventType) {
 		for (Map.Entry<String, JsonElement> entry : jsonEventType.entrySet()) {
 			if (entry.getKey().equals(JSON_NAME_ATTRIBUTE)) {
-				return createSimpleEventType(entry.getValue().getAsString());
+				return createSimpleEventTypeFromName(entry.getValue().getAsString());
 			}
 		}
 
@@ -403,7 +403,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * @param name - the name of the event type
 	 * @return - the new event type
 	 */
-	protected EventType createEventType(String name) {
+	protected EventType createEventTypeFromName(String name) {
 		EventType eventType = new EventTypeImpl();
 		eventType.setName(name);
 
@@ -418,10 +418,10 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * @param jsonEventType - the json representation of the event type
 	 * @return - the new event type
 	 */
-	protected EventType createEventType(JsonObject jsonEventType) {
+	protected EventType createEventTypeFromJson(JsonObject jsonEventType) {
 		for (Map.Entry<String, JsonElement> entry : jsonEventType.entrySet()) {
 			if (entry.getKey().equals(JSON_NAME_ATTRIBUTE)) {
-				return createEventType(entry.getValue().getAsString());
+				return createEventTypeFromName(entry.getValue().getAsString());
 			}
 		}
 
@@ -435,7 +435,10 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 */
 	protected void parseEventTypeAttributes(EventType eventType, JsonObject jsonEventType) {
 		String timeStampAttributeName = "";
-		eventType.getAttributes().clear();
+
+		if (!eventType.getAttributes().isEmpty()) {
+			return;
+		}
 
 		for (Map.Entry<String, JsonElement> entry : jsonEventType.entrySet()) {
 			if (entry.getKey().equals(JSON_ATTRIBUTES_ATTRIBUTE)) {
@@ -499,16 +502,13 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	/**
 	 * This method creates or updates an event type, based on its json representation.
 	 * @param jsonEventType - the json representation of the event type
-	 * @param modifyExistingEventType - indicates whether to modify existing event types, based on the event type name
 	 * @param notifyClients - indicates whether to notify clients about the changes
 	 * @param eventTypeCreation - the function to create a new event type from
 	 * @return - the new event type
 	 */
-	protected EventType createOrUpdateEventType(JsonObject jsonEventType, boolean modifyExistingEventType, boolean notifyClients,
-												Function<JsonObject, EventType> eventTypeCreation) {
+	protected EventType createEventType(JsonObject jsonEventType, boolean notifyClients, Function<JsonObject, EventType> eventTypeCreation) {
 
 		List<EventType> eventTypes = getEventTypes();
-		boolean eventTypeExisted = false;
 		EventType eventType = eventTypeCreation.apply(jsonEventType);
 
 		if (eventType == null) {
@@ -518,14 +518,8 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 
 		for (EventType existingEventType : eventTypes) {
 			if (existingEventType.getName().equals(eventType.getName())) {
-				eventTypeExisted = true;
 
-				if (!modifyExistingEventType) {
-					return null;
-				}
-
-				eventType = existingEventType;
-				break;
+				return null;
 			}
 		}
 
@@ -538,13 +532,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 
 		databaseConnection.saveEntities(eventType);
 
-		if (!notifyClients) {
-			return eventType;
-		}
-
-		if (eventTypeExisted) {
-			updateEntity(PushNotificationType.UPDATE, eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
-		} else {
+		if (notifyClients) {
 			updateEntity(PushNotificationType.CREATE, eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
 		}
 

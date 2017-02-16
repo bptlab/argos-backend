@@ -94,7 +94,7 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 			String fileContent = new String(Files.readAllBytes(Paths.get(eventTypeFile.toURI())), StandardCharsets.UTF_8);
 
 			JsonObject jsonEventType = jsonParser.parse(fileContent).getAsJsonObject();
-			entityManager.createSimpleEventType(jsonEventType, true);
+			entityManager.createSimpleEventType(jsonEventType);
 
 		} catch (Exception e) {
 			logger.error("cannot load default event type '" + eventTypeFile.getName() + "'.", e);
