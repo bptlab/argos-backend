@@ -31,4 +31,12 @@ public interface RestEndpoint {
 		}
 		return updatedParameterName;
 	}
+
+	/**
+	 * This method returns the http success status code.
+	 * @return - the http success status code
+	 */
+	static int getHttpSuccessCode() {
+		return 200;
+	}
 }

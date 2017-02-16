@@ -12,6 +12,12 @@ public interface DatabaseConnection extends PersistenceEntityRetriever {
 	void saveEntities(PersistenceEntity... entities);
 
 	/**
+	 * This method makes the database call to delete a set of entities in the database server.
+	 * @param entities - a list of entities to delete
+	 */
+	void deleteEntities(PersistenceEntity... entities);
+
+	/**
 	 * This method returns which property key to use for the database connection host.
 	 * @return - the database connection host as a string
 	 */

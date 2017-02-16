@@ -25,6 +25,12 @@ public interface Argos {
 	void shutdown();
 
 	/**
+	 * This method sets the argos backend into test mode, or disables test mode.
+	 * @param testMode - the test mode status to set
+	 */
+	void setTestMode(boolean testMode);
+
+	/**
 	 * This method returns the property key for the argosBackendPort property.
 	 * @return - the property key for the argosBackendPort property
 	 */
@@ -46,6 +52,14 @@ public interface Argos {
 	 */
 	static String getArgosBackendPublicFilesPropertyKey() {
 		return "argosBackendPublicFiles";
+	}
+
+	/**
+	 * This method returns the property key for the argosBackendTestMode property.
+	 * @return - the property key for the argosBackendTestMode property
+	 */
+	static String getArgosBackendTestModePropertyKey() {
+		return "argosBackendTestMode";
 	}
 
 	/**

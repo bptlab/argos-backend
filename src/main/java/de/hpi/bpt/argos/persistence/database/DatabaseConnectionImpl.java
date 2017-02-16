@@ -403,6 +403,31 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void deleteEntities(PersistenceEntity... entities) {
+		Session session = databaseSessionFactory.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+
+			for (PersistenceEntity entity : entities) {
+				session.delete(entity);
+			}
+
+			tx.commit();
+		} catch (Exception exception) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			logger.error("can't delete entities in database", exception);
+		} finally {
+			session.close();
+		}
+	}
+
+	/**
 	 * This method logs an exception which occurs while trying to get entities from the database server.
 	 * @param exception - a thrown exception
 	 * @param query - the query that caused the exception

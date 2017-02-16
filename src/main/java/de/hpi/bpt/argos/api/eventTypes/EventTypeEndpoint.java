@@ -28,6 +28,14 @@ public interface EventTypeEndpoint extends RestEndpoint {
 	String getEventType(Request request, Response response);
 
 	/**
+	 * This method is called via API and creates a new event type.
+	 * @param request - Spark defined parameter containing request object
+	 * @param response - Spark defined parameter containing response object
+	 * @return - the response for the creation process
+	 */
+	String createEventType(Request request, Response response);
+
+	/**
 	 * This method returns the basic URI to retrieve all event types.
 	 * @return - the URI to retrieve all event types from
 	 */
@@ -41,6 +49,14 @@ public interface EventTypeEndpoint extends RestEndpoint {
 	 */
 	static String getEventTypeBaseUri() {
 		return String.format("/api/eventtypes/%1$s", getEventTypeIdParameter(true));
+	}
+
+	/**
+	 * This method returns the basic URI to create new event types.
+	 * @return - the URI to create new event types
+	 */
+	static String getCreateEventTypeBaseUri() {
+		return String.format("%1$s/%2$s", getEventTypeBaseUri(), "create");
 	}
 
 	/**

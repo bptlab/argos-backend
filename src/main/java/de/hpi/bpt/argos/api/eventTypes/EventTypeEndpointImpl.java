@@ -7,6 +7,7 @@ import spark.Request;
 import spark.Response;
 import spark.Service;
 
+
 /**
  * {@inheritDoc}
  * This is the implementation.
@@ -21,6 +22,7 @@ public class EventTypeEndpointImpl extends RestEndpointImpl implements EventType
 		super.setup(responseFactory, entityManager, sparkService);
 		sparkService.get(EventTypeEndpoint.getEventTypesBaseUri(), this::getEventTypes);
 		sparkService.get(EventTypeEndpoint.getEventTypeBaseUri(), this::getEventType);
+		sparkService.post(EventTypeEndpoint.getCreateEventTypeBaseUri(), this::createEventType);
 	}
 
 	/**
@@ -50,5 +52,17 @@ public class EventTypeEndpointImpl extends RestEndpointImpl implements EventType
 
 		logInfoForSendingResponse(request);
 		return json;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String createEventType(Request request, Response response) {
+		logInfoForReceivedRequest(request);
+
+		responseFactory.createEventType(request.body());
+
+		return responseFactory.finishRequest();
 	}
 }

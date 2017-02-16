@@ -2,6 +2,8 @@ package de.hpi.bpt.argos.core;
 
 import de.hpi.bpt.argos.api.CustomerRestEndpoint;
 import de.hpi.bpt.argos.api.CustomerRestEndpointImpl;
+import de.hpi.bpt.argos.api.response.ResponseFactory;
+import de.hpi.bpt.argos.api.response.ResponseFactoryImpl;
 import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpoint;
 import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpointImpl;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
@@ -29,6 +31,7 @@ public class ArgosImpl implements Argos {
      */
 	@Override
 	public void run(int port, int numberOfThreads) {
+
 		sparkService = startServer(port, numberOfThreads);
 
 		entityManager = new PersistenceEntityManagerImpl();
@@ -37,12 +40,14 @@ public class ArgosImpl implements Argos {
 			return;
 		}
 
-		// Keep this first, as spark wants to have all web sockets first
+		ResponseFactory responseFactory = new ResponseFactoryImpl();
 		customerRestEndpoint = new CustomerRestEndpointImpl();
-		customerRestEndpoint.setup(entityManager, sparkService);
-
 		eventPlatformRestEndpoint = new EventPlatformRestEndpointImpl();
-		eventPlatformRestEndpoint.setup(entityManager, sparkService);
+
+		// Keep this order, as spark wants to have all web sockets first
+		responseFactory.setup(entityManager, eventPlatformRestEndpoint);
+		customerRestEndpoint.setup(entityManager, sparkService, responseFactory);
+		eventPlatformRestEndpoint.setup(entityManager, sparkService, responseFactory);
 
 		enableCORS(sparkService);
 		sparkService.awaitInitialization();
@@ -64,7 +69,16 @@ public class ArgosImpl implements Argos {
 		sparkService.stop();
 	}
 
-    /**
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setTestMode(boolean testMode) {
+		PropertyEditor propertyEditor = new PropertyEditorImpl();
+		propertyEditor.setProperty(Argos.getArgosBackendTestModePropertyKey(), String.valueOf(testMode));
+	}
+
+	/**
      * This method starts the Spark service on a given port with a given number of threads.
      * @param port - port to be used as an integer
      * @param numberOfThreads - number of threads to be used as an integer

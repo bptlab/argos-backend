@@ -28,6 +28,7 @@ public final class Application {
 		PropertyEditor propertyEditor = new PropertyEditorImpl();
 		String eventPlatformHost = System.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
 		String databaseConnectionHost = System.getProperty(DatabaseConnection.getDatabaseConnectionHostPropertyKey());
+		String testMode = System.getProperty(Argos.getArgosBackendTestModePropertyKey());
 
 		// TODO: validate input in a more sophisticated way
 		if (eventPlatformHost != null && eventPlatformHost.length() > 0) {
@@ -36,6 +37,11 @@ public final class Application {
 
 		if (databaseConnectionHost != null && databaseConnectionHost.length() > 0) {
 			propertyEditor.setProperty(DatabaseConnection.getDatabaseConnectionHostPropertyKey(), databaseConnectionHost);
+		}
+
+		if (testMode != null && testMode.length() > 0) {
+			propertyEditor.setProperty(Argos.getArgosBackendTestModePropertyKey(), testMode);
+			argos.setTestMode(Boolean.parseBoolean(testMode));
 		}
 
 		argos.run();

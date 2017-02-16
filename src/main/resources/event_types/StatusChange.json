@@ -1,0 +1,10 @@
+{
+	"name":"StatusChange", 
+	"timestamp":"timeStampOfStatusChange",
+	"attributes":{
+		"productId": "INTEGER", 
+		"productFamilyId": "STRING", 
+		"oldStatus": "INTEGER", 
+		"newStatus": "INTEGER"
+	}
+}
