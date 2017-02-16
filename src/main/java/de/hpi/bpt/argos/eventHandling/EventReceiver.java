@@ -22,7 +22,7 @@ public interface EventReceiver extends RestEndpoint {
 	String receiveEvent(Request request, Response response);
 
 	/**
-	 * This method returns the basic URI to send events to path variables.
+	 * This method returns the basic URI to send events to with path variables.
 	 * @return - the URI to send events to
 	 */
 	static String getPostEventBaseUri() {

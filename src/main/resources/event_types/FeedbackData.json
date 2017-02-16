@@ -3,7 +3,7 @@
 	"timestamp":"dateOfServiceIntervention",
 	"attributes":{
 		"dateOfInstallation":"DATE",
-		"dateOfProduction":"INTEGER",
+		"dateOfProduction":"DATE",
 		"factoryId":"INTEGER",
 		"counter":"INTEGER",
 		"softwareVersion":"FLOAT",
