@@ -303,6 +303,44 @@ paths:
                       type: string
                     type:
                       type: string
+                      
+  /api/eventtypes/create:
+    post:
+      description: Creates a new `EventType` object.
+      parameters:
+        -
+          name: EventTypeMap
+          in: body
+          description: Contains the `EventSubscriptionQuery` and the corresponding `EventType` to create.
+          required: true
+          schema:
+            type: object
+            properties:
+              subscriptionQuery:
+                type: string
+              eventType:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  timestamp:
+                    description: Name of the timestamp `EventAttribute`
+                    type: string
+                  attributes:
+                    title: ArrayOfEventAttributes
+                    description: A map of Names -> Type
+                    type: array
+                    items:
+                      title: EventAttribute
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        type:
+                          type: string
+      responses:
+        200:
+          description: Successful response
       
                 
                   
