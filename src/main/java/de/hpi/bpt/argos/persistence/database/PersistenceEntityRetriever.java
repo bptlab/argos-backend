@@ -1,7 +1,6 @@
 package de.hpi.bpt.argos.persistence.database;
 
 import de.hpi.bpt.argos.persistence.model.event.Event;
-import de.hpi.bpt.argos.persistence.model.event.EventQuery;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
