@@ -2,18 +2,23 @@ package de.hpi.bpt.argos.api;
 
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
 import de.hpi.bpt.argos.common.RestRequest;
 import org.junit.Test;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
 public class EventTypeEndpointTest extends EndpointParentClass {
 	protected static final Gson serializer = new Gson();
+	protected static final JsonParser jsonParser = new JsonParser();
 
 	protected RestRequest request;
 
@@ -71,15 +76,32 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 
 		assertEquals(HTTP_SUCCESSFUL_RESPONSE_CODE, request.getResponseCode());
 		argos.setTestMode(false);
-	}
 
-	@Test
-	public void testDeleteEventType() {
-		request = requestFactory.createDeleteRequest(TEST_HOST, deleteEventType(1), TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE);
+
+		request = requestFactory.createRequest(TEST_HOST, getEventTypes(), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,
+				TEST_CONTENT_TYPE);
+
+		assertEquals(HTTP_SUCCESSFUL_RESPONSE_CODE, request.getResponseCode());
+
+		JsonArray jsonEventTypes = jsonParser.parse(request.getResponse()).getAsJsonArray();
+		long eventTypeId = 0;
+
+		for (JsonElement jsonElement : jsonEventTypes) {
+			JsonObject jsonEventType = jsonElement.getAsJsonObject();
+
+			JsonElement nameAttribute = jsonEventType.get("name");
+			JsonElement idAttribute = jsonEventType.get("id");
+
+			if (nameAttribute.getAsString().equals(eventTypeName)) {
+				eventTypeId = idAttribute.getAsLong();
+				break;
+			}
+		}
+
+		request = requestFactory.createDeleteRequest(TEST_HOST, deleteEventType(eventTypeId), TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE);
 
 		assertEquals(HTTP_SUCCESSFUL_RESPONSE_CODE, request.getResponseCode());
 	}
-
 
 	private String getEventTypes() {
 		return EventTypeEndpoint.getEventTypesBaseUri();
