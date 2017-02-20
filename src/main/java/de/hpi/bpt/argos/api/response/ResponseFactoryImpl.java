@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
+import de.hpi.bpt.argos.common.RestRequest;
 import de.hpi.bpt.argos.common.validation.RestInputValidationService;
 import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpoint;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
@@ -32,7 +33,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	protected static final Gson serializer = new Gson();
 	protected static final JsonParser jsonParser = new JsonParser();
 
-	protected static final String JSON_EVENT_SUBSCRIPTION_QUERY_ATTRIBUTE = "subscriptionQuery";
+	protected static final String JSON_EVENT_QUERY_ATTRIBUTE = "eventQuery";
 	protected static final String JSON_EVENT_TYPE_ATTRIBUTE = "eventType";
 
 	protected PersistenceEntityManager entityManager;
@@ -170,7 +171,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 		try {
 			JsonObject jsonBody = jsonParser.parse(requestBody).getAsJsonObject();
 
-			String eventQuery = jsonBody.get(JSON_EVENT_SUBSCRIPTION_QUERY_ATTRIBUTE).getAsString();
+			String eventQuery = jsonBody.get(JSON_EVENT_QUERY_ATTRIBUTE).getAsString();
 			JsonObject jsonEventType = jsonBody.get(JSON_EVENT_TYPE_ATTRIBUTE).getAsJsonObject();
 
 			if (eventQuery == null || eventQuery.length() == 0) {
@@ -202,6 +203,39 @@ public class ResponseFactoryImpl implements ResponseFactory {
 
 		} catch (Exception e) {
 			logger.error("cannot parse request body to event type '" + requestBody + "'", e);
+			halt(RestInputValidationService.getHttpErrorCode());
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void updateEventQuery(long eventTypeId, String requestBody) {
+		try {
+			JsonObject jsonBody = jsonParser.parse(requestBody).getAsJsonObject();
+
+			String eventQuery = jsonBody.get(JSON_EVENT_QUERY_ATTRIBUTE).getAsString();
+
+			if (eventQuery == null || eventQuery.length() == 0) {
+				halt(RestInputValidationService.getHttpErrorCode(), "no event query given in body");
+			}
+
+			EventType eventType = entityManager.getEventType(eventTypeId);
+
+			if (eventType == null) {
+				halt(ResponseFactory.getHttpNotFoundCode(), "event type not found");
+			} else {
+
+				if (!eventPlatformRestEndpoint.getEventSubscriber().updateEventQuery(eventType, eventQuery)) {
+					halt(RestInputValidationService.getHttpErrorCode(), "event platform did not accept the updated event query");
+				}
+
+				entityManager.updateEntity(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
+			}
+
+		} catch (Exception e) {
+			logger.error("cannot parse request body to event query '" + requestBody + "'", e);
 			halt(RestInputValidationService.getHttpErrorCode());
 		}
 	}
@@ -276,7 +310,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			jsonEventType.addProperty("productIdentificationAttributeName", eventType.getProductIdentificationAttribute().getName());
 			jsonEventType.addProperty("productFamilyIdentificationAttributeName", eventType.getProductFamilyIdentificationAttribute().getName());
 			jsonEventType.addProperty("timestampAttributeName", eventType.getTimestampAttribute().getName());
-			jsonEventType.addProperty("eventSubscriptionQuery", eventType.getEventSubscriptionQuery().getQueryString());
+			jsonEventType.addProperty("eventQuery", eventType.getEventSubscriptionQuery().getQueryString());
 
 			return jsonEventType;
 		} catch (Exception exception) {

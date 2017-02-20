@@ -56,7 +56,7 @@ public interface EventTypeEndpoint extends RestEndpoint {
 	 * @return - the URI to create new event types
 	 */
 	static String getCreateEventTypeBaseUri() {
-		return String.format("%1$s/%2$s", getEventTypeBaseUri(), "create");
+		return String.format("%1$s/%2$s", getEventTypesBaseUri(), "create");
 	}
 
 	/**

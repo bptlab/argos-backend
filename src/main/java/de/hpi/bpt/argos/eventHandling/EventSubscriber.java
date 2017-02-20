@@ -32,8 +32,17 @@ public interface EventSubscriber {
 	/**
 	 * This method deletes a given event type. This will delete the entry in the event processing platform as well as the entry in our database.
 	 * @param eventType - the event type to delete
+	 * @return - boolean if the update was successful
 	 */
-	void deleteEventType(EventType eventType);
+	boolean deleteEventType(EventType eventType);
+
+	/**
+	 * This method updates the event query of a given event type.
+	 * @param eventType - the event type to update
+	 * @param eventQuery - the new event query
+	 * @return - boolean if the update was successful
+	 */
+	boolean updateEventQuery(EventType eventType, String eventQuery);
 
 	/**
 	 * This method returns the property key for the eventPlatformHost property.
@@ -76,6 +85,14 @@ public interface EventSubscriber {
 	}
 
 	/**
+	 * This method returns the property key for the eventPlatformUpdateEventQueryUri property.
+	 * @return - the property key for the eventPlatformUpdateEventQueryUri property
+	 */
+	static String getEventPlatformUpdateEventQueryUriPropertyKey() {
+		return "eventPlatformUpdateEventQueryUri";
+	}
+
+	/**
 	 * This method returns the URI to delete one specific event type on the event platform.
 	 * @param eventTypeName - the event type name to delete
 	 * @return - the URI to delete one specific event type
@@ -101,6 +118,23 @@ public interface EventSubscriber {
 		PropertyEditor propertyEditor = new PropertyEditorImpl();
 
 		String uri = propertyEditor.getProperty(getEventPlatformDeleteEventQueryUriPropertyKey());
+
+		if (uri == null) {
+			return "";
+		} else {
+			return uri.replaceAll(":1", eventQueryUuid);
+		}
+	}
+
+	/**
+	 * This method returns the URI to update one specific event query on the event platform.
+	 * @param eventQueryUuid - the event query uuid to update
+	 * @return - the URI to update one specific event query
+	 */
+	static String getEventPlatformUpdateEventQueryUri(String eventQueryUuid) {
+		PropertyEditor propertyEditor = new PropertyEditorImpl();
+
+		String uri = propertyEditor.getProperty(getEventPlatformUpdateEventQueryUriPropertyKey());
 
 		if (uri == null) {
 			return "";

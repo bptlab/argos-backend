@@ -84,7 +84,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void deleteEventType(EventType eventType) {
+	public boolean deleteEventType(EventType eventType) {
 
 		deleteEventQuery(eventType);
 
@@ -99,6 +99,47 @@ public class EventSubscriberImpl implements EventSubscriber {
 				deleteEventTypeRequest.getResponseCode()));
 
 		entityManager.deleteEntity(eventType);
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean updateEventQuery(EventType eventType, String eventQuery) {
+
+		if (eventType.getEventSubscriptionQuery() == null ||
+			eventType.getEventSubscriptionQuery().getUuid() == null ||
+			eventType.getEventSubscriptionQuery().getUuid().length() == 0)
+		{
+			return false;
+		}
+
+		PropertyEditor propertyReader = new PropertyEditorImpl();
+
+		String eventPlatformHost = propertyReader.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
+		String updateEventQueryUri = EventSubscriber.getEventPlatformUpdateEventQueryUri(eventType.getEventSubscriptionQuery().getUuid());
+
+		RestRequest updateEventQueryRequest = restRequestFactory.createPutRequest(eventPlatformHost, updateEventQueryUri);
+
+		String notificationPath = Argos.getHost() + EventReceiver.getPostEventUri(eventType.getId());
+
+		JsonObject requestContent = new JsonObject();
+		requestContent.addProperty("notificationPath", notificationPath);
+		requestContent.addProperty("queryString", eventQuery);
+
+		updateEventQueryRequest.setContent(serializer.toJson(requestContent));
+
+		logger.info(String.format("updating event query for event type '%1$s'. New event query '%2$s' -> Response Code %3$s",
+				eventType.getName(),
+				eventQuery,
+				updateEventQueryRequest.getResponseCode()));
+
+		if (updateEventQueryRequest.isSuccessful()) {
+			eventType.getEventSubscriptionQuery().setQueryString(eventQuery);
+		}
+
+		return updateEventQueryRequest.isSuccessful();
 	}
 
 	/**

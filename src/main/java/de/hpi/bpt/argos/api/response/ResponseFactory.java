@@ -79,6 +79,13 @@ public interface ResponseFactory {
 	void createEventType(String requestBody);
 
 	/**
+	 * This method tries to update an existing event query from a request body.
+	 * @param eventTypeId - the event type id, which contains the event query to update
+	 * @param requestBody - the request body, which should contain the new event query
+	 */
+	void updateEventQuery(long eventTypeId, String requestBody);
+
+	/**
 	 * This method returns a default response to generic requests.
 	 * @return - a simple response to a request
 	 */

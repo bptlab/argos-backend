@@ -53,17 +53,11 @@ public class RestRequestImpl implements RestRequest {
 	@Override
 	public void setContent(String requestContent) {
 
-		boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
-
-		if (testMode) {
-			content = requestContent;
-			return;
-		}
-
-		connection.setDoOutput(true);
-
-		DataOutputStream outputStream;
 		try {
+			connection.setDoOutput(true);
+
+			DataOutputStream outputStream;
+
 			outputStream = new DataOutputStream(connection.getOutputStream());
 			outputStream.writeBytes(requestContent);
 			outputStream.flush();
@@ -72,6 +66,12 @@ public class RestRequestImpl implements RestRequest {
 			content = requestContent;
 		} catch (IOException e) {
 			logger.error("Cannot set content of rest request", e);
+
+			boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
+
+			if (testMode) {
+				content = requestContent;
+			}
 		}
 	}
 
@@ -81,16 +81,17 @@ public class RestRequestImpl implements RestRequest {
 	@Override
 	public int getResponseCode() {
 
-		boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
-
-		if (testMode) {
-			return RestRequest.getHttpSuccessCode();
-		}
-
 		try {
 			return connection.getResponseCode();
 		} catch (IOException e) {
 			logger.error("Cannot get response code of rest request", e);
+
+			boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
+
+			if (testMode) {
+				return RestRequest.getHttpSuccessCode();
+			}
+
 			return 0;
 		}
 	}
@@ -100,12 +101,6 @@ public class RestRequestImpl implements RestRequest {
      */
 	@Override
 	public String getResponse() {
-
-		boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
-
-		if (testMode) {
-			return "test mode enabled";
-		}
 
 		if (response != null) {
 			return response;
@@ -125,6 +120,13 @@ public class RestRequestImpl implements RestRequest {
 
 		} catch (IOException e) {
 			logger.error("Cannot read response of rest request", e);
+
+			boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
+
+			if (testMode) {
+				return "test mode enabled";
+			}
+
 			return RestRequest.getErrorResponse();
 		}
 

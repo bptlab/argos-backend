@@ -91,6 +91,22 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RestRequest createPutRequest(String host, String uri) {
+		return createPutRequest(host, uri, DEFAULT_CONTENT_TYPE, DEFAULT_ACCEPT_TYPE);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RestRequest createPutRequest(String host, String uri, String contentType, String acceptType) {
+		return createRequest(host, uri, "PUT", contentType, acceptType);
+	}
+
+	/**
 	 * This method creates a basic RestRequest object and sets host and uri.
 	 * @param host - host as a string to be set
 	 * @param uri - uri as a string to be set

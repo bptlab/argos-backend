@@ -49,7 +49,7 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 		request = requestFactory.createPostRequest(TEST_HOST, createEventType(), TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE);
 
 		JsonObject jsonBody = new JsonObject();
-		jsonBody.addProperty("subscriptionQuery", "SELECT * FROM TEST_TYPE");
+		jsonBody.addProperty("eventQuery", "SELECT * FROM TEST_TYPE");
 
 		JsonObject testType = new JsonObject();
 		testType.addProperty("name", "TEST_TYPE");
