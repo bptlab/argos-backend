@@ -7,11 +7,19 @@ import java.net.HttpURLConnection;
  * parametrized in header and body.
  */
 public interface RestRequest {
-    /**
-     * This method is a getter for the protected instance variable "connection".
-     * @return - protected instance variable "connection" of type HttpURLConnection
-     */
-	HttpURLConnection getConnection();
+
+	/**
+	 * This method sets the requests method.
+	 * @param method - the method to be set
+	 */
+	void setMethod(String method);
+
+	/**
+	 * This method sets a property specified by its key.
+	 * @param key - the property key
+	 * @param value - the property value
+	 */
+	void setProperty(String key, String value);
 
 	/**
 	 * This method returns the content body of the rest request.

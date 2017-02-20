@@ -7,6 +7,9 @@ import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
 import de.hpi.bpt.argos.common.RestRequest;
 import org.junit.Test;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import static org.junit.Assert.assertEquals;
 
 public class EventTypeEndpointTest extends EndpointParentClass {
@@ -42,17 +45,20 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 
 	@Test
 	public void testCreateEventType() {
-		// enable test mode to mock unicorn
-		argos.setTestMode(true);
 		// TODO: delete test_type event type
 
 		request = requestFactory.createPostRequest(TEST_HOST, createEventType(), TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE);
 
+		// enable test mode to mock unicorn
+		argos.setTestMode(true);
+
+		String eventTypeName = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
+
 		JsonObject jsonBody = new JsonObject();
-		jsonBody.addProperty("eventQuery", "SELECT * FROM TEST_TYPE");
+		jsonBody.addProperty("eventQuery", "SELECT * FROM " + eventTypeName);
 
 		JsonObject testType = new JsonObject();
-		testType.addProperty("name", "TEST_TYPE");
+		testType.addProperty("name", eventTypeName);
 		testType.addProperty("timestamp", "timestamp");
 
 		JsonObject attributes = new JsonObject();

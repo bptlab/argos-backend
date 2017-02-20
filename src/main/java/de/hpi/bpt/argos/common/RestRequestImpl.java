@@ -11,6 +11,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.ProtocolException;
 import java.net.URL;
 
 /**
@@ -31,15 +32,27 @@ public class RestRequestImpl implements RestRequest {
 	 * @throws IOException - throws IOException in case of failure (e.g. network problems)
 	 */
 	public RestRequestImpl(URL url) throws IOException {
-		connection = (HttpURLConnection) url.openConnection();
+		connection = (HttpURLConnection)url.openConnection();
 	}
 
-    /**
-     * {@inheritDoc}
-     */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public HttpURLConnection getConnection() {
-		return connection;
+	public void setMethod(String method) {
+		try {
+			this.connection.setRequestMethod(method);
+		} catch (ProtocolException e) {
+			logger.error("cannot set request method to '" + method + "'", e);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setProperty(String key, String value) {
+		this.connection.setRequestProperty(key, value);
 	}
 
 	@Override
@@ -66,12 +79,6 @@ public class RestRequestImpl implements RestRequest {
 			content = requestContent;
 		} catch (IOException e) {
 			logger.error("Cannot set content of rest request", e);
-
-			boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
-
-			if (testMode) {
-				content = requestContent;
-			}
 		}
 	}
 
@@ -85,13 +92,6 @@ public class RestRequestImpl implements RestRequest {
 			return connection.getResponseCode();
 		} catch (IOException e) {
 			logger.error("Cannot get response code of rest request", e);
-
-			boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
-
-			if (testMode) {
-				return RestRequest.getHttpSuccessCode();
-			}
-
 			return 0;
 		}
 	}
@@ -120,13 +120,6 @@ public class RestRequestImpl implements RestRequest {
 
 		} catch (IOException e) {
 			logger.error("Cannot read response of rest request", e);
-
-			boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
-
-			if (testMode) {
-				return "test mode enabled";
-			}
-
 			return RestRequest.getErrorResponse();
 		}
 

@@ -1,0 +1,74 @@
+package de.hpi.bpt.argos.common;
+
+/**
+ * {@inheritDoc}
+ * This is a null implementation.
+ */
+public class NullRestRequest implements RestRequest {
+
+	protected String content;
+	protected String response;
+
+	/**
+	 * This constructor initializes the members with default values.
+	 */
+	public NullRestRequest() {
+		response = "null request";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setMethod(String method) {
+		// empty, since it has no effect
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setProperty(String key, String value) {
+		// empty, since it has no effect
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getContent() {
+		return content;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setContent(String requestContent) {
+		content = requestContent;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getResponseCode() {
+		return RestRequest.getHttpSuccessCode();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getResponse() {
+		return response;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isSuccessful() {
+		return true;
+	}
+}
