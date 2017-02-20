@@ -1,6 +1,6 @@
 package de.hpi.bpt.argos.common;
 
-import de.hpi.bpt.argos.core.Argos;
+import de.hpi.bpt.argos.api.response.ResponseFactory;
 import de.hpi.bpt.argos.properties.PropertyEditor;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import org.slf4j.Logger;
@@ -11,6 +11,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.ProtocolException;
 import java.net.URL;
 
 /**
@@ -31,15 +32,27 @@ public class RestRequestImpl implements RestRequest {
 	 * @throws IOException - throws IOException in case of failure (e.g. network problems)
 	 */
 	public RestRequestImpl(URL url) throws IOException {
-		connection = (HttpURLConnection) url.openConnection();
+		connection = (HttpURLConnection)url.openConnection();
 	}
 
-    /**
-     * {@inheritDoc}
-     */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public HttpURLConnection getConnection() {
-		return connection;
+	public void setMethod(String method) {
+		try {
+			this.connection.setRequestMethod(method);
+		} catch (ProtocolException e) {
+			logger.error("cannot set request method to '" + method + "'", e);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setProperty(String key, String value) {
+		this.connection.setRequestProperty(key, value);
 	}
 
 	@Override
@@ -53,17 +66,11 @@ public class RestRequestImpl implements RestRequest {
 	@Override
 	public void setContent(String requestContent) {
 
-		boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
-
-		if (testMode) {
-			content = requestContent;
-			return;
-		}
-
-		connection.setDoOutput(true);
-
-		DataOutputStream outputStream;
 		try {
+			connection.setDoOutput(true);
+
+			DataOutputStream outputStream;
+
 			outputStream = new DataOutputStream(connection.getOutputStream());
 			outputStream.writeBytes(requestContent);
 			outputStream.flush();
@@ -81,12 +88,6 @@ public class RestRequestImpl implements RestRequest {
 	@Override
 	public int getResponseCode() {
 
-		boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
-
-		if (testMode) {
-			return RestRequest.getHttpSuccessCode();
-		}
-
 		try {
 			return connection.getResponseCode();
 		} catch (IOException e) {
@@ -100,12 +101,6 @@ public class RestRequestImpl implements RestRequest {
      */
 	@Override
 	public String getResponse() {
-
-		boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
-
-		if (testMode) {
-			return "test mode enabled";
-		}
 
 		if (response != null) {
 			return response;
@@ -137,6 +132,6 @@ public class RestRequestImpl implements RestRequest {
      */
 	@Override
 	public boolean isSuccessful() {
-		return getResponseCode() == RestRequest.getHttpSuccessCode();
+		return getResponseCode() == ResponseFactory.getHttpSuccessCode();
 	}
 }

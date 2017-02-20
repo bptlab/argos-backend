@@ -1,7 +1,7 @@
 package de.hpi.bpt.argos.persistence.model.product;
 
 import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
-import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
+import de.hpi.bpt.argos.persistence.model.event.EventQuery;
 
 import java.util.Date;
 
@@ -83,40 +83,40 @@ public interface Product extends PersistenceEntity {
 	void setStateDescription(String stateDescription);
 
 	/**
-	 * This method returns the event subscription query which leads to a change in the state of this product.
-	 * @return - the event subscription query which sets this product in Running state
+	 * This method returns the event query which leads to a change in the state of this product.
+	 * @return - the event query which sets this product in Running state
 	 */
-	EventSubscriptionQuery getTransitionToRunningState();
+	EventQuery getTransitionToRunningState();
 
 	/**
-	 * This method sets the event subscription query which leads to a change in the state of this product.
-	 * @param eventSubscriptionQuery - the event subscription query which sets this product in Running state
+	 * This method sets the event query which leads to a change in the state of this product.
+	 * @param eventSubscriptionQuery - the event query which sets this product in Running state
 	 */
-	void setTransitionToRunningState(EventSubscriptionQuery eventSubscriptionQuery);
+	void setTransitionToRunningState(EventQuery eventSubscriptionQuery);
 
 	/**
-	 * This method returns the event subscription query which leads to a change in the state of this product.
-	 * @return - the event subscription query which sets this product in Warning state
+	 * This method returns the event query which leads to a change in the state of this product.
+	 * @return - the event query which sets this product in Warning state
 	 */
-	EventSubscriptionQuery getTransitionToWarningState();
+	EventQuery getTransitionToWarningState();
 
 	/**
-	 * This method sets the event subscription query which leads to a change in the state of this product.
-	 * @param eventSubscriptionQuery - the event subscription query which sets this product in Warning state
+	 * This method sets the event query which leads to a change in the state of this product.
+	 * @param eventSubscriptionQuery - the event query which sets this product in Warning state
 	 */
-	void setTransitionToWarningState(EventSubscriptionQuery eventSubscriptionQuery);
+	void setTransitionToWarningState(EventQuery eventSubscriptionQuery);
 
 	/**
-	 * This method returns the event subscription query which leads to a change in the state of this product.
-	 * @return - the event subscription query which sets this product in Error state
+	 * This method returns the event query which leads to a change in the state of this product.
+	 * @return - the event query which sets this product in Error state
 	 */
-	EventSubscriptionQuery getTransitionToErrorState();
+	EventQuery getTransitionToErrorState();
 
 	/**
-	 * This method sets the event subscription query which leads to a change in the state of this product.
-	 * @param eventSubscriptionQuery - the event subscription query which sets this product in Error state
+	 * This method sets the event query which leads to a change in the state of this product.
+	 * @param eventSubscriptionQuery - the event query which sets this product in Error state
 	 */
-	void setTransitionToErrorState(EventSubscriptionQuery eventSubscriptionQuery);
+	void setTransitionToErrorState(EventQuery eventSubscriptionQuery);
 
 	/**
 	 * This method returns the number of devices that are installed from this product families.

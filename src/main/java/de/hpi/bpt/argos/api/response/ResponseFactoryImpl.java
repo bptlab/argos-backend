@@ -5,11 +5,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
-import de.hpi.bpt.argos.common.validation.RestInputValidationService;
 import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpoint;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.model.event.Event;
-import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQueryImpl;
+import de.hpi.bpt.argos.persistence.model.event.EventQueryImpl;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 import de.hpi.bpt.argos.persistence.model.event.data.EventData;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
@@ -32,7 +31,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	protected static final Gson serializer = new Gson();
 	protected static final JsonParser jsonParser = new JsonParser();
 
-	protected static final String JSON_EVENT_SUBSCRIPTION_QUERY_ATTRIBUTE = "subscriptionQuery";
+	protected static final String JSON_EVENT_QUERY_ATTRIBUTE = "eventQuery";
 	protected static final String JSON_EVENT_TYPE_ATTRIBUTE = "eventType";
 
 	protected PersistenceEntityManager entityManager;
@@ -170,31 +169,31 @@ public class ResponseFactoryImpl implements ResponseFactory {
 		try {
 			JsonObject jsonBody = jsonParser.parse(requestBody).getAsJsonObject();
 
-			String eventQuery = jsonBody.get(JSON_EVENT_SUBSCRIPTION_QUERY_ATTRIBUTE).getAsString();
+			String eventQuery = jsonBody.get(JSON_EVENT_QUERY_ATTRIBUTE).getAsString();
 			JsonObject jsonEventType = jsonBody.get(JSON_EVENT_TYPE_ATTRIBUTE).getAsJsonObject();
 
 			if (eventQuery == null || eventQuery.length() == 0) {
-				halt(RestInputValidationService.getHttpErrorCode(), "no event query given in body");
+				halt(ResponseFactory.getHttpErrorCode(), "no event query given in body");
 			}
 
 			if (jsonEventType == null) {
-				halt(RestInputValidationService.getHttpErrorCode(), "no event type given in body");
+				halt(ResponseFactory.getHttpErrorCode(), "no event type given in body");
 			}
 
 			EventType eventType = entityManager.createEventType(jsonEventType);
 
 			if (eventType == null) {
-				halt(RestInputValidationService.getHttpErrorCode(), "event type name already in use, or failed to parse event type");
+				halt(ResponseFactory.getHttpErrorCode(), "event type name already in use, or failed to parse event type");
 			} else {
 
-				if (eventType.getEventSubscriptionQuery() == null) {
-					eventType.setEventSubscriptionQuery(new EventSubscriptionQueryImpl());
+				if (eventType.getEventQuery() == null) {
+					eventType.setEventQuery(new EventQueryImpl());
 				}
 
-				eventType.getEventSubscriptionQuery().setQueryString(eventQuery);
+				eventType.getEventQuery().setQueryString(eventQuery);
 
 				if (!eventPlatformRestEndpoint.getEventSubscriber().registerEventType(eventType)) {
-					halt(RestInputValidationService.getHttpErrorCode(), "cannot register event type");
+					halt(ResponseFactory.getHttpErrorCode(), "cannot register event type");
 				}
 
 				entityManager.updateEntity(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
@@ -202,8 +201,82 @@ public class ResponseFactoryImpl implements ResponseFactory {
 
 		} catch (Exception e) {
 			logger.error("cannot parse request body to event type '" + requestBody + "'", e);
-			halt(RestInputValidationService.getHttpErrorCode());
+			halt(ResponseFactory.getHttpErrorCode());
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void updateEventQuery(long eventTypeId, String requestBody) {
+		try {
+			JsonObject jsonBody = jsonParser.parse(requestBody).getAsJsonObject();
+
+			String eventQuery = jsonBody.get(JSON_EVENT_QUERY_ATTRIBUTE).getAsString();
+
+			if (eventQuery == null || eventQuery.length() == 0) {
+				halt(ResponseFactory.getHttpErrorCode(), "no event query given in body");
+			}
+
+			EventType eventType = entityManager.getEventType(eventTypeId);
+
+			if (eventType == null) {
+				halt(ResponseFactory.getHttpNotFoundCode(), "event type not found");
+			} else {
+
+				if (!eventPlatformRestEndpoint.getEventSubscriber().updateEventQuery(eventType, eventQuery)) {
+					halt(ResponseFactory.getHttpErrorCode(), "event platform did not accept the updated event query");
+				}
+
+				entityManager.updateEntity(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
+			}
+
+		} catch (Exception e) {
+			logger.error("cannot parse request body to event query '" + requestBody + "'", e);
+			halt(ResponseFactory.getHttpErrorCode());
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String deleteEventType(long eventTypeId) {
+		JsonArray blockingEventTypeIds = new JsonArray();
+
+		EventType eventType = entityManager.getEventType(eventTypeId);
+
+		if (eventType == null) {
+			halt(ResponseFactory.getHttpNotFoundCode(), "cannot find event type");
+		} else {
+
+			List<EventType> eventTypes = entityManager.getEventTypes();
+
+			for (EventType type : eventTypes) {
+				if (type.getId() == eventTypeId
+						|| type.getEventQuery() == null
+						|| type.getEventQuery().getQueryString() == null
+						|| type.getEventQuery().getQueryString().length() == 0) {
+					continue;
+				}
+
+				if (type.getEventQuery().getQueryString().contains(eventType.getName())) {
+					blockingEventTypeIds.add(type.getId());
+				}
+			}
+
+			if (blockingEventTypeIds.size() == 0) {
+
+				eventPlatformRestEndpoint.getEventSubscriber().deleteEventType(eventType);
+
+				return "";
+			} else {
+				return serializer.toJson(blockingEventTypeIds);
+			}
+		}
+
+		return "";
 	}
 
 	/**
@@ -276,7 +349,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			jsonEventType.addProperty("productIdentificationAttributeName", eventType.getProductIdentificationAttribute().getName());
 			jsonEventType.addProperty("productFamilyIdentificationAttributeName", eventType.getProductFamilyIdentificationAttribute().getName());
 			jsonEventType.addProperty("timestampAttributeName", eventType.getTimestampAttribute().getName());
-			jsonEventType.addProperty("eventSubscriptionQuery", eventType.getEventSubscriptionQuery().getQueryString());
+			jsonEventType.addProperty("eventQuery", eventType.getEventQuery().getQueryString());
 
 			return jsonEventType;
 		} catch (Exception exception) {

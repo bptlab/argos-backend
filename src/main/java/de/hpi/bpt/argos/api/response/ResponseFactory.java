@@ -79,6 +79,20 @@ public interface ResponseFactory {
 	void createEventType(String requestBody);
 
 	/**
+	 * This method tries to update an existing event query from a request body.
+	 * @param eventTypeId - the event type id, which contains the event query to update
+	 * @param requestBody - the request body, which should contain the new event query
+	 */
+	void updateEventQuery(long eventTypeId, String requestBody);
+
+	/**
+	 * This method tries to delete an existing event type.
+	 * @param eventTypeId - the event type id to delete
+	 * @return - a json array of event type ids, which block the deletion process or the success response
+	 */
+	String deleteEventType(long eventTypeId);
+
+	/**
 	 * This method returns a default response to generic requests.
 	 * @return - a simple response to a request
 	 */
@@ -92,5 +106,21 @@ public interface ResponseFactory {
 	 */
 	static int getHttpNotFoundCode() {
 		return 404;
+	}
+
+	/**
+	 * This method returns the http success code.
+	 * @return - http success code
+	 */
+	static int getHttpSuccessCode() {
+		return 200;
+	}
+
+	/**
+	 * This method returns the http error code.
+	 * @return - the http error code
+	 */
+	static int getHttpErrorCode() {
+		return 500;
 	}
 }

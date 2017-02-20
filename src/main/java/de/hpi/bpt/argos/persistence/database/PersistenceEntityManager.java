@@ -58,7 +58,7 @@ public interface PersistenceEntityManager extends PersistenceEntityRetriever {
 	EventType createSimpleEventType(JsonObject jsonEventType);
 
 	/**
-	 * This method returns a newly created event type from its json representation. Notice: This event type has no valid EventSubscriptionQuery and
+	 * This method returns a newly created event type from its json representation. Notice: This event type has no valid EventQuery and
 	 * thus, clients will not be updated.
 	 * @param jsonEventType - the json representation of the event type
 	 * @return - the event type

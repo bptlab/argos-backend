@@ -69,4 +69,23 @@ public interface RestRequestFactory {
 	 * @return - returns a RestRequest object using the request method DELETE
 	 */
 	RestRequest createDeleteRequest(String host, String uri, String contentType, String acceptType);
+
+
+	/**
+	 * This method returns a RestRequest object using PUT request method using the default accept type.
+	 * @param host - the host to be requested as a string
+	 * @param uri - the uri to be requested as a string
+	 * @return - returns a RestRequest object using the request method PUT
+	 */
+	RestRequest createPutRequest(String host, String uri);
+
+	/**
+	 * This method returns a RestRequest object using PUT request method. Other headers can be parametrized.
+	 * @param host - the host to be requested as a string
+	 * @param uri - the uri to be requested as a string
+	 * @param contentType - the content type value to be used as a string
+	 * @param acceptType - the accept type value to be used as a string
+	 * @return - returns a RestRequest object using the request method PUT
+	 */
+	RestRequest createPutRequest(String host, String uri, String contentType, String acceptType);
 }

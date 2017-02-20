@@ -1,8 +1,8 @@
 package de.hpi.bpt.argos.persistence.model.product;
 
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityImpl;
-import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
-import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQueryImpl;
+import de.hpi.bpt.argos.persistence.model.event.EventQuery;
+import de.hpi.bpt.argos.persistence.model.event.EventQueryImpl;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -41,14 +41,14 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	@Column(name = "StateDescription")
 	protected String stateDescription = "";
 
-	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = EventSubscriptionQueryImpl.class)
-	protected EventSubscriptionQuery transitionToRunningState;
+	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = EventQueryImpl.class)
+	protected EventQuery transitionToRunningState;
 
-	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = EventSubscriptionQueryImpl.class)
-	protected EventSubscriptionQuery transitionToWarningState;
+	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = EventQueryImpl.class)
+	protected EventQuery transitionToWarningState;
 
-	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = EventSubscriptionQueryImpl.class)
-	protected EventSubscriptionQuery transitionToErrorState;
+	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = EventQueryImpl.class)
+	protected EventQuery transitionToErrorState;
 
 	@Column(name = "NumberOfDevices")
 	protected long numberOfDevices = 0;
@@ -157,7 +157,7 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EventSubscriptionQuery getTransitionToRunningState() {
+	public EventQuery getTransitionToRunningState() {
 		return transitionToRunningState;
 	}
 
@@ -165,7 +165,7 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setTransitionToRunningState(EventSubscriptionQuery eventSubscriptionQuery) {
+	public void setTransitionToRunningState(EventQuery eventSubscriptionQuery) {
 		transitionToRunningState = eventSubscriptionQuery;
 	}
 
@@ -173,7 +173,7 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EventSubscriptionQuery getTransitionToWarningState() {
+	public EventQuery getTransitionToWarningState() {
 		return transitionToWarningState;
 	}
 
@@ -181,7 +181,7 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setTransitionToWarningState(EventSubscriptionQuery eventSubscriptionQuery) {
+	public void setTransitionToWarningState(EventQuery eventSubscriptionQuery) {
 		transitionToWarningState = eventSubscriptionQuery;
 	}
 
@@ -189,7 +189,7 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EventSubscriptionQuery getTransitionToErrorState() {
+	public EventQuery getTransitionToErrorState() {
 		return transitionToErrorState;
 	}
 
@@ -197,7 +197,7 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setTransitionToErrorState(EventSubscriptionQuery eventSubscriptionQuery) {
+	public void setTransitionToErrorState(EventQuery eventSubscriptionQuery) {
 		transitionToErrorState = eventSubscriptionQuery;
 	}
 

@@ -1,12 +1,14 @@
 package de.hpi.bpt.argos.common;
 
 
+import de.hpi.bpt.argos.core.Argos;
+import de.hpi.bpt.argos.properties.PropertyEditor;
+import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 
 /**
@@ -29,15 +31,9 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 			return null;
 		}
 
-		try {
-			request.getConnection().setRequestMethod(requestMethod);
-		} catch (ProtocolException e) {
-			logExceptionInRequestCreation(e);
-			return null;
-		}
-
-		request.getConnection().setRequestProperty("Content-Type", contentType);
-		request.getConnection().setRequestProperty("Accept", acceptType);
+		request.setMethod(requestMethod);
+		request.setProperty("Content-Type", contentType);
+		request.setProperty("Accept", acceptType);
 
 		return request;
 	}
@@ -91,12 +87,36 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RestRequest createPutRequest(String host, String uri) {
+		return createPutRequest(host, uri, DEFAULT_CONTENT_TYPE, DEFAULT_ACCEPT_TYPE);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RestRequest createPutRequest(String host, String uri, String contentType, String acceptType) {
+		return createRequest(host, uri, "PUT", contentType, acceptType);
+	}
+
+	/**
 	 * This method creates a basic RestRequest object and sets host and uri.
 	 * @param host - host as a string to be set
 	 * @param uri - uri as a string to be set
 	 * @return - returns a RestRequest object to be worked with later on
 	 */
 	private RestRequest createBasicRequest(String host, String uri) {
+
+		PropertyEditor propertyEditor = new PropertyEditorImpl();
+		boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
+
+		if (testMode) {
+			return new NullRestRequest();
+		}
+
 		URL requestURL;
 		RestRequest request;
 
