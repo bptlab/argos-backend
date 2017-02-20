@@ -382,35 +382,6 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<EventQuery> getEventQueries() {
-		Session session = databaseSessionFactory.openSession();
-		Transaction tx = null;
-		Query<EventQuery> query = null;
-		try {
-			tx = session.beginTransaction();
-
-			query = session.createQuery("FROM EventQueryImpl eq",
-					EventQuery.class);
-
-			List<EventQuery> eventQueries = query.list();
-
-			tx.commit();
-			return eventQueries;
-		} catch (Exception exception) {
-			if (tx != null) {
-				tx.rollback();
-			}
-			logErrorWhileGettingEntities(exception, query);
-			return new ArrayList<>();
-		} finally {
-			session.close();
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void saveEntities(PersistenceEntity... entities) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;

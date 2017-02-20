@@ -14,12 +14,18 @@ import spark.Service;
  */
 public class EventQueryEndpointImpl extends RestEndpointImpl implements EventQueryEndpoint {
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setup(ResponseFactory responseFactory, PersistenceEntityManager entityManager, Service sparkService) {
 		super.setup(responseFactory, entityManager, sparkService);
 		sparkService.post(EventQueryEndpoint.getUpdateEventQueryBaseUri(), this::updateEventQuery);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String updateEventQuery(Request request, Response response) {
 		logInfoForReceivedRequest(request);

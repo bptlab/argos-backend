@@ -180,14 +180,6 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<EventQuery> getEventQueries() {
-		return databaseConnection.getEventQueries();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public Event createEvent(EventType eventType, String jsonEvent) {
 		Event event = new EventImpl();
 		JsonObject json = jsonParser.parse(jsonEvent).getAsJsonObject();
