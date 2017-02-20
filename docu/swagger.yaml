@@ -145,7 +145,7 @@ paths:
                   type: string
                 timestampAttributeName:
                   type: string
-                eventSubscriptionQuery:
+                eventQuery:
                   type: string
                 attributes:
                   title: ArrayOfEventAttributes
@@ -244,7 +244,7 @@ paths:
                   type: string
                 timestampAttributeName:
                   type: string
-                eventSubscriptionQuery:
+                eventQuery:
                   type: string
                 attributes:
                   title: ArrayOfEventAttributes
@@ -288,7 +288,7 @@ paths:
                 type: string
               timestampAttributeName:
                 type: string
-              eventSubscriptionQuery:
+              eventQuery:
                 type: string
               attributes:
                 title: ArrayOfEventAttributes
@@ -311,12 +311,12 @@ paths:
         -
           name: EventTypeMap
           in: body
-          description: Contains the `EventSubscriptionQuery` and the corresponding `EventType` to create.
+          description: Contains the `EventQuery` and the corresponding `EventType` to create.
           required: true
           schema:
             type: object
             properties:
-              subscriptionQuery:
+              eventQuery:
                 type: string
               eventType:
                 type: object
@@ -342,11 +342,12 @@ paths:
         200:
           description: Successful response
           
-    /api/eventtypes/delete/{eventTypeId}:
+  /api/eventtypes/delete/{eventTypeId}:
     delete:
       description: Deletes an event query defined by the `EventType` id.
       parameters:
-        - name: eventTypeId
+        - 
+          name: eventTypeId
           in: path
           type: integer
           description: The id of the `EventType` object whose event query should be deleted.
@@ -359,12 +360,14 @@ paths:
     post:
       description: Updates an event query defined by the `EventType` id.
       parameters:
-        - name: eventTypeId
+        - 
+          name: eventTypeId
           in: path
           type: integer
           description: The id of the `EventType` object whose event query should be updated.
           required: true
-        - name: eventQuery
+        - 
+          name: eventQuery
           in: body
           description: The new event query that should be saved for the `EventType`
           required: true

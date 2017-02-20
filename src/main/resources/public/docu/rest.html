@@ -61,19 +61,22 @@
                         </td>
                     </tr>
                     <tr>
-                            <td class="swagger--summary-path" rowspan="2">
+                            <td class="swagger--summary-path" rowspan="1">
                                 <a href="#path--api-eventtypes-create">/api/eventtypes/create</a>
                             </td>
                         <td>
-                            <a href="#operation--api-eventtypes-create-delete">DELETE</a>
+                            <a href="#operation--api-eventtypes-create-post">POST</a>
                         </td>
                         <td>
                             
                         </td>
                     </tr>
                     <tr>
+                            <td class="swagger--summary-path" rowspan="1">
+                                <a href="#path--api-eventtypes-delete--eventTypeId-">/api/eventtypes/delete/{eventTypeId}</a>
+                            </td>
                         <td>
-                            <a href="#operation--api-eventtypes-create-post">POST</a>
+                            <a href="#operation--api-eventtypes-delete--eventTypeId--delete">DELETE</a>
                         </td>
                         <td>
                             
@@ -434,8 +437,8 @@
                                                                                                                 
                                                                                                             </div>
                                                                                                         </dd>
-                                                                                                        <dt data-property-name="eventSubscriptionQuery">
-                                                                                                            <span class="json-property-name">eventSubscriptionQuery:</span>
+                                                                                                        <dt data-property-name="eventQuery">
+                                                                                                            <span class="json-property-name">eventQuery:</span>
                                                                                                             
                                                                                                             <span class="json-property-type">string</span>
                                                                                                             <span class="json-property-range" title="Value limits"></span>
@@ -523,72 +526,7 @@
                 </div>
             </div>    
         <span id="path--api-eventtypes-create"></span>
-            <div id="operation--api-eventtypes-create-delete" class="swagger--panel-operation-delete panel">
-                <div class="panel-heading">
-                    <div class="operation-summary"></div>
-                    <h3 class="panel-title"><span class="operation-name">DELETE</span> <strong>/api/eventtypes/create</strong></h3>
-                </div>
-                <div class="panel-body">
-                    <section class="sw-operation-description">
-                        <p>Deletes an event query defined by the <code>EventType</code> id.</p>
-            
-                    </section>
-                    
-                        <section class="sw-request-params">
-                            <table class="table">
-                                <thead>
-                                <tr>
-                                    <th class="sw-param-name"></th>
-                                    <th class="sw-param-description"></th>
-                                    <th class="sw-param-type"></th>
-                                    <th class="sw-param-data-type"></th>
-                                    <th class="sw-param-annotation"></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                        <tr>
-                                            <td>
-                                                eventTypeId
-                                            <td><p>The id of the <code>EventType</code> object whose event query should be deleted.</p>
-                                        </td>
-                                            <td>path</td>
-                                            <td>
-                                        <span class="json-property-type">integer</span>
-                                        <span class="json-property-range" title="Value limits"></span>
-                                        
-                                            </td>
-                                            <td>
-                                                    <span class="json-property-required"></span>
-                                            </td>
-                                        </tr>
-                                </tbody>
-                            </table>
-                        </section>
-                    
-                        <section class="sw-responses">
-                    
-                            <dl>
-                                    <dt class="sw-response-200">
-                                        200 OK
-                                    
-                                    </dt>
-                                    <dd class="sw-response-200">
-                                            <div class="row">
-                                                <div class="col-md-12">
-                                                    <p>Successful response</p>
-                                            
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                
-                                                <div class="col-md-6 sw-response-model">
-                                            </div>
-                                            
-                                            </div>                </dd>
-                            </dl>
-                        </section>
-                </div>
-            </div>    <div id="operation--api-eventtypes-create-post" class="swagger--panel-operation-post panel">
+            <div id="operation--api-eventtypes-create-post" class="swagger--panel-operation-post panel">
                 <div class="panel-heading">
                     <div class="operation-summary"></div>
                     <h3 class="panel-title"><span class="operation-name">POST</span> <strong>/api/eventtypes/create</strong></h3>
@@ -603,7 +541,7 @@
                                 
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <p><p>Contains the <code>EventSubscriptionQuery</code> and the corresponding <code>EventType</code> to create.</p>
+                                                <p><p>Contains the <code>EventQuery</code> and the corresponding <code>EventType</code> to create.</p>
                         </p>
                                             </div>
                                             <div class="col-md-6 sw-request-model">
@@ -612,8 +550,8 @@
                                         
                                                 <section class="json-schema-properties">
                                                     <dl>
-                                                            <dt data-property-name="subscriptionQuery">
-                                                                <span class="json-property-name">subscriptionQuery:</span>
+                                                            <dt data-property-name="eventQuery">
+                                                                <span class="json-property-name">eventQuery:</span>
                                                                 
                                                                 <span class="json-property-type">string</span>
                                                                 <span class="json-property-range" title="Value limits"></span>
@@ -727,6 +665,73 @@
                             </div></div>
                                         </div>
                             </section>        
+                    
+                        <section class="sw-responses">
+                    
+                            <dl>
+                                    <dt class="sw-response-200">
+                                        200 OK
+                                    
+                                    </dt>
+                                    <dd class="sw-response-200">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Successful response</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                            </dl>
+                        </section>
+                </div>
+            </div>    
+        <span id="path--api-eventtypes-delete--eventTypeId-"></span>
+            <div id="operation--api-eventtypes-delete--eventTypeId--delete" class="swagger--panel-operation-delete panel">
+                <div class="panel-heading">
+                    <div class="operation-summary"></div>
+                    <h3 class="panel-title"><span class="operation-name">DELETE</span> <strong>/api/eventtypes/delete/{eventTypeId}</strong></h3>
+                </div>
+                <div class="panel-body">
+                    <section class="sw-operation-description">
+                        <p>Deletes an event query defined by the <code>EventType</code> id.</p>
+            
+                    </section>
+                    
+                        <section class="sw-request-params">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th class="sw-param-name"></th>
+                                    <th class="sw-param-description"></th>
+                                    <th class="sw-param-type"></th>
+                                    <th class="sw-param-data-type"></th>
+                                    <th class="sw-param-annotation"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                        <tr>
+                                            <td>
+                                                eventTypeId
+                                            <td><p>The id of the <code>EventType</code> object whose event query should be deleted.</p>
+                                        </td>
+                                            <td>path</td>
+                                            <td>
+                                        <span class="json-property-type">integer</span>
+                                        <span class="json-property-range" title="Value limits"></span>
+                                        
+                                            </td>
+                                            <td>
+                                                    <span class="json-property-required"></span>
+                                            </td>
+                                        </tr>
+                                </tbody>
+                            </table>
+                        </section>
                     
                         <section class="sw-responses">
                     
@@ -882,8 +887,8 @@
                                                                                         
                                                                                     </div>
                                                                                 </dd>
-                                                                                <dt data-property-name="eventSubscriptionQuery">
-                                                                                    <span class="json-property-name">eventSubscriptionQuery:</span>
+                                                                                <dt data-property-name="eventQuery">
+                                                                                    <span class="json-property-name">eventQuery:</span>
                                                                                     
                                                                                     <span class="json-property-type">string</span>
                                                                                     <span class="json-property-range" title="Value limits"></span>
@@ -1761,8 +1766,8 @@
                                                                                                                 
                                                                                                             </div>
                                                                                                         </dd>
-                                                                                                        <dt data-property-name="eventSubscriptionQuery">
-                                                                                                            <span class="json-property-name">eventSubscriptionQuery:</span>
+                                                                                                        <dt data-property-name="eventQuery">
+                                                                                                            <span class="json-property-name">eventQuery:</span>
                                                                                                             
                                                                                                             <span class="json-property-type">string</span>
                                                                                                             <span class="json-property-range" title="Value limits"></span>
