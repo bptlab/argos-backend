@@ -341,6 +341,38 @@ paths:
       responses:
         200:
           description: Successful response
+          
+    /api/eventtypes/delete/{eventTypeId}:
+    delete:
+      description: Deletes an event query defined by the `EventType` id.
+      parameters:
+        - name: eventTypeId
+          in: path
+          type: integer
+          description: The id of the `EventType` object whose event query should be deleted.
+          required: true
+      responses:
+        200:
+          description: Successful response
       
-                
-                  
+  /api/eventqueries/update/{eventTypeId}:
+    post:
+      description: Updates an event query defined by the `EventType` id.
+      parameters:
+        - name: eventTypeId
+          in: path
+          type: integer
+          description: The id of the `EventType` object whose event query should be updated.
+          required: true
+        - name: eventQuery
+          in: body
+          description: The new event query that should be saved for the `EventType`
+          required: true
+          schema:
+            type: object
+            properties:
+              eventQuery:
+                type: string
+      responses:
+        200:
+          description: Successful response
