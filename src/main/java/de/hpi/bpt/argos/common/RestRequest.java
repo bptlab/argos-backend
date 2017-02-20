@@ -1,7 +1,5 @@
 package de.hpi.bpt.argos.common;
 
-import java.net.HttpURLConnection;
-
 /**
  * This interface is a basic REST request and will be created and setup by the RestRequestFactory. It can be fully
  * parametrized in header and body.
@@ -50,14 +48,6 @@ public interface RestRequest {
      * @return - boolean determining success or failure
      */
 	boolean isSuccessful();
-
-	/**
-	 * This method returns the http success code.
-	 * @return - http success code
-	 */
-	static int getHttpSuccessCode() {
-		return 200;
-	}
 
 	/**
 	 * This method returns a string for a response error.

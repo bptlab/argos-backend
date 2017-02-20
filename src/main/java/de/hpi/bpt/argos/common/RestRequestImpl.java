@@ -1,6 +1,6 @@
 package de.hpi.bpt.argos.common;
 
-import de.hpi.bpt.argos.core.Argos;
+import de.hpi.bpt.argos.api.response.ResponseFactory;
 import de.hpi.bpt.argos.properties.PropertyEditor;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import org.slf4j.Logger;
@@ -132,6 +132,6 @@ public class RestRequestImpl implements RestRequest {
      */
 	@Override
 	public boolean isSuccessful() {
-		return getResponseCode() == RestRequest.getHttpSuccessCode();
+		return getResponseCode() == ResponseFactory.getHttpSuccessCode();
 	}
 }

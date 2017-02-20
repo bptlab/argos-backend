@@ -1,5 +1,7 @@
 package de.hpi.bpt.argos.common;
 
+import de.hpi.bpt.argos.api.response.ResponseFactory;
+
 /**
  * {@inheritDoc}
  * This is a null implementation.
@@ -53,7 +55,7 @@ public class NullRestRequest implements RestRequest {
 	 */
 	@Override
 	public int getResponseCode() {
-		return RestRequest.getHttpSuccessCode();
+		return ResponseFactory.getHttpSuccessCode();
 	}
 
 	/**

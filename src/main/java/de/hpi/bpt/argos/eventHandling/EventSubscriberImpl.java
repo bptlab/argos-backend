@@ -3,13 +3,11 @@ package de.hpi.bpt.argos.eventHandling;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
 import de.hpi.bpt.argos.common.RestRequest;
 import de.hpi.bpt.argos.common.RestRequestFactory;
 import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
 import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
-import de.hpi.bpt.argos.persistence.model.event.EventQueryImpl;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.properties.PropertyEditor;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
@@ -108,10 +106,9 @@ public class EventSubscriberImpl implements EventSubscriber {
 	@Override
 	public boolean updateEventQuery(EventType eventType, String eventQuery) {
 
-		if (eventType.getEventQuery() == null ||
-			eventType.getEventQuery().getUuid() == null ||
-			eventType.getEventQuery().getUuid().length() == 0)
-		{
+		if (eventType.getEventQuery() == null
+				|| eventType.getEventQuery().getUuid() == null
+				|| eventType.getEventQuery().getUuid().length() == 0) {
 			return false;
 		}
 

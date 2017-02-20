@@ -401,7 +401,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 				tx.rollback();
 			}
 			logErrorWhileGettingEntities(exception, query);
-			return new ArrayList<EventQuery>();
+			return new ArrayList<>();
 		} finally {
 			session.close();
 		}

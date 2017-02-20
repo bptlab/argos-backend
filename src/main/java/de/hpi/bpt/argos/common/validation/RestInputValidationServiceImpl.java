@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.common.validation;
 
+import de.hpi.bpt.argos.api.response.ResponseFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,10 +26,10 @@ public class RestInputValidationServiceImpl implements RestInputValidationServic
 			}
 		} catch (InputValidationException e) {
 			logger.error(e.getMessage(), e);
-			halt(RestInputValidationService.getHttpErrorCode(), e.getMessage());
+			halt(ResponseFactory.getHttpErrorCode(), e.getMessage());
 		} catch (NumberFormatException e) {
 			logger.error(e.getMessage());
-			halt(RestInputValidationService.getHttpErrorCode(), e.getMessage());
+			halt(ResponseFactory.getHttpErrorCode(), e.getMessage());
 		}
 		return Integer.parseInt(inputValue);
 	}
@@ -44,10 +45,10 @@ public class RestInputValidationServiceImpl implements RestInputValidationServic
 			}
 		} catch (InputValidationException e) {
 			logger.error(e.getMessage(), e);
-			halt(RestInputValidationService.getHttpErrorCode(), e.getMessage());
+			halt(ResponseFactory.getHttpErrorCode(), e.getMessage());
 		} catch (NumberFormatException e) {
 			logger.error(e.getMessage());
-			halt(RestInputValidationService.getHttpErrorCode(), e.getMessage());
+			halt(ResponseFactory.getHttpErrorCode(), e.getMessage());
 		}
 		return Long.parseLong(inputValue);
 	}

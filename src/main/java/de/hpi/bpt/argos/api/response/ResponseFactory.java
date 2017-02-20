@@ -107,4 +107,20 @@ public interface ResponseFactory {
 	static int getHttpNotFoundCode() {
 		return 404;
 	}
+
+	/**
+	 * This method returns the http success code.
+	 * @return - http success code
+	 */
+	static int getHttpSuccessCode() {
+		return 200;
+	}
+
+	/**
+	 * This method returns the http error code.
+	 * @return - the http error code
+	 */
+	static int getHttpErrorCode() {
+		return 500;
+	}
 }

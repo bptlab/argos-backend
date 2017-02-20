@@ -1,10 +1,7 @@
 package de.hpi.bpt.argos.api.eventTypes;
 
 import de.hpi.bpt.argos.api.response.ResponseFactory;
-import de.hpi.bpt.argos.common.RestEndpoint;
 import de.hpi.bpt.argos.common.RestEndpointImpl;
-import de.hpi.bpt.argos.common.RestRequest;
-import de.hpi.bpt.argos.common.validation.RestInputValidationService;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import spark.Request;
 import spark.Response;
@@ -89,7 +86,7 @@ public class EventTypeEndpointImpl extends RestEndpointImpl implements EventType
 			// successful response
 			return responseFactory.finishRequest();
 		} else {
-			response.status(RestInputValidationService.getHttpErrorCode());
+			response.status(ResponseFactory.getHttpErrorCode());
 			return json;
 		}
 	}

@@ -5,7 +5,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
-import de.hpi.bpt.argos.common.validation.RestInputValidationService;
 import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpoint;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.model.event.Event;
@@ -174,17 +173,17 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			JsonObject jsonEventType = jsonBody.get(JSON_EVENT_TYPE_ATTRIBUTE).getAsJsonObject();
 
 			if (eventQuery == null || eventQuery.length() == 0) {
-				halt(RestInputValidationService.getHttpErrorCode(), "no event query given in body");
+				halt(ResponseFactory.getHttpErrorCode(), "no event query given in body");
 			}
 
 			if (jsonEventType == null) {
-				halt(RestInputValidationService.getHttpErrorCode(), "no event type given in body");
+				halt(ResponseFactory.getHttpErrorCode(), "no event type given in body");
 			}
 
 			EventType eventType = entityManager.createEventType(jsonEventType);
 
 			if (eventType == null) {
-				halt(RestInputValidationService.getHttpErrorCode(), "event type name already in use, or failed to parse event type");
+				halt(ResponseFactory.getHttpErrorCode(), "event type name already in use, or failed to parse event type");
 			} else {
 
 				if (eventType.getEventQuery() == null) {
@@ -194,7 +193,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 				eventType.getEventQuery().setQueryString(eventQuery);
 
 				if (!eventPlatformRestEndpoint.getEventSubscriber().registerEventType(eventType)) {
-					halt(RestInputValidationService.getHttpErrorCode(), "cannot register event type");
+					halt(ResponseFactory.getHttpErrorCode(), "cannot register event type");
 				}
 
 				entityManager.updateEntity(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
@@ -202,7 +201,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 
 		} catch (Exception e) {
 			logger.error("cannot parse request body to event type '" + requestBody + "'", e);
-			halt(RestInputValidationService.getHttpErrorCode());
+			halt(ResponseFactory.getHttpErrorCode());
 		}
 	}
 
@@ -217,7 +216,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			String eventQuery = jsonBody.get(JSON_EVENT_QUERY_ATTRIBUTE).getAsString();
 
 			if (eventQuery == null || eventQuery.length() == 0) {
-				halt(RestInputValidationService.getHttpErrorCode(), "no event query given in body");
+				halt(ResponseFactory.getHttpErrorCode(), "no event query given in body");
 			}
 
 			EventType eventType = entityManager.getEventType(eventTypeId);
@@ -227,7 +226,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			} else {
 
 				if (!eventPlatformRestEndpoint.getEventSubscriber().updateEventQuery(eventType, eventQuery)) {
-					halt(RestInputValidationService.getHttpErrorCode(), "event platform did not accept the updated event query");
+					halt(ResponseFactory.getHttpErrorCode(), "event platform did not accept the updated event query");
 				}
 
 				entityManager.updateEntity(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
@@ -235,7 +234,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 
 		} catch (Exception e) {
 			logger.error("cannot parse request body to event query '" + requestBody + "'", e);
-			halt(RestInputValidationService.getHttpErrorCode());
+			halt(ResponseFactory.getHttpErrorCode());
 		}
 	}
 
@@ -244,43 +243,37 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	 */
 	@Override
 	public String deleteEventType(long eventTypeId) {
-		try {
+		JsonArray blockingEventTypeIds = new JsonArray();
 
-			JsonArray blockingEventTypeIds = new JsonArray();
+		EventType eventType = entityManager.getEventType(eventTypeId);
 
-			EventType eventType = entityManager.getEventType(eventTypeId);
+		if (eventType == null) {
+			halt(ResponseFactory.getHttpNotFoundCode(), "cannot find event type");
+		} else {
 
-			if (eventType == null) {
-				halt(ResponseFactory.getHttpNotFoundCode(), "cannot find event type");
-			} else {
+			List<EventType> eventTypes = entityManager.getEventTypes();
 
-				List<EventType> eventTypes = entityManager.getEventTypes();
-
-				for (EventType type : eventTypes) {
-					if (type.getId() == eventTypeId ||
-							type.getEventQuery() == null ||
-							type.getEventQuery().getQueryString() == null ||
-							type.getEventQuery().getQueryString().length() == 0) {
-						continue;
-					}
-
-					if (type.getEventQuery().getQueryString().contains(eventType.getName())) {
-						blockingEventTypeIds.add(type.getId());
-					}
+			for (EventType type : eventTypes) {
+				if (type.getId() == eventTypeId
+						|| type.getEventQuery() == null
+						|| type.getEventQuery().getQueryString() == null
+						|| type.getEventQuery().getQueryString().length() == 0) {
+					continue;
 				}
 
-				if (blockingEventTypeIds.size() == 0) {
-
-					eventPlatformRestEndpoint.getEventSubscriber().deleteEventType(eventType);
-
-					return "";
-				} else {
-					return serializer.toJson(blockingEventTypeIds);
+				if (type.getEventQuery().getQueryString().contains(eventType.getName())) {
+					blockingEventTypeIds.add(type.getId());
 				}
 			}
-		} catch (Exception e) {
-			logger.error("cannot delete event type with id '" + eventTypeId + "'", e);
-			halt(RestInputValidationService.getHttpErrorCode());
+
+			if (blockingEventTypeIds.size() == 0) {
+
+				eventPlatformRestEndpoint.getEventSubscriber().deleteEventType(eventType);
+
+				return "";
+			} else {
+				return serializer.toJson(blockingEventTypeIds);
+			}
 		}
 
 		return "";

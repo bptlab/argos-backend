@@ -12,7 +12,6 @@ import org.junit.Test;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
