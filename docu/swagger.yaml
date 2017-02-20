@@ -355,6 +355,14 @@ paths:
       responses:
         200:
           description: Successful response
+        500:
+          description: Failure while deleting
+          schema:
+            type: array
+            title: ArrayOfEventTypeId
+            items:
+              title: EventTypeId
+              type: integer
       
   /api/eventqueries/update/{eventTypeId}:
     post:
