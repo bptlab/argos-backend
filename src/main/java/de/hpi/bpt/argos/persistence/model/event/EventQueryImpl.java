@@ -11,8 +11,8 @@ import javax.persistence.Table;
  * This is the implementation.
  */
 @Entity
-@Table(name = "EventSubscriptionQuery")
-public class EventSubscriptionQueryImpl extends PersistenceEntityImpl implements EventSubscriptionQuery {
+@Table(name = "EventQuery")
+public class EventQueryImpl extends PersistenceEntityImpl implements EventQuery {
 
 	@Column(name = "Uuid")
 	protected String uuid = "";

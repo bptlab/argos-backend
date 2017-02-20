@@ -36,6 +36,14 @@ public interface EventTypeEndpoint extends RestEndpoint {
 	String createEventType(Request request, Response response);
 
 	/**
+	 * This method is called via API and deletes a specific event type.
+	 * @param request - Spark defined parameter containing request object
+	 * @param response - Spark defined parameter containing response object
+	 * @return - the response for the deletion process
+	 */
+	String deleteEventType(Request request, Response response);
+
+	/**
 	 * This method returns the basic URI to retrieve all event types.
 	 * @return - the URI to retrieve all event types from
 	 */
@@ -52,11 +60,19 @@ public interface EventTypeEndpoint extends RestEndpoint {
 	}
 
 	/**
-	 * This method returns the basic URI to create new event types.
-	 * @return - the URI to create new event types
+	 * This method returns the basic URI to create new event type.
+	 * @return - the URI to create new event type
 	 */
 	static String getCreateEventTypeBaseUri() {
 		return String.format("%1$s/%2$s", getEventTypesBaseUri(), "create");
+	}
+
+	/**
+	 * This method returns the basic URI to delete a specific event type.
+	 * @return - the URI to delete a specific event type
+	 */
+	static String getDeleteEventTypeBaseUri() {
+		return String.format("%1$s/%2$s/%3$s", getEventTypesBaseUri(), "delete", getEventTypeIdParameter(true));
 	}
 
 	/**
@@ -66,6 +82,15 @@ public interface EventTypeEndpoint extends RestEndpoint {
 	 */
 	static String getEventTypeUri(long eventTypeId) {
 		return getEventTypeBaseUri().replaceAll(getEventTypeIdParameter(true), Objects.toString(eventTypeId, "0"));
+	}
+
+	/**
+	 * This method returns the URI to delete a specific event type.
+	 * @param eventTypeId - the event type id to delete
+	 * @return - the URI to delete a specific event type
+	 */
+	static String getDeleteEventTypeUri(long eventTypeId) {
+		return getDeleteEventTypeBaseUri().replaceAll(getEventTypeIdParameter(true), Objects.toString(eventTypeId, "0"));
 	}
 
 	/**

@@ -2,7 +2,7 @@ package de.hpi.bpt.argos.persistence.model.event.type;
 
 import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
 import de.hpi.bpt.argos.persistence.model.event.Event;
-import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
+import de.hpi.bpt.argos.persistence.model.event.EventQuery;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 
 import java.util.List;
@@ -31,16 +31,16 @@ public interface EventType extends PersistenceEntity {
 	String getSchema();
 
 	/**
-	 * This method return the event subscription query of this event eventType.
-	 * @return - the event subscription query of this event eventType
+	 * This method return the event query of this event eventType.
+	 * @return - the event query of this event eventType
 	 */
-	EventSubscriptionQuery getEventSubscriptionQuery();
+	EventQuery getEventQuery();
 
 	/**
-	 * This method sets the event subscription query of this event eventType.
-	 * @param eventSubscriptionQuery - the event subscription query to be set
+	 * This method sets the event query of this event eventType.
+	 * @param eventQuery - the event query to be set
 	 */
-	void setEventSubscriptionQuery(EventSubscriptionQuery eventSubscriptionQuery);
+	void setEventQuery(EventQuery eventQuery);
 
 	/**
 	 * This method returns the list of attributes of this event eventType.

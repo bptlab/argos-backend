@@ -1,7 +1,10 @@
 package de.hpi.bpt.argos.api.eventTypes;
 
 import de.hpi.bpt.argos.api.response.ResponseFactory;
+import de.hpi.bpt.argos.common.RestEndpoint;
 import de.hpi.bpt.argos.common.RestEndpointImpl;
+import de.hpi.bpt.argos.common.RestRequest;
+import de.hpi.bpt.argos.common.validation.RestInputValidationService;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import spark.Request;
 import spark.Response;
@@ -23,6 +26,7 @@ public class EventTypeEndpointImpl extends RestEndpointImpl implements EventType
 		sparkService.get(EventTypeEndpoint.getEventTypesBaseUri(), this::getEventTypes);
 		sparkService.get(EventTypeEndpoint.getEventTypeBaseUri(), this::getEventType);
 		sparkService.post(EventTypeEndpoint.getCreateEventTypeBaseUri(), this::createEventType);
+		sparkService.delete(EventTypeEndpoint.getDeleteEventTypeBaseUri(), this::deleteEventType);
 	}
 
 	/**
@@ -63,6 +67,30 @@ public class EventTypeEndpointImpl extends RestEndpointImpl implements EventType
 
 		responseFactory.createEventType(request.body());
 
+		logInfoForSendingResponse(request);
 		return responseFactory.finishRequest();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String deleteEventType(Request request, Response response) {
+		logInfoForReceivedRequest(request);
+
+		long eventTypeId = inputValidation.validateLong(
+				request.params(EventTypeEndpoint.getEventTypeIdParameter(false)),
+				(Long input) -> input > 0);
+		String json = responseFactory.deleteEventType(eventTypeId);
+
+		logInfoForSendingResponse(request);
+
+		if (json.length() == 0) {
+			// successful response
+			return responseFactory.finishRequest();
+		} else {
+			response.status(RestInputValidationService.getHttpErrorCode());
+			return json;
+		}
 	}
 }

@@ -10,8 +10,8 @@ import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpoint;
 import de.hpi.bpt.argos.notifications.PushNotificationType;
 import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.EventImpl;
-import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
-import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQueryImpl;
+import de.hpi.bpt.argos.persistence.model.event.EventQuery;
+import de.hpi.bpt.argos.persistence.model.event.EventQueryImpl;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttributeImpl;
 import de.hpi.bpt.argos.persistence.model.event.data.EventData;
@@ -180,6 +180,14 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public List<EventQuery> getEventQueries() {
+		return databaseConnection.getEventQueries();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public Event createEvent(EventType eventType, String jsonEvent) {
 		Event event = new EventImpl();
 		JsonObject json = jsonParser.parse(jsonEvent).getAsJsonObject();
@@ -231,7 +239,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		EventType updatedEventType = createEventType(jsonEventType);
 		// but keep the id and the subscription query
 		updatedEventType.setId(eventTypeId);
-		updatedEventType.setEventSubscriptionQuery(eventType.getEventSubscriptionQuery());
+		updatedEventType.setEventQuery(eventType.getEventQuery());
 
 		databaseConnection.saveEntities(updatedEventType);
 		updateEntity(PushNotificationType.UPDATE, updatedEventType, EventTypeEndpoint.getEventTypeUri(eventTypeId));
@@ -379,7 +387,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 */
 	protected EventType createSimpleEventTypeFromName(String name) {
 		EventType eventType = createEventTypeFromName(name);
-		eventType.getEventSubscriptionQuery().setQueryString(String.format("SELECT * FROM %1$s", name));
+		eventType.getEventQuery().setQueryString(String.format("SELECT * FROM %1$s", name));
 		return eventType;
 	}
 
@@ -407,8 +415,8 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		EventType eventType = new EventTypeImpl();
 		eventType.setName(name);
 
-		EventSubscriptionQuery subscriptionQuery = new EventSubscriptionQueryImpl();
-		eventType.setEventSubscriptionQuery(subscriptionQuery);
+		EventQuery subscriptionQuery = new EventQueryImpl();
+		eventType.setEventQuery(subscriptionQuery);
 
 		return eventType;
 	}

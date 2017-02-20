@@ -86,6 +86,13 @@ public interface ResponseFactory {
 	void updateEventQuery(long eventTypeId, String requestBody);
 
 	/**
+	 * This method tries to delete an existing event type.
+	 * @param eventTypeId - the event type id to delete
+	 * @return - a json array of event type ids, which block the deletion process or the success response
+	 */
+	String deleteEventType(long eventTypeId);
+
+	/**
 	 * This method returns a default response to generic requests.
 	 * @return - a simple response to a request
 	 */

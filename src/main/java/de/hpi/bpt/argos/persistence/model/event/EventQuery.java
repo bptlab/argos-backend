@@ -5,7 +5,7 @@ import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
 /**
  * This interface represents event subscription queries. It extends persistence entity.
  */
-public interface EventSubscriptionQuery extends PersistenceEntity {
+public interface EventQuery extends PersistenceEntity {
 
 	/**
 	 * This method returns the unique identifier of the event source for this event subscription query.

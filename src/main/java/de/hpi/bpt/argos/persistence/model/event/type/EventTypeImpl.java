@@ -5,8 +5,8 @@ import de.hpi.bpt.argos.eventHandling.schema.EventTypeSchemaGeneratorImpl;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityImpl;
 import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.EventImpl;
-import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
-import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQueryImpl;
+import de.hpi.bpt.argos.persistence.model.event.EventQuery;
+import de.hpi.bpt.argos.persistence.model.event.EventQueryImpl;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttributeImpl;
 import org.hibernate.annotations.Fetch;
@@ -20,6 +20,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PreRemove;
 import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +38,8 @@ public class EventTypeImpl extends PersistenceEntityImpl implements EventType {
 	@Column(name = "Name")
 	protected String name = "";
 
-	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventSubscriptionQueryImpl.class)
-	protected EventSubscriptionQuery eventSubscriptionQuery;
+	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventQueryImpl.class)
+	protected EventQuery eventQuery;
 
 	@ManyToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventAttributeImpl.class)
 	@Fetch(value = FetchMode.SUBSELECT)
@@ -84,16 +85,16 @@ public class EventTypeImpl extends PersistenceEntityImpl implements EventType {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EventSubscriptionQuery getEventSubscriptionQuery() {
-		return eventSubscriptionQuery;
+	public EventQuery getEventQuery() {
+		return eventQuery;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setEventSubscriptionQuery(EventSubscriptionQuery eventSubscriptionQuery) {
-		this.eventSubscriptionQuery = eventSubscriptionQuery;
+	public void setEventQuery(EventQuery eventQuery) {
+		this.eventQuery = eventQuery;
 	}
 
 	/**

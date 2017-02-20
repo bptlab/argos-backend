@@ -9,7 +9,7 @@ import de.hpi.bpt.argos.common.RestRequestFactory;
 import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
 import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
-import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQueryImpl;
+import de.hpi.bpt.argos.persistence.model.event.EventQueryImpl;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.properties.PropertyEditor;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
@@ -108,9 +108,9 @@ public class EventSubscriberImpl implements EventSubscriber {
 	@Override
 	public boolean updateEventQuery(EventType eventType, String eventQuery) {
 
-		if (eventType.getEventSubscriptionQuery() == null ||
-			eventType.getEventSubscriptionQuery().getUuid() == null ||
-			eventType.getEventSubscriptionQuery().getUuid().length() == 0)
+		if (eventType.getEventQuery() == null ||
+			eventType.getEventQuery().getUuid() == null ||
+			eventType.getEventQuery().getUuid().length() == 0)
 		{
 			return false;
 		}
@@ -118,7 +118,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 		PropertyEditor propertyReader = new PropertyEditorImpl();
 
 		String eventPlatformHost = propertyReader.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
-		String updateEventQueryUri = EventSubscriber.getEventPlatformUpdateEventQueryUri(eventType.getEventSubscriptionQuery().getUuid());
+		String updateEventQueryUri = EventSubscriber.getEventPlatformUpdateEventQueryUri(eventType.getEventQuery().getUuid());
 
 		RestRequest updateEventQueryRequest = restRequestFactory.createPutRequest(eventPlatformHost, updateEventQueryUri);
 
@@ -136,14 +136,14 @@ public class EventSubscriberImpl implements EventSubscriber {
 				updateEventQueryRequest.getResponseCode()));
 
 		if (updateEventQueryRequest.isSuccessful()) {
-			eventType.getEventSubscriptionQuery().setQueryString(eventQuery);
+			eventType.getEventQuery().setQueryString(eventQuery);
 		}
 
 		return updateEventQueryRequest.isSuccessful();
 	}
 
 	/**
-	 * This method subscribes to the default event platform using an EventSubscriptionQuery.
+	 * This method subscribes to the default event platform using an EventQuery.
 	 * @param eventType - the event type which contains the event subscription query
 	 * @return - true if subscription was successful
 	 */
@@ -164,7 +164,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 
 		JsonObject requestContent = new JsonObject();
 		requestContent.addProperty("notificationPath", notificationPath);
-		requestContent.addProperty("queryString", eventType.getEventSubscriptionQuery().getQueryString());
+		requestContent.addProperty("queryString", eventType.getEventQuery().getQueryString());
 
 		subscriptionRequest.setContent(serializer.toJson(requestContent));
 
@@ -175,7 +175,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 			return false;
 		}
 
-		eventType.getEventSubscriptionQuery().setUuid(subscriptionRequest.getResponse());
+		eventType.getEventQuery().setUuid(subscriptionRequest.getResponse());
 		entityManager.updateEntity(eventType);
 		return true;
 	}
@@ -188,17 +188,13 @@ public class EventSubscriberImpl implements EventSubscriber {
 		PropertyEditor propertyReader = new PropertyEditorImpl();
 
 		String eventPlatformHost = propertyReader.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
-		String deleteEventQueryUri = EventSubscriber.getEventPlatformDeleteEventQueryUri(eventType.getEventSubscriptionQuery().getUuid());
+		String deleteEventQueryUri = EventSubscriber.getEventPlatformDeleteEventQueryUri(eventType.getEventQuery().getUuid());
 
 		RestRequest deleteEventQueryRequest = restRequestFactory.createDeleteRequest(eventPlatformHost, deleteEventQueryUri);
 
 		logger.info(String.format("deleting event query '%1$s' -> Response Code %2$d",
-				eventType.getEventSubscriptionQuery().getQueryString(),
+				eventType.getEventQuery().getQueryString(),
 				deleteEventQueryRequest.getResponseCode()));
-
-		entityManager.deleteEntity(eventType.getEventSubscriptionQuery());
-		eventType.setEventSubscriptionQuery(new EventSubscriptionQueryImpl());
-		entityManager.updateEntity(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
 	}
 
 	/**

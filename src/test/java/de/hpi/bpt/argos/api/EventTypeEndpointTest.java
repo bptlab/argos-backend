@@ -45,8 +45,6 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 
 	@Test
 	public void testCreateEventType() {
-		// TODO: delete test_type event type
-
 		request = requestFactory.createPostRequest(TEST_HOST, createEventType(), TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE);
 
 		// enable test mode to mock unicorn
@@ -75,6 +73,13 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 		argos.setTestMode(false);
 	}
 
+	@Test
+	public void testDeleteEventType() {
+		request = requestFactory.createDeleteRequest(TEST_HOST, deleteEventType(1), TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE);
+
+		assertEquals(HTTP_SUCCESSFUL_RESPONSE_CODE, request.getResponseCode());
+	}
+
 
 	private String getEventTypes() {
 		return EventTypeEndpoint.getEventTypesBaseUri();
@@ -86,5 +91,11 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 
 	private String createEventType() {
 		return EventTypeEndpoint.getCreateEventTypeBaseUri();
+	}
+
+	private String deleteEventType(Object eventTypeId) {
+		return EventTypeEndpoint.getDeleteEventTypeBaseUri().replaceAll(
+				EventTypeEndpoint.getEventTypeIdParameter(true),
+				eventTypeId.toString());
 	}
 }

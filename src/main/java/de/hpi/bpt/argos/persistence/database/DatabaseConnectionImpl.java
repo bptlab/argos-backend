@@ -1,6 +1,7 @@
 package de.hpi.bpt.argos.persistence.database;
 
 import de.hpi.bpt.argos.persistence.model.event.Event;
+import de.hpi.bpt.argos.persistence.model.event.EventQuery;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
@@ -372,6 +373,35 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 			}
 			logErrorWhileGettingEntities(exception, query);
 			return null;
+		} finally {
+			session.close();
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<EventQuery> getEventQueries() {
+		Session session = databaseSessionFactory.openSession();
+		Transaction tx = null;
+		Query<EventQuery> query = null;
+		try {
+			tx = session.beginTransaction();
+
+			query = session.createQuery("FROM EventQueryImpl eq",
+					EventQuery.class);
+
+			List<EventQuery> eventQueries = query.list();
+
+			tx.commit();
+			return eventQueries;
+		} catch (Exception exception) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			logErrorWhileGettingEntities(exception, query);
+			return new ArrayList<EventQuery>();
 		} finally {
 			session.close();
 		}
