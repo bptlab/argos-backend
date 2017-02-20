@@ -141,7 +141,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 
 	/**
 	 * This method subscribes to the default event platform using an EventQuery.
-	 * @param eventType - the event type which contains the event subscription query
+	 * @param eventType - the event type which contains the event query
 	 * @return - true if subscription was successful
 	 */
 	protected boolean registerEventQuery(EventType eventType) {
@@ -178,8 +178,8 @@ public class EventSubscriberImpl implements EventSubscriber {
 	}
 
 	/**
-	 * This method deletes the event subscription query for a given event type.
-	 * @param eventType - the event type, for which the event subscription query should be deleted
+	 * This method deletes the event query for a given event type.
+	 * @param eventType - the event type, for which the event query should be deleted
 	 */
 	protected void deleteEventQuery(EventType eventType) {
 		PropertyEditor propertyReader = new PropertyEditorImpl();

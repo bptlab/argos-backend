@@ -237,7 +237,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 
 		// update name and attributes
 		EventType updatedEventType = createEventType(jsonEventType);
-		// but keep the id and the subscription query
+		// but keep the id and the query
 		updatedEventType.setId(eventTypeId);
 		updatedEventType.setEventQuery(eventType.getEventQuery());
 
@@ -415,8 +415,8 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		EventType eventType = new EventTypeImpl();
 		eventType.setName(name);
 
-		EventQuery subscriptionQuery = new EventQueryImpl();
-		eventType.setEventQuery(subscriptionQuery);
+		EventQuery query = new EventQueryImpl();
+		eventType.setEventQuery(query);
 
 		return eventType;
 	}

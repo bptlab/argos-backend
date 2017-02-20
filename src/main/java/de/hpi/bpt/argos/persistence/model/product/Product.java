@@ -83,38 +83,38 @@ public interface Product extends PersistenceEntity {
 	void setStateDescription(String stateDescription);
 
 	/**
-	 * This method returns the event subscription query which leads to a change in the state of this product.
-	 * @return - the event subscription query which sets this product in Running state
+	 * This method returns the event query which leads to a change in the state of this product.
+	 * @return - the event query which sets this product in Running state
 	 */
 	EventQuery getTransitionToRunningState();
 
 	/**
-	 * This method sets the event subscription query which leads to a change in the state of this product.
-	 * @param eventSubscriptionQuery - the event subscription query which sets this product in Running state
+	 * This method sets the event query which leads to a change in the state of this product.
+	 * @param eventSubscriptionQuery - the event query which sets this product in Running state
 	 */
 	void setTransitionToRunningState(EventQuery eventSubscriptionQuery);
 
 	/**
-	 * This method returns the event subscription query which leads to a change in the state of this product.
-	 * @return - the event subscription query which sets this product in Warning state
+	 * This method returns the event query which leads to a change in the state of this product.
+	 * @return - the event query which sets this product in Warning state
 	 */
 	EventQuery getTransitionToWarningState();
 
 	/**
-	 * This method sets the event subscription query which leads to a change in the state of this product.
-	 * @param eventSubscriptionQuery - the event subscription query which sets this product in Warning state
+	 * This method sets the event query which leads to a change in the state of this product.
+	 * @param eventSubscriptionQuery - the event query which sets this product in Warning state
 	 */
 	void setTransitionToWarningState(EventQuery eventSubscriptionQuery);
 
 	/**
-	 * This method returns the event subscription query which leads to a change in the state of this product.
-	 * @return - the event subscription query which sets this product in Error state
+	 * This method returns the event query which leads to a change in the state of this product.
+	 * @return - the event query which sets this product in Error state
 	 */
 	EventQuery getTransitionToErrorState();
 
 	/**
-	 * This method sets the event subscription query which leads to a change in the state of this product.
-	 * @param eventSubscriptionQuery - the event subscription query which sets this product in Error state
+	 * This method sets the event query which leads to a change in the state of this product.
+	 * @param eventSubscriptionQuery - the event query which sets this product in Error state
 	 */
 	void setTransitionToErrorState(EventQuery eventSubscriptionQuery);
 
