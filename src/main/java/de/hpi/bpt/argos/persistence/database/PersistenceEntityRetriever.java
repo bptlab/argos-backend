@@ -74,10 +74,10 @@ public interface PersistenceEntityRetriever {
 
 	/**
 	 * This method makes the database call to retrieve the requested product.
-	 * @param productOrderNumber - the product order number to search
+	 * @param externalProductId - the external product id
 	 * @return - the product
 	 */
-	Product getProduct(int productOrderNumber);
+	Product getProduct(int externalProductId);
 
 	/**
 	 * This method makes the database call to retrieve the requested product family.

@@ -92,10 +92,22 @@ public interface EventType extends PersistenceEntity {
 	boolean isEditable();
 
 	/**
+	 * This method sets the editable property.
+	 * @param editable - the value to be set
+	 */
+	void setEditable(boolean editable);
+
+	/**
 	 * This method indicates whether this event type is deletable.
 	 * @return - true, if the event type can be deleted
 	 */
 	boolean isDeletable();
+
+	/**
+	 * This method sets the deletable property.
+	 * @param deletable - the value to be set
+	 */
+	void setDeletable(boolean deletable);
 
 	/**
 	 * This method returns the name of the productIdentification attribute.

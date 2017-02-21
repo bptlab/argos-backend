@@ -7,6 +7,8 @@ import de.hpi.bpt.argos.api.event.EventEndpoint;
 import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpoint;
+import de.hpi.bpt.argos.common.validation.RestInputValidationService;
+import de.hpi.bpt.argos.common.validation.RestInputValidationServiceImpl;
 import de.hpi.bpt.argos.notifications.PushNotificationType;
 import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.EventImpl;
@@ -17,6 +19,7 @@ import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttributeImpl;
 import de.hpi.bpt.argos.persistence.model.event.data.EventData;
 import de.hpi.bpt.argos.persistence.model.event.data.EventDataImpl;
 import de.hpi.bpt.argos.persistence.model.event.data.EventDataType;
+import de.hpi.bpt.argos.persistence.model.event.statusUpdate.StatusUpdateEventType;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.event.type.EventTypeImpl;
 import de.hpi.bpt.argos.persistence.model.product.Product;
@@ -157,8 +160,8 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Product getProduct(int productOrderNumber) {
-		return databaseConnection.getProduct(productOrderNumber);
+	public Product getProduct(int externalProductId) {
+		return databaseConnection.getProduct(externalProductId);
 	}
 
 	/**
@@ -189,9 +192,16 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Event createEvent(EventType eventType, String jsonEvent) {
+	public Event createEvent(long eventTypeId, String requestBody) {
+
+		EventType eventType = getEventType(eventTypeId);
+
+		if (eventType == null) {
+			return null;
+		}
+
 		Event event = new EventImpl();
-		JsonObject json = jsonParser.parse(jsonEvent).getAsJsonObject();
+		JsonObject json = jsonParser.parse(requestBody).getAsJsonObject();
 
 		event.setEventData(getEventData(eventType, json));
 		event.setEventType(eventType);
@@ -207,6 +217,35 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		updateEntity(PushNotificationType.CREATE, event, EventEndpoint.getEventUri(event.getId()));
 
 		return event;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Event createStatusUpdateEvent(int externalProductId, ProductState newProductState, String requestBody) {
+
+		Product product = getProduct(externalProductId);
+		EventType statusUpdateEventType = getEventType(EventType.getStatusUpdateEventTypeName());
+
+		if (product == null || statusUpdateEventType == null) {
+			return null;
+		}
+
+		Event statusUpdateEvent = new EventImpl();
+		statusUpdateEvent.setEventType(statusUpdateEventType);
+		statusUpdateEvent.setProduct(product);
+
+		JsonObject jsonBody = jsonParser.parse(requestBody).getAsJsonObject();
+		statusUpdateEvent.setEventData(getStatusUpdateEventData(product, newProductState, jsonBody));
+
+		product.setState(newProductState);
+
+		databaseConnection.saveEntities(product, statusUpdateEvent);
+		updateEntity(PushNotificationType.UPDATE, product, ProductEndpoint.getProductUri(product.getId()));
+		updateEntity(PushNotificationType.CREATE, statusUpdateEvent, EventEndpoint.getEventUri(statusUpdateEvent.getId()));
+
+		return statusUpdateEvent;
 	}
 
 	/**
@@ -387,6 +426,10 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 */
 	protected EventType createSimpleEventTypeFromName(String name) {
 		EventType eventType = createEventTypeFromName(name);
+
+		// default event types should not be editable nor deletable
+		eventType.setEditable(false);
+		eventType.setDeletable(false);
 		eventType.getEventQuery().setQueryString(String.format("SELECT * FROM %1$s", name));
 		return eventType;
 	}
@@ -561,6 +604,32 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		}
 
 		return true;
+	}
+
+	/**
+	 * This method returns a list of event data for the json representation of a status update event.
+	 * @param product - the product which status is updated
+	 * @param jsonEvent - the json representation of the event
+	 * @param newProductState - the updated product state
+	 * @return - a list of event data
+	 */
+	protected List<EventData> getStatusUpdateEventData(Product product, ProductState newProductState, JsonObject jsonEvent) {
+
+		EventType updateStatusEventType = getEventType(EventType.getStatusUpdateEventTypeName());
+
+		EventData oldStatus = new EventDataImpl();
+		oldStatus.setEventAttribute(updateStatusEventType.getAttribute(StatusUpdateEventType.getOldStatusAttributeName()));
+		oldStatus.setValue(product.getState().toString());
+
+		EventData newStatus = new EventDataImpl();
+		newStatus.setEventAttribute(updateStatusEventType.getAttribute(StatusUpdateEventType.getNewStatusAttributeName()));
+		newStatus.setValue(newProductState.toString());
+
+		EventData timestamp = new EventDataImpl();
+		timestamp.setEventAttribute(updateStatusEventType.getTimestampAttribute());
+		timestamp.setValue(jsonEvent.get(StatusUpdateEventType.getTimestampAttributeName()).getAsString());
+
+		return new ArrayList<EventData>() {{ add(oldStatus); add(newStatus); add(timestamp); }};
 	}
 
 	/**

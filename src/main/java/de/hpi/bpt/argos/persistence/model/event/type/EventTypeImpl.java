@@ -174,4 +174,20 @@ public class EventTypeImpl extends PersistenceEntityImpl implements EventType {
 	public boolean isDeletable() {
 		return deletable;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setEditable(boolean editable) {
+		this.editable = editable;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setDeletable(boolean deletable) {
+		this.deletable = deletable;
+	}
 }

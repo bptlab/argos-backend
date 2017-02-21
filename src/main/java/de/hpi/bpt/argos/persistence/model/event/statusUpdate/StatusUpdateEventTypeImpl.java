@@ -15,7 +15,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "EventType")
-public class StatusUpdateEventTypeImpl extends EventTypeImpl {
+public class StatusUpdateEventTypeImpl extends EventTypeImpl implements StatusUpdateEventType {
 
 	/**
 	 * This constructor initializes the members with default values.
@@ -27,17 +27,17 @@ public class StatusUpdateEventTypeImpl extends EventTypeImpl {
 		name = EventType.getStatusUpdateEventTypeName();
 
 		EventAttribute oldStatusAttribute = new EventAttributeImpl();
-		oldStatusAttribute.setName("oldStatus");
+		oldStatusAttribute.setName(StatusUpdateEventType.getOldStatusAttributeName());
 		oldStatusAttribute.setType(EventDataType.STRING);
 		attributes.add(oldStatusAttribute);
 
 		EventAttribute newStatusAttribute = new EventAttributeImpl();
-		newStatusAttribute.setName("newStatus");
+		newStatusAttribute.setName(StatusUpdateEventType.getNewStatusAttributeName());
 		newStatusAttribute.setType(EventDataType.STRING);
 		attributes.add(newStatusAttribute);
 
 		EventAttribute timestampAttribute = new EventAttributeImpl();
-		timestampAttribute.setName("timestamp");
+		timestampAttribute.setName(StatusUpdateEventType.getTimestampAttributeName());
 		timestampAttribute.setType(EventDataType.DATE);
 		this.timestampAttribute = timestampAttribute;
 		attributes.add(timestampAttribute);

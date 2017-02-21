@@ -5,6 +5,7 @@ import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
+import de.hpi.bpt.argos.persistence.model.product.ProductState;
 
 /**
  * This interface represents a factory which is able to create new persistence entities.
@@ -44,11 +45,20 @@ public interface PersistenceEntityManager extends PersistenceEntityRetriever {
 
 	/**
 	 * This method returns a newly created event from its json representation.
-	 * @param eventType - the type of the event
-	 * @param jsonEvent - the json representation of the event
-	 * @return - the event
+	 * @param eventTypeId - the event type id
+	 * @param requestBody - the json representation of the event
+	 * @return - the new event
 	 */
-	Event createEvent(EventType eventType, String jsonEvent);
+	Event createEvent(long eventTypeId, String requestBody);
+
+	/**
+	 * This method returns a newly created status update event from its json representation.
+	 * @param externalProductId - the external product id
+	 * @param newProductState - the updated product state
+	 * @param requestBody - the json representation of the event
+	 * @return - the new event
+	 */
+	Event createStatusUpdateEvent(int externalProductId, ProductState newProductState, String requestBody);
 
 	/**
 	 * This method returns a newly created, simple event type from its json representation.

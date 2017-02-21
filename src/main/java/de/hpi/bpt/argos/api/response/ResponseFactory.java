@@ -123,4 +123,12 @@ public interface ResponseFactory {
 	static int getHttpErrorCode() {
 		return 500;
 	}
+
+	/**
+	 * This method returns the http forbidden code.
+	 * @return - the http forbidden code
+	 */
+	static int getHttpForbiddenCode() {
+		return 403;
+	}
 }

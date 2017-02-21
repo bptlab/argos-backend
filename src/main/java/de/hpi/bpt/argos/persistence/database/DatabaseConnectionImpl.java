@@ -291,7 +291,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Product getProduct(int productOrderNumber) {
+	public Product getProduct(int externalProductId) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;
 		Query<Product> query = null;
@@ -301,7 +301,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 			query = session.createQuery("FROM ProductImpl pr "
 							+ "WHERE pr.orderNumber = :orderNumber",
 						Product.class)
-						.setParameter("orderNumber", productOrderNumber);
+						.setParameter("orderNumber", externalProductId);
 
 			Product product = query.getSingleResult();
 

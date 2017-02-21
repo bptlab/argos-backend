@@ -22,4 +22,6 @@ public interface RestInputValidationService {
 	 * @return - returns the long representation of the input value
 	 */
 	long validateLong(String inputValue, Function<Long, Boolean> validateInputResult);
+
+	<T extends Enum<T>> T validateEnum(Class<T> clazz, String inputValue);
 }
