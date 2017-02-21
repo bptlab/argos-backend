@@ -347,7 +347,12 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			jsonEventType.addProperty("id", eventType.getId());
 			jsonEventType.addProperty("name", eventType.getName());
 			jsonEventType.addProperty("timestampAttributeName", eventType.getTimestampAttribute().getName());
-			jsonEventType.addProperty("eventQuery", eventType.getEventQuery().getQueryString());
+
+			if (eventType.getName().equals(EventType.getStatusUpdateEventTypeName())) {
+				jsonEventType.addProperty("eventQuery", "");
+			} else {
+				jsonEventType.addProperty("eventQuery", eventType.getEventQuery().getQueryString());
+			}
 
 			return jsonEventType;
 		} catch (Exception exception) {

@@ -23,6 +23,7 @@ import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamilyImpl;
 import de.hpi.bpt.argos.persistence.model.product.ProductImpl;
+import de.hpi.bpt.argos.persistence.model.product.ProductState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -258,6 +259,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 			product = new ProductImpl();
 			product.setOrderNumber(productOrderNumber);
 			product.setProductFamily(productFamily);
+			product.setState(ProductState.UNDEFINED);
 
 			productFamily.getProducts().add(product);
 			databaseConnection.saveEntities(productFamily, product);
