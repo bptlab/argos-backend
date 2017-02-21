@@ -134,6 +134,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 
 		if (updateEventQueryRequest.isSuccessful()) {
 			eventType.getEventQuery().setQueryString(eventQuery);
+			eventType.getEventQuery().setUuid(updateEventQueryRequest.getResponse());
 		}
 
 		return updateEventQueryRequest.isSuccessful();

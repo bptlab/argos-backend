@@ -20,7 +20,6 @@ import java.net.URL;
  */
 public class RestRequestImpl implements RestRequest {
 	protected static final Logger logger = LoggerFactory.getLogger(RestRequestImpl.class);
-	protected static final PropertyEditor propertyEditor = new PropertyEditorImpl();
 
 	protected HttpURLConnection connection;
 	protected String content;
