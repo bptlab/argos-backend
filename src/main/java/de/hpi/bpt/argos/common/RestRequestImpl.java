@@ -1,8 +1,6 @@
 package de.hpi.bpt.argos.common;
 
 import de.hpi.bpt.argos.api.response.ResponseFactory;
-import de.hpi.bpt.argos.properties.PropertyEditor;
-import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

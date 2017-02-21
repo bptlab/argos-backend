@@ -7,8 +7,6 @@ import de.hpi.bpt.argos.api.event.EventEndpoint;
 import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpoint;
-import de.hpi.bpt.argos.common.validation.RestInputValidationService;
-import de.hpi.bpt.argos.common.validation.RestInputValidationServiceImpl;
 import de.hpi.bpt.argos.notifications.PushNotificationType;
 import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.EventImpl;

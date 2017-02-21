@@ -1,13 +1,11 @@
 package de.hpi.bpt.argos.eventHandling;
 
-import de.hpi.bpt.argos.api.event.EventEndpoint;
 import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
 import de.hpi.bpt.argos.common.RestEndpointImpl;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.model.event.Event;
-import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.ProductState;
 import spark.Request;
 import spark.Response;
