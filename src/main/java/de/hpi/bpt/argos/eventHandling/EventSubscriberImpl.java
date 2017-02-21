@@ -147,6 +147,10 @@ public class EventSubscriberImpl implements EventSubscriber {
 	 */
 	protected boolean registerEventQuery(EventType eventType) {
 
+		if (eventType.getName().equals(EventType.getStatusUpdateEventTypeName())) {
+			return true;
+		}
+
 		PropertyEditor propertyReader = new PropertyEditorImpl();
 
 		String eventPlatformHost = propertyReader.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());

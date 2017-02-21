@@ -260,6 +260,37 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public EventType getEventType(String eventTypeName) {
+		Session session = databaseSessionFactory.openSession();
+		Transaction tx = null;
+		Query<EventType> query = null;
+		try {
+			tx = session.beginTransaction();
+
+			query = session.createQuery("FROM EventTypeImpl et "
+							+ "WHERE et.name = :eventTypeName",
+					EventType.class)
+					.setParameter("eventTypeName", eventTypeName);
+
+			EventType eventType = query.getSingleResult();
+
+			tx.commit();
+			return eventType;
+		} catch (Exception exception) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			logErrorWhileGettingEntities(exception, query);
+			return null;
+		} finally {
+			session.close();
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public Product getProduct(int productOrderNumber) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;

@@ -13,7 +13,7 @@ import java.util.List;
 public interface EventType extends PersistenceEntity {
 
 	/**
-	 * This method returns the name of this event eventType.
+	 * This method returns the name of this event type.
 	 * @return - name of this event eventType as a string
 	 */
 	String getName();
@@ -43,10 +43,17 @@ public interface EventType extends PersistenceEntity {
 	void setEventQuery(EventQuery eventQuery);
 
 	/**
-	 * This method returns the list of attributes of this event eventType.
+	 * This method returns the list of attributes of this event type.
 	 * @return - event attributes as a list
 	 */
 	List<EventAttribute> getAttributes();
+
+	/**
+	 * This method returns a specific event attribute of this event type.
+	 * @param attributeName - the name of the requested attribute
+	 * @return - the requested attribute, or null if no attributes exists
+	 */
+	EventAttribute getAttribute(String attributeName);
 
 	/**
 	 * This method sets the set of attributes that this event eventType has.
@@ -67,30 +74,6 @@ public interface EventType extends PersistenceEntity {
 	void setTimestampAttribute(EventAttribute eventAttribute);
 
 	/**
-	 * This method returns the product identification attribute for this event type.
-	 * @return - the product identification attribute
-	 */
-	EventAttribute getProductIdentificationAttribute();
-
-	/**
-	 * This method sets the product identification attribute for this event type.
-	 * @param eventAttribute - the product identification attribute to be set
-	 */
-	void setProductIdentificationAttribute(EventAttribute eventAttribute);
-
-	/**
-	 * This method returns the product family identification attribute for this event type.
-	 * @return - the product family identification attribute
-	 */
-	EventAttribute getProductFamilyIdentificationAttribute();
-
-	/**
-	 * This method sets the product family identification attribute for this event type.
-	 * @param eventAttribute - the product family identification attribute to be set
-	 */
-	void setProductFamilyIdentificationAttribute(EventAttribute eventAttribute);
-
-	/**
 	 * This method returns a list of events of this event eventType.
 	 * @return - a list of events of this event eventType
 	 */
@@ -101,6 +84,18 @@ public interface EventType extends PersistenceEntity {
 	 * @param events - a list of events to be set
 	 */
 	void setEvents(List<Event> events);
+
+	/**
+	 * This method indicates whether this event type is editable.
+	 * @return - true, if the event type can be edited
+	 */
+	boolean isEditable();
+
+	/**
+	 * This method indicates whether this event type is deletable.
+	 * @return - true, if the event type can be deleted
+	 */
+	boolean isDeletable();
 
 	/**
 	 * This method returns the name of the productIdentification attribute.
@@ -116,5 +111,13 @@ public interface EventType extends PersistenceEntity {
 	 */
 	static String getProductFamilyIdentificationAttributeName() {
 		return "productFamilyId";
+	}
+
+	/**
+	 * This method returns the special name for the status update event type.
+	 * @return - the special name for the status update event type
+	 */
+	static String getStatusUpdateEventTypeName() {
+		return "StatusUpdate";
 	}
 }

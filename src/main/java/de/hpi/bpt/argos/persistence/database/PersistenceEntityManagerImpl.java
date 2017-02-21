@@ -180,6 +180,14 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public EventType getEventType(String eventTypeName) {
+		return databaseConnection.getEventType(eventTypeName);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public Event createEvent(EventType eventType, String jsonEvent) {
 		Event event = new EventImpl();
 		JsonObject json = jsonParser.parse(jsonEvent).getAsJsonObject();
@@ -187,8 +195,8 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		event.setEventData(getEventData(eventType, json));
 		event.setEventType(eventType);
 
-		Product product = getProduct(getProductFamilyIdentification(eventType, event.getEventData()),
-				getProductIdentification(eventType, event.getEventData()));
+		Product product = getProduct(getProductFamilyIdentification(event.getEventData()),
+				getProductIdentification(event.getEventData()));
 
 		event.setProduct(product);
 
@@ -330,13 +338,12 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 
 	/**
 	 * This method returns the product identification (which should be it's orderNumber by default) for an event type and a list of event data.
-	 * @param eventType - the event type of the requested event
 	 * @param eventData - the event data of the requested event
 	 * @return - the product identification
 	 */
-	protected int getProductIdentification(EventType eventType, List<EventData> eventData) {
+	protected int getProductIdentification(List<EventData> eventData) {
 		for (EventData data : eventData) {
-			if (data.getEventAttribute().getName().equals(eventType.getProductIdentificationAttribute().getName())) {
+			if (data.getEventAttribute().getName().equals(EventType.getProductIdentificationAttributeName())) {
 				return Integer.parseInt(data.getValue());
 			}
 		}
@@ -346,13 +353,12 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 
 	/**
 	 * This method returns the product family identification for an event type and a list of event data.
-	 * @param eventType - the event type of the requested event
 	 * @param eventData - the event data of the requested event
 	 * @return - the product family identification
 	 */
-	protected String getProductFamilyIdentification(EventType eventType, List<EventData> eventData) {
+	protected String getProductFamilyIdentification(List<EventData> eventData) {
 		for (EventData data : eventData) {
-			if (data.getEventAttribute().getName().equals(eventType.getProductFamilyIdentificationAttribute().getName())) {
+			if (data.getEventAttribute().getName().equals(EventType.getProductFamilyIdentificationAttributeName())) {
 				return data.getValue();
 			}
 		}
@@ -452,16 +458,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 			}
 		}
 
-		for (EventAttribute attribute : eventType.getAttributes()) {
-
-			if (attribute.getName().equals(timeStampAttributeName)) {
-				eventType.setTimestampAttribute(attribute);
-			} else if (attribute.getName().equals(EventType.getProductIdentificationAttributeName())) {
-				eventType.setProductIdentificationAttribute(attribute);
-			} else if (attribute.getName().equals(EventType.getProductFamilyIdentificationAttributeName())) {
-				eventType.setProductFamilyIdentificationAttribute(attribute);
-			}
-		}
+		eventType.setTimestampAttribute(eventType.getAttribute(timeStampAttributeName));
 	}
 
 	/**
@@ -549,11 +546,11 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 			return false;
 		}
 
-		if (!isValid(eventType.getProductIdentificationAttribute())) {
+		if (!isValid(eventType.getAttribute(EventType.getProductIdentificationAttributeName()))) {
 			return false;
 		}
 
-		if (!isValid(eventType.getProductFamilyIdentificationAttribute())) {
+		if (!isValid(eventType.getAttribute(EventType.getProductFamilyIdentificationAttributeName()))) {
 			return false;
 		}
 
