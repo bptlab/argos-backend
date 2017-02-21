@@ -119,7 +119,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 
 		RestRequest updateEventQueryRequest = restRequestFactory.createPutRequest(eventPlatformHost, updateEventQueryUri);
 
-		String notificationPath = Argos.getHost() + EventReceiver.getPostEventUri(eventType.getId());
+		String notificationPath = Argos.getHost() + EventReceiver.getReceiveEventUri(eventType.getId());
 
 		JsonObject requestContent = new JsonObject();
 		requestContent.addProperty("notificationPath", notificationPath);
@@ -147,6 +147,10 @@ public class EventSubscriberImpl implements EventSubscriber {
 	 */
 	protected boolean registerEventQuery(EventType eventType) {
 
+		if (eventType.getName().equals(EventType.getStatusUpdateEventTypeName())) {
+			return true;
+		}
+
 		PropertyEditor propertyReader = new PropertyEditorImpl();
 
 		String eventPlatformHost = propertyReader.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
@@ -154,7 +158,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 
 		RestRequest subscriptionRequest = restRequestFactory.createPostRequest(eventPlatformHost, eventPlatformEventQueryUri);
 
-		String notificationPath = Argos.getHost() + EventReceiver.getPostEventUri(eventType.getId());
+		String notificationPath = Argos.getHost() + EventReceiver.getReceiveEventUri(eventType.getId());
 
 		if (subscriptionRequest == null) {
 			return false;

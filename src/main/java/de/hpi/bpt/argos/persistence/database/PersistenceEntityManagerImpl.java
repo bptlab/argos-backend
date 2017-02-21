@@ -17,16 +17,19 @@ import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttributeImpl;
 import de.hpi.bpt.argos.persistence.model.event.data.EventData;
 import de.hpi.bpt.argos.persistence.model.event.data.EventDataImpl;
 import de.hpi.bpt.argos.persistence.model.event.data.EventDataType;
+import de.hpi.bpt.argos.persistence.model.event.statusUpdate.StatusUpdateEventType;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.event.type.EventTypeImpl;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamilyImpl;
 import de.hpi.bpt.argos.persistence.model.product.ProductImpl;
+import de.hpi.bpt.argos.persistence.model.product.ProductState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -156,8 +159,8 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Product getProduct(int productOrderNumber) {
-		return databaseConnection.getProduct(productOrderNumber);
+	public Product getProduct(int externalProductId) {
+		return databaseConnection.getProduct(externalProductId);
 	}
 
 	/**
@@ -180,15 +183,30 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Event createEvent(EventType eventType, String jsonEvent) {
+	public EventType getEventType(String eventTypeName) {
+		return databaseConnection.getEventType(eventTypeName);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Event createEvent(long eventTypeId, String requestBody) {
+
+		EventType eventType = getEventType(eventTypeId);
+
+		if (eventType == null) {
+			return null;
+		}
+
 		Event event = new EventImpl();
-		JsonObject json = jsonParser.parse(jsonEvent).getAsJsonObject();
+		JsonObject json = jsonParser.parse(requestBody).getAsJsonObject();
 
 		event.setEventData(getEventData(eventType, json));
 		event.setEventType(eventType);
 
-		Product product = getProduct(getProductFamilyIdentification(eventType, event.getEventData()),
-				getProductIdentification(eventType, event.getEventData()));
+		Product product = getProduct(getProductFamilyIdentification(event.getEventData()),
+				getProductIdentification(event.getEventData()));
 
 		event.setProduct(product);
 
@@ -198,6 +216,35 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		updateEntity(PushNotificationType.CREATE, event, EventEndpoint.getEventUri(event.getId()));
 
 		return event;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Event createStatusUpdateEvent(int externalProductId, ProductState newProductState, String requestBody) {
+
+		Product product = getProduct(externalProductId);
+		EventType statusUpdateEventType = getEventType(EventType.getStatusUpdateEventTypeName());
+
+		if (product == null || statusUpdateEventType == null) {
+			return null;
+		}
+
+		Event statusUpdateEvent = new EventImpl();
+		statusUpdateEvent.setEventType(statusUpdateEventType);
+		statusUpdateEvent.setProduct(product);
+
+		JsonObject jsonBody = jsonParser.parse(requestBody).getAsJsonObject();
+		statusUpdateEvent.setEventData(getStatusUpdateEventData(product, newProductState, jsonBody));
+
+		product.setState(newProductState);
+
+		databaseConnection.saveEntities(product, statusUpdateEvent);
+		updateEntity(PushNotificationType.UPDATE, product, ProductEndpoint.getProductUri(product.getId()));
+		updateEntity(PushNotificationType.CREATE, statusUpdateEvent, EventEndpoint.getEventUri(statusUpdateEvent.getId()));
+
+		return statusUpdateEvent;
 	}
 
 	/**
@@ -250,6 +297,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 			product = new ProductImpl();
 			product.setOrderNumber(productOrderNumber);
 			product.setProductFamily(productFamily);
+			product.setState(ProductState.UNDEFINED);
 
 			productFamily.getProducts().add(product);
 			databaseConnection.saveEntities(productFamily, product);
@@ -330,13 +378,12 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 
 	/**
 	 * This method returns the product identification (which should be it's orderNumber by default) for an event type and a list of event data.
-	 * @param eventType - the event type of the requested event
 	 * @param eventData - the event data of the requested event
 	 * @return - the product identification
 	 */
-	protected int getProductIdentification(EventType eventType, List<EventData> eventData) {
+	protected int getProductIdentification(List<EventData> eventData) {
 		for (EventData data : eventData) {
-			if (data.getEventAttribute().getName().equals(eventType.getProductIdentificationAttribute().getName())) {
+			if (data.getEventAttribute().getName().equals(EventType.getProductIdentificationAttributeName())) {
 				return Integer.parseInt(data.getValue());
 			}
 		}
@@ -346,13 +393,12 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 
 	/**
 	 * This method returns the product family identification for an event type and a list of event data.
-	 * @param eventType - the event type of the requested event
 	 * @param eventData - the event data of the requested event
 	 * @return - the product family identification
 	 */
-	protected String getProductFamilyIdentification(EventType eventType, List<EventData> eventData) {
+	protected String getProductFamilyIdentification(List<EventData> eventData) {
 		for (EventData data : eventData) {
-			if (data.getEventAttribute().getName().equals(eventType.getProductFamilyIdentificationAttribute().getName())) {
+			if (data.getEventAttribute().getName().equals(EventType.getProductFamilyIdentificationAttributeName())) {
 				return data.getValue();
 			}
 		}
@@ -379,6 +425,10 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 */
 	protected EventType createSimpleEventTypeFromName(String name) {
 		EventType eventType = createEventTypeFromName(name);
+
+		// default event types should not be editable nor deletable
+		eventType.setEditable(false);
+		eventType.setDeletable(false);
 		eventType.getEventQuery().setQueryString(String.format("SELECT * FROM %1$s", name));
 		return eventType;
 	}
@@ -452,16 +502,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 			}
 		}
 
-		for (EventAttribute attribute : eventType.getAttributes()) {
-
-			if (attribute.getName().equals(timeStampAttributeName)) {
-				eventType.setTimestampAttribute(attribute);
-			} else if (attribute.getName().equals(EventType.getProductIdentificationAttributeName())) {
-				eventType.setProductIdentificationAttribute(attribute);
-			} else if (attribute.getName().equals(EventType.getProductFamilyIdentificationAttributeName())) {
-				eventType.setProductFamilyIdentificationAttribute(attribute);
-			}
-		}
+		eventType.setTimestampAttribute(eventType.getAttribute(timeStampAttributeName));
 	}
 
 	/**
@@ -549,11 +590,11 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 			return false;
 		}
 
-		if (!isValid(eventType.getProductIdentificationAttribute())) {
+		if (!isValid(eventType.getAttribute(EventType.getProductIdentificationAttributeName()))) {
 			return false;
 		}
 
-		if (!isValid(eventType.getProductFamilyIdentificationAttribute())) {
+		if (!isValid(eventType.getAttribute(EventType.getProductFamilyIdentificationAttributeName()))) {
 			return false;
 		}
 
@@ -562,6 +603,32 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		}
 
 		return true;
+	}
+
+	/**
+	 * This method returns a list of event data for the json representation of a status update event.
+	 * @param product - the product which status is updated
+	 * @param jsonEvent - the json representation of the event
+	 * @param newProductState - the updated product state
+	 * @return - a list of event data
+	 */
+	protected List<EventData> getStatusUpdateEventData(Product product, ProductState newProductState, JsonObject jsonEvent) {
+
+		EventType updateStatusEventType = getEventType(EventType.getStatusUpdateEventTypeName());
+
+		EventData oldStatus = new EventDataImpl();
+		oldStatus.setEventAttribute(updateStatusEventType.getAttribute(StatusUpdateEventType.getOldStatusAttributeName()));
+		oldStatus.setValue(product.getState().toString());
+
+		EventData newStatus = new EventDataImpl();
+		newStatus.setEventAttribute(updateStatusEventType.getAttribute(StatusUpdateEventType.getNewStatusAttributeName()));
+		newStatus.setValue(newProductState.toString());
+
+		EventData timestamp = new EventDataImpl();
+		timestamp.setEventAttribute(updateStatusEventType.getTimestampAttribute());
+		timestamp.setValue(jsonEvent.get(StatusUpdateEventType.getTimestampAttributeName()).getAsString());
+
+		return new ArrayList<>(Arrays.asList(oldStatus, newStatus, timestamp));
 	}
 
 	/**

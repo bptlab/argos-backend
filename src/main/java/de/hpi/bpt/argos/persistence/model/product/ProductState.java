@@ -6,5 +6,6 @@ package de.hpi.bpt.argos.persistence.model.product;
 public enum ProductState {
 	RUNNING,
 	WARNING,
-	ERROR
+	ERROR,
+	UNDEFINED,
 }

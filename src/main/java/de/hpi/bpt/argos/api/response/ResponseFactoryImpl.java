@@ -225,6 +225,10 @@ public class ResponseFactoryImpl implements ResponseFactory {
 				halt(ResponseFactory.getHttpNotFoundCode(), "event type not found");
 			} else {
 
+				if (!eventType.isEditable()) {
+					halt(ResponseFactory.getHttpForbiddenCode(), "you must not edit this event type");
+				}
+
 				if (!eventPlatformRestEndpoint.getEventSubscriber().updateEventQuery(eventType, eventQuery)) {
 					halt(ResponseFactory.getHttpErrorCode(), "event platform did not accept the updated event query");
 				}
@@ -250,6 +254,10 @@ public class ResponseFactoryImpl implements ResponseFactory {
 		if (eventType == null) {
 			halt(ResponseFactory.getHttpNotFoundCode(), "cannot find event type");
 		} else {
+
+			if (!eventType.isDeletable()) {
+				halt(ResponseFactory.getHttpForbiddenCode(), "you must not delete this event type");
+			}
 
 			List<EventType> eventTypes = entityManager.getEventTypes();
 
@@ -347,7 +355,12 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			jsonEventType.addProperty("id", eventType.getId());
 			jsonEventType.addProperty("name", eventType.getName());
 			jsonEventType.addProperty("timestampAttributeName", eventType.getTimestampAttribute().getName());
-			jsonEventType.addProperty("eventQuery", eventType.getEventQuery().getQueryString());
+
+			if (eventType.getName().equals(EventType.getStatusUpdateEventTypeName())) {
+				jsonEventType.addProperty("eventQuery", "");
+			} else {
+				jsonEventType.addProperty("eventQuery", eventType.getEventQuery().getQueryString());
+			}
 
 			return jsonEventType;
 		} catch (Exception exception) {

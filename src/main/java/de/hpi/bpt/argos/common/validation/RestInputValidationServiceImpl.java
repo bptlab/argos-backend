@@ -4,6 +4,7 @@ import de.hpi.bpt.argos.api.response.ResponseFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.EnumSet;
 import java.util.function.Function;
 
 import static spark.Spark.halt;
@@ -51,5 +52,26 @@ public class RestInputValidationServiceImpl implements RestInputValidationServic
 			halt(ResponseFactory.getHttpErrorCode(), e.getMessage());
 		}
 		return Long.parseLong(inputValue);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T extends Enum<T>> T validateEnum(Class<T> clazz, String inputValue) {
+		try {
+			for (T value : EnumSet.allOf(clazz)) {
+				if (value.name().equals(inputValue)) {
+					return value;
+				}
+			}
+			throw new InputValidationException(inputValue, "Enum<" + clazz.getName() + ">");
+
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			halt(ResponseFactory.getHttpErrorCode(), e.getMessage());
+		}
+
+		return null;
 	}
 }

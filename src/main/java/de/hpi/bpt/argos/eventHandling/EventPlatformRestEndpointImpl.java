@@ -4,6 +4,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
+import de.hpi.bpt.argos.persistence.model.event.statusUpdate.StatusUpdateEventTypeImpl;
+import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import org.hibernate.annotations.common.util.impl.LoggerFactory;
 import org.jboss.logging.Logger;
 import spark.Service;
@@ -69,6 +71,9 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 	 */
 	protected void loadDefaultEventTypes() {
 		try {
+
+			loadStatusUpdateEventType();
+
 			// since the path is delivered as URI, it is represented as a HTML string. Thus we need to replace %20 with file system spaces.
 			File eventTypesDirectory = new File(this.getClass().getResource(EVENT_TYPES_DIRECTORY).getPath().replaceAll("%20", " "));
 
@@ -83,6 +88,20 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 		} catch (NullPointerException e) {
 			logger.error("cannot find directory for default event types", e);
 		}
+	}
+
+	/**
+	 * THis method loads the status update event type.
+	 */
+	protected void loadStatusUpdateEventType() {
+		EventType statusUpdateEventType = entityManager.getEventType(EventType.getStatusUpdateEventTypeName());
+
+		if (statusUpdateEventType != null) {
+			return;
+		}
+
+		statusUpdateEventType = new StatusUpdateEventTypeImpl();
+		entityManager.updateEntity(statusUpdateEventType);
 	}
 
 	/**

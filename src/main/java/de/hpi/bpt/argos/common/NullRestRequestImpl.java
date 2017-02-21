@@ -6,7 +6,7 @@ import de.hpi.bpt.argos.api.response.ResponseFactory;
  * {@inheritDoc}
  * This is a null implementation.
  */
-public class NullRestRequest implements RestRequest {
+public class NullRestRequestImpl implements RestRequest {
 
 	protected String content;
 	protected String response;
@@ -14,7 +14,7 @@ public class NullRestRequest implements RestRequest {
 	/**
 	 * This constructor initializes the members with default values.
 	 */
-	public NullRestRequest() {
+	public NullRestRequestImpl() {
 		response = "null request";
 	}
 

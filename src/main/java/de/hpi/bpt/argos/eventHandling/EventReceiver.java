@@ -2,6 +2,7 @@ package de.hpi.bpt.argos.eventHandling;
 
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.common.RestEndpoint;
+import de.hpi.bpt.argos.persistence.model.product.ProductState;
 import spark.Request;
 import spark.Response;
 
@@ -22,12 +23,31 @@ public interface EventReceiver extends RestEndpoint {
 	String receiveEvent(Request request, Response response);
 
 	/**
+	 * This method is responsible for receiving status update events by reacting to the spark request sent from the event
+	 * processing platform.
+	 * @param request - spark request to be used
+	 * @param response - spark request to be used
+	 * @return - returns a response for the event platform
+	 */
+	String receiveStatusUpdateEvent(Request request, Response response);
+
+	/**
 	 * This method returns the basic URI to send events to with path variables.
 	 * @return - the URI to send events to
 	 */
-	static String getPostEventBaseUri() {
+	static String getReceiveEventBaseUri() {
 		return String.format("/api/events/receiver/%1$s",
 				ProductEndpoint.getEventTypeIdParameter(true));
+	}
+
+	/**
+	 * This method returns the basic URI to send status change events to with path variables.
+	 * @return - the URI to send status update events to
+	 */
+	static String getReceiveStatusUpdateEventBaseUri() {
+		return String.format("/api/events/statuschange/%1$s/%2$s",
+				ProductEndpoint.getProductIdParameter(true),
+				getNewProductStatusParameter(true));
 	}
 
 	/**
@@ -35,7 +55,29 @@ public interface EventReceiver extends RestEndpoint {
 	 * @param eventTypeId - the event type id of the sent event
 	 * @return - the URI to post events to
 	 */
-	static String getPostEventUri(long eventTypeId) {
-		return getPostEventBaseUri().replaceAll(ProductEndpoint.getEventTypeIdParameter(true), Objects.toString(eventTypeId, "0"));
+	static String getReceiveEventUri(long eventTypeId) {
+		return getReceiveEventBaseUri().replaceAll(ProductEndpoint.getEventTypeIdParameter(true),
+				Objects.toString(eventTypeId, "0"));
+	}
+
+	/**
+	 * This method returns the URI to post status update events to.
+	 * @param externalProductId - the external product id, which status has changed
+	 * @param newProductState - the new state of the product
+	 * @return - the URI to post status update events to
+	 */
+	static String getReceiveStatusUpdateEventUri(int externalProductId, ProductState newProductState) {
+		return getReceiveStatusUpdateEventBaseUri()
+				.replaceAll(ProductEndpoint.getProductIdParameter(true), Objects.toString(externalProductId, "0"))
+				.replaceAll(getNewProductStatusParameter(true), Objects.toString(newProductState, ""));
+	}
+
+	/**
+	 * This method returns the new product status path parameter.
+	 * @param includePrefix - if a prefix should be included
+	 * @return - new product status path parameter as a string
+	 */
+	static String getNewProductStatusParameter(boolean includePrefix) {
+		return RestEndpoint.getParameter("newProductStatus", includePrefix);
 	}
 }

@@ -47,14 +47,14 @@ public class EventTypeImpl extends PersistenceEntityImpl implements EventType {
 	@ManyToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventAttributeImpl.class)
 	protected EventAttribute timestampAttribute;
 
-	@ManyToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventAttributeImpl.class)
-	protected EventAttribute productIdentificationAttribute;
-
-	@ManyToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventAttributeImpl.class)
-	protected EventAttribute productFamilyIdentificationAttribute;
-
 	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = EventImpl.class)
 	protected List<Event> events = new ArrayList<>();
+
+	@Column(name = "Editable")
+	protected boolean editable = true;
+
+	@Column(name = "Deletable")
+	protected boolean deletable = true;
 
 	/**
 	 * {@inheritDoc}
@@ -132,38 +132,6 @@ public class EventTypeImpl extends PersistenceEntityImpl implements EventType {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EventAttribute getProductIdentificationAttribute() {
-		return productIdentificationAttribute;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setProductIdentificationAttribute(EventAttribute eventAttribute) {
-		this.productIdentificationAttribute = eventAttribute;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public EventAttribute getProductFamilyIdentificationAttribute() {
-		return productFamilyIdentificationAttribute;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setProductFamilyIdentificationAttribute(EventAttribute eventAttribute) {
-		this.productFamilyIdentificationAttribute = eventAttribute;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public List<Event> getEvents() {
 		return events;
 	}
@@ -174,5 +142,51 @@ public class EventTypeImpl extends PersistenceEntityImpl implements EventType {
 	@Override
 	public void setEvents(List<Event> events) {
 		this.events = events;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public EventAttribute getAttribute(String attributeName) {
+		for (EventAttribute attribute : attributes) {
+			if (attribute.getName().equals(attributeName)) {
+				return attribute;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isEditable() {
+		return editable;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isDeletable() {
+		return deletable;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setEditable(boolean editable) {
+		this.editable = editable;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setDeletable(boolean deletable) {
+		this.deletable = deletable;
 	}
 }

@@ -114,7 +114,7 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 		boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
 
 		if (testMode) {
-			return new NullRestRequest();
+			return new NullRestRequestImpl();
 		}
 
 		URL requestURL;
