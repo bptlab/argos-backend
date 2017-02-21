@@ -54,6 +54,9 @@ public class RestInputValidationServiceImpl implements RestInputValidationServic
 		return Long.parseLong(inputValue);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public <T extends Enum<T>> T validateEnum(Class<T> clazz, String inputValue) {
 		try {

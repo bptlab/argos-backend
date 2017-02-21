@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -627,7 +628,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		timestamp.setEventAttribute(updateStatusEventType.getTimestampAttribute());
 		timestamp.setValue(jsonEvent.get(StatusUpdateEventType.getTimestampAttributeName()).getAsString());
 
-		return new ArrayList<EventData>() {{ add(oldStatus); add(newStatus); add(timestamp); }};
+		return new ArrayList<>(Arrays.asList(oldStatus, newStatus, timestamp));
 	}
 
 	/**

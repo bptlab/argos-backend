@@ -67,6 +67,7 @@ public class EventReceiverImpl extends RestEndpointImpl implements EventReceiver
 
 		if (newState == null) {
 			halt(ResponseFactory.getHttpErrorCode(), "unable to parse new status");
+			return "";
 		}
 
 		Event event = entityManager.createStatusUpdateEvent(externalProductId, newState, request.body());

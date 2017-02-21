@@ -23,5 +23,12 @@ public interface RestInputValidationService {
 	 */
 	long validateLong(String inputValue, Function<Long, Boolean> validateInputResult);
 
+	/**
+	 * This method validates the input as an enum that is given as a string.
+	 * @param clazz - the enum class, which should contain the value
+	 * @param inputValue - the input value to validate
+	 * @param <T> - the generic type for the enum class
+	 * @return - the enum value
+	 */
 	<T extends Enum<T>> T validateEnum(Class<T> clazz, String inputValue);
 }
