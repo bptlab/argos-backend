@@ -346,8 +346,6 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			JsonObject jsonEventType = new JsonObject();
 			jsonEventType.addProperty("id", eventType.getId());
 			jsonEventType.addProperty("name", eventType.getName());
-			jsonEventType.addProperty("productIdentificationAttributeName", eventType.getProductIdentificationAttribute().getName());
-			jsonEventType.addProperty("productFamilyIdentificationAttributeName", eventType.getProductFamilyIdentificationAttribute().getName());
 			jsonEventType.addProperty("timestampAttributeName", eventType.getTimestampAttribute().getName());
 			jsonEventType.addProperty("eventQuery", eventType.getEventQuery().getQueryString());
 
