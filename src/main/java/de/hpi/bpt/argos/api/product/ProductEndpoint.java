@@ -1,6 +1,5 @@
 package de.hpi.bpt.argos.api.product;
 
-import de.hpi.bpt.argos.api.response.ResponseFactory;
 import de.hpi.bpt.argos.common.RestEndpoint;
 import de.hpi.bpt.argos.persistence.model.product.ProductState;
 import spark.Request;

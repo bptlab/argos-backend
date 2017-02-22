@@ -2,7 +2,6 @@ package de.hpi.bpt.argos.api.response;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
@@ -20,6 +19,7 @@ import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import de.hpi.bpt.argos.persistence.model.product.ProductState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.HaltException;
 
 import java.util.List;
 import java.util.Map;
@@ -203,9 +203,12 @@ public class ResponseFactoryImpl implements ResponseFactory {
 				entityManager.updateEntity(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
 			}
 
+		} catch (HaltException halt) {
+			logger.info(String.format("cannot create event type: %1$s -> %2$s", halt.statusCode(), halt.body()));
+			throw halt;
 		} catch (Exception e) {
 			logger.error("cannot parse request body to event type '" + requestBody + "'", e);
-			halt(ResponseFactory.getHttpErrorCode());
+			halt(ResponseFactory.getHttpErrorCode(), e.getMessage());
 		}
 	}
 
@@ -240,9 +243,12 @@ public class ResponseFactoryImpl implements ResponseFactory {
 				entityManager.updateEntity(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
 			}
 
+		} catch (HaltException halt) {
+			logger.info(String.format("cannot update event query: %1$s -> %2$s", halt.statusCode(), halt.body()));
+			throw halt;
 		} catch (Exception e) {
 			logger.error("cannot parse request body to event query '" + requestBody + "'", e);
-			halt(ResponseFactory.getHttpErrorCode());
+			halt(ResponseFactory.getHttpErrorCode(), e.getMessage());
 		}
 	}
 
@@ -279,9 +285,13 @@ public class ResponseFactoryImpl implements ResponseFactory {
 
 				entityManager.updateEntity(product, ProductEndpoint.getProductUri(productId));
 			}
+
+		} catch (HaltException halt) {
+			logger.info(String.format("cannot update status event query: %1$s -> %2$s", halt.statusCode(), halt.body()));
+			throw halt;
 		} catch (Exception e) {
 			logger.error("cannot parse request body to status event query '" + requestBody + "'", e);
-			halt(ResponseFactory.getHttpErrorCode());
+			halt(ResponseFactory.getHttpErrorCode(), e.getMessage());
 		}
 	}
 
