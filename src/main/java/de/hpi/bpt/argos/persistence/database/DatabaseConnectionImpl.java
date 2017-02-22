@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.persistence.database;
 
+import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
@@ -37,6 +38,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 		try {
 
 			PropertyEditor propertyEditor = new PropertyEditorImpl();
+			boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
 
 			Configuration configuration = new Configuration();
 
@@ -47,9 +49,20 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 			configuration.setProperty("hibernate.connection.password",
 					propertyEditor.getProperty(DatabaseConnection.getDatabaseConnectionPasswordPropertyKey()));
 
-			configuration.setProperty("hibernate.connection.url",
-					String.format("jdbc:mysql://%1$s/argosbackend?createDatabaseIfNotExist=true",
-							propertyEditor.getProperty(DatabaseConnection.getDatabaseConnectionHostPropertyKey())));
+			if (!testMode) {
+				configuration.setProperty("hibernate.connection.url",
+						String.format("jdbc:mysql://%1$s/argosbackend?createDatabaseIfNotExist=true",
+								propertyEditor.getProperty(DatabaseConnection.getDatabaseConnectionHostPropertyKey())));
+
+				configuration.setProperty("hibernate.hbm2ddl.auto", "update");
+			} else {
+				configuration.setProperty("hibernate.connection.url",
+						String.format("jdbc:mysql://%1$s/argosbackend_test?createDatabaseIfNotExist=true",
+								propertyEditor.getProperty(DatabaseConnection.getDatabaseConnectionHostPropertyKey())));
+
+				// drop existing schema and re-create
+				configuration.setProperty("hibernate.hbm2ddl.auto", "create");
+			}
 
 
 			databaseSessionFactory = configuration.buildSessionFactory();

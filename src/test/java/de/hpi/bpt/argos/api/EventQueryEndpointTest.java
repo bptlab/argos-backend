@@ -18,16 +18,12 @@ public class EventQueryEndpointTest extends EndpointParentClass {
 	public void testUpdateEventQuery() {
 		request = requestFactory.createPostRequest(TEST_HOST, updateEventQuery(1), TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE);
 
-		// enable test mode to mock unicorn
-		argos.setTestMode(true);
-
 		JsonObject jsonBody = new JsonObject();
 		jsonBody.addProperty("eventQuery", "");
 
 		request.setContent(serializer.toJson(jsonBody));
 
 		assertEquals(HTTP_INVALID_REQUEST_RESPONSE_CODE ,request.getResponseCode());
-		argos.setTestMode(false);
 	}
 
 	private String updateEventQuery(Object eventTypeId) {

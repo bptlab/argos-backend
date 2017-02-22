@@ -51,9 +51,6 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 	public void testCreateEventType() {
 		request = requestFactory.createPostRequest(TEST_HOST, createEventType(), TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE);
 
-		// enable test mode to mock unicorn
-		argos.setTestMode(true);
-
 		String eventTypeName = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
 
 		JsonObject jsonBody = new JsonObject();
@@ -74,7 +71,6 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 		request.setContent(serializer.toJson(jsonBody));
 
 		assertEquals(HTTP_SUCCESSFUL_RESPONSE_CODE, request.getResponseCode());
-		argos.setTestMode(false);
 
 
 		request = requestFactory.createRequest(TEST_HOST, getEventTypes(), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,

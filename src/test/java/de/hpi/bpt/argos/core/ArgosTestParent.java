@@ -15,6 +15,8 @@ public class ArgosTestParent {
 	@BeforeClass
 	public static void setUp() {
 		argos = new ArgosImpl();
+
+		argos.setTestMode(true);
 		argos.run(TEST_PORT, TEST_NUMBER_OF_THREADS);
 	}
 
