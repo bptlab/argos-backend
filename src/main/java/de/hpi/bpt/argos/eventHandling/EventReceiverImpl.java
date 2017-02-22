@@ -63,7 +63,7 @@ public class EventReceiverImpl extends RestEndpointImpl implements EventReceiver
 				(Integer input) -> input > 0);
 		ProductState newState = inputValidation.validateEnum(
 				ProductState.class,
-				request.params(EventReceiver.getNewProductStatusParameter(false)));
+				request.params(ProductEndpoint.getNewProductStatusParameter(false)));
 
 		if (newState == null) {
 			halt(ResponseFactory.getHttpErrorCode(), "unable to parse new status");

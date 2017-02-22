@@ -8,6 +8,7 @@ import de.hpi.bpt.argos.common.RestRequestFactory;
 import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
 import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
+import de.hpi.bpt.argos.persistence.model.event.EventQuery;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.properties.PropertyEditor;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
@@ -104,37 +105,47 @@ public class EventSubscriberImpl implements EventSubscriber {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean updateEventQuery(EventType eventType, String eventQuery) {
+	public boolean updateEventQuery(EventType eventType, String newQueryString) {
 
-		if (eventType.getEventQuery() == null
-				|| eventType.getEventQuery().getUuid() == null
-				|| eventType.getEventQuery().getUuid().length() == 0) {
+		String notificationPath = Argos.getHost() + EventReceiver.getReceiveEventUri(eventType.getId());
+
+		return updateEventQuery(eventType.getEventQuery(), newQueryString, notificationPath);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean updateEventQuery(EventQuery eventQuery, String newQueryString, String notificationUri) {
+
+		if (eventQuery == null
+				|| eventQuery.getUuid() == null
+				|| eventQuery.getUuid().length() == 0) {
 			return false;
 		}
 
 		PropertyEditor propertyReader = new PropertyEditorImpl();
 
 		String eventPlatformHost = propertyReader.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
-		String updateEventQueryUri = EventSubscriber.getEventPlatformUpdateEventQueryUri(eventType.getEventQuery().getUuid());
+		String updateEventQueryUri = EventSubscriber.getEventPlatformUpdateEventQueryUri(eventQuery.getUuid());
 
 		RestRequest updateEventQueryRequest = restRequestFactory.createPutRequest(eventPlatformHost, updateEventQueryUri);
 
-		String notificationPath = Argos.getHost() + EventReceiver.getReceiveEventUri(eventType.getId());
-
 		JsonObject requestContent = new JsonObject();
-		requestContent.addProperty("notificationPath", notificationPath);
-		requestContent.addProperty("queryString", eventQuery);
+		requestContent.addProperty("notificationPath", notificationUri);
+		requestContent.addProperty("queryString", newQueryString);
 
 		updateEventQueryRequest.setContent(serializer.toJson(requestContent));
 
-		logger.info(String.format("updating event query for event type '%1$s'. New event query '%2$s' -> Response Code %3$s",
-				eventType.getName(),
-				eventQuery,
+		logger.info(String.format("updating event query '%1$s'. New event query '%2$s' -> Response Code %3$s",
+				eventQuery.getQueryString(),
+				newQueryString,
 				updateEventQueryRequest.getResponseCode()));
 
 		if (updateEventQueryRequest.isSuccessful()) {
-			eventType.getEventQuery().setQueryString(eventQuery);
-			eventType.getEventQuery().setUuid(updateEventQueryRequest.getResponse());
+			eventQuery.setQueryString(newQueryString);
+			eventQuery.setUuid(updateEventQueryRequest.getResponse());
+			entityManager.updateEntity(eventQuery);
 		}
 
 		return updateEventQueryRequest.isSuccessful();
