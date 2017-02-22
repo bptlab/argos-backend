@@ -51,7 +51,7 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 	public void testCreateEventType() {
 		request = requestFactory.createPostRequest(TEST_HOST, createEventType(), TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE);
 
-		String eventTypeName = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
+		String eventTypeName = "TestType_" + new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
 
 		JsonObject jsonBody = new JsonObject();
 		jsonBody.addProperty("eventQuery", "SELECT * FROM " + eventTypeName);
