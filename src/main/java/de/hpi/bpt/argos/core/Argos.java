@@ -1,6 +1,5 @@
 package de.hpi.bpt.argos.core;
 
-import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.properties.PropertyEditor;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;

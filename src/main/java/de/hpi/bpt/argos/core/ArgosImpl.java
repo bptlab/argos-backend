@@ -6,7 +6,6 @@ import de.hpi.bpt.argos.api.response.ResponseFactory;
 import de.hpi.bpt.argos.api.response.ResponseFactoryImpl;
 import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpoint;
 import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpointImpl;
-import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManagerImpl;
 import de.hpi.bpt.argos.properties.PropertyEditor;

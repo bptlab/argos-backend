@@ -1,9 +1,6 @@
 package de.hpi.bpt.argos.common;
 
 
-import de.hpi.bpt.argos.core.Argos;
-import de.hpi.bpt.argos.properties.PropertyEditor;
-import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
