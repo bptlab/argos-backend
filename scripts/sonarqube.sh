@@ -7,9 +7,6 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
         -Dsonar.branch=$TRAVIS_BRANCH \
 
 else
-    echo "Pull request branch"
-    echo $TRAVIS_REPO_SLUG
-    echo $TRAVIS_PULL_REQUEST
     mvn verify sonar:sonar -DskipTests \
         -Dsonar.host.url=$SONAR_HOST_URL \
         -Dsonar.login=$SONAR_AUTH_TOKEN \
