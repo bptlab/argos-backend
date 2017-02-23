@@ -3,9 +3,12 @@ package de.hpi.bpt.argos.eventHandling;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
+import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.model.event.statusUpdate.StatusUpdateEventTypeImpl;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
+import de.hpi.bpt.argos.properties.PropertyEditor;
+import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import org.hibernate.annotations.common.util.impl.LoggerFactory;
 import org.jboss.logging.Logger;
 import spark.Service;
@@ -22,9 +25,6 @@ import java.nio.file.Paths;
 public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint {
 	protected static final Logger logger = LoggerFactory.logger(EventPlatformRestEndpointImpl.class);
 	protected static final JsonParser jsonParser = new JsonParser();
-
-	protected static final String EVENT_TYPES_DIRECTORY = "/event_types";
-
 
 	protected PersistenceEntityManager entityManager;
 
@@ -74,8 +74,14 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 
 			loadStatusUpdateEventType();
 
+			PropertyEditor propertyEditor = new PropertyEditorImpl();
+			String eventTypesDirectoryPath = propertyEditor.getProperty(Argos.getArgosBackendEventTypeDirectory());
+			if ("".equals(eventTypesDirectoryPath)) {
+				throw new NullPointerException();
+			}
+
 			// since the path is delivered as URI, it is represented as a HTML string. Thus we need to replace %20 with file system spaces.
-			File eventTypesDirectory = new File(this.getClass().getResource(EVENT_TYPES_DIRECTORY).getPath().replaceAll("%20", " "));
+			File eventTypesDirectory = new File(eventTypesDirectoryPath.replaceAll("%20", " "));
 
 			for (File eventType : eventTypesDirectory.listFiles()) {
 				if (!eventType.getName().endsWith(".json")) {
@@ -86,7 +92,7 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 			}
 
 		} catch (NullPointerException e) {
-			logger.error("cannot find directory for default event types", e);
+			logger.error("cannot find directory for default event types or not defined in properties", e);
 		}
 	}
 

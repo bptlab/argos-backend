@@ -63,6 +63,14 @@ public interface Argos {
 	}
 
 	/**
+	 * This method returns the property key for the argosBackendEventTypeDirectory property.
+	 * @return - the property key for the argosBackendEventTypeDirectory property
+	 */
+	static String getArgosBackendEventTypeDirectory() {
+		return "argosBackendEventTypeDirectory";
+	}
+
+	/**
 	 * This method returns the port of the argos application as configured in the argos-backend.properties file.
 	 * @return - the port of the argos application as configured in the argos-backend.properties file
 	 */
