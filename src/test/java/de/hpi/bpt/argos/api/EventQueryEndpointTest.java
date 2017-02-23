@@ -22,7 +22,10 @@ public class EventQueryEndpointTest extends EndpointParentClass {
 
 	@Test
 	public void testUpdateEventQuery() {
-		request = requestFactory.createPostRequest(TEST_HOST, updateEventQuery(testEventType.getId()), TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE_PLAIN);
+		request = requestFactory.createPostRequest(TEST_HOST,
+				updateEventQuery(testEventType.getId()),
+				TEST_CONTENT_TYPE,
+				TEST_ACCEPT_TYPE_PLAIN);
 
 		String newQueryString = "SELECT * FROM " + testEventType.getName();
 		JsonObject jsonBody = new JsonObject();
@@ -37,7 +40,10 @@ public class EventQueryEndpointTest extends EndpointParentClass {
 
 	@Test
 	public void testUpdateEventQuery_InvalidId_NotFound() {
-		request = requestFactory.createPostRequest(TEST_HOST, updateEventQuery(testEventType.getId() - 1), TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE_PLAIN);
+		request = requestFactory.createPostRequest(TEST_HOST,
+				updateEventQuery(testEventType.getId() - 1),
+				TEST_CONTENT_TYPE,
+				TEST_ACCEPT_TYPE_PLAIN);
 
 		String newQueryString = "SELECT * FROM " + testEventType.getName();
 		JsonObject jsonBody = new JsonObject();
@@ -49,7 +55,10 @@ public class EventQueryEndpointTest extends EndpointParentClass {
 
 	@Test
 	public void testUpdateEventQuery_InvalidQuery_Error() {
-		request = requestFactory.createPostRequest(TEST_HOST, updateEventQuery(testEventType.getId()), TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE_PLAIN);
+		request = requestFactory.createPostRequest(TEST_HOST,
+				updateEventQuery(testEventType.getId()),
+				TEST_CONTENT_TYPE,
+				TEST_ACCEPT_TYPE_PLAIN);
 
 		String newQueryString = "";
 		JsonObject jsonBody = new JsonObject();
@@ -66,7 +75,10 @@ public class EventQueryEndpointTest extends EndpointParentClass {
 		invalidEventType.setEditable(false);
 		ArgosTestParent.argos.getPersistenceEntityManager().updateEntity(invalidEventType);
 
-		request = requestFactory.createPostRequest(TEST_HOST, updateEventQuery(invalidEventType.getId()), TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE_PLAIN);
+		request = requestFactory.createPostRequest(TEST_HOST,
+				updateEventQuery(invalidEventType.getId()),
+				TEST_CONTENT_TYPE,
+				TEST_ACCEPT_TYPE_PLAIN);
 
 		String newQueryString = "SELECT * FROM " + invalidEventType.getName();
 		JsonObject jsonBody = new JsonObject();

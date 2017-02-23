@@ -27,7 +27,11 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 
 	@Test
 	public void testGetEventTypes() {
-		request = requestFactory.createRequest(TEST_HOST, getEventTypes(), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE_PLAIN);
+		request = requestFactory.createRequest(TEST_HOST,
+				getEventTypes(),
+				TEST_REQUEST_METHOD,
+				TEST_CONTENT_TYPE,
+				TEST_ACCEPT_TYPE_PLAIN);
 		assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
 
 		JsonArray jsonEventTypes = jsonParser.parse(request.getResponse()).getAsJsonArray();
@@ -46,7 +50,9 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 
 	@Test
 	public void testGetEventType() {
-		request = requestFactory.createGetRequest(TEST_HOST, getEventType(testEventType.getId()), TEST_ACCEPT_TYPE_JSON);
+		request = requestFactory.createGetRequest(TEST_HOST,
+				getEventType(testEventType.getId()),
+				TEST_ACCEPT_TYPE_JSON);
 		assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
 
 		JsonObject jsonEventType = jsonParser.parse(request.getResponse()).getAsJsonObject();
@@ -55,13 +61,18 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 
 	@Test
 	public void testGetEventType_InvalidId_NotFound() {
-		request = requestFactory.createGetRequest(TEST_HOST, getEventType(testEventType.getId() - 1), TEST_ACCEPT_TYPE_JSON);
+		request = requestFactory.createGetRequest(TEST_HOST,
+				getEventType(testEventType.getId() - 1),
+				TEST_ACCEPT_TYPE_JSON);
 		assertEquals(ResponseFactory.getHttpNotFoundCode(), request.getResponseCode());
 	}
 
 	@Test
 	public void testCreateEventType() {
-		request = requestFactory.createPostRequest(TEST_HOST, createEventType(), TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE_PLAIN);
+		request = requestFactory.createPostRequest(TEST_HOST,
+				createEventType(),
+				TEST_CONTENT_TYPE,
+				TEST_ACCEPT_TYPE_PLAIN);
 
 		String eventTypeName = "TestType_" + ArgosTestUtil.getCurrentTimestamp();
 
@@ -99,11 +110,14 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 
 	@Test
 	public void testCreateEventType_NoEventQuery_Error() {
-		request = requestFactory.createPostRequest(TEST_HOST, createEventType(), TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE_PLAIN);
+		request = requestFactory.createPostRequest(TEST_HOST,
+				createEventType(),
+				TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE_PLAIN);
 
 		String eventTypeName = "EventType_" + ArgosTestUtil.getCurrentTimestamp();
 
 		JsonObject jsonBody = new JsonObject();
+		// do not add the eventQuery property -> body invalid
 		//jsonBody.addProperty("eventQuery", "SELECT * FROM " + eventTypeName);
 
 		JsonObject testType = new JsonObject();
@@ -124,7 +138,10 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 
 	@Test
 	public void testCreateEventType_NoEventType_Error() {
-		request = requestFactory.createPostRequest(TEST_HOST, createEventType(), TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE_PLAIN);
+		request = requestFactory.createPostRequest(TEST_HOST,
+				createEventType(),
+				TEST_CONTENT_TYPE,
+				TEST_ACCEPT_TYPE_PLAIN);
 
 		String eventTypeName = "EventType_" + ArgosTestUtil.getCurrentTimestamp();
 
@@ -141,6 +158,7 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 
 		testType.add("attributes", attributes);
 
+		// do not add eventType -> body invalid
 		//jsonBody.add("eventType", testType);
 
 		request.setContent(serializer.toJson(jsonBody));
@@ -149,7 +167,10 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 
 	@Test
 	public void testCreateEventType_InvalidEventType_Error() {
-		request = requestFactory.createPostRequest(TEST_HOST, createEventType(), TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE_PLAIN);
+		request = requestFactory.createPostRequest(TEST_HOST,
+				createEventType(),
+				TEST_CONTENT_TYPE,
+				TEST_ACCEPT_TYPE_PLAIN);
 
 		String eventTypeName = "EventType_" + ArgosTestUtil.getCurrentTimestamp();
 
@@ -161,6 +182,8 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 		testType.addProperty("timestamp", "timestamp");
 
 		JsonObject attributes = new JsonObject();
+
+		// do not add productId -> event type is invalid
 		//attributes.addProperty("productId", "INTEGER");
 		attributes.addProperty("productFamilyId", "STRING");
 
@@ -174,7 +197,10 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 
 	@Test
 	public void testCreateEventType_EventTypeNameIsUse_Error() {
-		request = requestFactory.createPostRequest(TEST_HOST, createEventType(), TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE_PLAIN);
+		request = requestFactory.createPostRequest(TEST_HOST,
+				createEventType(),
+				TEST_CONTENT_TYPE,
+				TEST_ACCEPT_TYPE_PLAIN);
 
 		String eventTypeName = testEventType.getName();
 

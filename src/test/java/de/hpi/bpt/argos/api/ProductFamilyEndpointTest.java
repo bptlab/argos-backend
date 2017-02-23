@@ -21,7 +21,9 @@ public class ProductFamilyEndpointTest extends EndpointParentClass {
 
     @Test
     public void testGetProductFamilies() {
-    	request = requestFactory.createGetRequest(TEST_HOST, getProductFamiliesUri(), TEST_ACCEPT_TYPE_JSON);
+    	request = requestFactory.createGetRequest(TEST_HOST,
+				getProductFamiliesUri(),
+				TEST_ACCEPT_TYPE_JSON);
     	assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
 
 		JsonArray jsonProductFamilies = jsonParser.parse(request.getResponse()).getAsJsonArray();

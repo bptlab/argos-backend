@@ -34,7 +34,9 @@ public class ProductEndpointTest extends EndpointParentClass {
 
 	@Test
 	public void testGetProduct() {
-		request = requestFactory.createGetRequest(TEST_HOST, getProduct(testProduct.getId()), TEST_ACCEPT_TYPE_JSON);
+		request = requestFactory.createGetRequest(TEST_HOST,
+				getProduct(testProduct.getId()),
+				TEST_ACCEPT_TYPE_JSON);
 		assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
 
 		JsonObject jsonProduct = jsonParser.parse(request.getResponse()).getAsJsonObject();
@@ -43,13 +45,17 @@ public class ProductEndpointTest extends EndpointParentClass {
 
 	@Test
 	public void testGetProduct_InvalidId_NotFound() {
-		request = requestFactory.createGetRequest(TEST_HOST, getProduct(testProduct.getId() - 1), TEST_ACCEPT_TYPE_JSON);
+		request = requestFactory.createGetRequest(TEST_HOST,
+				getProduct(testProduct.getId() - 1),
+				TEST_ACCEPT_TYPE_JSON);
 		assertEquals(ResponseFactory.getHttpNotFoundCode(), request.getResponseCode());
 	}
 
 	@Test
 	public void testGetEventTypesForProduct() {
-		request = requestFactory.createGetRequest(TEST_HOST, getEventTypesForProduct(testProduct.getId()), TEST_ACCEPT_TYPE_PLAIN);
+		request = requestFactory.createGetRequest(TEST_HOST,
+				getEventTypesForProduct(testProduct.getId()),
+				TEST_ACCEPT_TYPE_PLAIN);
 		assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
 
 		JsonArray jsonEventTypes = jsonParser.parse(request.getResponse()).getAsJsonArray();
@@ -72,7 +78,9 @@ public class ProductEndpointTest extends EndpointParentClass {
 
 	@Test
 	public void testGetEventTypesForProduct_InvalidId_NotFound() {
-		request = requestFactory.createGetRequest(TEST_HOST, getEventTypesForProduct(testProduct.getId() - 1), TEST_ACCEPT_TYPE_PLAIN);
+		request = requestFactory.createGetRequest(TEST_HOST,
+				getEventTypesForProduct(testProduct.getId() - 1),
+				TEST_ACCEPT_TYPE_PLAIN);
 		assertEquals(ResponseFactory.getHttpNotFoundCode(), request.getResponseCode());
 	}
 

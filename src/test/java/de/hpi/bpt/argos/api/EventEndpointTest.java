@@ -28,7 +28,9 @@ public class EventEndpointTest extends EndpointParentClass {
 
     @Test
     public void testGetEvent() {
-    	request = requestFactory.createGetRequest(TEST_HOST, getEvent(testEvent.getId()), TEST_ACCEPT_TYPE_JSON);
+    	request = requestFactory.createGetRequest(TEST_HOST,
+				getEvent(testEvent.getId()),
+				TEST_ACCEPT_TYPE_JSON);
     	assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
 
     	JsonObject jsonEvent = jsonParser.parse(request.getResponse()).getAsJsonObject();
@@ -41,7 +43,10 @@ public class EventEndpointTest extends EndpointParentClass {
 
     @Test
 	public void testGetEvent_InvalidId_NotFound() {
-		request = requestFactory.createRequest(TEST_HOST, getEvent(testEvent.getId() - 1), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,
+		request = requestFactory.createRequest(TEST_HOST,
+				getEvent(testEvent.getId() - 1),
+				TEST_REQUEST_METHOD,
+				TEST_CONTENT_TYPE,
 				TEST_ACCEPT_TYPE_PLAIN);
 		assertEquals(ResponseFactory.getHttpNotFoundCode(), request.getResponseCode());
 	}
