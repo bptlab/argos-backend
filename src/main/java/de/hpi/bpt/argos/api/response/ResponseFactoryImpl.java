@@ -392,6 +392,10 @@ public class ResponseFactoryImpl implements ResponseFactory {
 
 			JsonObject stateQueries = new JsonObject();
 			for (ProductState state : ProductState.values()) {
+				if (product.getStatusUpdateQuery(state) == null) {
+					continue;
+				}
+
 				stateQueries.addProperty(state.toString(), product.getStatusUpdateQuery(state).getQueryString());
 			}
 

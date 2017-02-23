@@ -33,13 +33,13 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	protected ProductState state = ProductState.UNDEFINED;
 
 	@Column(name = "Name")
-	protected String name = "";
+	protected String name = "Unknown Product";
 
 	@Column(name = "OrderNumber")
 	protected int orderNumber = 0;
 
 	@Column(name = "StateDescription")
-	protected String stateDescription = "";
+	protected String stateDescription = "State is not defined yet";
 
 	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventQueryImpl.class)
 	protected EventQuery transitionToRunningState = new EventQueryImpl();
