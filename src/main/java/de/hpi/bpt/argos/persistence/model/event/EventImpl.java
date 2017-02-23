@@ -15,6 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,7 +34,7 @@ public class EventImpl extends PersistenceEntityImpl implements Event {
 	protected EventType eventType;
 
 	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventDataImpl.class)
-	protected List<EventData> eventData;
+	protected List<EventData> eventData = new ArrayList<>();
 
 	/**
 	 * {@inheritDoc}

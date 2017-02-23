@@ -118,9 +118,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 	@Override
 	public boolean updateEventQuery(EventQuery eventQuery, String newQueryString, String notificationUri) {
 
-		if (eventQuery == null
-				|| eventQuery.getUuid() == null
-				|| eventQuery.getUuid().length() == 0) {
+		if (eventQuery == null) {
 			return false;
 		}
 

@@ -1,60 +1,80 @@
 package de.hpi.bpt.argos.api;
 
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
-import de.hpi.bpt.argos.common.RestRequest;
+import de.hpi.bpt.argos.api.response.ResponseFactory;
+import de.hpi.bpt.argos.core.ArgosTestParent;
+import de.hpi.bpt.argos.core.ArgosTestUtil;
+import de.hpi.bpt.argos.persistence.model.event.type.EventType;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
 public class EventTypeEndpointTest extends EndpointParentClass {
-	protected static final Gson serializer = new Gson();
-	protected static final JsonParser jsonParser = new JsonParser();
 
-	protected RestRequest request;
+	protected static EventType testEventType;
+
+	@BeforeClass
+	public static void createTestEventType() {
+		testEventType = ArgosTestUtil.createEventType();
+	}
 
 	@Test
 	public void testGetEventTypes() {
-		request = requestFactory.createRequest(TEST_HOST, getEventTypes(), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,
-				TEST_ACCEPT_TYPE);
+		request = requestFactory.createRequest(TEST_HOST,
+				getEventTypes(),
+				TEST_REQUEST_METHOD,
+				TEST_CONTENT_TYPE,
+				TEST_ACCEPT_TYPE_PLAIN);
+		assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
 
-		assertEquals(HTTP_SUCCESSFUL_RESPONSE_CODE, request.getResponseCode());
+		JsonArray jsonEventTypes = jsonParser.parse(request.getResponse()).getAsJsonArray();
+		boolean testEventTypeFound = false;
+
+		for (JsonElement element : jsonEventTypes) {
+			JsonObject jsonEventType = element.getAsJsonObject();
+
+			if (jsonEventType.get("id").getAsLong() == testEventType.getId()) {
+				testEventTypeFound = true;
+				break;
+			}
+		}
+		assertEquals(true, testEventTypeFound);
 	}
 
 	@Test
 	public void testGetEventType() {
-		request = requestFactory.createRequest(TEST_HOST, getEventType(-42), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,
-				TEST_ACCEPT_TYPE);
+		request = requestFactory.createGetRequest(TEST_HOST,
+				getEventType(testEventType.getId()),
+				TEST_ACCEPT_TYPE_JSON);
+		assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
 
-		assertEquals(HTTP_INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
+		JsonObject jsonEventType = jsonParser.parse(request.getResponse()).getAsJsonObject();
+		assertEquals(testEventType.getId(), jsonEventType.get("id").getAsLong());
+	}
 
-		request = requestFactory.createRequest(TEST_HOST, getEventType("invalid_parameter"), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,
-				TEST_ACCEPT_TYPE);
-
-		assertEquals(HTTP_INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
-
-		request = requestFactory.createRequest(TEST_HOST, getEventType(42), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,
-				TEST_ACCEPT_TYPE);
-
-		assertEquals(HTTP_NOT_FOUND_CODE, request.getResponseCode());
+	@Test
+	public void testGetEventType_InvalidId_NotFound() {
+		request = requestFactory.createGetRequest(TEST_HOST,
+				getEventType(testEventType.getId() - 1),
+				TEST_ACCEPT_TYPE_JSON);
+		assertEquals(ResponseFactory.getHttpNotFoundCode(), request.getResponseCode());
 	}
 
 	@Test
 	public void testCreateEventType() {
-		request = requestFactory.createPostRequest(TEST_HOST, createEventType(), TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE);
+		request = requestFactory.createPostRequest(TEST_HOST,
+				createEventType(),
+				TEST_CONTENT_TYPE,
+				TEST_ACCEPT_TYPE_PLAIN);
 
-		// enable test mode to mock unicorn
-		argos.setTestMode(true);
-
-		String eventTypeName = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
+		String eventTypeName = "TestType_" + ArgosTestUtil.getCurrentTimestamp();
 
 		JsonObject jsonBody = new JsonObject();
 		jsonBody.addProperty("eventQuery", "SELECT * FROM " + eventTypeName);
@@ -72,34 +92,135 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 		jsonBody.add("eventType", testType);
 
 		request.setContent(serializer.toJson(jsonBody));
+		assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
 
-		assertEquals(HTTP_SUCCESSFUL_RESPONSE_CODE, request.getResponseCode());
-		argos.setTestMode(false);
+		List<EventType> eventTypes = ArgosTestParent.argos.getPersistenceEntityManager().getEventTypes();
 
+		boolean eventTypeFound = false;
 
-		request = requestFactory.createRequest(TEST_HOST, getEventTypes(), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,
-				TEST_CONTENT_TYPE);
-
-		assertEquals(HTTP_SUCCESSFUL_RESPONSE_CODE, request.getResponseCode());
-
-		JsonArray jsonEventTypes = jsonParser.parse(request.getResponse()).getAsJsonArray();
-		long eventTypeId = 0;
-
-		for (JsonElement jsonElement : jsonEventTypes) {
-			JsonObject jsonEventType = jsonElement.getAsJsonObject();
-
-			JsonElement nameAttribute = jsonEventType.get("name");
-			JsonElement idAttribute = jsonEventType.get("id");
-
-			if (nameAttribute.getAsString().equals(eventTypeName)) {
-				eventTypeId = idAttribute.getAsLong();
+		for (EventType eventType : eventTypes) {
+			if (eventType.getName().equals(eventTypeName)) {
+				eventTypeFound = true;
 				break;
 			}
 		}
 
-		request = requestFactory.createDeleteRequest(TEST_HOST, deleteEventType(eventTypeId), TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE);
+		assertEquals(true, eventTypeFound);
+	}
 
-		assertEquals(HTTP_SUCCESSFUL_RESPONSE_CODE, request.getResponseCode());
+	@Test
+	public void testCreateEventType_NoEventQuery_Error() {
+		request = requestFactory.createPostRequest(TEST_HOST,
+				createEventType(),
+				TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE_PLAIN);
+
+		String eventTypeName = "EventType_" + ArgosTestUtil.getCurrentTimestamp();
+
+		JsonObject jsonBody = new JsonObject();
+		// do not add the eventQuery property -> body invalid
+		//jsonBody.addProperty("eventQuery", "SELECT * FROM " + eventTypeName);
+
+		JsonObject testType = new JsonObject();
+		testType.addProperty("name", eventTypeName);
+		testType.addProperty("timestamp", "timestamp");
+
+		JsonObject attributes = new JsonObject();
+		attributes.addProperty("productId", "INTEGER");
+		attributes.addProperty("productFamilyId", "STRING");
+
+		testType.add("attributes", attributes);
+
+		jsonBody.add("eventType", testType);
+
+		request.setContent(serializer.toJson(jsonBody));
+		assertEquals(ResponseFactory.getHttpErrorCode(), request.getResponseCode());
+	}
+
+	@Test
+	public void testCreateEventType_NoEventType_Error() {
+		request = requestFactory.createPostRequest(TEST_HOST,
+				createEventType(),
+				TEST_CONTENT_TYPE,
+				TEST_ACCEPT_TYPE_PLAIN);
+
+		String eventTypeName = "EventType_" + ArgosTestUtil.getCurrentTimestamp();
+
+		JsonObject jsonBody = new JsonObject();
+		jsonBody.addProperty("eventQuery", "SELECT * FROM " + eventTypeName);
+
+		JsonObject testType = new JsonObject();
+		testType.addProperty("name", eventTypeName);
+		testType.addProperty("timestamp", "timestamp");
+
+		JsonObject attributes = new JsonObject();
+		attributes.addProperty("productId", "INTEGER");
+		attributes.addProperty("productFamilyId", "STRING");
+
+		testType.add("attributes", attributes);
+
+		// do not add eventType -> body invalid
+		//jsonBody.add("eventType", testType);
+
+		request.setContent(serializer.toJson(jsonBody));
+		assertEquals(ResponseFactory.getHttpErrorCode(), request.getResponseCode());
+	}
+
+	@Test
+	public void testCreateEventType_InvalidEventType_Error() {
+		request = requestFactory.createPostRequest(TEST_HOST,
+				createEventType(),
+				TEST_CONTENT_TYPE,
+				TEST_ACCEPT_TYPE_PLAIN);
+
+		String eventTypeName = "EventType_" + ArgosTestUtil.getCurrentTimestamp();
+
+		JsonObject jsonBody = new JsonObject();
+		jsonBody.addProperty("eventQuery", "SELECT * FROM " + eventTypeName);
+
+		JsonObject testType = new JsonObject();
+		testType.addProperty("name", eventTypeName);
+		testType.addProperty("timestamp", "timestamp");
+
+		JsonObject attributes = new JsonObject();
+
+		// do not add productId -> event type is invalid
+		//attributes.addProperty("productId", "INTEGER");
+		attributes.addProperty("productFamilyId", "STRING");
+
+		testType.add("attributes", attributes);
+
+		jsonBody.add("eventType", testType);
+
+		request.setContent(serializer.toJson(jsonBody));
+		assertEquals(ResponseFactory.getHttpErrorCode(), request.getResponseCode());
+	}
+
+	@Test
+	public void testCreateEventType_EventTypeNameIsUse_Error() {
+		request = requestFactory.createPostRequest(TEST_HOST,
+				createEventType(),
+				TEST_CONTENT_TYPE,
+				TEST_ACCEPT_TYPE_PLAIN);
+
+		String eventTypeName = testEventType.getName();
+
+		JsonObject jsonBody = new JsonObject();
+		jsonBody.addProperty("eventQuery", "SELECT * FROM " + eventTypeName);
+
+		JsonObject testType = new JsonObject();
+		testType.addProperty("name", eventTypeName);
+		testType.addProperty("timestamp", "timestamp");
+
+		JsonObject attributes = new JsonObject();
+		attributes.addProperty("productId", "INTEGER");
+		attributes.addProperty("productFamilyId", "STRING");
+
+		testType.add("attributes", attributes);
+
+		jsonBody.add("eventType", testType);
+
+		request.setContent(serializer.toJson(jsonBody));
+		assertEquals(ResponseFactory.getHttpErrorCode(), request.getResponseCode());
 	}
 
 	private String getEventTypes() {

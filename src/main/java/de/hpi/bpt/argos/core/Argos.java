@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.core;
 
+import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.properties.PropertyEditor;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 
@@ -29,6 +30,12 @@ public interface Argos {
 	 * @param testMode - the test mode status to set
 	 */
 	void setTestMode(boolean testMode);
+
+	/**
+	 * This method returns the persistence entity manager of argos.
+	 * @return - the persistence entity manager of argos
+	 */
+	PersistenceEntityManager getPersistenceEntityManager();
 
 	/**
 	 * This method returns the property key for the argosBackendPort property.

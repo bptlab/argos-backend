@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 
 /**
  * {@inheritDoc}
@@ -108,14 +109,10 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 	 * @param uri - uri as a string to be set
 	 * @return - returns a RestRequest object to be worked with later on
 	 */
-	private RestRequest createBasicRequest(String host, String uri) {
+	protected RestRequest createBasicRequest(String host, String uri) {
 
 		PropertyEditor propertyEditor = new PropertyEditorImpl();
 		boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
-
-		if (testMode) {
-			return new NullRestRequestImpl();
-		}
 
 		URL requestURL;
 		RestRequest request;
@@ -124,6 +121,12 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 			requestURL = new URL(host + uri);
 		} catch (MalformedURLException e) {
 			logExceptionInRequestCreation(e);
+			return null;
+		}
+
+		if (!isReachable(requestURL) && testMode) {
+			return new NullRestRequestImpl();
+		} else if (!isReachable(requestURL)) {
 			return null;
 		}
 
@@ -138,11 +141,29 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 	}
 
 	/**
+	 * This connection checks whether a host is reachable.
+	 * @param host - the host URL to connect to
+	 * @return - true if host is reachable
+	 */
+	protected boolean isReachable(URL host) {
+		URLConnection hostConnection;
+		try {
+			hostConnection = host.openConnection();
+			hostConnection.connect();
+
+			return true;
+		} catch (IOException e) {
+			logger.error("unable to reach host at '" + host.toString() + "'", e);
+			return false;
+		}
+	}
+
+	/**
      * This method logs an exception on error level.
      * @param head - string message to be logged
      * @param exception - throwable exception to be logged
      */
-	private void logException(String head, Throwable exception) {
+	protected void logException(String head, Throwable exception) {
 		logger.error(head, exception.toString());
 	}
 
@@ -150,7 +171,7 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
      * This method logs an exception while creating the request.
      * @param exception - throwable exception to be logged
      */
-	private void logExceptionInRequestCreation(Throwable exception) {
+	protected void logExceptionInRequestCreation(Throwable exception) {
 		logException("can't create RestRequest: ", exception);
 	}
 }

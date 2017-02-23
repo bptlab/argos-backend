@@ -79,6 +79,14 @@ public class ArgosImpl implements Argos {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public PersistenceEntityManager getPersistenceEntityManager() {
+		return entityManager;
+	}
+
+	/**
      * This method starts the Spark service on a given port with a given number of threads.
      * @param port - port to be used as an integer
      * @param numberOfThreads - number of threads to be used as an integer
