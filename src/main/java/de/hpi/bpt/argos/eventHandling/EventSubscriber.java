@@ -1,6 +1,7 @@
 package de.hpi.bpt.argos.eventHandling;
 
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
+import de.hpi.bpt.argos.persistence.model.event.EventQuery;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.properties.PropertyEditor;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
@@ -38,11 +39,20 @@ public interface EventSubscriber {
 
 	/**
 	 * This method updates the event query of a given event type.
-	 * @param eventType - the event type to update
-	 * @param eventQuery - the new event query
+	 * @param eventType - the event type, which event query should be updated
+	 * @param newQueryString - the new event query string
 	 * @return - boolean if the update was successful
 	 */
-	boolean updateEventQuery(EventType eventType, String eventQuery);
+	boolean updateEventQuery(EventType eventType, String newQueryString);
+
+	/**
+	 * This method updates an event query.
+	 * @param eventQuery - the event query to update
+	 * @param newQueryString - the new event query string
+	 * @param notificationUri - the uri to send events for this query to
+	 * @return - boolean if the update was successful
+	 */
+	boolean updateEventQuery(EventQuery eventQuery, String newQueryString, String notificationUri);
 
 	/**
 	 * This method returns the property key for the eventPlatformHost property.

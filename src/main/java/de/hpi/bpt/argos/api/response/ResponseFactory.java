@@ -2,6 +2,7 @@ package de.hpi.bpt.argos.api.response;
 
 import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpoint;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
+import de.hpi.bpt.argos.persistence.model.product.ProductState;
 
 /**
  * This interface represents factories which produce rest responses.
@@ -84,6 +85,14 @@ public interface ResponseFactory {
 	 * @param requestBody - the request body, which should contain the new event query
 	 */
 	void updateEventQuery(long eventTypeId, String requestBody);
+
+	/**
+	 * This method tries to update the status update event query for a specific product.
+	 * @param productId - the product to update
+	 * @param newState - the new state of the product, after an event for this query arrived
+	 * @param requestBody - the request body, which should contain the new status update query and the corresponding state
+	 */
+	void updateStatusEventQuery(long productId, ProductState newState, String requestBody);
 
 	/**
 	 * This method tries to delete an existing event type.

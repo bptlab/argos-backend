@@ -90,9 +90,9 @@ public interface Product extends PersistenceEntity {
 
 	/**
 	 * This method sets the event query which leads to a change in the state of this product.
-	 * @param eventSubscriptionQuery - the event query which sets this product in Running state
+	 * @param eventQuery - the event query which sets this product in Running state
 	 */
-	void setTransitionToRunningState(EventQuery eventSubscriptionQuery);
+	void setTransitionToRunningState(EventQuery eventQuery);
 
 	/**
 	 * This method returns the event query which leads to a change in the state of this product.
@@ -102,9 +102,9 @@ public interface Product extends PersistenceEntity {
 
 	/**
 	 * This method sets the event query which leads to a change in the state of this product.
-	 * @param eventSubscriptionQuery - the event query which sets this product in Warning state
+	 * @param eventQuery - the event query which sets this product in Warning state
 	 */
-	void setTransitionToWarningState(EventQuery eventSubscriptionQuery);
+	void setTransitionToWarningState(EventQuery eventQuery);
 
 	/**
 	 * This method returns the event query which leads to a change in the state of this product.
@@ -114,9 +114,23 @@ public interface Product extends PersistenceEntity {
 
 	/**
 	 * This method sets the event query which leads to a change in the state of this product.
-	 * @param eventSubscriptionQuery - the event query which sets this product in Error state
+	 * @param eventQuery - the event query which sets this product in Error state
 	 */
-	void setTransitionToErrorState(EventQuery eventSubscriptionQuery);
+	void setTransitionToErrorState(EventQuery eventQuery);
+
+	/**
+	 * This method returns the status update query which changes the product state to a specific state.
+	 * @param newState - the new state of the product, after an event of the query arrived
+	 * @return - the status update query which changes the product state to a specific state
+	 */
+	EventQuery getStatusUpdateQuery(ProductState newState);
+
+	/**
+	 * This method sets the status update query which changes the product state to a specific state.
+	 * @param newState - the new state of the product, after an event of the query arrived
+	 * @param eventQuery - the status update query to be set
+	 */
+	void setStatusUpdateQuery(ProductState newState, EventQuery eventQuery);
 
 	/**
 	 * This method returns the number of devices that are installed from this product families.

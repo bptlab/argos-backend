@@ -53,6 +53,15 @@ paths:
                         type: string
                       stateDescription:
                         type: string
+                      statusUpdateQueries:
+                        type: object
+                        properties:
+                          RUNNING:
+                            type: string
+                          WARNING:
+                            type: string
+                          ERROR:
+                            type: string
 
   /api/productfamilies/{productFamilyId}:
     get:
@@ -112,6 +121,15 @@ paths:
                 type: string
               stateDescription:
                 type: string
+              statusUpdateQueries:
+                type: object
+                properties:
+                  RUNNING:
+                    type: string
+                  WARNING:
+                    type: string
+                  ERROR:
+                    type: string
 
   /api/products/{productId}/eventtypes:
     get:
@@ -196,6 +214,37 @@ paths:
               title: Event
               description: An object which contains all attributes specified in `EventType`
               type: object
+              
+  /api/products/{productId}/update/statuschange/{newProductStatus}:
+    post:
+      description: Updates an `EventQuery` which events will change the status of the specified `Product`.
+      parameters:
+        -
+          name: productId
+          in: path
+          description: Unique identifier for the `Product`
+          required: true
+          type: integer
+        -
+          name: newProductStatus
+          in: path
+          description: The new state of the `Product` after an `Event` for the given `EventQuery` is received
+          required: true
+          type: string
+        - 
+          name: eventQuery
+          in: body
+          description: The new event query that should be saved for the status change
+          required: true
+          schema:
+            type: object
+            properties:
+              eventQuery:
+                type: string
+      
+      responses:
+        200:
+          description: Successful response
 
   /api/events/{eventId}:
     get:

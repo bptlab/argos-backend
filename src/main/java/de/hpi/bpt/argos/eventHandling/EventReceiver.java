@@ -47,7 +47,7 @@ public interface EventReceiver extends RestEndpoint {
 	static String getReceiveStatusUpdateEventBaseUri() {
 		return String.format("/api/events/statuschange/%1$s/%2$s",
 				ProductEndpoint.getProductIdParameter(true),
-				getNewProductStatusParameter(true));
+				ProductEndpoint.getNewProductStatusParameter(true));
 	}
 
 	/**
@@ -69,15 +69,6 @@ public interface EventReceiver extends RestEndpoint {
 	static String getReceiveStatusUpdateEventUri(int externalProductId, ProductState newProductState) {
 		return getReceiveStatusUpdateEventBaseUri()
 				.replaceAll(ProductEndpoint.getProductIdParameter(true), Objects.toString(externalProductId, "0"))
-				.replaceAll(getNewProductStatusParameter(true), Objects.toString(newProductState, ""));
-	}
-
-	/**
-	 * This method returns the new product status path parameter.
-	 * @param includePrefix - if a prefix should be included
-	 * @return - new product status path parameter as a string
-	 */
-	static String getNewProductStatusParameter(boolean includePrefix) {
-		return RestEndpoint.getParameter("newProductStatus", includePrefix);
+				.replaceAll(ProductEndpoint.getNewProductStatusParameter(true), Objects.toString(newProductState, ""));
 	}
 }

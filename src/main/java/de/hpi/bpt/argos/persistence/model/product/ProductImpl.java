@@ -30,7 +30,7 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	protected Date productionStart = new Date();
 
 	@Column(name = "State")
-	protected ProductState state = ProductState.RUNNING;
+	protected ProductState state = ProductState.UNDEFINED;
 
 	@Column(name = "Name")
 	protected String name = "";
@@ -41,14 +41,14 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	@Column(name = "StateDescription")
 	protected String stateDescription = "";
 
-	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = EventQueryImpl.class)
-	protected EventQuery transitionToRunningState;
+	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventQueryImpl.class)
+	protected EventQuery transitionToRunningState = new EventQueryImpl();
 
-	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = EventQueryImpl.class)
-	protected EventQuery transitionToWarningState;
+	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventQueryImpl.class)
+	protected EventQuery transitionToWarningState = new EventQueryImpl();
 
-	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = EventQueryImpl.class)
-	protected EventQuery transitionToErrorState;
+	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventQueryImpl.class)
+	protected EventQuery transitionToErrorState = new EventQueryImpl();
 
 	@Column(name = "NumberOfDevices")
 	protected long numberOfDevices = 0;
@@ -165,8 +165,8 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setTransitionToRunningState(EventQuery eventSubscriptionQuery) {
-		transitionToRunningState = eventSubscriptionQuery;
+	public void setTransitionToRunningState(EventQuery eventQuery) {
+		transitionToRunningState = eventQuery;
 	}
 
 	/**
@@ -181,8 +181,8 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setTransitionToWarningState(EventQuery eventSubscriptionQuery) {
-		transitionToWarningState = eventSubscriptionQuery;
+	public void setTransitionToWarningState(EventQuery eventQuery) {
+		transitionToWarningState = eventQuery;
 	}
 
 	/**
@@ -197,8 +197,46 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setTransitionToErrorState(EventQuery eventSubscriptionQuery) {
-		transitionToErrorState = eventSubscriptionQuery;
+	public void setTransitionToErrorState(EventQuery eventQuery) {
+		transitionToErrorState = eventQuery;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public EventQuery getStatusUpdateQuery(ProductState newState) {
+		switch (newState) {
+			case RUNNING:
+				return getTransitionToRunningState();
+			case WARNING:
+				return getTransitionToWarningState();
+			case ERROR:
+				return getTransitionToErrorState();
+			default:
+				return null;
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setStatusUpdateQuery(ProductState newState, EventQuery eventQuery) {
+		switch (newState) {
+			case RUNNING:
+				setTransitionToRunningState(eventQuery);
+				break;
+			case WARNING:
+				setTransitionToWarningState(eventQuery);
+				break;
+			case ERROR:
+				setTransitionToErrorState(eventQuery);
+				break;
+			default:
+				// empty, since there is nothing to do
+				break;
+		}
 	}
 
 	/**

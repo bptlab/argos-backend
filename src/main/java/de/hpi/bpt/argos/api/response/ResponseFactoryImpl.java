@@ -5,7 +5,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
+import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpoint;
+import de.hpi.bpt.argos.eventHandling.EventReceiver;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.EventQueryImpl;
@@ -14,8 +16,10 @@ import de.hpi.bpt.argos.persistence.model.event.data.EventData;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
+import de.hpi.bpt.argos.persistence.model.product.ProductState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.HaltException;
 
 import java.util.List;
 import java.util.Map;
@@ -199,9 +203,12 @@ public class ResponseFactoryImpl implements ResponseFactory {
 				entityManager.updateEntity(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
 			}
 
+		} catch (HaltException halt) {
+			logger.info(String.format("cannot create event type: %1$s -> %2$s", halt.statusCode(), halt.body()));
+			throw halt;
 		} catch (Exception e) {
 			logger.error("cannot parse request body to event type '" + requestBody + "'", e);
-			halt(ResponseFactory.getHttpErrorCode());
+			halt(ResponseFactory.getHttpErrorCode(), e.getMessage());
 		}
 	}
 
@@ -236,9 +243,55 @@ public class ResponseFactoryImpl implements ResponseFactory {
 				entityManager.updateEntity(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
 			}
 
+		} catch (HaltException halt) {
+			logger.info(String.format("cannot update event query: %1$s -> %2$s", halt.statusCode(), halt.body()));
+			throw halt;
 		} catch (Exception e) {
 			logger.error("cannot parse request body to event query '" + requestBody + "'", e);
-			halt(ResponseFactory.getHttpErrorCode());
+			halt(ResponseFactory.getHttpErrorCode(), e.getMessage());
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void updateStatusEventQuery(long productId, ProductState newState, String requestBody) {
+		try {
+			JsonObject jsonBody = jsonParser.parse(requestBody).getAsJsonObject();
+
+			String eventQuery = jsonBody.get(JSON_EVENT_QUERY_ATTRIBUTE).getAsString();
+
+			if (eventQuery == null || eventQuery.length() == 0) {
+				halt(ResponseFactory.getHttpErrorCode(), "no event query given in body");
+			}
+
+			Product product = entityManager.getProduct(productId);
+
+			if (product == null) {
+				halt(ResponseFactory.getHttpNotFoundCode(), "product not found");
+			} else {
+
+				if (product.getStatusUpdateQuery(newState) == null) {
+					halt(ResponseFactory.getHttpErrorCode(), "new state is not supported by this product");
+				}
+
+				if (!eventPlatformRestEndpoint.getEventSubscriber().updateEventQuery(
+						product.getStatusUpdateQuery(newState),
+						eventQuery,
+						EventReceiver.getReceiveStatusUpdateEventUri(product.getOrderNumber(), newState))) {
+					halt(ResponseFactory.getHttpErrorCode(), "event platform did not accept the updated status query");
+				}
+
+				entityManager.updateEntity(product, ProductEndpoint.getProductUri(productId));
+			}
+
+		} catch (HaltException halt) {
+			logger.info(String.format("cannot update status event query: %1$s -> %2$s", halt.statusCode(), halt.body()));
+			throw halt;
+		} catch (Exception e) {
+			logger.error("cannot parse request body to status event query '" + requestBody + "'", e);
+			halt(ResponseFactory.getHttpErrorCode(), e.getMessage());
 		}
 	}
 
@@ -336,6 +389,13 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			jsonProduct.addProperty("orderNumber", product.getOrderNumber());
 			jsonProduct.addProperty("state", product.getState().toString());
 			jsonProduct.addProperty("stateDescription", product.getStateDescription());
+
+			JsonObject stateQueries = new JsonObject();
+			for (ProductState state : ProductState.values()) {
+				stateQueries.addProperty(state.toString(), product.getStatusUpdateQuery(state).getQueryString());
+			}
+
+			jsonProduct.add("statusUpdateQueries", stateQueries);
 
 			return jsonProduct;
 		} catch (Exception exception) {
