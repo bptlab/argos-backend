@@ -73,6 +73,10 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	public String getProductFamily(long productFamilyId) {
 		ProductFamily productFamily = entityManager.getProductFamily(productFamilyId);
 
+		if (productFamily == null) {
+			halt(ResponseFactory.getHttpNotFoundCode(), "cannot find product family");
+		}
+
 		JsonObject jsonProductFamily = getProductFamilyBase(productFamily);
 
 		return serializer.toJson(jsonProductFamily);
@@ -85,6 +89,10 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	public String getProduct(long productId) {
 		Product product = entityManager.getProduct(productId);
 
+		if (product == null) {
+			halt(ResponseFactory.getHttpNotFoundCode(), "cannot find product");
+		}
+
 		JsonObject jsonProduct = getProductBase(product);
 
 		return serializer.toJson(jsonProduct);
@@ -95,6 +103,13 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	 */
 	@Override
 	public String getAllEventTypes(long productId) {
+
+		Product product = entityManager.getProduct(productId);
+
+		if (product == null) {
+			halt(ResponseFactory.getHttpNotFoundCode(), "cannot find product");
+		}
+
 		Map<EventType, Integer> eventTypes = entityManager.getEventTypes(productId);
 
 		JsonArray jsonEventTypes = new JsonArray();

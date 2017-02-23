@@ -3,8 +3,6 @@ package de.hpi.bpt.argos.persistence.model.event.type;
 import de.hpi.bpt.argos.eventHandling.schema.EventTypeSchemaGenerator;
 import de.hpi.bpt.argos.eventHandling.schema.EventTypeSchemaGeneratorImpl;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityImpl;
-import de.hpi.bpt.argos.persistence.model.event.Event;
-import de.hpi.bpt.argos.persistence.model.event.EventImpl;
 import de.hpi.bpt.argos.persistence.model.event.EventQuery;
 import de.hpi.bpt.argos.persistence.model.event.EventQueryImpl;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
@@ -18,7 +16,6 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.util.ArrayList;
@@ -38,7 +35,7 @@ public class EventTypeImpl extends PersistenceEntityImpl implements EventType {
 	protected String name = "";
 
 	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventQueryImpl.class)
-	protected EventQuery eventQuery;
+	protected EventQuery eventQuery = new EventQueryImpl();
 
 	@ManyToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventAttributeImpl.class)
 	@Fetch(value = FetchMode.SUBSELECT)
@@ -46,9 +43,6 @@ public class EventTypeImpl extends PersistenceEntityImpl implements EventType {
 
 	@ManyToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventAttributeImpl.class)
 	protected EventAttribute timestampAttribute;
-
-	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = EventImpl.class)
-	protected List<Event> events = new ArrayList<>();
 
 	@Column(name = "Editable")
 	protected boolean editable = true;
@@ -126,22 +120,6 @@ public class EventTypeImpl extends PersistenceEntityImpl implements EventType {
 	@Override
 	public void setTimestampAttribute(EventAttribute eventAttribute) {
 		this.timestampAttribute = eventAttribute;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<Event> getEvents() {
-		return events;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setEvents(List<Event> events) {
-		this.events = events;
 	}
 
 	/**

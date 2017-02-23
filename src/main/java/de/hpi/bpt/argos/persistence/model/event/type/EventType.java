@@ -1,7 +1,6 @@
 package de.hpi.bpt.argos.persistence.model.event.type;
 
 import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
-import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.EventQuery;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 
@@ -72,18 +71,6 @@ public interface EventType extends PersistenceEntity {
 	 * @param eventAttribute - the timestamp attribute
 	 */
 	void setTimestampAttribute(EventAttribute eventAttribute);
-
-	/**
-	 * This method returns a list of events of this event eventType.
-	 * @return - a list of events of this event eventType
-	 */
-	List<Event> getEvents();
-
-	/**
-	 * This method sets the list of events of this event eventType.
-	 * @param events - a list of events to be set
-	 */
-	void setEvents(List<Event> events);
 
 	/**
 	 * This method indicates whether this event type is editable.
