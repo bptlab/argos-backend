@@ -4,9 +4,10 @@ jdk:
   - oraclejdk8
 addons:
   mariadb: '10.0'
-  
+
 before_script:
-  - mvn verify sonar:sonar -DskipTests -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.branch=$TRAVIS_BRANCH
+  - chmod +x sc    
+  - scripts/sonarqube.sh
   - mv src/main/resources/argos-backend_template.properties src/main/resources/argos-backend.properties
 
 script: mvn test -B -V
