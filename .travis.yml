@@ -6,8 +6,7 @@ addons:
   mariadb: '10.0'
 
 before_script:
-  - chmod +x sc    
-  - scripts/sonarqube.sh
+  - chmod +x scripts/sonarqube.sh
   - mv src/main/resources/argos-backend_template.properties src/main/resources/argos-backend.properties
 
 script: mvn test -B -V
