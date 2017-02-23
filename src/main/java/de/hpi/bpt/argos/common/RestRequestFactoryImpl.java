@@ -1,6 +1,9 @@
 package de.hpi.bpt.argos.common;
 
 
+import de.hpi.bpt.argos.core.Argos;
+import de.hpi.bpt.argos.properties.PropertyEditor;
+import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,6 +111,9 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 	 */
 	protected RestRequest createBasicRequest(String host, String uri) {
 
+		PropertyEditor propertyEditor = new PropertyEditorImpl();
+		boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
+
 		URL requestURL;
 		RestRequest request;
 
@@ -115,18 +121,20 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 			requestURL = new URL(host + uri);
 		} catch (MalformedURLException e) {
 			logExceptionInRequestCreation(e);
-			return new NullRestRequestImpl();
+			return null;
 		}
 
-		if (!isReachable(requestURL)) {
+		if (!isReachable(requestURL) && testMode) {
 			return new NullRestRequestImpl();
+		} else if (!isReachable(requestURL)) {
+			return null;
 		}
 
 		try {
 			request = new RestRequestImpl(requestURL);
 		} catch (IOException e) {
 			logExceptionInRequestCreation(e);
-			return new NullRestRequestImpl();
+			return null;
 		}
 
 		return request;
@@ -138,7 +146,7 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 	 * @return - true if host is reachable
 	 */
 	protected boolean isReachable(URL host) {
-		URLConnection hostConnection = null;
+		URLConnection hostConnection;
 		try {
 			hostConnection = host.openConnection();
 			hostConnection.connect();
