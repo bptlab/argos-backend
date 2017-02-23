@@ -66,7 +66,7 @@ public interface Argos {
 	 * This method returns the property key for the argosBackendEventTypeDirectory property.
 	 * @return - the property key for the argosBackendEventTypeDirectory property
 	 */
-	static String getArgosBackendEventTypeDirectory() {
+	static String getArgosBackendEventTypeDirectoryPropertyKey() {
 		return "argosBackendEventTypeDirectory";
 	}
 

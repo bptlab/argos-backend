@@ -75,8 +75,8 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 			loadStatusUpdateEventType();
 
 			PropertyEditor propertyEditor = new PropertyEditorImpl();
-			String eventTypesDirectoryPath = propertyEditor.getProperty(Argos.getArgosBackendEventTypeDirectory());
-			if ("".equals(eventTypesDirectoryPath)) {
+			String eventTypesDirectoryPath = propertyEditor.getProperty(Argos.getArgosBackendEventTypeDirectoryPropertyKey());
+			if (eventTypesDirectoryPath.length() == 0) {
 				throw new NullPointerException();
 			}
 
