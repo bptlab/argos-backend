@@ -1,6 +1,7 @@
 package de.hpi.bpt.argos.api;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpoint;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
 import de.hpi.bpt.argos.core.ArgosTestUtil;
@@ -32,7 +33,31 @@ public class ProductFamilyEndpointTest extends EndpointParentClass {
 		assertEquals(testProductFamily.getId(), jsonProductFamilies.get(0).getAsJsonObject().get("id").getAsLong());
     }
 
+    @Test
+	public void testGetProductFamily() {
+		request = requestFactory.createGetRequest(TEST_HOST,
+				getProductFamilyUri(testProductFamily.getId()),
+				TEST_ACCEPT_TYPE_JSON);
+		assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
+
+		JsonObject jsonProductFamily = jsonParser.parse(request.getResponse()).getAsJsonObject();
+		assertEquals(testProductFamily.getId(), jsonProductFamily.get("id").getAsLong());
+	}
+
+	@Test
+	public void testGetProductFamily_InvalidId_NotFound() {
+		request = requestFactory.createGetRequest(TEST_HOST,
+				getProductFamilyUri(testProductFamily.getId() - 1),
+				TEST_ACCEPT_TYPE_JSON);
+		assertEquals(ResponseFactory.getHttpNotFoundCode(), request.getResponseCode());
+	}
+
     private String getProductFamiliesUri() {
         return ProductFamilyEndpoint.getProductFamiliesBaseUri();
     }
+
+    private String getProductFamilyUri(Object productFamilyId) {
+    	return ProductFamilyEndpoint.getProductFamilyBaseUri()
+				.replaceAll(ProductFamilyEndpoint.getProductFamilyIdParameter(true), productFamilyId.toString());
+	}
 }

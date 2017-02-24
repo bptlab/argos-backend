@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
@@ -107,7 +108,16 @@ public class RestRequestImpl implements RestRequest {
 		StringBuilder restResponse = new StringBuilder();
 
 		try {
-			responseReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+			InputStreamReader inputStreamReader;
+
+			if (isSuccessful()) {
+				inputStreamReader = new InputStreamReader(connection.getInputStream());
+			} else {
+				inputStreamReader = new InputStreamReader(connection.getErrorStream());
+			}
+
+			responseReader = new BufferedReader(inputStreamReader);
 			String responseString;
 
 			while ((responseString = responseReader.readLine()) != null) {
