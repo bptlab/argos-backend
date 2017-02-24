@@ -53,6 +53,10 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 		try {
 			clientsLock.tryLock(CLIENT_LOCK_TIME_OUT, CLIENT_LOCK_TIME_UNIT);
 
+			if (clients.isEmpty()) {
+				return;
+			}
+
 			logger.info(String.format("sending web socket notification '%1$s'", notification));
 
 			for (Iterator<Session> it = clients.iterator(); it.hasNext();) {
