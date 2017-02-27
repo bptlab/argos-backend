@@ -313,18 +313,14 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * @param <Q> - the query type
 	 * @return - an object of the result value type
 	 */
-	protected <R, Q> R getEntities(Session session,
-								   Query<Q> query,
-								   Transaction transaction,
-								   Callable<R> getValue,
-								   R defaultValue) {
+	protected <R, Q> R getEntities(Session session, Query<Q> query, Transaction transaction, Callable<R> getValue, R defaultValue) {
 
 		try {
 			R result = getValue.call();
 			transaction.commit();
 			return result;
 		} catch (NoResultException e) {
-			logNoEntitiesFound(query);
+			logNoEntitiesFound(query, e);
 			return defaultValue;
 		} catch (Exception e) {
 			if (transaction != null) {
@@ -353,12 +349,13 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	/**
 	 * This method logs an info, when no entities were found in the database.
 	 * @param query - the query
+	 * @param exception - the thrown exception
 	 */
-	protected void logNoEntitiesFound(Query query) {
+	protected void logNoEntitiesFound(Query query, Throwable exception) {
 		String queryString = "<empty query>";
 		if (query != null) {
 			queryString = query.getQueryString();
 		}
-		logger.info(String.format("no entities for query '%1$s' found", queryString));
+		logger.info(String.format("no entities for query '%1$s' found", queryString), exception);
 	}
 }
