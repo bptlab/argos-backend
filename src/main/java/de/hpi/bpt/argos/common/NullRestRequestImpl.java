@@ -55,7 +55,7 @@ public class NullRestRequestImpl implements RestRequest {
 	 */
 	@Override
 	public int getResponseCode() {
-		return ResponseFactory.httpSuccessCode;
+		return ResponseFactory.HTTP_SUCCESS_CODE;
 	}
 
 	/**

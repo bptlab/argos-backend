@@ -138,6 +138,6 @@ public class RestRequestImpl implements RestRequest {
      */
 	@Override
 	public boolean isSuccessful() {
-		return getResponseCode() == ResponseFactory.httpSuccessCode;
+		return getResponseCode() == ResponseFactory.HTTP_SUCCESS_CODE;
 	}
 }
