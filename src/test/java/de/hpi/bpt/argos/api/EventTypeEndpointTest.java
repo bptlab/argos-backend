@@ -16,7 +16,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class EventTypeEndpointTest extends EndpointParentClass {
+public class EventTypeEndpointTest extends CustomerEndpointParentClass {
 
 	protected static EventType testEventType;
 

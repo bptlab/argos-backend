@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.eventHandling;
 
+import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.common.RestEndpoint;
 import de.hpi.bpt.argos.persistence.model.product.ProductState;
@@ -37,7 +38,7 @@ public interface EventReceiver extends RestEndpoint {
 	 */
 	static String getReceiveEventBaseUri() {
 		return String.format("/api/events/receiver/%1$s",
-				ProductEndpoint.getEventTypeIdParameter(true));
+				EventTypeEndpoint.getEventTypeIdParameter(true));
 	}
 
 	/**
@@ -56,7 +57,7 @@ public interface EventReceiver extends RestEndpoint {
 	 * @return - the URI to post events to
 	 */
 	static String getReceiveEventUri(long eventTypeId) {
-		return getReceiveEventBaseUri().replaceAll(ProductEndpoint.getEventTypeIdParameter(true),
+		return getReceiveEventBaseUri().replaceAll(EventTypeEndpoint.getEventTypeIdParameter(true),
 				Objects.toString(eventTypeId, "0"));
 	}
 
