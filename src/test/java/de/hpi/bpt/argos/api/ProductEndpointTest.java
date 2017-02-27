@@ -37,7 +37,7 @@ public class ProductEndpointTest extends EndpointParentClass {
 		request = requestFactory.createGetRequest(TEST_HOST,
 				getProduct(testProduct.getId()),
 				TEST_ACCEPT_TYPE_JSON);
-		assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.httpSuccessCode, request.getResponseCode());
 
 		JsonObject jsonProduct = jsonParser.parse(request.getResponse()).getAsJsonObject();
 		assertEquals(testProduct.getId(), jsonProduct.get("id").getAsLong());
@@ -48,7 +48,7 @@ public class ProductEndpointTest extends EndpointParentClass {
 		request = requestFactory.createGetRequest(TEST_HOST,
 				getProduct(testProduct.getId() - 1),
 				TEST_ACCEPT_TYPE_JSON);
-		assertEquals(ResponseFactory.getHttpNotFoundCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.httpNotFoundCode, request.getResponseCode());
 	}
 
 	@Test
@@ -56,7 +56,7 @@ public class ProductEndpointTest extends EndpointParentClass {
 		request = requestFactory.createGetRequest(TEST_HOST,
 				getEventTypesForProduct(testProduct.getId()),
 				TEST_ACCEPT_TYPE_PLAIN);
-		assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.httpSuccessCode, request.getResponseCode());
 
 		JsonArray jsonEventTypes = jsonParser.parse(request.getResponse()).getAsJsonArray();
 		boolean testEventTypeFound = false;
@@ -81,7 +81,7 @@ public class ProductEndpointTest extends EndpointParentClass {
 		request = requestFactory.createGetRequest(TEST_HOST,
 				getEventTypesForProduct(testProduct.getId() - 1),
 				TEST_ACCEPT_TYPE_PLAIN);
-		assertEquals(ResponseFactory.getHttpNotFoundCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.httpNotFoundCode, request.getResponseCode());
 	}
 
 	@Test
@@ -89,7 +89,7 @@ public class ProductEndpointTest extends EndpointParentClass {
 		request = requestFactory.createGetRequest(TEST_HOST,
 				getEventsForProductUri(testProduct.getId(), testEventType.getId(), 0, 1),
 				TEST_ACCEPT_TYPE_JSON);
-		assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.httpSuccessCode, request.getResponseCode());
 
 		JsonArray jsonEvents = jsonParser.parse(request.getResponse()).getAsJsonArray();
 		assertEquals(1, jsonEvents.size());
@@ -103,7 +103,7 @@ public class ProductEndpointTest extends EndpointParentClass {
 		request = requestFactory.createGetRequest(TEST_HOST,
 				getEventsForProductUri(testProduct.getId(), testEventType.getId() - 1, 0, 1),
 				TEST_ACCEPT_TYPE_JSON);
-		assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.httpSuccessCode, request.getResponseCode());
 
 		JsonArray jsonEvents = jsonParser.parse(request.getResponse()).getAsJsonArray();
 		assertEquals(0, jsonEvents.size());
@@ -114,7 +114,7 @@ public class ProductEndpointTest extends EndpointParentClass {
 		request = requestFactory.createGetRequest(TEST_HOST,
 				getEventsForProductUri(testProduct.getId() - 1, testEventType.getId(), 0, 1),
 				TEST_ACCEPT_TYPE_JSON);
-		assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.httpSuccessCode, request.getResponseCode());
 
 		JsonArray jsonEvents = jsonParser.parse(request.getResponse()).getAsJsonArray();
 		assertEquals(0, jsonEvents.size());
@@ -135,7 +135,7 @@ public class ProductEndpointTest extends EndpointParentClass {
 		jsonQuery.addProperty("eventQuery", newEventQuery);
 
 		request.setContent(serializer.toJson(jsonQuery));
-		assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.httpSuccessCode, request.getResponseCode());
 
 		Product updatedProduct = ArgosTestParent.argos.getPersistenceEntityManager().getProduct(testProduct.getId());
 		assertEquals(newEventQuery, updatedProduct.getStatusUpdateQuery(newState).getQueryString());
@@ -156,7 +156,7 @@ public class ProductEndpointTest extends EndpointParentClass {
 		jsonQuery.addProperty("eventQuery", newEventQuery);
 
 		request.setContent(serializer.toJson(jsonQuery));
-		assertEquals(ResponseFactory.getHttpErrorCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.httpErrorCode, request.getResponseCode());
 	}
 
 	@Test
@@ -174,7 +174,7 @@ public class ProductEndpointTest extends EndpointParentClass {
 		jsonQuery.addProperty("eventQuery", newEventQuery);
 
 		request.setContent(serializer.toJson(jsonQuery));
-		assertEquals(ResponseFactory.getHttpNotFoundCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.httpNotFoundCode, request.getResponseCode());
 	}
 
 	@Test
@@ -192,7 +192,7 @@ public class ProductEndpointTest extends EndpointParentClass {
 		jsonQuery.addProperty("eventQuery", newEventQuery);
 
 		request.setContent(serializer.toJson(jsonQuery));
-		assertEquals(ResponseFactory.getHttpErrorCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.httpErrorCode, request.getResponseCode());
 	}
 
 	private String getProduct(Object productId) {

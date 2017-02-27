@@ -25,7 +25,7 @@ public class ProductFamilyEndpointTest extends EndpointParentClass {
     	request = requestFactory.createGetRequest(TEST_HOST,
 				getProductFamiliesUri(),
 				TEST_ACCEPT_TYPE_JSON);
-    	assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
+    	assertEquals(ResponseFactory.httpSuccessCode, request.getResponseCode());
 
 		JsonArray jsonProductFamilies = jsonParser.parse(request.getResponse()).getAsJsonArray();
 		assertEquals(1, jsonProductFamilies.size());
@@ -38,7 +38,7 @@ public class ProductFamilyEndpointTest extends EndpointParentClass {
 		request = requestFactory.createGetRequest(TEST_HOST,
 				getProductFamilyUri(testProductFamily.getId()),
 				TEST_ACCEPT_TYPE_JSON);
-		assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.httpSuccessCode, request.getResponseCode());
 
 		JsonObject jsonProductFamily = jsonParser.parse(request.getResponse()).getAsJsonObject();
 		assertEquals(testProductFamily.getId(), jsonProductFamily.get("id").getAsLong());
@@ -49,7 +49,7 @@ public class ProductFamilyEndpointTest extends EndpointParentClass {
 		request = requestFactory.createGetRequest(TEST_HOST,
 				getProductFamilyUri(testProductFamily.getId() - 1),
 				TEST_ACCEPT_TYPE_JSON);
-		assertEquals(ResponseFactory.getHttpNotFoundCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.httpNotFoundCode, request.getResponseCode());
 	}
 
     private String getProductFamiliesUri() {

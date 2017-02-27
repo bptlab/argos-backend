@@ -31,7 +31,7 @@ public class EventEndpointTest extends EndpointParentClass {
     	request = requestFactory.createGetRequest(TEST_HOST,
 				getEvent(testEvent.getId()),
 				TEST_ACCEPT_TYPE_JSON);
-    	assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
+    	assertEquals(ResponseFactory.httpSuccessCode, request.getResponseCode());
 
     	JsonObject jsonEvent = jsonParser.parse(request.getResponse()).getAsJsonObject();
     	assertEquals(testEvent.getId(), jsonEvent.get("id").getAsLong());
@@ -48,7 +48,7 @@ public class EventEndpointTest extends EndpointParentClass {
 				TEST_REQUEST_METHOD,
 				TEST_CONTENT_TYPE,
 				TEST_ACCEPT_TYPE_PLAIN);
-		assertEquals(ResponseFactory.getHttpNotFoundCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.httpNotFoundCode, request.getResponseCode());
 	}
 
     private String getEvent(Object eventId) {
