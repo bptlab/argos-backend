@@ -32,7 +32,7 @@ public class EventQueryEndpointTest extends EndpointParentClass {
 		jsonBody.addProperty("eventQuery", newQueryString);
 
 		request.setContent(serializer.toJson(jsonBody));
-		assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
 
 		EventType updatedEventType = ArgosTestParent.argos.getPersistenceEntityManager().getEventType(testEventType.getId());
 		assertEquals(updatedEventType.getEventQuery().getQueryString(), newQueryString);
@@ -50,7 +50,7 @@ public class EventQueryEndpointTest extends EndpointParentClass {
 		jsonBody.addProperty("eventQuery", newQueryString);
 
 		request.setContent(serializer.toJson(jsonBody));
-		assertEquals(ResponseFactory.getHttpNotFoundCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.HTTP_NOT_FOUND_CODE, request.getResponseCode());
 	}
 
 	@Test
@@ -65,7 +65,7 @@ public class EventQueryEndpointTest extends EndpointParentClass {
 		jsonBody.addProperty("eventQuery", newQueryString);
 
 		request.setContent(serializer.toJson(jsonBody));
-		assertEquals(ResponseFactory.getHttpErrorCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.HTTP_ERROR_CODE, request.getResponseCode());
 	}
 
 	@Test
@@ -85,7 +85,7 @@ public class EventQueryEndpointTest extends EndpointParentClass {
 		jsonBody.addProperty("eventQuery", newQueryString);
 
 		request.setContent(serializer.toJson(jsonBody));
-		assertEquals(ResponseFactory.getHttpForbiddenCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.HTTP_FORBIDDEN_CODE, request.getResponseCode());
 	}
 
 

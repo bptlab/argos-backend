@@ -107,7 +107,16 @@ public class RestRequestImpl implements RestRequest {
 		StringBuilder restResponse = new StringBuilder();
 
 		try {
-			responseReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+			InputStreamReader inputStreamReader;
+
+			if (isSuccessful()) {
+				inputStreamReader = new InputStreamReader(connection.getInputStream());
+			} else {
+				inputStreamReader = new InputStreamReader(connection.getErrorStream());
+			}
+
+			responseReader = new BufferedReader(inputStreamReader);
 			String responseString;
 
 			while ((responseString = responseReader.readLine()) != null) {
@@ -129,6 +138,6 @@ public class RestRequestImpl implements RestRequest {
      */
 	@Override
 	public boolean isSuccessful() {
-		return getResponseCode() == ResponseFactory.getHttpSuccessCode();
+		return getResponseCode() == ResponseFactory.HTTP_SUCCESS_CODE;
 	}
 }

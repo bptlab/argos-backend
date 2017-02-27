@@ -32,7 +32,7 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 				TEST_REQUEST_METHOD,
 				TEST_CONTENT_TYPE,
 				TEST_ACCEPT_TYPE_PLAIN);
-		assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
 
 		JsonArray jsonEventTypes = jsonParser.parse(request.getResponse()).getAsJsonArray();
 		boolean testEventTypeFound = false;
@@ -53,7 +53,7 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 		request = requestFactory.createGetRequest(TEST_HOST,
 				getEventType(testEventType.getId()),
 				TEST_ACCEPT_TYPE_JSON);
-		assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
 
 		JsonObject jsonEventType = jsonParser.parse(request.getResponse()).getAsJsonObject();
 		assertEquals(testEventType.getId(), jsonEventType.get("id").getAsLong());
@@ -64,7 +64,7 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 		request = requestFactory.createGetRequest(TEST_HOST,
 				getEventType(testEventType.getId() - 1),
 				TEST_ACCEPT_TYPE_JSON);
-		assertEquals(ResponseFactory.getHttpNotFoundCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.HTTP_NOT_FOUND_CODE, request.getResponseCode());
 	}
 
 	@Test
@@ -92,7 +92,7 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 		jsonBody.add("eventType", testType);
 
 		request.setContent(serializer.toJson(jsonBody));
-		assertEquals(ResponseFactory.getHttpSuccessCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
 
 		List<EventType> eventTypes = ArgosTestParent.argos.getPersistenceEntityManager().getEventTypes();
 
@@ -133,7 +133,7 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 		jsonBody.add("eventType", testType);
 
 		request.setContent(serializer.toJson(jsonBody));
-		assertEquals(ResponseFactory.getHttpErrorCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.HTTP_ERROR_CODE, request.getResponseCode());
 	}
 
 	@Test
@@ -162,7 +162,7 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 		//jsonBody.add("eventType", testType);
 
 		request.setContent(serializer.toJson(jsonBody));
-		assertEquals(ResponseFactory.getHttpErrorCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.HTTP_ERROR_CODE, request.getResponseCode());
 	}
 
 	@Test
@@ -192,7 +192,7 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 		jsonBody.add("eventType", testType);
 
 		request.setContent(serializer.toJson(jsonBody));
-		assertEquals(ResponseFactory.getHttpErrorCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.HTTP_ERROR_CODE, request.getResponseCode());
 	}
 
 	@Test
@@ -220,7 +220,67 @@ public class EventTypeEndpointTest extends EndpointParentClass {
 		jsonBody.add("eventType", testType);
 
 		request.setContent(serializer.toJson(jsonBody));
-		assertEquals(ResponseFactory.getHttpErrorCode(), request.getResponseCode());
+		assertEquals(ResponseFactory.HTTP_ERROR_CODE, request.getResponseCode());
+	}
+
+	@Test
+	public void testDeleteEventType() {
+		EventType deletableEventType = ArgosTestUtil.createEventType();
+
+		request = requestFactory.createDeleteRequest(TEST_HOST,
+				deleteEventType(deletableEventType.getId()));
+		assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
+
+		List<EventType> eventTypes = ArgosTestParent.argos.getPersistenceEntityManager().getEventTypes();
+		boolean eventTypeFound = false;
+
+		for (EventType eventType : eventTypes) {
+			if (eventType.getId() == deletableEventType.getId()) {
+				eventTypeFound = true;
+				break;
+			}
+		}
+
+		assertEquals(false, eventTypeFound);
+	}
+
+	@Test
+	public void testDeleteEventType_InvalidId_NotFound() {
+		request = requestFactory.createDeleteRequest(TEST_HOST,
+				deleteEventType(testEventType.getId() - 1));
+		assertEquals(ResponseFactory.HTTP_NOT_FOUND_CODE, request.getResponseCode());
+	}
+
+	@Test
+	public void testDeleteEventType_InvalidEventType_Forbidden() {
+		EventType undeletableEventType = ArgosTestUtil.createEventType();
+		undeletableEventType.setDeletable(false);
+		ArgosTestParent.argos.getPersistenceEntityManager().updateEntity(undeletableEventType);
+
+		request = requestFactory.createDeleteRequest(TEST_HOST,
+				deleteEventType(undeletableEventType.getId()));
+		assertEquals(ResponseFactory.HTTP_FORBIDDEN_CODE, request.getResponseCode());
+	}
+
+	@Test
+	public void testDeleteEventType_BlockedEventType_Error() {
+		EventType blockedEventType = ArgosTestUtil.createEventType();
+		blockedEventType.setName("EventType_Blocked_" + ArgosTestUtil.getCurrentTimestamp());
+		ArgosTestParent.argos.getPersistenceEntityManager().updateEntity(blockedEventType);
+
+		EventType blockingEventType = ArgosTestUtil.createEventType();
+		blockingEventType.setName("EventType_Blocking_" + ArgosTestUtil.getCurrentTimestamp());
+		blockingEventType.getEventQuery().setQueryString("this query blocks " + blockedEventType.getName());
+		ArgosTestParent.argos.getPersistenceEntityManager().updateEntity(blockingEventType);
+
+		request = requestFactory.createDeleteRequest(TEST_HOST,
+				deleteEventType(blockedEventType.getId()));
+		assertEquals(ResponseFactory.HTTP_ERROR_CODE, request.getResponseCode());
+
+		JsonArray jsonBlockingEventType = jsonParser.parse(request.getResponse()).getAsJsonArray();
+		assertEquals(1, jsonBlockingEventType.size());
+
+		assertEquals(blockingEventType.getId(), jsonBlockingEventType.get(0).getAsLong());
 	}
 
 	private String getEventTypes() {

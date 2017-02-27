@@ -9,6 +9,14 @@ import de.hpi.bpt.argos.persistence.model.product.ProductState;
  */
 public interface ResponseFactory {
 
+	int HTTP_SUCCESS_CODE = 200;
+
+	int HTTP_FORBIDDEN_CODE = 403;
+
+	int HTTP_NOT_FOUND_CODE = 404;
+
+	int HTTP_ERROR_CODE = 500;
+
 	/**
 	 * This method sets up this response factory.
 	 * @param entityManager - the entity manager to get persistence entities from
@@ -107,37 +115,5 @@ public interface ResponseFactory {
 	 */
 	default String finishRequest() {
 		return "request finished";
-	}
-
-	/**
-	 * This method returns the http page not found code.
-	 * @return - the http page not found code
-	 */
-	static int getHttpNotFoundCode() {
-		return 404;
-	}
-
-	/**
-	 * This method returns the http success code.
-	 * @return - http success code
-	 */
-	static int getHttpSuccessCode() {
-		return 200;
-	}
-
-	/**
-	 * This method returns the http error code.
-	 * @return - the http error code
-	 */
-	static int getHttpErrorCode() {
-		return 500;
-	}
-
-	/**
-	 * This method returns the http forbidden code.
-	 * @return - the http forbidden code
-	 */
-	static int getHttpForbiddenCode() {
-		return 403;
 	}
 }

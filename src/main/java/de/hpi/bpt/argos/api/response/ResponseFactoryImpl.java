@@ -74,7 +74,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 		ProductFamily productFamily = entityManager.getProductFamily(productFamilyId);
 
 		if (productFamily == null) {
-			halt(ResponseFactory.getHttpNotFoundCode(), "cannot find product family");
+			halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "cannot find product family");
 		}
 
 		JsonObject jsonProductFamily = getProductFamilyBase(productFamily);
@@ -90,7 +90,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 		Product product = entityManager.getProduct(productId);
 
 		if (product == null) {
-			halt(ResponseFactory.getHttpNotFoundCode(), "cannot find product");
+			halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "cannot find product");
 		}
 
 		JsonObject jsonProduct = getProductBase(product);
@@ -107,7 +107,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 		Product product = entityManager.getProduct(productId);
 
 		if (product == null) {
-			halt(ResponseFactory.getHttpNotFoundCode(), "cannot find product");
+			halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "cannot find product");
 		}
 
 		Map<EventType, Integer> eventTypes = entityManager.getEventTypes(productId);
@@ -131,7 +131,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	public String getEventType(long eventTypeId) {
 		EventType eventType = entityManager.getEventType(eventTypeId);
 		if (eventType == null) {
-			halt(ResponseFactory.getHttpNotFoundCode(), "Event type not found");
+			halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "Event type not found");
 		}
 		return serializer.toJson(getEventType(eventType));
 	}
@@ -174,7 +174,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	public String getEvent(long eventId) {
 		Event event = entityManager.getEvent(eventId);
 		if (event == null) {
-			halt(ResponseFactory.getHttpNotFoundCode(), "Event not found");
+			halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "Event not found");
 		}
 		JsonObject jsonEvent = getEvent(event);
 		return jsonEvent.toString();
@@ -192,17 +192,17 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			JsonObject jsonEventType = jsonBody.get(JSON_EVENT_TYPE_ATTRIBUTE).getAsJsonObject();
 
 			if (eventQuery == null || eventQuery.length() == 0) {
-				halt(ResponseFactory.getHttpErrorCode(), "no event query given in body");
+				halt(ResponseFactory.HTTP_ERROR_CODE, "no event query given in body");
 			}
 
 			if (jsonEventType == null) {
-				halt(ResponseFactory.getHttpErrorCode(), "no event type given in body");
+				halt(ResponseFactory.HTTP_ERROR_CODE, "no event type given in body");
 			}
 
 			EventType eventType = entityManager.createEventType(jsonEventType);
 
 			if (eventType == null) {
-				halt(ResponseFactory.getHttpErrorCode(), "event type name already in use, or failed to parse event type");
+				halt(ResponseFactory.HTTP_ERROR_CODE, "event type name already in use, or failed to parse event type");
 			} else {
 
 				if (eventType.getEventQuery() == null) {
@@ -212,7 +212,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 				eventType.getEventQuery().setQueryString(eventQuery);
 
 				if (!eventPlatformRestEndpoint.getEventSubscriber().registerEventType(eventType)) {
-					halt(ResponseFactory.getHttpErrorCode(), "cannot register event type");
+					halt(ResponseFactory.HTTP_ERROR_CODE, "cannot register event type");
 				}
 
 				entityManager.updateEntity(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
@@ -223,7 +223,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			throw halt;
 		} catch (Exception e) {
 			logger.error("cannot parse request body to event type '" + requestBody + "'", e);
-			halt(ResponseFactory.getHttpErrorCode(), e.getMessage());
+			halt(ResponseFactory.HTTP_ERROR_CODE, e.getMessage());
 		}
 	}
 
@@ -238,21 +238,21 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			String eventQuery = jsonBody.get(JSON_EVENT_QUERY_ATTRIBUTE).getAsString();
 
 			if (eventQuery == null || eventQuery.length() == 0) {
-				halt(ResponseFactory.getHttpErrorCode(), "no event query given in body");
+				halt(ResponseFactory.HTTP_ERROR_CODE, "no event query given in body");
 			}
 
 			EventType eventType = entityManager.getEventType(eventTypeId);
 
 			if (eventType == null) {
-				halt(ResponseFactory.getHttpNotFoundCode(), "event type not found");
+				halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "event type not found");
 			} else {
 
 				if (!eventType.isEditable()) {
-					halt(ResponseFactory.getHttpForbiddenCode(), "you must not edit this event type");
+					halt(ResponseFactory.HTTP_FORBIDDEN_CODE, "you must not edit this event type");
 				}
 
 				if (!eventPlatformRestEndpoint.getEventSubscriber().updateEventQuery(eventType, eventQuery)) {
-					halt(ResponseFactory.getHttpErrorCode(), "event platform did not accept the updated event query");
+					halt(ResponseFactory.HTTP_ERROR_CODE, "event platform did not accept the updated event query");
 				}
 
 				entityManager.updateEntity(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
@@ -263,7 +263,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			throw halt;
 		} catch (Exception e) {
 			logger.error("cannot parse request body to event query '" + requestBody + "'", e);
-			halt(ResponseFactory.getHttpErrorCode(), e.getMessage());
+			halt(ResponseFactory.HTTP_ERROR_CODE, e.getMessage());
 		}
 	}
 
@@ -278,24 +278,24 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			String eventQuery = jsonBody.get(JSON_EVENT_QUERY_ATTRIBUTE).getAsString();
 
 			if (eventQuery == null || eventQuery.length() == 0) {
-				halt(ResponseFactory.getHttpErrorCode(), "no event query given in body");
+				halt(ResponseFactory.HTTP_ERROR_CODE, "no event query given in body");
 			}
 
 			Product product = entityManager.getProduct(productId);
 
 			if (product == null) {
-				halt(ResponseFactory.getHttpNotFoundCode(), "product not found");
+				halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "product not found");
 			} else {
 
 				if (product.getStatusUpdateQuery(newState) == null) {
-					halt(ResponseFactory.getHttpErrorCode(), "new state is not supported by this product");
+					halt(ResponseFactory.HTTP_ERROR_CODE, "new state is not supported by this product");
 				}
 
 				if (!eventPlatformRestEndpoint.getEventSubscriber().updateEventQuery(
 						product.getStatusUpdateQuery(newState),
 						eventQuery,
 						EventReceiver.getReceiveStatusUpdateEventUri(product.getOrderNumber(), newState))) {
-					halt(ResponseFactory.getHttpErrorCode(), "event platform did not accept the updated status query");
+					halt(ResponseFactory.HTTP_ERROR_CODE, "event platform did not accept the updated status query");
 				}
 
 				entityManager.updateEntity(product, ProductEndpoint.getProductUri(productId));
@@ -306,7 +306,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			throw halt;
 		} catch (Exception e) {
 			logger.error("cannot parse request body to status event query '" + requestBody + "'", e);
-			halt(ResponseFactory.getHttpErrorCode(), e.getMessage());
+			halt(ResponseFactory.HTTP_ERROR_CODE, e.getMessage());
 		}
 	}
 
@@ -320,11 +320,11 @@ public class ResponseFactoryImpl implements ResponseFactory {
 		EventType eventType = entityManager.getEventType(eventTypeId);
 
 		if (eventType == null) {
-			halt(ResponseFactory.getHttpNotFoundCode(), "cannot find event type");
+			halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "cannot find event type");
 		} else {
 
 			if (!eventType.isDeletable()) {
-				halt(ResponseFactory.getHttpForbiddenCode(), "you must not delete this event type");
+				halt(ResponseFactory.HTTP_FORBIDDEN_CODE, "you must not delete this event type");
 			}
 
 			List<EventType> eventTypes = entityManager.getEventTypes();

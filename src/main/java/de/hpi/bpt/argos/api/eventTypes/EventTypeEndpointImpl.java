@@ -86,7 +86,7 @@ public class EventTypeEndpointImpl extends RestEndpointImpl implements EventType
 			// successful response
 			return responseFactory.finishRequest();
 		} else {
-			response.status(ResponseFactory.getHttpErrorCode());
+			response.status(ResponseFactory.HTTP_ERROR_CODE);
 			return json;
 		}
 	}
