@@ -222,9 +222,9 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Event createStatusUpdateEvent(int externalProductId, ProductState newProductState, String requestBody) {
+	public Event createStatusUpdateEvent(long productId, ProductState newProductState, String requestBody) {
 
-		Product product = getProduct(externalProductId);
+		Product product = getProduct(productId);
 		EventType statusUpdateEventType = getEventType(EventType.getStatusUpdateEventTypeName());
 
 		if (product == null || statusUpdateEventType == null) {

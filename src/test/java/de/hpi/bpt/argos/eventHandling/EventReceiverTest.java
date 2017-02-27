@@ -2,6 +2,7 @@ package de.hpi.bpt.argos.eventHandling;
 
 import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
+import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
 import de.hpi.bpt.argos.core.ArgosTestParent;
 import de.hpi.bpt.argos.core.ArgosTestUtil;
@@ -10,9 +11,11 @@ import de.hpi.bpt.argos.persistence.model.event.data.EventData;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
+import de.hpi.bpt.argos.persistence.model.product.ProductState;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import javax.xml.ws.Response;
 import java.util.Date;
 import java.util.List;
 
@@ -117,9 +120,32 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 		assertEquals(ResponseFactory.HTTP_NOT_FOUND_CODE, request.getResponseCode());
 	}
 
+	@Test
+	public void testReceiveStatusUpdateEvent() {
+		request = requestFactory.createPostRequest(TEST_HOST,
+				getReceiveStatusUpdateEventUri(testProduct.getId(), ProductState.RUNNING),
+				TEST_CONTENT_TYPE,
+				TEST_ACCEPT_TYPE_PLAIN);
+
+		JsonObject jsonStatusUpdateEvent = new JsonObject();
+		jsonStatusUpdateEvent.addProperty("timestamp", (new Date()).toString());
+
+		request.setContent(serializer.toJson(jsonStatusUpdateEvent));
+		assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
+
+		Product updatedProduct = ArgosTestParent.argos.getPersistenceEntityManager().getProduct(testProduct.getId());
+		assertEquals(ProductState.RUNNING, updatedProduct.getState());
+	}
+
 
 	private String getReceiveEventUri(Object eventTypeId) {
 		return EventReceiver.getReceiveEventBaseUri()
 				.replaceAll(EventTypeEndpoint.getEventTypeIdParameter(true), eventTypeId.toString());
+	}
+
+	private String getReceiveStatusUpdateEventUri(Object productId, Object newState) {
+		return EventReceiver.getReceiveStatusUpdateEventBaseUri()
+				.replaceAll(ProductEndpoint.getProductIdParameter(true), productId.toString())
+				.replaceAll(ProductEndpoint.getNewProductStatusParameter(true), newState.toString());
 	}
 }

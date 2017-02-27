@@ -58,9 +58,9 @@ public class EventReceiverImpl extends RestEndpointImpl implements EventReceiver
 	public String receiveStatusUpdateEvent(Request request, Response response) {
 		logInfoForReceivedRequest(request);
 
-		int externalProductId = inputValidation.validateInteger(
+		long productId = inputValidation.validateLong(
 				request.params(ProductEndpoint.getProductIdParameter(false)),
-				(Integer input) -> input > 0);
+				(Long input) -> input > 0);
 		ProductState newState = inputValidation.validateEnum(
 				ProductState.class,
 				request.params(ProductEndpoint.getNewProductStatusParameter(false)));
@@ -70,10 +70,10 @@ public class EventReceiverImpl extends RestEndpointImpl implements EventReceiver
 			return "";
 		}
 
-		Event event = entityManager.createStatusUpdateEvent(externalProductId, newState, request.body());
+		Event event = entityManager.createStatusUpdateEvent(productId, newState, request.body());
 
 		if (event == null) {
-			logger.error("unable to update product '" + externalProductId + "' to state '" + newState.toString() + "'");
+			logger.error("unable to update product '" + productId + "' to state '" + newState.toString() + "'");
 			halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "unable to update product state");
 		}
 

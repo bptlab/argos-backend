@@ -53,12 +53,12 @@ public interface PersistenceEntityManager extends PersistenceEntityRetriever {
 
 	/**
 	 * This method returns a newly created status update event from its json representation.
-	 * @param externalProductId - the external product id
+	 * @param productId - the product id
 	 * @param newProductState - the updated product state
 	 * @param requestBody - the json representation of the event
 	 * @return - the new event
 	 */
-	Event createStatusUpdateEvent(int externalProductId, ProductState newProductState, String requestBody);
+	Event createStatusUpdateEvent(long productId, ProductState newProductState, String requestBody);
 
 	/**
 	 * This method returns a newly created, simple event type from its json representation.

@@ -63,13 +63,13 @@ public interface EventReceiver extends RestEndpoint {
 
 	/**
 	 * This method returns the URI to post status update events to.
-	 * @param externalProductId - the external product id, which status has changed
+	 * @param productId - the product id, which status has changed
 	 * @param newProductState - the new state of the product
 	 * @return - the URI to post status update events to
 	 */
-	static String getReceiveStatusUpdateEventUri(int externalProductId, ProductState newProductState) {
+	static String getReceiveStatusUpdateEventUri(long productId, ProductState newProductState) {
 		return getReceiveStatusUpdateEventBaseUri()
-				.replaceAll(ProductEndpoint.getProductIdParameter(true), Objects.toString(externalProductId, "0"))
+				.replaceAll(ProductEndpoint.getProductIdParameter(true), Objects.toString(productId, "0"))
 				.replaceAll(ProductEndpoint.getNewProductStatusParameter(true), Objects.toString(newProductState, ""));
 	}
 }
