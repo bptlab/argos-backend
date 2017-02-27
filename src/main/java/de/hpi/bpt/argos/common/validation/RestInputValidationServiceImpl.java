@@ -27,10 +27,10 @@ public class RestInputValidationServiceImpl implements RestInputValidationServic
 			}
 		} catch (InputValidationException e) {
 			logger.error(e.getMessage(), e);
-			halt(ResponseFactory.getHttpErrorCode(), e.getMessage());
+			halt(ResponseFactory.httpErrorCode, e.getMessage());
 		} catch (NumberFormatException e) {
 			logger.error(e.getMessage());
-			halt(ResponseFactory.getHttpErrorCode(), e.getMessage());
+			halt(ResponseFactory.httpErrorCode, e.getMessage());
 		}
 		return Integer.parseInt(inputValue);
 	}
@@ -46,10 +46,10 @@ public class RestInputValidationServiceImpl implements RestInputValidationServic
 			}
 		} catch (InputValidationException e) {
 			logger.error(e.getMessage(), e);
-			halt(ResponseFactory.getHttpErrorCode(), e.getMessage());
+			halt(ResponseFactory.httpErrorCode, e.getMessage());
 		} catch (NumberFormatException e) {
 			logger.error(e.getMessage());
-			halt(ResponseFactory.getHttpErrorCode(), e.getMessage());
+			halt(ResponseFactory.httpErrorCode, e.getMessage());
 		}
 		return Long.parseLong(inputValue);
 	}
@@ -69,7 +69,7 @@ public class RestInputValidationServiceImpl implements RestInputValidationServic
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			halt(ResponseFactory.getHttpErrorCode(), e.getMessage());
+			halt(ResponseFactory.httpErrorCode, e.getMessage());
 		}
 
 		return null;

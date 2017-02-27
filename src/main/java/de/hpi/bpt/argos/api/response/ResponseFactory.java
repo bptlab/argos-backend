@@ -109,35 +109,11 @@ public interface ResponseFactory {
 		return "request finished";
 	}
 
-	/**
-	 * This method returns the http page not found code.
-	 * @return - the http page not found code
-	 */
-	static int getHttpNotFoundCode() {
-		return 404;
-	}
+	static final int httpSuccessCode = 200;
 
-	/**
-	 * This method returns the http success code.
-	 * @return - http success code
-	 */
-	static int getHttpSuccessCode() {
-		return 200;
-	}
+	static final int httpForbiddenCode = 403;
 
-	/**
-	 * This method returns the http error code.
-	 * @return - the http error code
-	 */
-	static int getHttpErrorCode() {
-		return 500;
-	}
+	static final int httpNotFoundCode = 404;
 
-	/**
-	 * This method returns the http forbidden code.
-	 * @return - the http forbidden code
-	 */
-	static int getHttpForbiddenCode() {
-		return 403;
-	}
+	static final int httpErrorCode = 500;
 }

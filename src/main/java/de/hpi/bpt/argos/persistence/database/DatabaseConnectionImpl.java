@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.NoResultException;
-import javax.xml.transform.Result;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -310,18 +309,18 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * @param transaction - the current transaction
 	 * @param getValue - the function to get the results from the query
 	 * @param defaultValue - a fall back default value in case anything went wrong or no entities were found
-	 * @param <ResultValue> - the result type
-	 * @param <QueryType> - the query type
+	 * @param <R> - the result type
+	 * @param <Q> - the query type
 	 * @return - an object of the result value type
 	 */
-	protected <ResultValue, QueryType> ResultValue getEntities(Session session,
-															   Query<QueryType> query,
-															   Transaction transaction,
-															   Callable<ResultValue> getValue,
-															   ResultValue defaultValue) {
+	protected <R, Q> R getEntities(Session session,
+								   Query<Q> query,
+								   Transaction transaction,
+								   Callable<R> getValue,
+								   R defaultValue) {
 
 		try {
-			ResultValue result = getValue.call();
+			R result = getValue.call();
 			transaction.commit();
 			return result;
 		} catch (NoResultException e) {

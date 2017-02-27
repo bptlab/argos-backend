@@ -44,7 +44,7 @@ public class EventReceiverImpl extends RestEndpointImpl implements EventReceiver
 
 		if (event == null) {
 			logger.error("cannot find event type '" + eventTypeId + "'");
-			halt(ResponseFactory.getHttpNotFoundCode(), "cannot find event type");
+			halt(ResponseFactory.httpNotFoundCode, "cannot find event type");
 		}
 
 		logInfoForReceivedEvent(event);
@@ -66,7 +66,7 @@ public class EventReceiverImpl extends RestEndpointImpl implements EventReceiver
 				request.params(ProductEndpoint.getNewProductStatusParameter(false)));
 
 		if (newState == null) {
-			halt(ResponseFactory.getHttpErrorCode(), "unable to parse new status");
+			halt(ResponseFactory.httpErrorCode, "unable to parse new status");
 			return "";
 		}
 
@@ -74,7 +74,7 @@ public class EventReceiverImpl extends RestEndpointImpl implements EventReceiver
 
 		if (event == null) {
 			logger.error("unable to update product '" + externalProductId + "' to state '" + newState.toString() + "'");
-			halt(ResponseFactory.getHttpNotFoundCode(), "unable to update product state");
+			halt(ResponseFactory.httpNotFoundCode, "unable to update product state");
 		}
 
 		return responseFactory.finishRequest();
