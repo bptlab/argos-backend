@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.event.EventEndpoint;
-import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
+import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpoint;
 import de.hpi.bpt.argos.notifications.PushNotificationType;
@@ -429,6 +429,10 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		// default event types should not be editable nor deletable
 		eventType.setEditable(false);
 		eventType.setDeletable(false);
+
+		// but they must be registered, since they do not use INSERT INTO in their queries
+		eventType.setShouldBeRegistered(true);
+
 		eventType.getEventQuery().setQueryString(String.format("SELECT * FROM %1$s", name));
 		return eventType;
 	}

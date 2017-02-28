@@ -97,6 +97,18 @@ public interface EventType extends PersistenceEntity {
 	void setDeletable(boolean deletable);
 
 	/**
+	 * This method indicates, whether this event type should be registered in the event platform.
+	 * @return - true, if the event type should be registered in the event platform
+	 */
+	boolean shouldBeRegistered();
+
+	/**
+	 * This method set, whether this event type should be registered in the event platform.
+	 * @param shouldBeRegistered - the value to be set
+	 */
+	void setShouldBeRegistered(boolean shouldBeRegistered);
+
+	/**
 	 * This method returns the name of the productIdentification attribute.
 	 * @return - the name of the productIdentification attribute
 	 */

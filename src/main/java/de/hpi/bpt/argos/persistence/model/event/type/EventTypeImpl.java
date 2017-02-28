@@ -50,6 +50,9 @@ public class EventTypeImpl extends PersistenceEntityImpl implements EventType {
 	@Column(name = "Deletable")
 	protected boolean deletable = true;
 
+	@Column(name = "ShouldBeRegistered")
+	protected boolean shouldBeRegistered = false;
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -166,5 +169,21 @@ public class EventTypeImpl extends PersistenceEntityImpl implements EventType {
 	@Override
 	public void setDeletable(boolean deletable) {
 		this.deletable = deletable;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean shouldBeRegistered() {
+		return shouldBeRegistered;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setShouldBeRegistered(boolean shouldBeRegistered) {
+		this.shouldBeRegistered = shouldBeRegistered;
 	}
 }

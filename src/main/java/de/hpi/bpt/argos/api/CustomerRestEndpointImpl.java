@@ -2,10 +2,10 @@ package de.hpi.bpt.argos.api;
 
 import de.hpi.bpt.argos.api.event.EventEndpoint;
 import de.hpi.bpt.argos.api.event.EventEndpointImpl;
-import de.hpi.bpt.argos.api.eventQueries.EventQueryEndpoint;
-import de.hpi.bpt.argos.api.eventQueries.EventQueryEndpointImpl;
-import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
-import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpointImpl;
+import de.hpi.bpt.argos.api.eventQuery.EventQueryEndpoint;
+import de.hpi.bpt.argos.api.eventQuery.EventQueryEndpointImpl;
+import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
+import de.hpi.bpt.argos.api.eventType.EventTypeEndpointImpl;
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.api.product.ProductEndpointImpl;
 import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpoint;
