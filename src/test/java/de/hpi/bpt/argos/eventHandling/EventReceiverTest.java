@@ -7,7 +7,6 @@ import de.hpi.bpt.argos.api.response.ResponseFactory;
 import de.hpi.bpt.argos.core.ArgosTestParent;
 import de.hpi.bpt.argos.core.ArgosTestUtil;
 import de.hpi.bpt.argos.persistence.model.event.Event;
-import de.hpi.bpt.argos.persistence.model.event.data.EventData;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
@@ -15,7 +14,6 @@ import de.hpi.bpt.argos.persistence.model.product.ProductState;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.xml.ws.Response;
 import java.util.Date;
 import java.util.List;
 
