@@ -23,6 +23,7 @@ public class StatusUpdateEventTypeImpl extends EventTypeImpl implements StatusUp
 	public StatusUpdateEventTypeImpl() {
 		editable = false;
 		deletable = false;
+		shouldBeRegistered = true;
 
 		name = EventType.getStatusUpdateEventTypeName();
 

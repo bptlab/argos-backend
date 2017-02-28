@@ -52,6 +52,10 @@ public class EventSubscriberImpl implements EventSubscriber {
 	@Override
 	public boolean registerEventType(EventType eventType) {
 
+		if (!eventType.shouldBeRegistered()) {
+			return registerEventQuery(eventType);
+		}
+
 		PropertyEditor propertyReader = new PropertyEditorImpl();
 
 		String eventPlatformHost = propertyReader.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());

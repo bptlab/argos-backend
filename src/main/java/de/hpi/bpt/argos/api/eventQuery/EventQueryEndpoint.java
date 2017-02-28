@@ -1,7 +1,7 @@
-package de.hpi.bpt.argos.api.eventQueries;
+package de.hpi.bpt.argos.api.eventQuery;
 
 import de.hpi.bpt.argos.api.event.EventEndpoint;
-import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
+import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
 import de.hpi.bpt.argos.common.RestEndpoint;
 import spark.Request;
 import spark.Response;

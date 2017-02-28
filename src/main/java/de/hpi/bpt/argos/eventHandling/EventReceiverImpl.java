@@ -1,6 +1,6 @@
 package de.hpi.bpt.argos.eventHandling;
 
-import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
+import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
 import de.hpi.bpt.argos.common.RestEndpointImpl;

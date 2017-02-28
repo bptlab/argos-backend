@@ -1,4 +1,4 @@
-package de.hpi.bpt.argos.api.eventTypes;
+package de.hpi.bpt.argos.api.eventType;
 
 import de.hpi.bpt.argos.api.response.ResponseFactory;
 import de.hpi.bpt.argos.common.RestEndpointImpl;
