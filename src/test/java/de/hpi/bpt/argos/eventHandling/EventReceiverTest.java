@@ -137,6 +137,34 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 		assertEquals(ProductState.RUNNING, updatedProduct.getState());
 	}
 
+	@Test
+	public void testReceiveStatusUpdateEvent_InvalidNewState_Error() {
+		request = requestFactory.createPostRequest(TEST_HOST,
+				getReceiveStatusUpdateEventUri(testProduct.getId(), "invalid_state"),
+				TEST_CONTENT_TYPE,
+				TEST_ACCEPT_TYPE_PLAIN);
+
+		JsonObject jsonStatusUpdateEvent = new JsonObject();
+		jsonStatusUpdateEvent.addProperty("timestamp", (new Date()).toString());
+
+		request.setContent(serializer.toJson(jsonStatusUpdateEvent));
+		assertEquals(ResponseFactory.HTTP_ERROR_CODE, request.getResponseCode());
+	}
+
+	@Test
+	public void testReceiveStatusUpdateEvent_InvalidProductId_NotFound() {
+		request = requestFactory.createPostRequest(TEST_HOST,
+				getReceiveStatusUpdateEventUri(testProduct.getId() - 1, ProductState.RUNNING),
+				TEST_CONTENT_TYPE,
+				TEST_ACCEPT_TYPE_PLAIN);
+
+		JsonObject jsonStatusUpdateEvent = new JsonObject();
+		jsonStatusUpdateEvent.addProperty("timestamp", (new Date()).toString());
+
+		request.setContent(serializer.toJson(jsonStatusUpdateEvent));
+		assertEquals(ResponseFactory.HTTP_NOT_FOUND_CODE, request.getResponseCode());
+	}
+
 
 	private String getReceiveEventUri(Object eventTypeId) {
 		return EventReceiver.getReceiveEventBaseUri()
