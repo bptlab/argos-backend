@@ -1,17 +1,23 @@
 package de.hpi.bpt.argos.common;
 
-import java.net.HttpURLConnection;
-
 /**
  * This interface is a basic REST request and will be created and setup by the RestRequestFactory. It can be fully
  * parametrized in header and body.
  */
 public interface RestRequest {
-    /**
-     * This method is a getter for the protected instance variable "connection".
-     * @return - protected instance variable "connection" of type HttpURLConnection
-     */
-	HttpURLConnection getConnection();
+
+	/**
+	 * This method sets the requests method.
+	 * @param method - the method to be set
+	 */
+	void setMethod(String method);
+
+	/**
+	 * This method sets a property specified by its key.
+	 * @param key - the property key
+	 * @param value - the property value
+	 */
+	void setProperty(String key, String value);
 
 	/**
 	 * This method returns the content body of the rest request.
@@ -42,14 +48,6 @@ public interface RestRequest {
      * @return - boolean determining success or failure
      */
 	boolean isSuccessful();
-
-	/**
-	 * This method returns the http success code.
-	 * @return - http success code
-	 */
-	static int getHttpSuccessCode() {
-		return 200;
-	}
 
 	/**
 	 * This method returns a string for a response error.

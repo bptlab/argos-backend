@@ -2,26 +2,19 @@ package de.hpi.bpt.argos.api;
 
 import de.hpi.bpt.argos.api.event.EventEndpoint;
 import de.hpi.bpt.argos.api.event.EventEndpointImpl;
+import de.hpi.bpt.argos.api.eventQuery.EventQueryEndpoint;
+import de.hpi.bpt.argos.api.eventQuery.EventQueryEndpointImpl;
+import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
+import de.hpi.bpt.argos.api.eventType.EventTypeEndpointImpl;
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.api.product.ProductEndpointImpl;
 import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpoint;
 import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpointImpl;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
-import de.hpi.bpt.argos.api.response.ResponseFactoryImpl;
 import de.hpi.bpt.argos.notifications.ClientUpdateService;
 import de.hpi.bpt.argos.notifications.ClientUpdateServiceImpl;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
-import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
-import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQueryImpl;
-import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
-import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttributeImpl;
-import de.hpi.bpt.argos.persistence.model.event.data.EventDataType;
-import de.hpi.bpt.argos.persistence.model.event.type.EventType;
-import de.hpi.bpt.argos.persistence.model.event.type.EventTypeImpl;
 import spark.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * {@inheritDoc}
@@ -34,17 +27,18 @@ public class CustomerRestEndpointImpl implements CustomerRestEndpoint {
 
 	protected ClientUpdateService clientUpdateService;
 	protected EventEndpoint eventEndpoint;
+	protected EventTypeEndpoint eventTypeEndpoint;
 	protected ProductEndpoint productEndpoint;
 	protected ProductFamilyEndpoint productFamilyEndpoint;
+	protected EventQueryEndpoint eventQueryEndpoint;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setup(PersistenceEntityManager entityManager, Service sparkService) {
+	public void setup(PersistenceEntityManager entityManager, Service sparkService, ResponseFactory responseFactory) {
 		this.entityManager = entityManager;
-		responseFactory = new ResponseFactoryImpl();
-		responseFactory.setup(entityManager);
+		this.responseFactory = responseFactory;
 
 		// keep this first
 		clientUpdateService = new ClientUpdateServiceImpl();
@@ -54,10 +48,16 @@ public class CustomerRestEndpointImpl implements CustomerRestEndpoint {
 		eventEndpoint = new EventEndpointImpl();
 		eventEndpoint.setup(responseFactory, entityManager, sparkService);
 
+		eventTypeEndpoint = new EventTypeEndpointImpl();
+		eventTypeEndpoint.setup(responseFactory, entityManager, sparkService);
+
 		productEndpoint = new ProductEndpointImpl();
 		productEndpoint.setup(responseFactory, entityManager, sparkService);
 
 		productFamilyEndpoint = new ProductFamilyEndpointImpl();
 		productFamilyEndpoint.setup(responseFactory, entityManager, sparkService);
+
+		eventQueryEndpoint = new EventQueryEndpointImpl();
+		eventQueryEndpoint.setup(responseFactory, entityManager, sparkService);
 	}
 }

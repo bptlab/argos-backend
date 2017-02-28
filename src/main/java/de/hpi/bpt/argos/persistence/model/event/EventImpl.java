@@ -8,7 +8,14 @@ import de.hpi.bpt.argos.persistence.model.event.type.EventTypeImpl;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductImpl;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,7 +34,7 @@ public class EventImpl extends PersistenceEntityImpl implements Event {
 	protected EventType eventType;
 
 	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventDataImpl.class)
-	protected List<EventData> eventData;
+	protected List<EventData> eventData = new ArrayList<>();
 
 	/**
 	 * {@inheritDoc}

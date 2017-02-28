@@ -10,26 +10,15 @@
         <property name="hibernate.connection.driver_class">
             org.mariadb.jdbc.Driver
         </property>
-        <property name="hibernate.connection.username">
-            root
-        </property>
-        <property name="hibernate.connection.password">
-        </property>
-
-        <!-- Use database argosbackend (create if not exists) -->
-        <property name="hibernate.connection.url">
-            jdbc:mysql://localhost:3306/argosbackend?createDatabaseIfNotExist=true
-        </property>
 
         <!-- migration settings -->
-        <property name="hbm2ddl.auto">update</property>
 
         <mapping class="de.hpi.bpt.argos.persistence.model.event.EventImpl"/>
         <mapping class="de.hpi.bpt.argos.persistence.model.event.type.EventTypeImpl"/>
-        <mapping class="de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQueryImpl"/>
+        <mapping class="de.hpi.bpt.argos.persistence.model.event.statusUpdate.StatusUpdateEventTypeImpl"/>
+        <mapping class="de.hpi.bpt.argos.persistence.model.event.EventQueryImpl"/>
         <mapping class="de.hpi.bpt.argos.persistence.model.event.attribute.EventAttributeImpl"/>
         <mapping class="de.hpi.bpt.argos.persistence.model.event.data.EventDataImpl"/>
-        <mapping class="de.hpi.bpt.argos.persistence.model.event.UpdateProductStateEventImpl"/>
         <mapping class="de.hpi.bpt.argos.persistence.model.product.ProductFamilyImpl"/>
         <mapping class="de.hpi.bpt.argos.persistence.model.product.ProductImpl"/>
 

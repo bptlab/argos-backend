@@ -1,11 +1,11 @@
 package de.hpi.bpt.argos.persistence.database;
 
+import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
-
-import java.util.List;
+import de.hpi.bpt.argos.persistence.model.product.ProductState;
 
 /**
  * This interface represents a factory which is able to create new persistence entities.
@@ -38,18 +38,50 @@ public interface PersistenceEntityManager extends PersistenceEntityRetriever {
 	void updateEntity(PersistenceEntity entity, String fetchUri);
 
 	/**
-	 * This method returns a newly created event from its json representation.
-	 * @param eventType - the type of the event
-	 * @param jsonEvent - the json representation of the event
-	 * @return - the event
+	 * This method deletes an entity. This method also notifies clients about the changes.
+	 * @param entity - the entity to delete
 	 */
-	Event createEvent(EventType eventType, String jsonEvent);
+	void deleteEntity(PersistenceEntity entity);
 
 	/**
-	 * This method creates all default event types and also stores them in the database if necessary.
-	 * @return - a list of all default event types.
+	 * This method returns a newly created event from its json representation.
+	 * @param eventTypeId - the event type id
+	 * @param requestBody - the json representation of the event
+	 * @return - the new event
 	 */
-	List<EventType> createDefaultEventTypes();
+	Event createEvent(long eventTypeId, String requestBody);
+
+	/**
+	 * This method returns a newly created status update event from its json representation.
+	 * @param productId - the product id
+	 * @param newProductState - the updated product state
+	 * @param requestBody - the json representation of the event
+	 * @return - the new event
+	 */
+	Event createStatusUpdateEvent(long productId, ProductState newProductState, String requestBody);
+
+	/**
+	 * This method returns a newly created, simple event type from its json representation.
+	 * @param jsonEventType - the json representation of the event type
+	 * @return - the simple event type
+	 */
+	EventType createSimpleEventType(JsonObject jsonEventType);
+
+	/**
+	 * This method returns a newly created event type from its json representation. Notice: This event type has no valid EventQuery and
+	 * thus, clients will not be updated.
+	 * @param jsonEventType - the json representation of the event type
+	 * @return - the event type
+	 */
+	EventType createEventType(JsonObject jsonEventType);
+
+	/**
+	 * This method updates an existing event type.
+	 * @param jsonEventType - the new json representation of the event type
+	 * @param eventTypeId - the event type id
+	 * @return - the updated event type
+	 */
+	EventType updateEventType(JsonObject jsonEventType, long eventTypeId);
 
 	/**
 	 * This method returns a product or creates it, if it does not exist in the database.

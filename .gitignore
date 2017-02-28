@@ -2,11 +2,9 @@
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 # User-specific stuff:
-.idea/workspace.xml
-.idea/tasks.xml
 .idea/
-argos-backend.iml
-argos.iml
+src/main/resources/argos-backend.properties
+lib/
 
 ## File-based project format:
 *.iws

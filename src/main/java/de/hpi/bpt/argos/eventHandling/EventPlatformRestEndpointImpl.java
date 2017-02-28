@@ -1,25 +1,30 @@
 package de.hpi.bpt.argos.eventHandling;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
-import de.hpi.bpt.argos.api.response.ResponseFactoryImpl;
+import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
-import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
-import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQueryImpl;
-import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
-import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttributeImpl;
-import de.hpi.bpt.argos.persistence.model.event.data.EventDataType;
+import de.hpi.bpt.argos.persistence.model.event.statusUpdate.StatusUpdateEventTypeImpl;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
-import de.hpi.bpt.argos.persistence.model.event.type.EventTypeImpl;
+import de.hpi.bpt.argos.properties.PropertyEditor;
+import de.hpi.bpt.argos.properties.PropertyEditorImpl;
+import org.hibernate.annotations.common.util.impl.LoggerFactory;
+import org.jboss.logging.Logger;
 import spark.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * {@inheritDoc}
  * This is the implementation.
  */
 public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint {
+	protected static final Logger logger = LoggerFactory.logger(EventPlatformRestEndpointImpl.class);
+	protected static final JsonParser jsonParser = new JsonParser();
 
 	protected PersistenceEntityManager entityManager;
 
@@ -31,12 +36,11 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setup(PersistenceEntityManager entityManager, Service sparkService) {
+	public void setup(PersistenceEntityManager entityManager, Service sparkService, ResponseFactory responseFactory) {
 		this.entityManager = entityManager;
-		responseFactory = new ResponseFactoryImpl();
-		responseFactory.setup(entityManager);
+		this.responseFactory = responseFactory;
 
-		createSimpleEventTypes();
+		loadDefaultEventTypes();
 
 		eventSubscriber = new EventSubscriberImpl();
 		eventSubscriber.setup(entityManager);
@@ -47,106 +51,78 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 	}
 
 	/**
-	 * This method creates all simple event types.
+	 * {@inheritDoc}
 	 */
-	protected void createSimpleEventTypes() {
-		List<EventType> existingEventTypes = entityManager.getEventTypes();
-		List<EventType> newEventTypes = new ArrayList<>();
+	@Override
+	public EventReceiver getEventReceiver() {
+		return eventReceiver;
+	}
 
-		newEventTypes.add(createFeedbackDataEventType());
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public EventSubscriber getEventSubscriber() {
+		return eventSubscriber;
+	}
 
-		for(EventType existingType : existingEventTypes) {
+	/**
+	 * This method loads all default event types from the disk.
+	 */
+	protected void loadDefaultEventTypes() {
+		try {
 
-			for(int i = 0; i < newEventTypes.size(); i++) {
-				if (existingType.getName().equals(newEventTypes.get(i).getName())) {
-					newEventTypes.remove(i);
-					break;
-				}
+			loadStatusUpdateEventType();
+
+			PropertyEditor propertyEditor = new PropertyEditorImpl();
+			String eventTypesDirectoryPath = propertyEditor.getProperty(Argos.getArgosBackendEventTypeDirectoryPropertyKey());
+			if (eventTypesDirectoryPath.length() == 0) {
+				throw new NullPointerException();
 			}
+
+			// since the path is delivered as URI, it is represented as a HTML string. Thus we need to replace %20 with file system spaces.
+			File eventTypesDirectory = new File(eventTypesDirectoryPath.replaceAll("%20", " "));
+
+			for (File eventType : eventTypesDirectory.listFiles()) {
+				if (!eventType.getName().endsWith(".json")) {
+					continue;
+				}
+
+				loadDefaultEventType(eventType);
+			}
+
+		} catch (NullPointerException e) {
+			logger.error("cannot find directory for default event types or not defined in properties", e);
+		}
+	}
+
+	/**
+	 * THis method loads the status update event type.
+	 */
+	protected void loadStatusUpdateEventType() {
+		EventType statusUpdateEventType = entityManager.getEventType(EventType.getStatusUpdateEventTypeName());
+
+		if (statusUpdateEventType != null) {
+			return;
 		}
 
-		for (EventType newEventType : newEventTypes) {
-			entityManager.updateEntity(newEventType);
+		statusUpdateEventType = new StatusUpdateEventTypeImpl();
+		entityManager.updateEntity(statusUpdateEventType);
+	}
+
+	/**
+	 * This method loads the content of a specific file and parses this into an event type.
+	 * @param eventTypeFile - the file to load
+	 */
+	protected void loadDefaultEventType(File eventTypeFile) {
+		try {
+			String fileContent = new String(Files.readAllBytes(Paths.get(eventTypeFile.toURI())), StandardCharsets.UTF_8);
+
+			JsonObject jsonEventType = jsonParser.parse(fileContent).getAsJsonObject();
+			entityManager.createSimpleEventType(jsonEventType);
+
+		} catch (Exception e) {
+			logger.error("cannot load default event type '" + eventTypeFile.getName() + "'.", e);
 		}
-	}
-
-	/**
-	 * This method creates a new event attribute.
-	 * @param name - the name of the attribute
-	 * @param type - the type of the attribute
-	 * @return - the new event attribute
-	 */
-	protected EventAttribute createEventAttribute(String name, EventDataType type) {
-		EventAttribute attribute = new EventAttributeImpl();
-		attribute.setName(name);
-		attribute.setType(type);
-
-		return attribute;
-	}
-
-	/**
-	 * This method creates a new simple event type.
-	 * @param name - the name of the event type
-	 * @return - the new event type
-	 */
-	protected EventType createSimpleEventType(String name) {
-		EventType eventType = new EventTypeImpl();
-		eventType.setName(name);
-
-		EventSubscriptionQuery subscriptionQuery = new EventSubscriptionQueryImpl();
-		subscriptionQuery.setQueryString(String.format("SELECT * FROM %1$s", name));
-
-		eventType.setEventSubscriptionQuery(subscriptionQuery);
-
-		return eventType;
-	}
-
-	/**
-	 * This method creates the "FeedbackData" event type.
-	 * @return - the new "FeedbackData" event type
-	 */
-	protected EventType createFeedbackDataEventType() {
-		EventType eventType = createSimpleEventType("FeedbackData");
-
-		List<EventAttribute> attributes = new ArrayList<>();
-
-		EventAttribute timestampAttribute = createEventAttribute("dateOfServiceIntervention", EventDataType.DATE);
-		EventAttribute productIdentificationAttribute = createEventAttribute("orderNumber", EventDataType.INTEGER);
-		EventAttribute productFamilyIdentificationAttribute = createEventAttribute("productFamilyId", EventDataType.STRING);
-
-		attributes.add(timestampAttribute);
-		attributes.add(createEventAttribute("dateOfInstallation", EventDataType.DATE));
-		attributes.add(createEventAttribute("dateOfProduction", EventDataType.DATE));
-		attributes.add(createEventAttribute("factoryId", EventDataType.INTEGER));
-		attributes.add(createEventAttribute("counter", EventDataType.INTEGER));
-		attributes.add(createEventAttribute("softwareVersion", EventDataType.FLOAT));
-		attributes.add(createEventAttribute("feedbackOfInstaller", EventDataType.STRING));
-		attributes.add(createEventAttribute("objectId", EventDataType.INTEGER));
-		attributes.add(createEventAttribute("locationOfDeviceId", EventDataType.INTEGER));
-		attributes.add(productFamilyIdentificationAttribute);
-
-		attributes.add(createEventAttribute("errorId", EventDataType.STRING));
-		attributes.add(createEventAttribute("errorFailureTreeId", EventDataType.INTEGER));
-		attributes.add(createEventAttribute("errorDescription", EventDataType.STRING));
-
-		attributes.add(productIdentificationAttribute);
-		attributes.add(createEventAttribute("productName", EventDataType.STRING));
-
-		attributes.add(createEventAttribute("replacementPartId", EventDataType.INTEGER));
-		attributes.add(createEventAttribute("replacementPartName", EventDataType.STRING));
-
-		attributes.add(createEventAttribute("causeId", EventDataType.INTEGER));
-		attributes.add(createEventAttribute("causeDescription", EventDataType.STRING));
-
-		attributes.add(createEventAttribute("codingPlugId", EventDataType.INTEGER));
-		attributes.add(createEventAttribute("codingPlugBusId", EventDataType.INTEGER));
-		attributes.add(createEventAttribute("codingPlugSoftwareVersion", EventDataType.FLOAT));
-
-		eventType.setAttributes(attributes);
-		eventType.setTimestampAttribute(timestampAttribute);
-		eventType.setProductIdentificationAttribute(productIdentificationAttribute);
-		eventType.setProductFamilyIdentificationAttribute(productFamilyIdentificationAttribute);
-
-		return eventType;
 	}
 }

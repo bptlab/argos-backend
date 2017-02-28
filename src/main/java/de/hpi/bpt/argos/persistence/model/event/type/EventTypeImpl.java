@@ -3,16 +3,21 @@ package de.hpi.bpt.argos.persistence.model.event.type;
 import de.hpi.bpt.argos.eventHandling.schema.EventTypeSchemaGenerator;
 import de.hpi.bpt.argos.eventHandling.schema.EventTypeSchemaGeneratorImpl;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityImpl;
-import de.hpi.bpt.argos.persistence.model.event.Event;
-import de.hpi.bpt.argos.persistence.model.event.EventImpl;
-import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
-import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQueryImpl;
+import de.hpi.bpt.argos.persistence.model.event.EventQuery;
+import de.hpi.bpt.argos.persistence.model.event.EventQueryImpl;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttributeImpl;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,8 +34,8 @@ public class EventTypeImpl extends PersistenceEntityImpl implements EventType {
 	@Column(name = "Name")
 	protected String name = "";
 
-	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventSubscriptionQueryImpl.class)
-	protected EventSubscriptionQuery eventSubscriptionQuery;
+	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventQueryImpl.class)
+	protected EventQuery eventQuery = new EventQueryImpl();
 
 	@ManyToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventAttributeImpl.class)
 	@Fetch(value = FetchMode.SUBSELECT)
@@ -39,14 +44,14 @@ public class EventTypeImpl extends PersistenceEntityImpl implements EventType {
 	@ManyToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventAttributeImpl.class)
 	protected EventAttribute timestampAttribute;
 
-	@ManyToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventAttributeImpl.class)
-	protected EventAttribute productIdentificationAttribute;
+	@Column(name = "Editable")
+	protected boolean editable = true;
 
-	@ManyToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventAttributeImpl.class)
-	protected EventAttribute productFamilyIdentificationAttribute;
+	@Column(name = "Deletable")
+	protected boolean deletable = true;
 
-	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = EventImpl.class)
-	protected List<Event> events = new ArrayList<>();
+	@Column(name = "ShouldBeRegistered")
+	protected boolean shouldBeRegistered = false;
 
 	/**
 	 * {@inheritDoc}
@@ -76,16 +81,16 @@ public class EventTypeImpl extends PersistenceEntityImpl implements EventType {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EventSubscriptionQuery getEventSubscriptionQuery() {
-		return eventSubscriptionQuery;
+	public EventQuery getEventQuery() {
+		return eventQuery;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setEventSubscriptionQuery(EventSubscriptionQuery eventSubscriptionQuery) {
-		this.eventSubscriptionQuery = eventSubscriptionQuery;
+	public void setEventQuery(EventQuery eventQuery) {
+		this.eventQuery = eventQuery;
 	}
 
 	/**
@@ -124,47 +129,61 @@ public class EventTypeImpl extends PersistenceEntityImpl implements EventType {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EventAttribute getProductIdentificationAttribute() {
-		return productIdentificationAttribute;
+	public EventAttribute getAttribute(String attributeName) {
+		for (EventAttribute attribute : attributes) {
+			if (attribute.getName().equals(attributeName)) {
+				return attribute;
+			}
+		}
+
+		return null;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setProductIdentificationAttribute(EventAttribute eventAttribute) {
-		this.productIdentificationAttribute = eventAttribute;
+	public boolean isEditable() {
+		return editable;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EventAttribute getProductFamilyIdentificationAttribute() {
-		return productFamilyIdentificationAttribute;
+	public boolean isDeletable() {
+		return deletable;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setProductFamilyIdentificationAttribute(EventAttribute eventAttribute) {
-		this.productFamilyIdentificationAttribute = eventAttribute;
+	public void setEditable(boolean editable) {
+		this.editable = editable;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Event> getEvents() {
-		return events;
+	public void setDeletable(boolean deletable) {
+		this.deletable = deletable;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setEvents(List<Event> events) {
-		this.events = events;
+	public boolean shouldBeRegistered() {
+		return shouldBeRegistered;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setShouldBeRegistered(boolean shouldBeRegistered) {
+		this.shouldBeRegistered = shouldBeRegistered;
 	}
 }

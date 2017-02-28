@@ -6,7 +6,6 @@ import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManagerEventReceiver;
 import spark.Service;
 
-import java.time.Duration;
 import java.util.Map;
 
 /**
@@ -36,4 +35,25 @@ public interface ClientUpdateService extends PersistenceEntityManagerEventReceiv
 	 * This method removes all existing entity updates.
 	 */
 	void resetEntityUpdates();
+
+	/**
+	 * This method sends all cached entity updates to the clients.
+	 */
+	void sendEntityUpdates();
+
+	/**
+	 * This method returns the property key for the pushNotificationUpdateType property.
+	 * @return - the property key for the pushNotificationUpdateType property
+	 */
+	static String getPushNotificationUpdateTypePropertyKey() {
+		return "pushNotificationUpdateType";
+	}
+
+	/**
+	 * This method returns the property key for the pushNotificationUpdatePeriod property.
+	 * @return - the property key for the pushNotificationUpdatePeriod property
+	 */
+	static String getPushNotificationUpdatePeriodPropertyKey() {
+		return "pushNotificationUpdatePeriodInMS";
+	}
 }

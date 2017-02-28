@@ -1,13 +1,17 @@
 package de.hpi.bpt.argos.eventHandling;
 
+import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
+import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
 import de.hpi.bpt.argos.common.RestEndpointImpl;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.model.event.Event;
-import de.hpi.bpt.argos.persistence.model.event.type.EventType;
+import de.hpi.bpt.argos.persistence.model.product.ProductState;
 import spark.Request;
 import spark.Response;
 import spark.Service;
+
+import static spark.Spark.halt;
 
 /**
  * {@inheritDoc}
@@ -21,7 +25,8 @@ public class EventReceiverImpl extends RestEndpointImpl implements EventReceiver
 	@Override
 	public void setup(ResponseFactory responseFactory, PersistenceEntityManager entityManager, Service sparkService) {
 		super.setup(responseFactory, entityManager, sparkService);
-		sparkService.post(EventReceiver.getPostEventBaseUri(), this::receiveEvent);
+		sparkService.post(EventReceiver.getReceiveEventBaseUri(), this::receiveEvent);
+		sparkService.post(EventReceiver.getReceiveStatusUpdateEventBaseUri(), this::receiveStatusUpdateEvent);
 	}
 
     /**
@@ -31,12 +36,47 @@ public class EventReceiverImpl extends RestEndpointImpl implements EventReceiver
 	public String receiveEvent(Request request, Response response) {
 		logInfoForReceivedRequest(request);
 
-		long eventTypeId = inputValidation.validateLong(request.params("eventTypeId"), (Long input) -> input > 0);
+		long eventTypeId = inputValidation.validateLong(
+				request.params(EventTypeEndpoint.getEventTypeIdParameter(false)),
+				(Long input) -> input > 0);
 
-		EventType eventType = entityManager.getEventType(eventTypeId);
-		Event event = entityManager.createEvent(eventType, request.body());
+		Event event = entityManager.createEvent(eventTypeId, request.body());
+
+		if (event == null) {
+			logger.error("cannot find event type '" + eventTypeId + "'");
+			halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "cannot find event type");
+		}
 
 		logInfoForReceivedEvent(event);
+		return responseFactory.finishRequest();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String receiveStatusUpdateEvent(Request request, Response response) {
+		logInfoForReceivedRequest(request);
+
+		long productId = inputValidation.validateLong(
+				request.params(ProductEndpoint.getProductIdParameter(false)),
+				(Long input) -> input > 0);
+		ProductState newState = inputValidation.validateEnum(
+				ProductState.class,
+				request.params(ProductEndpoint.getNewProductStatusParameter(false)));
+
+		if (newState == null) {
+			halt(ResponseFactory.HTTP_ERROR_CODE, "unable to parse new status");
+			return "";
+		}
+
+		Event event = entityManager.createStatusUpdateEvent(productId, newState, request.body());
+
+		if (event == null) {
+			logger.error("unable to update product '" + productId + "' to state '" + newState.toString() + "'");
+			halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "unable to update product state");
+		}
+
 		return responseFactory.finishRequest();
 	}
 

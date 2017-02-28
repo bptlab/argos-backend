@@ -1,0 +1,427 @@
+# Example YAML to get you started quickly.
+# Be aware that YAML has indentation based scoping.
+# Code completion support is available so start typing for available options.
+swagger: '2.0'
+
+# This is your document metadata
+info:
+  version: "1.0"
+  title: Argos-Backend
+
+# Describe your paths here
+paths:
+  /api/productfamilies:
+    get:
+      description: Gets an array of `ProductFamily` objects.
+      responses:
+        200:
+          description: Successful response
+          schema:
+            title: ArrayOfProductFamilies
+            type: array
+            items:
+              title: ProductFamily
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                brand:
+                  type: string
+                products:
+                  title: ArrayOfProducts
+                  type: array
+                  items:
+                    title: Product
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      numberOfDevices:
+                        type: integer
+                      numberOfEvents:
+                        type: integer
+                      productionStart:
+                        type: string
+                        format: date
+                      orderNumber:
+                        type: integer
+                      state:
+                        type: string
+                      stateDescription:
+                        type: string
+                      statusUpdateQueries:
+                        type: object
+                        properties:
+                          RUNNING:
+                            type: string
+                          WARNING:
+                            type: string
+                          ERROR:
+                            type: string
+
+  /api/productfamilies/{productFamilyId}:
+    get:
+      description: Gets a single `ProductFamily` object defined by its id.
+      parameters:
+        -
+          name: productFamilyId
+          in: path
+          description: Unique identifier for the `ProductFamily`
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Successful response
+          schema:
+            title: ProductFamily
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              brand:
+                type: string
+                
+  /api/products/{productId}:
+    get:
+      description: Get a single `Product` object defined by its id.
+      parameters:
+        -
+          name: productId
+          in: path
+          description: Unique identifier for the `Product`
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Successful response
+          schema:
+            title: Product
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              numberOfDevices:
+                type: integer
+              numberOfEvents:
+                type: integer
+              productionStart:
+                type: string
+                format: date
+              orderNumber:
+                type: integer
+              state:
+                type: string
+              stateDescription:
+                type: string
+              statusUpdateQueries:
+                type: object
+                properties:
+                  RUNNING:
+                    type: string
+                  WARNING:
+                    type: string
+                  ERROR:
+                    type: string
+
+  /api/products/{productId}/eventtypes:
+    get:
+      description: Gets an array of `EventType` objects for a defined `Product`.
+      parameters:
+        -
+          name: productId
+          in: path
+          description: Unique identifier for the `Product`
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Successful response
+          schema:
+            title: ArrayOfEventTypes
+            type: array
+            items:
+              title: EventType
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                numberOfEvents:
+                  type: integer
+                timestampAttributeName:
+                  type: string
+                eventQuery:
+                  type: string
+                attributes:
+                  title: ArrayOfEventAttributes
+                  type: array
+                  items:
+                    title: EventAttribute
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      type:
+                        type: string
+
+  /api/products/{productId}/events/{eventTypeId}/{indexFrom}/{indexTo}:
+    get:
+      description: Gets an array of `Event` objects for a defined `Product` within a certain index range.
+      parameters:
+        -
+          name: productId
+          in: path
+          description: Unique identifier for the `Product`
+          required: true
+          type: integer
+        -
+          name: eventTypeId
+          in: path
+          description: Unique identifier for the `EventType`
+          required: true
+          type: integer
+        -
+          name: indexFrom
+          in: path
+          description: Start index for the `Event` objects to receive
+          required: true
+          type: integer
+        -
+          name: indexTo
+          in: path
+          description: End index for the `Event` objects to receive
+          required: true
+          type: integer
+
+      responses:
+        200:
+          description: Successful response
+          schema:
+            title: ArrayOfEvents
+            type: array
+            items:
+              title: Event
+              description: An object which contains all attributes specified in `EventType`
+              type: object
+              
+  /api/products/{productId}/update/statuschange/{newProductStatus}:
+    post:
+      description: Updates an `EventQuery` which events will change the status of the specified `Product`.
+      parameters:
+        -
+          name: productId
+          in: path
+          description: Unique identifier for the `Product`
+          required: true
+          type: integer
+        -
+          name: newProductStatus
+          in: path
+          description: The new state of the `Product` after an `Event` for the given `EventQuery` is received
+          required: true
+          type: string
+        - 
+          name: eventQuery
+          in: body
+          description: The new event query that should be saved for the status change
+          required: true
+          schema:
+            type: object
+            properties:
+              eventQuery:
+                type: string
+      
+      responses:
+        200:
+          description: Successful response
+
+  /api/events/{eventId}:
+    get:
+      description: Gets a single `Event` object defined by its id.
+      parameters:
+        -
+          name: eventId
+          in: path
+          description: Unique identifier for the `Event`
+          required: true
+          type: integer
+
+      responses:
+        200:
+          description: Successful response
+          schema:
+            title: Event
+            type: object
+            description: An object which contains all attributes specified in `EventType`
+            
+  /api/eventtypes:
+    get:
+      description: Gets an array of `EventType` objects.
+      
+      responses:
+        200:
+          description: Successful response
+          schema:
+            title: ArrayOfEventTypes
+            type: array
+            items:
+              title: EventType
+              type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+                timestampAttributeName:
+                  type: string
+                eventQuery:
+                  type: string
+                attributes:
+                  title: ArrayOfEventAttributes
+                  type: array
+                  items:
+                    title: EventAttribute
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      type:
+                        type: string
+                        
+  /api/eventtypes/{eventTypeId}:
+    get:
+      description: Gets a single `EventType` object defined by its id.
+      parameters:
+        -
+          name: eventTypeId
+          in: path
+          description: Unique identifier for the `EventType`
+          required: true
+          type: integer
+      
+      responses:
+        200:
+          description: Successful response
+          schema:
+            title: EventType
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              timestampAttributeName:
+                type: string
+              eventQuery:
+                type: string
+              attributes:
+                title: ArrayOfEventAttributes
+                type: array
+                items:
+                  title: EventAttribute
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    type:
+                      type: string
+                      
+  /api/eventtypes/create:
+    post:
+      description: Creates a new `EventType` object.
+      parameters:
+        -
+          name: EventTypeMap
+          in: body
+          description: Contains the `EventQuery` and the corresponding `EventType` to create.
+          required: true
+          schema:
+            type: object
+            properties:
+              eventQuery:
+                type: string
+              eventType:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  timestamp:
+                    description: Name of the timestamp `EventAttribute`
+                    type: string
+                  attributes:
+                    title: ArrayOfEventAttributes
+                    description: A map of Names -> Type
+                    type: array
+                    items:
+                      title: EventAttribute
+                      description: There must be two `EventAttributes` named "ProductId" (integer) and "ProductFamilyId" (string).
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        type:
+                          type: string
+      responses:
+        200:
+          description: Successful response
+          
+  /api/eventtypes/delete/{eventTypeId}:
+    delete:
+      description: Deletes an event query defined by the `EventType` id.
+      parameters:
+        - 
+          name: eventTypeId
+          in: path
+          type: integer
+          description: The id of the `EventType` object whose event query should be deleted.
+          required: true
+      responses:
+        200:
+          description: Successful response
+        500:
+          description: Failure while deleting
+          schema:
+            type: array
+            title: ArrayOfEventTypeId
+            items:
+              title: EventTypeId
+              type: integer
+      
+  /api/eventqueries/update/{eventTypeId}:
+    post:
+      description: Updates an event query defined by the `EventType` id.
+      parameters:
+        - 
+          name: eventTypeId
+          in: path
+          type: integer
+          description: The id of the `EventType` object whose event query should be updated.
+          required: true
+        - 
+          name: eventQuery
+          in: body
+          description: The new event query that should be saved for the `EventType`
+          required: true
+          schema:
+            type: object
+            properties:
+              eventQuery:
+                type: string
+      responses:
+        200:
+          description: Successful response

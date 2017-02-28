@@ -2,11 +2,14 @@ package de.hpi.bpt.argos.core;
 
 import de.hpi.bpt.argos.api.CustomerRestEndpoint;
 import de.hpi.bpt.argos.api.CustomerRestEndpointImpl;
+import de.hpi.bpt.argos.api.response.ResponseFactory;
+import de.hpi.bpt.argos.api.response.ResponseFactoryImpl;
 import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpoint;
 import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpointImpl;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManagerImpl;
-
+import de.hpi.bpt.argos.properties.PropertyEditor;
+import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import spark.Service;
 
 import static spark.Service.ignite;
@@ -16,9 +19,6 @@ import static spark.Service.ignite;
  * This is the implementation.
  */
 public class ArgosImpl implements Argos {
-
-	protected static final int DEFAULT_PORT = 8989;
-	protected static final int DEFAULT_NUMBER_OF_THREADS = 8;
 
 	protected Service sparkService;
 	protected PersistenceEntityManager entityManager;
@@ -31,6 +31,7 @@ public class ArgosImpl implements Argos {
      */
 	@Override
 	public void run(int port, int numberOfThreads) {
+
 		sparkService = startServer(port, numberOfThreads);
 
 		entityManager = new PersistenceEntityManagerImpl();
@@ -39,12 +40,14 @@ public class ArgosImpl implements Argos {
 			return;
 		}
 
-		// Keep this first, as spark wants to have all web sockets first
+		ResponseFactory responseFactory = new ResponseFactoryImpl();
 		customerRestEndpoint = new CustomerRestEndpointImpl();
-		customerRestEndpoint.setup(entityManager, sparkService);
-
 		eventPlatformRestEndpoint = new EventPlatformRestEndpointImpl();
-		eventPlatformRestEndpoint.setup(entityManager, sparkService);
+
+		// Keep this order, as spark wants to have all web sockets first
+		responseFactory.setup(entityManager, eventPlatformRestEndpoint);
+		customerRestEndpoint.setup(entityManager, sparkService, responseFactory);
+		eventPlatformRestEndpoint.setup(entityManager, sparkService, responseFactory);
 
 		enableCORS(sparkService);
 		sparkService.awaitInitialization();
@@ -55,7 +58,7 @@ public class ArgosImpl implements Argos {
      */
 	@Override
 	public void run() {
-		run(DEFAULT_PORT, DEFAULT_NUMBER_OF_THREADS);
+		run(Argos.getPort(), Argos.getThreads());
 	}
 
     /**
@@ -66,16 +69,40 @@ public class ArgosImpl implements Argos {
 		sparkService.stop();
 	}
 
-    /**
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setTestMode(boolean testMode) {
+		PropertyEditor propertyEditor = new PropertyEditorImpl();
+		propertyEditor.setProperty(Argos.getArgosBackendTestModePropertyKey(), String.valueOf(testMode));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public PersistenceEntityManager getPersistenceEntityManager() {
+		return entityManager;
+	}
+
+	/**
      * This method starts the Spark service on a given port with a given number of threads.
      * @param port - port to be used as an integer
      * @param numberOfThreads - number of threads to be used as an integer
      * @return - returns a spark service object
      */
 	protected Service startServer(int port, int numberOfThreads) {
-		return ignite()
-				.port(port)
-				.threadPool(numberOfThreads);
+		PropertyEditor propertyEditor = new PropertyEditorImpl();
+
+		Service service = ignite()
+								.port(port)
+								.threadPool(numberOfThreads);
+
+		String publicFiles = propertyEditor.getProperty(Argos.getArgosBackendPublicFilesPropertyKey());
+		service.staticFileLocation(publicFiles);
+
+		return service;
 	}
 
 
@@ -83,9 +110,15 @@ public class ArgosImpl implements Argos {
 	 * This method enables the CORS handling for every request. This could a security leak.
 	 * @param sparkService - the sparkservice to be configured
 	 */
-	//TODO: fix the vulnerability
 	protected void enableCORS(Service sparkService) {
-		sparkService.options("/*", (request, response) -> {
+
+		PropertyEditor propertyReader = new PropertyEditorImpl();
+
+		String allowedOrigin = propertyReader.getProperty(Argos.getCORSAllowedOriginPropertyKey());
+		String allowedRequestMethod = propertyReader.getProperty(Argos.getCORSAllowedRequestMethodPropertyKey());
+
+
+		sparkService.options("/api/*", (request, response) -> {
 
 			String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
 			if (accessControlRequestHeaders != null) {
@@ -101,9 +134,8 @@ public class ArgosImpl implements Argos {
 		});
 
 		sparkService.before((request, response) -> {
-			response.header("Access-Control-Allow-Origin", "*");
-			response.header("Access-Control-Request-Method", "*");
-			response.header("Access-Control-Allow-Headers", "*");
+			response.header("Access-Control-Allow-Origin", allowedOrigin);
+			response.header("Access-Control-Request-Method", allowedRequestMethod);
 			response.type("application/json");
 		});
 	}

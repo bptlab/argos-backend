@@ -1,17 +1,28 @@
 package de.hpi.bpt.argos.api.response;
 
+import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpoint;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
+import de.hpi.bpt.argos.persistence.model.product.ProductState;
 
 /**
  * This interface represents factories which produce rest responses.
  */
 public interface ResponseFactory {
 
+	int HTTP_SUCCESS_CODE = 200;
+
+	int HTTP_FORBIDDEN_CODE = 403;
+
+	int HTTP_NOT_FOUND_CODE = 404;
+
+	int HTTP_ERROR_CODE = 500;
+
 	/**
 	 * This method sets up this response factory.
 	 * @param entityManager - the entity manager to get persistence entities from
+	 * @param eventPlatformRestEndpoint - the event platform rest endpoint to register event queries at
 	 */
-	void setup(PersistenceEntityManager entityManager);
+	void setup(PersistenceEntityManager entityManager, EventPlatformRestEndpoint eventPlatformRestEndpoint);
 
 	/**
 	 * This method returns a json representation of all product families.
@@ -41,6 +52,19 @@ public interface ResponseFactory {
 	String getAllEventTypes(long productId);
 
 	/**
+	 * This method returns a json representation of the specified event type.
+	 * @param eventTypeId - the id of the event type
+	 * @return - a json representation of the event type
+	 */
+	String getEventType(long eventTypeId);
+
+	/**
+	 * This method returns a json representation of all event types.
+	 * @return - a json representation of all event types
+	 */
+	String getAllEventTypes();
+
+	/**
 	 * This method returns a json representation of all events for one specific product with a specific event type within a certain range.
 	 * @param productId - the product identifier
 	 * @param eventTypeId - the event type identifier
@@ -58,18 +82,38 @@ public interface ResponseFactory {
 	String getEvent(long eventId);
 
 	/**
+	 * This method tries to create a new event type from a request body.
+	 * @param requestBody - the request body as string
+	 */
+	void createEventType(String requestBody);
+
+	/**
+	 * This method tries to update an existing event query from a request body.
+	 * @param eventTypeId - the event type id, which contains the event query to update
+	 * @param requestBody - the request body, which should contain the new event query
+	 */
+	void updateEventQuery(long eventTypeId, String requestBody);
+
+	/**
+	 * This method tries to update the status update event query for a specific product.
+	 * @param productId - the product to update
+	 * @param newState - the new state of the product, after an event for this query arrived
+	 * @param requestBody - the request body, which should contain the new status update query and the corresponding state
+	 */
+	void updateStatusEventQuery(long productId, ProductState newState, String requestBody);
+
+	/**
+	 * This method tries to delete an existing event type.
+	 * @param eventTypeId - the event type id to delete
+	 * @return - a json array of event type ids, which block the deletion process or the success response
+	 */
+	String deleteEventType(long eventTypeId);
+
+	/**
 	 * This method returns a default response to generic requests.
 	 * @return - a simple response to a request
 	 */
 	default String finishRequest() {
 		return "request finished";
-	}
-
-	/**
-	 * This method returns the http page not found code.
-	 * @return - the http page not found code
-	 */
-	static int getHttpNotFoundCode() {
-		return 404;
 	}
 }

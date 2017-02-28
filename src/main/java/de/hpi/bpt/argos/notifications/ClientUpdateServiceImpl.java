@@ -6,10 +6,15 @@ import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.notifications.socket.PushNotificationClientHandler;
 import de.hpi.bpt.argos.notifications.socket.PushNotificationClientHandlerImpl;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
+import de.hpi.bpt.argos.properties.PropertyEditor;
+import de.hpi.bpt.argos.properties.PropertyEditorImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spark.Service;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -19,25 +24,54 @@ import java.util.concurrent.TimeUnit;
  * This is the implementation.
  */
 public class ClientUpdateServiceImpl implements ClientUpdateService {
-	protected static final Duration DEFAULT_CLIENT_UPDATE_INTERVAL = Duration.ofSeconds(10);
+	protected static final Logger logger = LoggerFactory.getLogger(ClientUpdateServiceImpl.class);
+	protected static final Gson serializer = new Gson();
 
 	protected PushNotificationClientHandler clientHandler;
-	protected Duration clientUpdateInterval;
 	protected Map<PersistenceEntity, JsonObject> entityUpdates;
 	protected ScheduledExecutorService executorService;
+	protected PushNotificationUpdateType updateType;
 
 	/**
 	 * This constructor initializes all members with default values.
 	 */
 	public ClientUpdateServiceImpl() {
 		clientHandler = new PushNotificationClientHandlerImpl();
-		clientUpdateInterval = DEFAULT_CLIENT_UPDATE_INTERVAL;
 		entityUpdates = new HashMap<>();
-		executorService = Executors.newScheduledThreadPool(1);
-		executorService.scheduleAtFixedRate(new SendClientNotificationThread(this),
-				DEFAULT_CLIENT_UPDATE_INTERVAL.toMillis(),
-				DEFAULT_CLIENT_UPDATE_INTERVAL.toMillis(),
-				TimeUnit.MILLISECONDS);
+
+		PropertyEditor propertyEditor = new PropertyEditorImpl();
+
+		switch (propertyEditor.getProperty(ClientUpdateService.getPushNotificationUpdateTypePropertyKey())) {
+			case "IMMEDIATE":
+				updateType = PushNotificationUpdateType.IMMEDIATE;
+				break;
+			case "PERIOD":
+				updateType = PushNotificationUpdateType.PERIOD;
+				break;
+			default:
+				logger.error("cannot parse push notification update type");
+				updateType = PushNotificationUpdateType.IMMEDIATE;
+				break;
+		}
+
+		if (updateType == PushNotificationUpdateType.PERIOD) {
+
+			String periodInMs = propertyEditor.getProperty(ClientUpdateService.getPushNotificationUpdatePeriodPropertyKey());
+			Duration updatePeriod = Duration.ZERO;
+
+			if (periodInMs != null && periodInMs.length() != 0) {
+				try {
+					updatePeriod = Duration.ofMillis(Long.parseLong(periodInMs));
+				} catch (Exception e) {
+					logger.error("cannot parse push notification update period", e);
+				}
+			}
+
+			executorService = Executors.newScheduledThreadPool(1);
+			executorService.scheduleAtFixedRate(new SendClientNotificationThread(this),
+					updatePeriod.toMillis(),
+					updatePeriod.toMillis(), TimeUnit.MILLISECONDS);
+		}
 	}
 
 	/**
@@ -78,19 +112,48 @@ public class ClientUpdateServiceImpl implements ClientUpdateService {
 	 */
 	@Override
 	public void onEntityModified(PushNotificationType typeOfUpdate, PersistenceEntity entity, String fetchUri) {
+		final String implementationSuffix = "Impl";
+
 		JsonObject jsonUpdate = new JsonObject();
 
+		String entityType = entity.getClass().getSimpleName();
+
+		if (entityType.endsWith(implementationSuffix)) {
+			entityType = entityType.substring(0, entityType.length() - implementationSuffix.length());
+		}
+
+
 		jsonUpdate.addProperty("updateReason", typeOfUpdate.toString());
-		jsonUpdate.addProperty("entityType", entity.getClass().getName());
+		jsonUpdate.addProperty("entityType", entityType);
 		jsonUpdate.addProperty("entityId", entity.getId());
 		jsonUpdate.addProperty("dataFetchUri", fetchUri);
 
 		entityUpdates.put(entity, jsonUpdate);
+
+		if (updateType == PushNotificationUpdateType.IMMEDIATE) {
+			sendEntityUpdates();
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void sendEntityUpdates() {
+		Map<PersistenceEntity, JsonObject> notifications = new HashMap<>(getEntityUpdates());
+		resetEntityUpdates();
+
+		JsonArray jsonNotifications = new JsonArray();
+
+		for (Map.Entry<PersistenceEntity, JsonObject> notification : notifications.entrySet()) {
+			jsonNotifications.add(notification.getValue());
+		}
+
+		String json = serializer.toJson(jsonNotifications);
+		clientHandler.sendNotification(json);
 	}
 
 	protected class SendClientNotificationThread implements Runnable {
-		protected final Gson serializer = new Gson();
-
 		protected ClientUpdateService clientUpdateService;
 
 		/**
@@ -106,17 +169,7 @@ public class ClientUpdateServiceImpl implements ClientUpdateService {
 		 */
 		@Override
 		public void run() {
-			Map<PersistenceEntity, JsonObject> notifications = clientUpdateService.getEntityUpdates();
-			clientUpdateService.resetEntityUpdates();
-
-			JsonArray jsonNotifications = new JsonArray();
-
-			for (Map.Entry<PersistenceEntity, JsonObject> notification : notifications.entrySet()) {
-				jsonNotifications.add(notification.getValue());
-			}
-
-			String json = serializer.toJson(jsonNotifications);
-			clientUpdateService.getPushNotificationClientHandler().sendNotification(json);
+			clientUpdateService.sendEntityUpdates();
 		}
 	}
 }

@@ -1,65 +1,63 @@
 package de.hpi.bpt.argos.api;
 
-import de.hpi.bpt.argos.common.RestRequest;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpoint;
+import de.hpi.bpt.argos.api.response.ResponseFactory;
+import de.hpi.bpt.argos.core.ArgosTestUtil;
+import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class ProductFamilyEndpointTest extends EndpointParentClass {
+public class ProductFamilyEndpointTest extends CustomerEndpointParentClass {
 
-    protected RestRequest request;
+    protected static ProductFamily testProductFamily;
+
+    @BeforeClass
+	public static void createTestProductFamily() {
+    	testProductFamily = ArgosTestUtil.createProductFamily();
+	}
 
     @Test
     public void testGetProductFamilies() {
-        request = requestFactory.createRequest(TEST_HOST, getProductFamiliesUri(), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE);
+    	request = requestFactory.createGetRequest(TEST_HOST,
+				getProductFamiliesUri(),
+				TEST_ACCEPT_TYPE_JSON);
+    	assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
 
-        assertEquals(true, request.isSuccessful());
+		JsonArray jsonProductFamilies = jsonParser.parse(request.getResponse()).getAsJsonArray();
+		assertEquals(1, jsonProductFamilies.size());
+
+		assertEquals(testProductFamily.getId(), jsonProductFamilies.get(0).getAsJsonObject().get("id").getAsLong());
     }
 
     @Test
-    public void testGetProductFamilyOverview() {
-        request = requestFactory.createRequest(TEST_HOST, getProductFamilyOverviewUri(42), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE, TEST_ACCEPT_TYPE);
-        assertEquals(true, request.isSuccessful());
+	public void testGetProductFamily() {
+		request = requestFactory.createGetRequest(TEST_HOST,
+				getProductFamilyUri(testProductFamily.getId()),
+				TEST_ACCEPT_TYPE_JSON);
+		assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
 
-        // failure: product id < 0
-        request = requestFactory.createRequest(TEST_HOST, getProductFamilyOverviewUri(-42), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,
-                TEST_ACCEPT_TYPE);
-        assertEquals(INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
+		JsonObject jsonProductFamily = jsonParser.parse(request.getResponse()).getAsJsonObject();
+		assertEquals(testProductFamily.getId(), jsonProductFamily.get("id").getAsLong());
+	}
 
-        // failure: product id not an integer
-        request = requestFactory.createRequest(TEST_HOST, getProductFamilyOverviewUri("hello_server"), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,
-                TEST_ACCEPT_TYPE);
-        assertEquals(INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
-    }
-
-    @Test
-    public void testGetEventsForProduct() {
-        request = requestFactory.createRequest(TEST_HOST, getEventsForProductFamilyUri(42, 1337, 0, 10), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,
-                TEST_ACCEPT_TYPE);
-        assertEquals(true, request.isSuccessful());
-
-        // failure: product id < 0
-        request = requestFactory.createRequest(TEST_HOST, getEventsForProductFamilyUri(-42, 1337, 0, 10), TEST_REQUEST_METHOD, TEST_CONTENT_TYPE,
-                TEST_ACCEPT_TYPE);
-        assertEquals(INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
-
-        // failure: product id not an integer
-        request = requestFactory.createRequest(TEST_HOST, getEventsForProductFamilyUri("hello_server", 1337, 0, 10), TEST_REQUEST_METHOD,
-                TEST_CONTENT_TYPE,
-                TEST_ACCEPT_TYPE);
-        assertEquals(INVALID_REQUEST_RESPONSE_CODE, request.getResponseCode());
-    }
+	@Test
+	public void testGetProductFamily_InvalidId_NotFound() {
+		request = requestFactory.createGetRequest(TEST_HOST,
+				getProductFamilyUri(testProductFamily.getId() - 1),
+				TEST_ACCEPT_TYPE_JSON);
+		assertEquals(ResponseFactory.HTTP_NOT_FOUND_CODE, request.getResponseCode());
+	}
 
     private String getProductFamiliesUri() {
-        return "/api/productfamilies";
+        return ProductFamilyEndpoint.getProductFamiliesBaseUri();
     }
 
-    private String getProductFamilyOverviewUri(Object productId) {
-        return String.format("/api/products/%1$s/eventtypes", productId);
-    }
-
-    private String getEventsForProductFamilyUri(Object productId, Object eventTypeId, Object indexFrom, Object
-            indexTo) {
-        return String.format("/api/products/%1$s/events/%2$s/%3$s/%4$s", productId, eventTypeId, indexFrom, indexTo);
-    }
+    private String getProductFamilyUri(Object productFamilyId) {
+    	return ProductFamilyEndpoint.getProductFamilyBaseUri()
+				.replaceAll(ProductFamilyEndpoint.getProductFamilyIdParameter(true), productFamilyId.toString());
+	}
 }

@@ -1,8 +1,7 @@
 package de.hpi.bpt.argos.persistence.model.event.type;
 
 import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
-import de.hpi.bpt.argos.persistence.model.event.Event;
-import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
+import de.hpi.bpt.argos.persistence.model.event.EventQuery;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.List;
 public interface EventType extends PersistenceEntity {
 
 	/**
-	 * This method returns the name of this event eventType.
+	 * This method returns the name of this event type.
 	 * @return - name of this event eventType as a string
 	 */
 	String getName();
@@ -31,22 +30,29 @@ public interface EventType extends PersistenceEntity {
 	String getSchema();
 
 	/**
-	 * This method return the event subscription query of this event eventType.
-	 * @return - the event subscription query of this event eventType
+	 * This method return the event query of this event eventType.
+	 * @return - the event query of this event eventType
 	 */
-	EventSubscriptionQuery getEventSubscriptionQuery();
+	EventQuery getEventQuery();
 
 	/**
-	 * This method sets the event subscription query of this event eventType.
-	 * @param eventSubscriptionQuery - the event subscription query to be set
+	 * This method sets the event query of this event eventType.
+	 * @param eventQuery - the event query to be set
 	 */
-	void setEventSubscriptionQuery(EventSubscriptionQuery eventSubscriptionQuery);
+	void setEventQuery(EventQuery eventQuery);
 
 	/**
-	 * This method returns the list of attributes of this event eventType.
+	 * This method returns the list of attributes of this event type.
 	 * @return - event attributes as a list
 	 */
 	List<EventAttribute> getAttributes();
+
+	/**
+	 * This method returns a specific event attribute of this event type.
+	 * @param attributeName - the name of the requested attribute
+	 * @return - the requested attribute, or null if no attributes exists
+	 */
+	EventAttribute getAttribute(String attributeName);
 
 	/**
 	 * This method sets the set of attributes that this event eventType has.
@@ -67,38 +73,62 @@ public interface EventType extends PersistenceEntity {
 	void setTimestampAttribute(EventAttribute eventAttribute);
 
 	/**
-	 * This method returns the product identification attribute for this event type.
-	 * @return - the product identification attribute
+	 * This method indicates whether this event type is editable.
+	 * @return - true, if the event type can be edited
 	 */
-	EventAttribute getProductIdentificationAttribute();
+	boolean isEditable();
 
 	/**
-	 * This method sets the product identification attribute for this event type.
-	 * @param eventAttribute - the product identification attribute to be set
+	 * This method sets the editable property.
+	 * @param editable - the value to be set
 	 */
-	void setProductIdentificationAttribute(EventAttribute eventAttribute);
+	void setEditable(boolean editable);
 
 	/**
-	 * This method returns the product family identification attribute for this event type.
-	 * @return - the product family identification attribute
+	 * This method indicates whether this event type is deletable.
+	 * @return - true, if the event type can be deleted
 	 */
-	EventAttribute getProductFamilyIdentificationAttribute();
+	boolean isDeletable();
 
 	/**
-	 * This method sets the product family identification attribute for this event type.
-	 * @param eventAttribute - the product family identification attribute to be set
+	 * This method sets the deletable property.
+	 * @param deletable - the value to be set
 	 */
-	void setProductFamilyIdentificationAttribute(EventAttribute eventAttribute);
+	void setDeletable(boolean deletable);
 
 	/**
-	 * This method returns a list of events of this event eventType.
-	 * @return - a list of events of this event eventType
+	 * This method indicates, whether this event type should be registered in the event platform.
+	 * @return - true, if the event type should be registered in the event platform
 	 */
-	List<Event> getEvents();
+	boolean shouldBeRegistered();
 
 	/**
-	 * This method sets the list of events of this event eventType.
-	 * @param events - a list of events to be set
+	 * This method set, whether this event type should be registered in the event platform.
+	 * @param shouldBeRegistered - the value to be set
 	 */
-	void setEvents(List<Event> events);
+	void setShouldBeRegistered(boolean shouldBeRegistered);
+
+	/**
+	 * This method returns the name of the productIdentification attribute.
+	 * @return - the name of the productIdentification attribute
+	 */
+	static String getProductIdentificationAttributeName() {
+		return "productId";
+	}
+
+	/**
+	 * This method returns the name of the productFamilyIdentification attribute.
+	 * @return - the name of the productFamilyIdentification attribute
+	 */
+	static String getProductFamilyIdentificationAttributeName() {
+		return "productFamilyId";
+	}
+
+	/**
+	 * This method returns the special name for the status update event type.
+	 * @return - the special name for the status update event type
+	 */
+	static String getStatusUpdateEventTypeName() {
+		return "StatusUpdate";
+	}
 }

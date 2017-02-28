@@ -5,6 +5,7 @@ import de.hpi.bpt.argos.notifications.PushNotificationType;
 /**
  * This interface represents objects which should receive events, whenever an entity is created or modified.
  */
+@FunctionalInterface
 public interface PersistenceEntityManagerEventReceiver {
 
 	/**

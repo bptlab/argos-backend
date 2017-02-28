@@ -24,10 +24,11 @@ public interface RestInputValidationService {
 	long validateLong(String inputValue, Function<Long, Boolean> validateInputResult);
 
 	/**
-	 * This method returns the http error code.
-	 * @return - the http error code
+	 * This method validates the input as an enum that is given as a string.
+	 * @param clazz - the enum class, which should contain the value
+	 * @param inputValue - the input value to validate
+	 * @param <T> - the generic type for the enum class
+	 * @return - the enum value
 	 */
-	static int getHttpErrorCode() {
-		return 500;
-	}
+	<T extends Enum<T>> T validateEnum(Class<T> clazz, String inputValue);
 }

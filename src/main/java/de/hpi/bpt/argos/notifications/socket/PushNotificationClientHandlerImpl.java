@@ -53,22 +53,16 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 		try {
 			clientsLock.tryLock(CLIENT_LOCK_TIME_OUT, CLIENT_LOCK_TIME_UNIT);
 
+			if (clients.isEmpty()) {
+				return;
+			}
+
+			logger.info(String.format("sending web socket notification '%1$s'", notification));
+
 			for (Iterator<Session> it = clients.iterator(); it.hasNext();) {
 				Session client = it.next();
 
-				try {
-					if (!client.isOpen()) {
-						it.remove();
-						continue;
-					}
-
-					client.getRemote().sendString(notification);
-
-				} catch (Exception exception) {
-					logger.error("Cannot send notification to client", exception);
-					client.close();
-					it.remove();
-				}
+				sendNotificationToClient(client, it, notification);
 			}
 
 		} catch (Exception exception) {
@@ -77,6 +71,28 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 		} finally {
 			clientsLock.unlock();
 
+		}
+	}
+
+	/**
+	 * This method sends a notification to a single client.
+	 * @param client - the receiving client
+	 * @param it - an iterator on the receiving client
+	 * @param notification - the notification that the client should receive
+	 */
+	protected void sendNotificationToClient(Session client, Iterator<Session> it, String notification) {
+		try {
+			if (!client.isOpen()) {
+				it.remove();
+				return;
+			}
+
+			client.getRemote().sendString(notification);
+
+		} catch (Exception exception) {
+			logger.error("Cannot send notification to client", exception);
+			client.close();
+			it.remove();
 		}
 	}
 

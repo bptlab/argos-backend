@@ -66,11 +66,18 @@ public interface PersistenceEntityRetriever {
 	EventType getEventType(long eventTypeId);
 
 	/**
+	 * This methid makes the database call to retrieve the requested event type.
+	 * @param eventTypeName - the name of the event type
+	 * @return - the requested event type or null
+	 */
+	EventType getEventType(String eventTypeName);
+
+	/**
 	 * This method makes the database call to retrieve the requested product.
-	 * @param productOrderNumber - the product order number to search
+	 * @param externalProductId - the external product id
 	 * @return - the product
 	 */
-	Product getProduct(int productOrderNumber);
+	Product getProduct(int externalProductId);
 
 	/**
 	 * This method makes the database call to retrieve the requested product family.

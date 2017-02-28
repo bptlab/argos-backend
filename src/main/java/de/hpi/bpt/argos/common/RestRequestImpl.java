@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.common;
 
+import de.hpi.bpt.argos.api.response.ResponseFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,6 +9,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.ProtocolException;
 import java.net.URL;
 
 /**
@@ -30,12 +32,24 @@ public class RestRequestImpl implements RestRequest {
 		connection = (HttpURLConnection) url.openConnection();
 	}
 
-    /**
-     * {@inheritDoc}
-     */
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public HttpURLConnection getConnection() {
-		return connection;
+	public void setMethod(String method) {
+		try {
+			this.connection.setRequestMethod(method);
+		} catch (ProtocolException e) {
+			logger.error("cannot set request method to '" + method + "'", e);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setProperty(String key, String value) {
+		this.connection.setRequestProperty(key, value);
 	}
 
 	@Override
@@ -48,10 +62,12 @@ public class RestRequestImpl implements RestRequest {
      */
 	@Override
 	public void setContent(String requestContent) {
-		connection.setDoOutput(true);
 
-		DataOutputStream outputStream;
 		try {
+			connection.setDoOutput(true);
+
+			DataOutputStream outputStream;
+
 			outputStream = new DataOutputStream(connection.getOutputStream());
 			outputStream.writeBytes(requestContent);
 			outputStream.flush();
@@ -68,6 +84,7 @@ public class RestRequestImpl implements RestRequest {
      */
 	@Override
 	public int getResponseCode() {
+
 		try {
 			return connection.getResponseCode();
 		} catch (IOException e) {
@@ -81,6 +98,7 @@ public class RestRequestImpl implements RestRequest {
      */
 	@Override
 	public String getResponse() {
+
 		if (response != null) {
 			return response;
 		}
@@ -89,7 +107,16 @@ public class RestRequestImpl implements RestRequest {
 		StringBuilder restResponse = new StringBuilder();
 
 		try {
-			responseReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+			InputStreamReader inputStreamReader;
+
+			if (isSuccessful()) {
+				inputStreamReader = new InputStreamReader(connection.getInputStream());
+			} else {
+				inputStreamReader = new InputStreamReader(connection.getErrorStream());
+			}
+
+			responseReader = new BufferedReader(inputStreamReader);
 			String responseString;
 
 			while ((responseString = responseReader.readLine()) != null) {
@@ -111,6 +138,6 @@ public class RestRequestImpl implements RestRequest {
      */
 	@Override
 	public boolean isSuccessful() {
-		return getResponseCode() == RestRequest.getHttpSuccessCode();
+		return getResponseCode() == ResponseFactory.HTTP_SUCCESS_CODE;
 	}
 }

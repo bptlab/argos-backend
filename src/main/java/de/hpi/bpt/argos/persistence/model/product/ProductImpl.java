@@ -1,10 +1,17 @@
 package de.hpi.bpt.argos.persistence.model.product;
 
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityImpl;
-import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQuery;
-import de.hpi.bpt.argos.persistence.model.event.EventSubscriptionQueryImpl;
+import de.hpi.bpt.argos.persistence.model.event.EventQuery;
+import de.hpi.bpt.argos.persistence.model.event.EventQueryImpl;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import java.util.Date;
 
 /**
@@ -23,25 +30,25 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	protected Date productionStart = new Date();
 
 	@Column(name = "State")
-	protected ProductState state = ProductState.RUNNING;
+	protected ProductState state = ProductState.UNDEFINED;
 
 	@Column(name = "Name")
-	protected String name = "";
+	protected String name = "Unknown Product";
 
 	@Column(name = "OrderNumber")
 	protected int orderNumber = 0;
 
 	@Column(name = "StateDescription")
-	protected String stateDescription = "";
+	protected String stateDescription = "State is not defined yet";
 
-	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = EventSubscriptionQueryImpl.class)
-	protected EventSubscriptionQuery transitionToRunningState;
+	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventQueryImpl.class)
+	protected EventQuery transitionToRunningState = new EventQueryImpl();
 
-	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = EventSubscriptionQueryImpl.class)
-	protected EventSubscriptionQuery transitionToWarningState;
+	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventQueryImpl.class)
+	protected EventQuery transitionToWarningState = new EventQueryImpl();
 
-	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = EventSubscriptionQueryImpl.class)
-	protected EventSubscriptionQuery transitionToErrorState;
+	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventQueryImpl.class)
+	protected EventQuery transitionToErrorState = new EventQueryImpl();
 
 	@Column(name = "NumberOfDevices")
 	protected long numberOfDevices = 0;
@@ -150,7 +157,7 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EventSubscriptionQuery getTransitionToRunningState() {
+	public EventQuery getTransitionToRunningState() {
 		return transitionToRunningState;
 	}
 
@@ -158,15 +165,15 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setTransitionToRunningState(EventSubscriptionQuery eventSubscriptionQuery) {
-		transitionToRunningState = eventSubscriptionQuery;
+	public void setTransitionToRunningState(EventQuery eventQuery) {
+		transitionToRunningState = eventQuery;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EventSubscriptionQuery getTransitionToWarningState() {
+	public EventQuery getTransitionToWarningState() {
 		return transitionToWarningState;
 	}
 
@@ -174,15 +181,15 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setTransitionToWarningState(EventSubscriptionQuery eventSubscriptionQuery) {
-		transitionToWarningState = eventSubscriptionQuery;
+	public void setTransitionToWarningState(EventQuery eventQuery) {
+		transitionToWarningState = eventQuery;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EventSubscriptionQuery getTransitionToErrorState() {
+	public EventQuery getTransitionToErrorState() {
 		return transitionToErrorState;
 	}
 
@@ -190,8 +197,46 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setTransitionToErrorState(EventSubscriptionQuery eventSubscriptionQuery) {
-		transitionToErrorState = eventSubscriptionQuery;
+	public void setTransitionToErrorState(EventQuery eventQuery) {
+		transitionToErrorState = eventQuery;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public EventQuery getStatusUpdateQuery(ProductState newState) {
+		switch (newState) {
+			case RUNNING:
+				return getTransitionToRunningState();
+			case WARNING:
+				return getTransitionToWarningState();
+			case ERROR:
+				return getTransitionToErrorState();
+			default:
+				return null;
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setStatusUpdateQuery(ProductState newState, EventQuery eventQuery) {
+		switch (newState) {
+			case RUNNING:
+				setTransitionToRunningState(eventQuery);
+				break;
+			case WARNING:
+				setTransitionToWarningState(eventQuery);
+				break;
+			case ERROR:
+				setTransitionToErrorState(eventQuery);
+				break;
+			default:
+				// empty, since there is nothing to do
+				break;
+		}
 	}
 
 	/**

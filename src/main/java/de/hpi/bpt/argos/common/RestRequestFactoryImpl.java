@@ -1,13 +1,16 @@
 package de.hpi.bpt.argos.common;
 
 
+import de.hpi.bpt.argos.core.Argos;
+import de.hpi.bpt.argos.properties.PropertyEditor;
+import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
+import java.net.URLConnection;
 
 /**
  * {@inheritDoc}
@@ -29,15 +32,9 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 			return null;
 		}
 
-		try {
-			request.getConnection().setRequestMethod(requestMethod);
-		} catch (ProtocolException e) {
-			logExceptionInRequestCreation(e);
-			return null;
-		}
-
-		request.getConnection().setRequestProperty("Content-Type", contentType);
-		request.getConnection().setRequestProperty("Accept", acceptType);
+		request.setMethod(requestMethod);
+		request.setProperty("Content-Type", contentType);
+		request.setProperty("Accept", acceptType);
 
 		return request;
 	}
@@ -63,21 +60,7 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 	 */
 	@Override
 	public RestRequest createGetRequest(String host, String uri, String acceptType) {
-		RestRequest request = createBasicRequest(host, uri);
-
-		if (request == null) {
-			return null;
-		}
-
-		try {
-			request.getConnection().setRequestMethod("GET");
-		} catch (ProtocolException e) {
-			logExceptionInRequestCreation(e);
-			return null;
-		}
-
-		request.getConnection().setRequestProperty("Accept", acceptType);
-		return request;
+		return createRequest(host, uri, "GET", DEFAULT_CONTENT_TYPE, acceptType);
 	}
 
 	/**
@@ -89,12 +72,48 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RestRequest createDeleteRequest(String host, String uri) {
+		return createDeleteRequest(host, uri, DEFAULT_CONTENT_TYPE, DEFAULT_ACCEPT_TYPE);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RestRequest createDeleteRequest(String host, String uri, String contentType, String acceptType) {
+		return createRequest(host, uri, "DELETE", contentType, acceptType);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RestRequest createPutRequest(String host, String uri) {
+		return createPutRequest(host, uri, DEFAULT_CONTENT_TYPE, DEFAULT_ACCEPT_TYPE);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public RestRequest createPutRequest(String host, String uri, String contentType, String acceptType) {
+		return createRequest(host, uri, "PUT", contentType, acceptType);
+	}
+
+	/**
 	 * This method creates a basic RestRequest object and sets host and uri.
 	 * @param host - host as a string to be set
 	 * @param uri - uri as a string to be set
 	 * @return - returns a RestRequest object to be worked with later on
 	 */
-	private RestRequest createBasicRequest(String host, String uri) {
+	protected RestRequest createBasicRequest(String host, String uri) {
+
+		PropertyEditor propertyEditor = new PropertyEditorImpl();
+		boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
+
 		URL requestURL;
 		RestRequest request;
 
@@ -102,6 +121,12 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 			requestURL = new URL(host + uri);
 		} catch (MalformedURLException e) {
 			logExceptionInRequestCreation(e);
+			return null;
+		}
+
+		if (!isReachable(requestURL) && testMode) {
+			return new NullRestRequestImpl();
+		} else if (!isReachable(requestURL)) {
 			return null;
 		}
 
@@ -116,11 +141,29 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 	}
 
 	/**
+	 * This connection checks whether a host is reachable.
+	 * @param host - the host URL to connect to
+	 * @return - true if host is reachable
+	 */
+	protected boolean isReachable(URL host) {
+		URLConnection hostConnection;
+		try {
+			hostConnection = host.openConnection();
+			hostConnection.connect();
+
+			return true;
+		} catch (IOException e) {
+			logger.error("unable to reach host at '" + host.toString() + "'", e);
+			return false;
+		}
+	}
+
+	/**
      * This method logs an exception on error level.
      * @param head - string message to be logged
      * @param exception - throwable exception to be logged
      */
-	private void logException(String head, Throwable exception) {
+	protected void logException(String head, Throwable exception) {
 		logger.error(head, exception.toString());
 	}
 
@@ -128,7 +171,7 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
      * This method logs an exception while creating the request.
      * @param exception - throwable exception to be logged
      */
-	private void logExceptionInRequestCreation(Throwable exception) {
+	protected void logExceptionInRequestCreation(Throwable exception) {
 		logException("can't create RestRequest: ", exception);
 	}
 }

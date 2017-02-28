@@ -17,7 +17,7 @@ public interface RestRequestFactory {
 	RestRequest createRequest(String host, String uri, String requestMethod, String contentType, String acceptType);
 
     /**
-     * This method returns a RestRequest object using POST request method. Other headers can be parameterized.
+     * This method returns a RestRequest object using POST request method. Other headers can be parametrized.
      * @param host - the host to be requested as a string
      * @param uri - the uri to be requested as a string
      * @param contentType - the content type value to be used as a string
@@ -45,10 +45,47 @@ public interface RestRequestFactory {
     RestRequest createGetRequest(String host, String uri, String acceptType);
 
 	/**
-	 * This method returns a RestRequst object using GET request method using the default accept type.
+	 * This method returns a RestRequest object using GET request method using the default accept type.
 	 * @param host - the host to be requested as a string
 	 * @param uri - the uri to be requested as a string
 	 * @return - returns a RestRequest object using the request method GET
 	 */
 	RestRequest createGetRequest(String host, String uri);
+
+	/**
+	 * This method returns a RestRequest object using DELETE request method using the default accept type.
+	 * @param host - the host to be requested as a string
+	 * @param uri - the uri to be requested as a string
+	 * @return - returns a RestRequest object using the request method DELETE
+	 */
+	RestRequest createDeleteRequest(String host, String uri);
+
+	/**
+	 * This method returns a RestRequest object using DELETE request method. Other headers can be parametrized.
+	 * @param host - the host to be requested as a string
+	 * @param uri - the uri to be requested as a string
+	 * @param contentType - the content type value to be used as a string
+	 * @param acceptType - the accept type value to be used as a string
+	 * @return - returns a RestRequest object using the request method DELETE
+	 */
+	RestRequest createDeleteRequest(String host, String uri, String contentType, String acceptType);
+
+
+	/**
+	 * This method returns a RestRequest object using PUT request method using the default accept type.
+	 * @param host - the host to be requested as a string
+	 * @param uri - the uri to be requested as a string
+	 * @return - returns a RestRequest object using the request method PUT
+	 */
+	RestRequest createPutRequest(String host, String uri);
+
+	/**
+	 * This method returns a RestRequest object using PUT request method. Other headers can be parametrized.
+	 * @param host - the host to be requested as a string
+	 * @param uri - the uri to be requested as a string
+	 * @param contentType - the content type value to be used as a string
+	 * @param acceptType - the accept type value to be used as a string
+	 * @return - returns a RestRequest object using the request method PUT
+	 */
+	RestRequest createPutRequest(String host, String uri, String contentType, String acceptType);
 }
