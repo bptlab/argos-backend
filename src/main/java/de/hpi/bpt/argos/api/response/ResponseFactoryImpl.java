@@ -211,7 +211,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 
 				eventType.getEventQuery().setQueryString(eventQuery);
 
-				if (!eventPlatformRestEndpoint.getEventSubscriber().registerEventType(eventType)) {
+				if (!eventPlatformRestEndpoint.getEventSubscriber().registerEventQuery(eventType)) {
 					halt(ResponseFactory.HTTP_ERROR_CODE, "cannot register event type");
 				}
 

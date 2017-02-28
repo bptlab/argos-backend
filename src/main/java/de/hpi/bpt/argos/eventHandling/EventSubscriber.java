@@ -55,6 +55,13 @@ public interface EventSubscriber {
 	boolean updateEventQuery(EventQuery eventQuery, String newQueryString, String notificationUri);
 
 	/**
+	 * This method subscribes to the default event platform using an EventQuery.
+	 * @param eventType - the event type which contains the event query
+	 * @return - true if subscription was successful
+	 */
+	boolean registerEventQuery(EventType eventType);
+
+	/**
 	 * This method returns the property key for the eventPlatformHost property.
 	 * @return - the property key for the eventPlatformHost property
 	 */
