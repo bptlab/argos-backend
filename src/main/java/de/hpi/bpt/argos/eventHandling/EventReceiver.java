@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.eventHandling;
 
+import de.hpi.bpt.argos.api.eventTypes.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.common.RestEndpoint;
 import de.hpi.bpt.argos.persistence.model.product.ProductState;
@@ -37,7 +38,7 @@ public interface EventReceiver extends RestEndpoint {
 	 */
 	static String getReceiveEventBaseUri() {
 		return String.format("/api/events/receiver/%1$s",
-				ProductEndpoint.getEventTypeIdParameter(true));
+				EventTypeEndpoint.getEventTypeIdParameter(true));
 	}
 
 	/**
@@ -56,19 +57,19 @@ public interface EventReceiver extends RestEndpoint {
 	 * @return - the URI to post events to
 	 */
 	static String getReceiveEventUri(long eventTypeId) {
-		return getReceiveEventBaseUri().replaceAll(ProductEndpoint.getEventTypeIdParameter(true),
+		return getReceiveEventBaseUri().replaceAll(EventTypeEndpoint.getEventTypeIdParameter(true),
 				Objects.toString(eventTypeId, "0"));
 	}
 
 	/**
 	 * This method returns the URI to post status update events to.
-	 * @param externalProductId - the external product id, which status has changed
+	 * @param productId - the product id, which status has changed
 	 * @param newProductState - the new state of the product
 	 * @return - the URI to post status update events to
 	 */
-	static String getReceiveStatusUpdateEventUri(int externalProductId, ProductState newProductState) {
+	static String getReceiveStatusUpdateEventUri(long productId, ProductState newProductState) {
 		return getReceiveStatusUpdateEventBaseUri()
-				.replaceAll(ProductEndpoint.getProductIdParameter(true), Objects.toString(externalProductId, "0"))
+				.replaceAll(ProductEndpoint.getProductIdParameter(true), Objects.toString(productId, "0"))
 				.replaceAll(ProductEndpoint.getNewProductStatusParameter(true), Objects.toString(newProductState, ""));
 	}
 }

@@ -8,7 +8,7 @@ import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
 import de.hpi.bpt.argos.core.ArgosTestParent;
 import org.junit.BeforeClass;
 
-public class EndpointParentClass extends ArgosTestParent {
+public class CustomerEndpointParentClass extends ArgosTestParent {
     protected final String TEST_REQUEST_METHOD = "GET";
     protected final String TEST_CONTENT_TYPE = "application/json";
     protected final String TEST_ACCEPT_TYPE_PLAIN = "text/plain";

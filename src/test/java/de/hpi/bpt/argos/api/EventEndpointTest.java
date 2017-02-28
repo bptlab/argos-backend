@@ -14,7 +14,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class EventEndpointTest extends EndpointParentClass {
+public class EventEndpointTest extends CustomerEndpointParentClass {
 
     protected static Event testEvent;
 
