@@ -150,11 +150,10 @@ public class EventSubscriberImpl implements EventSubscriber {
 	}
 
 	/**
-	 * This method subscribes to the default event platform using an EventQuery.
-	 * @param eventType - the event type which contains the event query
-	 * @return - true if subscription was successful
+	 * {@inheritDoc}
 	 */
-	protected boolean registerEventQuery(EventType eventType) {
+	@Override
+	public boolean registerEventQuery(EventType eventType) {
 
 		if (eventType.getName().equals(EventType.getStatusUpdateEventTypeName())) {
 			return true;
