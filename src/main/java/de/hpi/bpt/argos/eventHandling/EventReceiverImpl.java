@@ -44,7 +44,7 @@ public class EventReceiverImpl extends RestEndpointImpl implements EventReceiver
 
 		if (event == null) {
 			logger.error("cannot find event type '" + eventTypeId + "'");
-			halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "cannot find event type");
+			halt(ResponseFactory.HTTP_ERROR_CODE, "unable to create event");
 		}
 
 		logInfoForReceivedEvent(event);

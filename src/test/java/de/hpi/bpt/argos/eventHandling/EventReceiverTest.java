@@ -115,7 +115,7 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 				TEST_CONTENT_TYPE,
 				TEST_ACCEPT_TYPE_PLAIN);
 
-		assertEquals(ResponseFactory.HTTP_NOT_FOUND_CODE, request.getResponseCode());
+		assertEquals(ResponseFactory.HTTP_ERROR_CODE, request.getResponseCode());
 	}
 
 	@Test

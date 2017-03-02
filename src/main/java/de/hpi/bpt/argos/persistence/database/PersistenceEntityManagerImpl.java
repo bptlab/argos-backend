@@ -217,7 +217,9 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		event.setProduct(product);
 
 		product.incrementNumberOfEvents(1);
-		databaseConnection.saveEntities(product, event);
+		if (!databaseConnection.saveEntities(product, event)) {
+			return null;
+		}
 		updateEntity(PushNotificationType.UPDATE, product, ProductEndpoint.getProductUri(product.getId()));
 		updateEntity(PushNotificationType.CREATE, event, EventEndpoint.getEventUri(event.getId()));
 
@@ -288,7 +290,9 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		updatedEventType.setId(eventTypeId);
 		updatedEventType.setEventQuery(eventType.getEventQuery());
 
-		databaseConnection.saveEntities(updatedEventType);
+		if (!databaseConnection.saveEntities(updatedEventType)) {
+			return null;
+		}
 		updateEntity(PushNotificationType.UPDATE, updatedEventType, EventTypeEndpoint.getEventTypeUri(eventTypeId));
 
 		return updatedEventType;
@@ -308,7 +312,9 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 			product.setState(ProductState.UNDEFINED);
 
 			productFamily.getProducts().add(product);
-			databaseConnection.saveEntities(productFamily, product);
+			if (!databaseConnection.saveEntities(productFamily, product)) {
+				return null;
+			}
 			updateEntity(PushNotificationType.CREATE, product, ProductEndpoint.getProductUri(product.getId()));
 		}
 
@@ -336,7 +342,9 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 			productFamily = new ProductFamilyImpl();
 			productFamily.setName(productFamilyName);
 
-			databaseConnection.saveEntities(productFamily);
+			if (!databaseConnection.saveEntities(productFamily)) {
+				return null;
+			}
 			updateEntity(PushNotificationType.CREATE, productFamily, ProductFamilyEndpoint.getProductFamilyUri(productFamily.getId()));
 		}
 
@@ -583,7 +591,9 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 			return null;
 		}
 
-		databaseConnection.saveEntities(eventType);
+		if (!databaseConnection.saveEntities(eventType)) {
+			return null;
+		}
 
 		if (notifyClients) {
 			updateEntity(PushNotificationType.CREATE, eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
