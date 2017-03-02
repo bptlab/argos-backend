@@ -85,26 +85,32 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void updateEntity(PersistenceEntity entity) {
-		databaseConnection.saveEntities(entity);
+	public boolean updateEntity(PersistenceEntity entity) {
+		return databaseConnection.saveEntities(entity);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void updateEntity(PersistenceEntity entity, String fetchUri) {
-		updateEntity(entity);
+	public boolean updateEntity(PersistenceEntity entity, String fetchUri) {
+		if (!updateEntity(entity)) {
+			return false;
+		}
 		updateEntity(PushNotificationType.UPDATE, entity, fetchUri);
+		return true;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void deleteEntity(PersistenceEntity entity) {
-		databaseConnection.deleteEntities(entity);
+	public boolean deleteEntity(PersistenceEntity entity) {
+		if (!databaseConnection.deleteEntities(entity)) {
+			return false;
+		}
 		updateEntity(PushNotificationType.DELETE, entity, "");
+		return true;
 	}
 
 	/**
@@ -240,7 +246,9 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 
 		product.setState(newProductState);
 
-		databaseConnection.saveEntities(product, statusUpdateEvent);
+		if (!databaseConnection.saveEntities(product, statusUpdateEvent)) {
+			return null;
+		}
 		updateEntity(PushNotificationType.UPDATE, product, ProductEndpoint.getProductUri(product.getId()));
 		updateEntity(PushNotificationType.CREATE, statusUpdateEvent, EventEndpoint.getEventUri(statusUpdateEvent.getId()));
 

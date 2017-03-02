@@ -8,14 +8,16 @@ public interface DatabaseConnection extends PersistenceEntityRetriever {
 	/**
 	 * This method makes the database call to save a set of entities in the database server.
 	 * @param entities - a list of entities to save
+	 * @return - true, if the entities were saved
 	 */
-	void saveEntities(PersistenceEntity... entities);
+	boolean saveEntities(PersistenceEntity... entities);
 
 	/**
 	 * This method makes the database call to delete a set of entities in the database server.
 	 * @param entities - a list of entities to delete
+	 * @return - true, if the entities were deleted
 	 */
-	void deleteEntities(PersistenceEntity... entities);
+	boolean deleteEntities(PersistenceEntity... entities);
 
 	/**
 	 * This method returns which property key to use for the database connection host.

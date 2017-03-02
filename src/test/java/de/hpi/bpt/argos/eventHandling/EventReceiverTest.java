@@ -160,7 +160,7 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 		jsonStatusUpdateEvent.addProperty("timestamp", (new Date()).toString());
 
 		request.setContent(serializer.toJson(jsonStatusUpdateEvent));
-		assertEquals(ResponseFactory.HTTP_NOT_FOUND_CODE, request.getResponseCode());
+		assertEquals(ResponseFactory.HTTP_ERROR_CODE, request.getResponseCode());
 	}
 
 
