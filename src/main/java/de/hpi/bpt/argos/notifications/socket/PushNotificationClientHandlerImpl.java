@@ -83,6 +83,7 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 	protected void sendNotificationToClient(Session client, Iterator<Session> it, String notification) {
 		try {
 			if (!client.isOpen()) {
+				logger.info(String.format("removed web socket connection from '%1$s'", client.getRemoteAddress().getHostString()));
 				it.remove();
 				return;
 			}

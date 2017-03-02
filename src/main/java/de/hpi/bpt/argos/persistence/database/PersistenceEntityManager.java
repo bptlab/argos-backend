@@ -27,21 +27,24 @@ public interface PersistenceEntityManager extends PersistenceEntityRetriever {
 	/**
 	 * This method stores a modified entity in the database. Only use this method if client should not be notified about changes.
 	 * @param entity - the modified entity
+	 * @return - true, if the entity was updated
 	 */
-	void updateEntity(PersistenceEntity entity);
+	boolean updateEntity(PersistenceEntity entity);
 
 	/**
 	 * This method stores a modified entity in the database. Use this method to also notify clients about the changes.
 	 * @param entity - the modified entity
 	 * @param fetchUri - the uri where to fetch this updated entity
+	 * @return - true, if the entity was updated
 	 */
-	void updateEntity(PersistenceEntity entity, String fetchUri);
+	boolean updateEntity(PersistenceEntity entity, String fetchUri);
 
 	/**
 	 * This method deletes an entity. This method also notifies clients about the changes.
 	 * @param entity - the entity to delete
+	 * @return - true, if the entity was deleted
 	 */
-	void deleteEntity(PersistenceEntity entity);
+	boolean deleteEntity(PersistenceEntity entity);
 
 	/**
 	 * This method returns a newly created event from its json representation.

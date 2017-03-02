@@ -85,26 +85,32 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void updateEntity(PersistenceEntity entity) {
-		databaseConnection.saveEntities(entity);
+	public boolean updateEntity(PersistenceEntity entity) {
+		return databaseConnection.saveEntities(entity);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void updateEntity(PersistenceEntity entity, String fetchUri) {
-		updateEntity(entity);
+	public boolean updateEntity(PersistenceEntity entity, String fetchUri) {
+		if (!updateEntity(entity)) {
+			return false;
+		}
 		updateEntity(PushNotificationType.UPDATE, entity, fetchUri);
+		return true;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void deleteEntity(PersistenceEntity entity) {
-		databaseConnection.deleteEntities(entity);
+	public boolean deleteEntity(PersistenceEntity entity) {
+		if (!databaseConnection.deleteEntities(entity)) {
+			return false;
+		}
 		updateEntity(PushNotificationType.DELETE, entity, "");
+		return true;
 	}
 
 	/**
@@ -236,11 +242,13 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		statusUpdateEvent.setProduct(product);
 
 		JsonObject jsonBody = jsonParser.parse(requestBody).getAsJsonObject();
-		statusUpdateEvent.setEventData(getStatusUpdateEventData(product, newProductState, jsonBody));
+		statusUpdateEvent.setEventData(getStatusUpdateEventData(product, newProductState, statusUpdateEventType, jsonBody));
 
 		product.setState(newProductState);
 
-		databaseConnection.saveEntities(product, statusUpdateEvent);
+		if (!databaseConnection.saveEntities(product, statusUpdateEvent)) {
+			return null;
+		}
 		updateEntity(PushNotificationType.UPDATE, product, ProductEndpoint.getProductUri(product.getId()));
 		updateEntity(PushNotificationType.CREATE, statusUpdateEvent, EventEndpoint.getEventUri(statusUpdateEvent.getId()));
 
@@ -613,23 +621,23 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * This method returns a list of event data for the json representation of a status update event.
 	 * @param product - the product which status is updated
 	 * @param jsonEvent - the json representation of the event
+	 * @param updateStatusEventType - the update event status event type
 	 * @param newProductState - the updated product state
 	 * @return - a list of event data
 	 */
-	protected List<EventData> getStatusUpdateEventData(Product product, ProductState newProductState, JsonObject jsonEvent) {
-
-		EventType updateStatusEventType = getEventType(EventType.getStatusUpdateEventTypeName());
+	protected List<EventData> getStatusUpdateEventData(Product product, ProductState newProductState, EventType updateStatusEventType,
+													   JsonObject jsonEvent) {
 
 		EventData oldStatus = new EventDataImpl();
-		oldStatus.setEventAttribute(updateStatusEventType.getAttribute(StatusUpdateEventType.getOldStatusAttributeName()));
+		oldStatus.setEventAttribute(getAttributeForEventDataMember(updateStatusEventType, StatusUpdateEventType.getOldStatusAttributeName()));
 		oldStatus.setValue(product.getState().toString());
 
 		EventData newStatus = new EventDataImpl();
-		newStatus.setEventAttribute(updateStatusEventType.getAttribute(StatusUpdateEventType.getNewStatusAttributeName()));
+		newStatus.setEventAttribute(getAttributeForEventDataMember(updateStatusEventType, StatusUpdateEventType.getNewStatusAttributeName()));
 		newStatus.setValue(newProductState.toString());
 
 		EventData timestamp = new EventDataImpl();
-		timestamp.setEventAttribute(updateStatusEventType.getTimestampAttribute());
+		timestamp.setEventAttribute(getAttributeForEventDataMember(updateStatusEventType, StatusUpdateEventType.getTimestampAttributeName()));
 		timestamp.setValue(jsonEvent.get(StatusUpdateEventType.getTimestampAttributeName()).getAsString());
 
 		return new ArrayList<>(Arrays.asList(oldStatus, newStatus, timestamp));

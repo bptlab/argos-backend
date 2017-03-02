@@ -256,7 +256,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void saveEntities(PersistenceEntity... entities) {
+	public boolean saveEntities(PersistenceEntity... entities) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;
 		try {
@@ -267,11 +267,13 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 			}
 
 			tx.commit();
+			return true;
 		} catch (Exception exception) {
 			if (tx != null) {
 				tx.rollback();
 			}
 			logger.error("can't save entities in database", exception);
+			return false;
 		} finally {
 			session.close();
 		}
@@ -281,7 +283,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void deleteEntities(PersistenceEntity... entities) {
+	public boolean deleteEntities(PersistenceEntity... entities) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction tx = null;
 		try {
@@ -292,11 +294,13 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 			}
 
 			tx.commit();
+			return true;
 		} catch (Exception exception) {
 			if (tx != null) {
 				tx.rollback();
 			}
 			logger.error("can't delete entities in database", exception);
+			return false;
 		} finally {
 			session.close();
 		}

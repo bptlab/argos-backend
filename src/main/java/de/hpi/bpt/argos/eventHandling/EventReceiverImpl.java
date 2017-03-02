@@ -74,7 +74,7 @@ public class EventReceiverImpl extends RestEndpointImpl implements EventReceiver
 
 		if (event == null) {
 			logger.error("unable to update product '" + productId + "' to state '" + newState.toString() + "'");
-			halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "unable to update product state");
+			halt(ResponseFactory.HTTP_ERROR_CODE, "unable to create event");
 		}
 
 		return responseFactory.finishRequest();
