@@ -25,7 +25,7 @@ public class PushNotificationClientHandlerTest extends ArgosTestParent {
 		client.start();
 		WebSocketAdapter webSocket = new WebSocketAdapter();
 
-		Future<Session> fut = client.connect(webSocket,uri);
+		Future<Session> fut = client.connect(webSocket, uri);
 		Session session = fut.get();
 
 		assertEquals(session.isOpen(), true);
