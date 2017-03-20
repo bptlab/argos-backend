@@ -54,6 +54,7 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 			clientsLock.tryLock(CLIENT_LOCK_TIME_OUT, CLIENT_LOCK_TIME_UNIT);
 
 			if (clients.isEmpty()) {
+				logger.info(String.format("no web socket clients to send notification to '%1$s'", notification));
 				return;
 			}
 
@@ -126,6 +127,10 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 	public void onClientDisconnected(Session client, int statusCode, String reason) {
 		try {
 			clientsLock.tryLock(CLIENT_LOCK_TIME_OUT, CLIENT_LOCK_TIME_UNIT);
+			logger.info(String.format("web socket client '%1$s' disconnected -> '%2$s' : '%3$s'",
+					client.getRemoteAddress().getHostString(),
+					statusCode,
+					reason));
 			clients.remove(client);
 
 		} catch (Exception exception) {
