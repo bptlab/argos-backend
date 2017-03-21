@@ -10,9 +10,14 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * {@inheritDoc}
@@ -56,6 +61,8 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	@Column(name = "NumberOfEvents")
 	protected long numberOfEvents = 0;
 
+	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = ErrorTypeImpl.class)
+	protected Set<ErrorType> errorTypes = new HashSet<>();
 
 	/**
 	 * {@inheritDoc}
@@ -269,5 +276,43 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	@Override
 	public void incrementNumberOfDevices(long count) {
 		this.numberOfDevices += count;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<ErrorType> getErrorTypes() {
+		return errorTypes;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ErrorType getErrorType(int causeCode) {
+		for (ErrorType type : errorTypes) {
+			if (type.getCauseCode() == causeCode) {
+				return type;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setErrorTypes(Set<ErrorType> errorTypes) {
+		this.errorTypes = errorTypes;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void addErrorType(ErrorType errorType) {
+		errorTypes.add(errorType);
 	}
 }

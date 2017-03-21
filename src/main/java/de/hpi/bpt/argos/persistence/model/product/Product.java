@@ -4,6 +4,8 @@ import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
 import de.hpi.bpt.argos.persistence.model.event.EventQuery;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This interface represents the products. It extends persistence entity.
@@ -155,4 +157,29 @@ public interface Product extends PersistenceEntity {
 	 * @param count - the count of how much new devices were found
 	 */
 	void incrementNumberOfDevices(long count);
+
+	/**
+	 * This method returns a set of error types, which occurred for this product.
+	 * @return - a set of error types
+	 */
+	Set<ErrorType> getErrorTypes();
+
+	/**
+	 * This method returns the error type with the corresponding cause code, or null.
+	 * @param causeCode - the cause code of the error type
+	 * @return - the error type with the cause code or null
+	 */
+	ErrorType getErrorType(int causeCode);
+
+	/**
+	 * This method sets the error types, which occurred for this product.
+	 * @param errorTypes - a set of error types to be set
+	 */
+	void setErrorTypes(Set<ErrorType> errorTypes);
+
+	/**
+	 * This method adds a new error type to this product.
+	 * @param errorType - the error type to be added
+	 */
+	void addErrorType(ErrorType errorType);
 }

@@ -122,7 +122,46 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 			entityManager.createSimpleEventType(jsonEventType);
 
 		} catch (Exception e) {
-			logger.error("cannot load default event type '" + eventTypeFile.getName() + "'.", e);
+			logger.error("cannot load default event type from '" + eventTypeFile.getName() + "'.", e);
+		}
+	}
+
+	/**
+	 * This method loads all backbone data files from the disk.
+	 */
+	protected void loadBackboneData() {
+		try {
+			PropertyEditor propertyEditor = new PropertyEditorImpl();
+			String backboneDataDirectoryPath = propertyEditor.getProperty(Argos.getArgosBackendBackboneDataDirectoryPropertyKey());
+			if (backboneDataDirectoryPath.length() == 0) {
+				throw new NullPointerException();
+			}
+
+			// since the path is delivered as URI, it is represented as a HTML string. Thus we need to replace %20 with file system spaces.
+			File backboneDataDirectory = new File(backboneDataDirectoryPath.replaceAll("%20", " "));
+
+			for (File backboneData : backboneDataDirectory.listFiles()) {
+				if (!backboneData.getName().endsWith(".xml")) {
+					continue;
+				}
+
+				loadBackboneDataFile(backboneData);
+			}
+
+		} catch (Exception e) {
+			logger.error("cannot find directory for backbone data or not defined in properties", e);
+		}
+	}
+
+	/**
+	 * This method loads all products and their error predictions from a specific backbone data file.
+	 * @param backboneDataFile - the backbone data file to parse
+	 */
+	protected void loadBackboneDataFile(File backboneDataFile) {
+		try {
+
+		} catch (Exception e) {
+			logger.error("cannot load backbone data from '" + backboneDataFile.getName() + "'.", e);
 		}
 	}
 }
