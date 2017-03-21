@@ -26,11 +26,16 @@ public final class Application {
 
 		// edit properties if needed
 		PropertyEditor propertyEditor = new PropertyEditorImpl();
+		String argosHost = System.getProperty(Argos.getArgosBackendHostPropertyKey());
 		String eventPlatformHost = System.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
 		String databaseConnectionHost = System.getProperty(DatabaseConnection.getDatabaseConnectionHostPropertyKey());
 		String testMode = System.getProperty(Argos.getArgosBackendTestModePropertyKey());
 
 		// TODO: validate input in a more sophisticated way
+		if (argosHost != null && argosHost.length() > 0) {
+			propertyEditor.setProperty(Argos.getArgosBackendHostPropertyKey(), argosHost);
+		}
+
 		if (eventPlatformHost != null && eventPlatformHost.length() > 0) {
 			propertyEditor.setProperty(EventSubscriber.getEventPlatformHostPropertyKey(), eventPlatformHost);
 		}
