@@ -4,7 +4,6 @@ import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
 import de.hpi.bpt.argos.persistence.model.event.EventQuery;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 /**
