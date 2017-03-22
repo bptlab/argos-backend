@@ -68,10 +68,10 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	 */
 	protected void startNewProduct(String productDescription) {
 
-		int externalProductId;
+		long externalProductId;
 
 		try {
-			externalProductId = Integer.parseInt(tempCurrentProductExternalId);
+			externalProductId = Long.parseLong(tempCurrentProductExternalId);
 		} catch (Exception e) {
 			logger.error(String.format("can not parse product identifier '%1$s'", tempCurrentProductExternalId), e);
 			resetCurrentEntities();
@@ -79,7 +79,7 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 		}
 
 		if (!splitProductDescription(productDescription)
-				|| entityManager.getProduct(externalProductId) != null) {
+				|| entityManager.getProductByExternalId(externalProductId) != null) {
 			resetCurrentEntities();
 			return;
 		}

@@ -57,7 +57,7 @@ public enum EventDataType {
 
 		switch (this) {
 			case STRING:
-				jsonObject.addProperty(propertyName, serializer.fromJson(jsonValue, String.class));
+				jsonObject.addProperty(propertyName, jsonValue);
 				break;
 
 			case INTEGER:
@@ -73,12 +73,12 @@ public enum EventDataType {
 				break;
 
 			case DATE:
-				jsonObject.addProperty(propertyName, serializer.fromJson(jsonValue, String.class));
+				jsonObject.addProperty(propertyName, jsonValue);
 				break;
 
 			default:
 				logger.error(String.format("unsupported DataType '%1$s'", this.toString()));
-				jsonObject.addProperty(propertyName, serializer.fromJson(jsonValue, String.class));
+				jsonObject.addProperty(propertyName, jsonValue);
 				break;
 
 		}
