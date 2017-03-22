@@ -135,6 +135,14 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 	protected void loadBackboneData() {
 		try {
 			PropertyEditor propertyEditor = new PropertyEditorImpl();
+
+			boolean loadBackboneData = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendLoadBackboneDataPropertyKey()));
+
+			if (!loadBackboneData) {
+				logger.debug("loading backbone data skipped");
+				return;
+			}
+
 			String backboneDataDirectoryPath = propertyEditor.getProperty(Argos.getArgosBackendBackboneDataDirectoryPropertyKey());
 			if (backboneDataDirectoryPath.length() == 0) {
 				throw new NullPointerException();

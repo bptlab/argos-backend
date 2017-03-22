@@ -94,6 +94,14 @@ public interface Argos {
 	}
 
 	/**
+	 * This method returns the property key for the argosBackendLoadBackboneData property.
+	 * @return - the property key for the argosBackendLoadBackboneData property
+	 */
+	static String getArgosBackendLoadBackboneDataPropertyKey() {
+		return "argosBackendLoadBackboneData";
+	}
+
+	/**
 	 * This method returns the port of the argos application as configured in the argos-backend.properties file.
 	 * @return - the port of the argos application as configured in the argos-backend.properties file
 	 */
