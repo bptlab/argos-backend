@@ -1,4 +1,4 @@
-package de.hpi.bpt.argos.persistence.model.product;
+package de.hpi.bpt.argos.persistence.model.product.error;
 
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityImpl;
 
@@ -11,32 +11,32 @@ import javax.persistence.Table;
  * This is the implementation.
  */
 @Entity
-@Table(name = "ErrorType")
-public class ErrorTypeImpl extends PersistenceEntityImpl implements ErrorType {
+@Table(name = "ErrorCause")
+public class ErrorCauseImpl extends PersistenceEntityImpl implements ErrorCause {
 
-	@Column(name = "CauseCode")
-	protected int causeCode = 0;
+	@Column(name = "Description")
+	protected String description = "";
 
-	@Column(name = "ErrorOccurrences")
+	@Column(name = "Occurrences")
 	protected long errorOccurrences = 0;
 
-	@Column(name = "ErrorPrediction")
+	@Column(name = "Prediction")
 	protected double errorPrediction = 0;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int getCauseCode() {
-		return causeCode;
+	public String getDescription() {
+		return description;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setCauseCode(int causeCode) {
-		this.causeCode = causeCode;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	/**
@@ -60,7 +60,7 @@ public class ErrorTypeImpl extends PersistenceEntityImpl implements ErrorType {
 	 */
 	@Override
 	public void incrementErrorOccurrences(long count) {
-		this.errorOccurrences += count;
+		errorOccurrences += count;
 	}
 
 	/**

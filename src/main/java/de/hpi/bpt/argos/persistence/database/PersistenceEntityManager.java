@@ -89,18 +89,18 @@ public interface PersistenceEntityManager extends PersistenceEntityRetriever {
 	/**
 	 * This method returns a product or creates it, if it does not exist in the database.
 	 * @param productFamily - the family of the product
-	 * @param productOrderNumber - the unique product order number
+	 * @param externalProductId - the unique product order number
 	 * @return - the product
 	 */
-	Product getProduct(ProductFamily productFamily, int productOrderNumber);
+	Product getProduct(ProductFamily productFamily, int externalProductId);
 
 	/**
 	 * This method returns a product and creates it, if it does not exist in the database.
 	 * @param productFamilyName - the identifier for the product family
-	 * @param productIdentifier - the identifier for the product
+	 * @param externalProductId - the identifier for the product
 	 * @return - a product
 	 */
-	Product getProduct(String productFamilyName, int productIdentifier);
+	Product getProduct(String productFamilyName, int externalProductId);
 
 	/**
 	 * This method returns a product family and create it, if it doe not exist in the database.

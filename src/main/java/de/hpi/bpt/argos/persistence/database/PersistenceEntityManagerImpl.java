@@ -302,12 +302,12 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Product getProduct(ProductFamily productFamily, int productOrderNumber) {
-		Product product = databaseConnection.getProduct(productOrderNumber);
+	public Product getProduct(ProductFamily productFamily, int externalProductId) {
+		Product product = databaseConnection.getProduct(externalProductId);
 
 		if (product == null) {
 			product = new ProductImpl();
-			product.setOrderNumber(productOrderNumber);
+			product.setOrderNumber(externalProductId);
 			product.setProductFamily(productFamily);
 			product.setState(ProductState.UNDEFINED);
 
@@ -325,10 +325,10 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Product getProduct(String productFamilyName, int productIdentifier) {
+	public Product getProduct(String productFamilyName, int externalProductId) {
 		ProductFamily productFamily = getProductFamily(productFamilyName);
 
-		return getProduct(productFamily, productIdentifier);
+		return getProduct(productFamily, externalProductId);
 	}
 
 	/**

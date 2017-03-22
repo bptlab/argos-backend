@@ -135,7 +135,7 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 	 * @return - the element name
 	 */
 	protected String latestOpenedElement(int topOffset) {
-		int offset = Math.min(openedElements.size() - 1, topOffset);
+		int offset = Math.max(1, Math.min(openedElements.size(), topOffset));
 
 		return openedElements.get(openedElements.size() - offset);
 	}
@@ -146,7 +146,7 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 	 * @return - the element name
 	 */
 	protected String latestClosedElement(int topOffset) {
-		int offset = Math.min(openedElements.size() - 1, topOffset);
+		int offset = Math.max(1, Math.min(closedElements.size(), topOffset));
 
 		return closedElements.get(closedElements.size() - offset);
 	}

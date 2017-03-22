@@ -3,6 +3,8 @@ package de.hpi.bpt.argos.persistence.model.product;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityImpl;
 import de.hpi.bpt.argos.persistence.model.event.EventQuery;
 import de.hpi.bpt.argos.persistence.model.event.EventQueryImpl;
+import de.hpi.bpt.argos.persistence.model.product.error.ErrorType;
+import de.hpi.bpt.argos.persistence.model.product.error.ErrorTypeImpl;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;

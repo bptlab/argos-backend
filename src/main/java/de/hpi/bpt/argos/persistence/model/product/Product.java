@@ -2,6 +2,7 @@ package de.hpi.bpt.argos.persistence.model.product;
 
 import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
 import de.hpi.bpt.argos.persistence.model.event.EventQuery;
+import de.hpi.bpt.argos.persistence.model.product.error.ErrorType;
 
 import java.util.Date;
 import java.util.Set;

@@ -3,10 +3,12 @@ package de.hpi.bpt.argos.eventHandling;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
+import de.hpi.bpt.argos.common.parsing.XMLFileParser;
 import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.model.event.statusUpdate.StatusUpdateEventTypeImpl;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
+import de.hpi.bpt.argos.persistence.model.parsing.BackboneDataParserImpl;
 import de.hpi.bpt.argos.properties.PropertyEditor;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import org.hibernate.annotations.common.util.impl.LoggerFactory;
@@ -41,6 +43,7 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 		this.responseFactory = responseFactory;
 
 		loadDefaultEventTypes();
+		loadBackboneData();
 
 		eventSubscriber = new EventSubscriberImpl();
 		eventSubscriber.setup(entityManager);
@@ -139,13 +142,15 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 
 			// since the path is delivered as URI, it is represented as a HTML string. Thus we need to replace %20 with file system spaces.
 			File backboneDataDirectory = new File(backboneDataDirectoryPath.replaceAll("%20", " "));
+			XMLFileParser parser = new BackboneDataParserImpl();
+			parser.setup(entityManager);
 
 			for (File backboneData : backboneDataDirectory.listFiles()) {
 				if (!backboneData.getName().endsWith(".xml")) {
 					continue;
 				}
 
-				loadBackboneDataFile(backboneData);
+				loadBackboneDataFile(parser, backboneData);
 			}
 
 		} catch (Exception e) {
@@ -155,10 +160,13 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 
 	/**
 	 * This method loads all products and their error predictions from a specific backbone data file.
+	 * @param parser - the XML file parser, which should be used to parse the backbone data file
 	 * @param backboneDataFile - the backbone data file to parse
 	 */
-	protected void loadBackboneDataFile(File backboneDataFile) {
+	protected void loadBackboneDataFile(XMLFileParser parser, File backboneDataFile) {
 		try {
+
+			parser.parse(backboneDataFile);
 
 		} catch (Exception e) {
 			logger.error("cannot load backbone data from '" + backboneDataFile.getName() + "'.", e);
