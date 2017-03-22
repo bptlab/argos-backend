@@ -502,27 +502,8 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			jsonEvent.addProperty("id", event.getId());
 
 			for (EventData data : event.getEventData()) {
-				switch (data.getEventAttribute().getType()) {
-					case STRING:
-						jsonEvent.addProperty(data.getEventAttribute().getName(), data.getValue());
-						break;
 
-					case INTEGER:
-						jsonEvent.addProperty(data.getEventAttribute().getName(), serializer.fromJson(data.getValue(), Integer.class));
-						break;
-
-					case FLOAT:
-						jsonEvent.addProperty(data.getEventAttribute().getName(), serializer.fromJson(data.getValue(), Float.class));
-						break;
-
-					case DATE:
-						jsonEvent.addProperty(data.getEventAttribute().getName(), data.getValue());
-						break;
-
-					default:
-						jsonEvent.addProperty(data.getEventAttribute().getName(), data.getValue());
-						break;
-				}
+				data.getEventAttribute().getType().addJSONProperty(jsonEvent, data.getEventAttribute().getName(), data.getValue());
 			}
 
 			return jsonEvent;
