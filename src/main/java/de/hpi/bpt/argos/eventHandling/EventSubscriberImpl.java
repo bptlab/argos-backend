@@ -189,6 +189,8 @@ public class EventSubscriberImpl implements EventSubscriber {
 			return false;
 		}
 
+		deleteEventQuery(eventType);
+
 		eventType.getEventQuery().setUuid(subscriptionRequest.getResponse());
 		entityManager.updateEntity(eventType);
 		return true;
@@ -199,6 +201,12 @@ public class EventSubscriberImpl implements EventSubscriber {
 	 * @param eventType - the event type, for which the event query should be deleted
 	 */
 	protected void deleteEventQuery(EventType eventType) {
+
+		if (eventType.getEventQuery() == null
+				|| eventType.getEventQuery().getUuid().length() == 0) {
+			return;
+		}
+
 		PropertyEditor propertyReader = new PropertyEditorImpl();
 
 		String eventPlatformHost = propertyReader.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
