@@ -8,7 +8,7 @@
 <body>
 <div class="container">
     <h1>Argos-Backend</h1>
-    <p class="sw-info">Version: <span class="sw-info-version">1.0</span></p>
+    <p class="sw-info">Version: <span class="sw-info-version">1.1.1</span></p>
     <p></p>
     
     
@@ -27,6 +27,17 @@
             </tr>
             </thead>
             <tbody>
+                    <tr>
+                            <td class="swagger--summary-path" rowspan="1">
+                                <a href="#path--api-datatypes">/api/datatypes</a>
+                            </td>
+                        <td>
+                            <a href="#operation--api-datatypes-get">GET</a>
+                        </td>
+                        <td>
+                            
+                        </td>
+                    </tr>
                     <tr>
                             <td class="swagger--summary-path" rowspan="1">
                                 <a href="#path--api-eventqueries-update--eventTypeId-">/api/eventqueries/update/{eventTypeId}</a>
@@ -167,6 +178,55 @@
     <h2>Paths</h2>
     
         
+        <span id="path--api-datatypes"></span>
+            <div id="operation--api-datatypes-get" class="swagger--panel-operation-get panel">
+                <div class="panel-heading">
+                    <div class="operation-summary"></div>
+                    <h3 class="panel-title"><span class="operation-name">GET</span> <strong>/api/datatypes</strong></h3>
+                </div>
+                <div class="panel-body">
+                    <section class="sw-operation-description">
+                        <p>Returns a list of all supported DataTypes.</p>
+            
+                    </section>
+                    
+                    
+                        <section class="sw-responses">
+                    
+                            <dl>
+                                    <dt class="sw-response-200">
+                                        200 OK
+                                    
+                                    </dt>
+                                    <dd class="sw-response-200">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Successful response</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                                <div  class="panel panel-definition">
+                                                    <div class="panel-body">
+                                                            
+                                                                            <section class="json-schema-array-items">
+                                                                                
+                                                                                <span class="json-property-type">string</span>
+                                                                                <span class="json-property-range" title="Value limits"></span>
+                                                                                
+                                                                                <div class="json-inner-schema">
+                                                                                    
+                                                                                </div>
+                                                                            </section>    </div>
+                                                </div></div>
+                                            
+                                            </div>                </dd>
+                            </dl>
+                        </section>
+                </div>
+            </div>    
         <span id="path--api-eventqueries-update--eventTypeId-"></span>
             <div id="operation--api-eventqueries-update--eventTypeId--post" class="swagger--panel-operation-post panel">
                 <div class="panel-heading">
@@ -1135,7 +1195,7 @@
                                                                                                                                                             <dt data-property-name="orderNumber">
                                                                                                                                                                 <span class="json-property-name">orderNumber:</span>
                                                                                                                                                                 
-                                                                                                                                                                <span class="json-property-type">integer</span>
+                                                                                                                                                                <span class="json-property-type">integer</span>    <span class="json-property-format">(long)</span>
                                                                                                                                                                 <span class="json-property-range" title="Value limits"></span>
                                                                                                                                                                 
                                                                                                                                                             </dt>
@@ -1490,7 +1550,7 @@
                                                                                 <dt data-property-name="orderNumber">
                                                                                     <span class="json-property-name">orderNumber:</span>
                                                                                     
-                                                                                    <span class="json-property-type">integer</span>
+                                                                                    <span class="json-property-type">integer</span>    <span class="json-property-format">(long)</span>
                                                                                     <span class="json-property-range" title="Value limits"></span>
                                                                                     
                                                                                 </dt>

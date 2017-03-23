@@ -110,6 +110,12 @@ public interface ResponseFactory {
 	String deleteEventType(long eventTypeId);
 
 	/**
+	 * This method returns a json representation of all supported data types.
+	 * @return - a json representation of all supported data types
+	 */
+	String getSupportedDataTypes();
+
+	/**
 	 * This method returns a default response to generic requests.
 	 * @return - a simple response to a request
 	 */
