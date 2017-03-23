@@ -121,7 +121,7 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 		try {
 			externalProductId = Long.parseLong(tempCurrentProductExternalId);
 		} catch (Exception e) {
-			logger.error(String.format("can not parse product identifier '%1$s'", tempCurrentProductExternalId), e);
+			logger.debug(String.format("can not parse product identifier '%1$s'", tempCurrentProductExternalId), e);
 			resetCurrentEntities();
 			return;
 		}
@@ -179,7 +179,7 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 		try {
 			causeCode = Integer.parseInt(tempCurrentCauseCode);
 		} catch (Exception e) {
-			logger.error(String.format("can not parse cause code '%1$s'", tempCurrentCauseCode), e);
+			logger.debug(String.format("can not parse cause code '%1$s'", tempCurrentCauseCode), e);
 			currentErrorType = null;
 			return;
 		}
@@ -217,7 +217,7 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 				prediction *= TO_PERCENT;
 			}
 		} catch (Exception e) {
-			logger.error(String.format("can not parse cause prediction '%1$s'", causePrediction), e);
+			logger.debug(String.format("can not parse cause prediction '%1$s'", causePrediction), e);
 			return;
 		}
 
@@ -236,6 +236,7 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 			return;
 		}
 
+		logger.info(String.format("added product '%1$s' in family '%2$s'", currentProduct.getName(), currentProduct.getProductFamily().getName()));
 		entityManager.updateEntity(currentProduct, ProductEndpoint.getProductUri(currentProduct.getId()));
 
 		resetCurrentEntities();

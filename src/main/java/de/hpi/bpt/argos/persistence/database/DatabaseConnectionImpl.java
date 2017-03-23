@@ -375,6 +375,6 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 		if (query != null) {
 			queryString = query.getQueryString();
 		}
-		logger.info(String.format("no entities for query '%1$s' found", queryString), exception);
+		logger.debug(String.format("no entities for query '%1$s' found", queryString), exception);
 	}
 }

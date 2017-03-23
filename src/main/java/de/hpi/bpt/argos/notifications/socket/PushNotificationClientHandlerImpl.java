@@ -54,11 +54,11 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 			clientsLock.tryLock(CLIENT_LOCK_TIME_OUT, CLIENT_LOCK_TIME_UNIT);
 
 			if (clients.isEmpty()) {
-				logger.info(String.format("no web socket clients to send notification to '%1$s'", notification));
+				logger.debug(String.format("no web socket clients to send notification to '%1$s'", notification));
 				return;
 			}
 
-			logger.info(String.format("sending web socket notification (total: %1$d) : '%2$s'", clients.size(), notification));
+			logger.info(String.format("sending web socket notification (clients: %1$d) : '%2$s'", clients.size(), notification));
 
 			for (Iterator<Session> it = clients.iterator(); it.hasNext();) {
 				Session client = it.next();
@@ -85,7 +85,7 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 		try {
 			if (!client.isOpen()) {
 				it.remove();
-				logger.info(String.format("removed web socket connection from '%1$s' total: %2$d",
+				logger.debug(String.format("removed web socket connection from '%1$s' total: %2$d",
 						client.getRemoteAddress().getHostString(),
 						clients.size()));
 				return;
@@ -110,7 +110,7 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 			clientsLock.tryLock(CLIENT_LOCK_TIME_OUT, CLIENT_LOCK_TIME_UNIT);
 			clients.add(client);
 
-			logger.info(String.format("new web socket client connected: '%1$s' total: %2$d",
+			logger.debug(String.format("new web socket client connected: '%1$s' total: %2$d",
 					client.getRemoteAddress().getHostString(), clients
 					.size()));
 
@@ -133,7 +133,7 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 			clientsLock.tryLock(CLIENT_LOCK_TIME_OUT, CLIENT_LOCK_TIME_UNIT);
 			clients.remove(client);
 
-			logger.info(String.format("web socket client '%1$s' disconnected -> '%2$s' : '%3$s' total: %4$d",
+			logger.debug(String.format("web socket client '%1$s' disconnected -> '%2$s' : '%3$s' total: %4$d",
 					client.getRemoteAddress().getHostString(),
 					statusCode,
 					reason,
