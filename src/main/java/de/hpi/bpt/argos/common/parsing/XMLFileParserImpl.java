@@ -8,7 +8,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
@@ -44,8 +43,12 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setup(PersistenceEntityManager entityManager) throws ParserConfigurationException, SAXException {
-		parser = parserFactory.newSAXParser();
+	public void setup(PersistenceEntityManager entityManager) {
+		try {
+			parser = parserFactory.newSAXParser();
+		} catch (Exception e) {
+			logger.error("can not setup XML file parser", e);
+		}
 		this.entityManager = entityManager;
 	}
 
@@ -54,7 +57,11 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 	 */
 	@Override
 	public void parse(File dataFile) {
-		this.entityManager = entityManager;
+		if (parser == null
+				|| entityManager == null) {
+			logger.error(String.format("can not parse XML file '%1$s', parser is not initialized", dataFile.getName()));
+			return;
+		}
 
 		try (InputStream inputStream = new FileInputStream(dataFile)) {
 

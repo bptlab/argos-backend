@@ -133,7 +133,7 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	}
 
 	/**
-	 * This method splits a product description and sets the current productFamilyId and the currentProductName
+	 * This method splits a product description and sets the current productFamilyId and the currentProductName.
 	 * @param productDescription - the description for the current product
 	 * @return - true if the description is valid
 	 */
