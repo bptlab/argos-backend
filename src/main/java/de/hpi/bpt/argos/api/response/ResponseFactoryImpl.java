@@ -13,6 +13,7 @@ import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.EventQueryImpl;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 import de.hpi.bpt.argos.persistence.model.event.data.EventData;
+import de.hpi.bpt.argos.persistence.model.event.data.EventDataType;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
@@ -353,6 +354,20 @@ public class ResponseFactoryImpl implements ResponseFactory {
 		}
 
 		return "";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getSupportedDataTypes() {
+		JsonArray dataTypes = new JsonArray();
+
+		for (EventDataType type : EventDataType.values()) {
+			dataTypes.add(type.toString());
+		}
+
+		return serializer.toJson(dataTypes);
 	}
 
 	/**
