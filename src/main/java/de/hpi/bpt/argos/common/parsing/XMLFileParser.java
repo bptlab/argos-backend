@@ -1,9 +1,7 @@
 package de.hpi.bpt.argos.common.parsing;
 
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 
 /**
