@@ -145,13 +145,22 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 
 		String[] split = productDescription.split(PRODUCT_FAMILY_SEPARATOR);
 
-		if (split.length != PRODUCT_FAMILY_SPLIT_LENGTH) {
+		if (split.length < PRODUCT_FAMILY_SPLIT_LENGTH) {
 			logger.info(String.format("product '%1$s' is not supported", productDescription));
 			return false;
 		}
 
+		StringBuilder productName = new StringBuilder();
+		productName.append(split[1]);
+
+		// add separator to product name, if more than two split parts exist
+		for (int i = 2; i < split.length; i++) {
+			productName.append(PRODUCT_FAMILY_SEPARATOR);
+			productName.append(split[i]);
+		}
+
 		tempCurrentProductFamilyId = split[0];
-		tempCurrentProductName = split[1];
+		tempCurrentProductName = productName.toString();
 		return true;
 	}
 
