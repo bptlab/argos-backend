@@ -424,7 +424,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 					return Long.parseLong(data.getValue());
 				} catch (Exception e) {
 					logger.error(String.format("can not cast '%1$s' to external product id (long)", data.getValue()), e);
-					return - 1;
+					return -1;
 				}
 			}
 		}

@@ -14,10 +14,8 @@ public interface XMLFileParser {
 	/**
 	 * This method sets this XML file parser up.
 	 * @param entityManager - the entity manager to save entities to
-	 * @throws ParserConfigurationException - this exception will be thrown if the SAX parser was not configured correctly
-	 * @throws SAXException - this exception will be thrown if there was an exception while parsing
 	 */
-	void setup(PersistenceEntityManager entityManager) throws ParserConfigurationException, SAXException;
+	void setup(PersistenceEntityManager entityManager);
 
 	/**
 	 * This method parses a given data file and stores entities in the database.

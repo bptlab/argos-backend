@@ -27,6 +27,10 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	protected static final String CAUSE_DESCRIPTION_ELEMENT = "causeDescription";
 	protected static final String CAUSE_PREDICTION_ELEMENT = "causePrediction";
 
+	protected static final String PRODUCT_FAMILY_SEPARATOR = "-";
+	protected static final int PRODUCT_FAMILY_SPLIT_LENGTH = 2;
+	protected static final double TO_PERCENT = 1.0 / 100.0;
+
 	protected List<Long> cachedExternalProductIdentifiers = new ArrayList<>();
 	protected String tempCurrentProductExternalId = "";
 	protected String tempCurrentProductFamilyId = "";
@@ -139,9 +143,9 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	 */
 	protected boolean splitProductDescription(String productDescription) {
 
-		String[] split = productDescription.split("-");
+		String[] split = productDescription.split(PRODUCT_FAMILY_SEPARATOR);
 
-		if (split.length != 2) {
+		if (split.length != PRODUCT_FAMILY_SPLIT_LENGTH) {
 			logger.info(String.format("product '%1$s' is not supported", productDescription));
 			return false;
 		}
@@ -201,7 +205,7 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 			prediction = Double.parseDouble(causePrediction);
 
 			if (prediction > 1.0) {
-				prediction /= 100.0;
+				prediction *= TO_PERCENT;
 			}
 		} catch (Exception e) {
 			logger.error(String.format("can not parse cause prediction '%1$s'", causePrediction), e);
