@@ -80,30 +80,7 @@ public class EventTypeSchemaGeneratorImpl implements EventTypeSchemaGenerator {
 	 * @return - the new content
 	 */
 	protected String appendElement(String elementName, EventDataType elementType, String innerContent) {
-		String typeString;
-
-		switch (elementType) {
-			case STRING:
-				typeString = "xs:string";
-				break;
-
-			case INTEGER:
-				typeString = "xs:int";
-				break;
-
-			case FLOAT:
-				typeString = "xs:float";
-				break;
-
-			case DATE:
-				typeString = "xs:date";
-				break;
-
-			default:
-				typeString = "xs:string";
-				break;
-
-		}
+		String typeString = elementType.getXSDTypeName();
 
 		return String.format("%1$s<xs:element name='%2$s' type='%3$s'/>", innerContent, elementName, typeString);
 	}
