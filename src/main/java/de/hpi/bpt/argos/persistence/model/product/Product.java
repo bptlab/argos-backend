@@ -64,13 +64,13 @@ public interface Product extends PersistenceEntity {
 	 * This method returns the order number of this product.
 	 * @return - the order number of this product as an integer
 	 */
-	int getOrderNumber();
+	long getOrderNumber();
 
 	/**
 	 * This method sets the order number of this product.
 	 * @param orderNumber - the order number of this product to be set
 	 */
-	void setOrderNumber(int orderNumber);
+	void setOrderNumber(long orderNumber);
 
 	/**
 	 * This method returns the status description of this product.

@@ -14,7 +14,7 @@
 		"errorId":"STRING",
 		"errorFailureTreeId":"INTEGER",
 		"errorDescription":"STRING",
-		"productId":"INTEGER",
+		"productId":"LONG",
 		"productName":"STRING",
 		"replacementPartId":"INTEGER",
 		"replacementPartName":"STRING",

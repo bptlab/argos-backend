@@ -294,7 +294,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 				if (!eventPlatformRestEndpoint.getEventSubscriber().updateEventQuery(
 						product.getStatusUpdateQuery(newState),
 						eventQuery,
-						EventReceiver.getReceiveStatusUpdateEventUri(product.getOrderNumber(), newState))) {
+						EventReceiver.getReceiveStatusUpdateEventUri(product.getId(), newState))) {
 					halt(ResponseFactory.HTTP_ERROR_CODE, "event platform did not accept the updated status query");
 				}
 

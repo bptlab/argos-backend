@@ -59,7 +59,7 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 				TEST_CONTENT_TYPE,
 				TEST_ACCEPT_TYPE_PLAIN);
 
-		int orderNumber = testProduct.getOrderNumber() + 1;
+		long orderNumber = testProduct.getOrderNumber() + 1;
 
 		JsonObject jsonEvent = new JsonObject();
 		jsonEvent.addProperty(testEventType.getTimestampAttribute().getName(), (new Date()).toString());
@@ -69,7 +69,7 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 		request.setContent(serializer.toJson(jsonEvent));
 		assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
 
-		Product product = ArgosTestParent.argos.getPersistenceEntityManager().getProduct(orderNumber);
+		Product product = ArgosTestParent.argos.getPersistenceEntityManager().getProductByExternalId(orderNumber);
 		assertEquals(true, product != null);
 
 		List<ProductFamily> productFamilies = ArgosTestParent.argos.getPersistenceEntityManager().getProductFamilies();
@@ -83,7 +83,7 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 				TEST_CONTENT_TYPE,
 				TEST_ACCEPT_TYPE_PLAIN);
 
-		int orderNumber = testProduct.getOrderNumber() + 1;
+		long orderNumber = testProduct.getOrderNumber() + 1;
 		String productFamilyId;
 
 		do {
@@ -98,7 +98,7 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 		request.setContent(serializer.toJson(jsonEvent));
 		assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
 
-		Product product = ArgosTestParent.argos.getPersistenceEntityManager().getProduct(orderNumber);
+		Product product = ArgosTestParent.argos.getPersistenceEntityManager().getProductByExternalId(orderNumber);
 		assertEquals(true, product != null);
 
 		List<ProductFamily> productFamilies = ArgosTestParent.argos.getPersistenceEntityManager().getProductFamilies();

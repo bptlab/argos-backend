@@ -67,7 +67,7 @@ public class ArgosTestUtil {
 		newProduct.setName("Product_" + getCurrentTimestamp());
 		newProduct.setState(ProductState.RUNNING);
 		newProduct.setStateDescription("This product is running smoothly");
-		newProduct.setOrderNumber(getRandomInteger(0, Integer.MAX_VALUE));
+		newProduct.setOrderNumber(getRandomLong());
 		newProduct.setProductionStart(new Date());
 		newProduct.getTransitionToRunningState().setQueryString("query to running");
 		newProduct.getTransitionToRunningState().setUuid(getRandomString());
@@ -102,7 +102,7 @@ public class ArgosTestUtil {
 
 		EventAttribute productId = new EventAttributeImpl();
 		productId.setName("productId");
-		productId.setType(EventDataType.INTEGER);
+		productId.setType(EventDataType.LONG);
 
 		newEventType.getAttributes().add(productId);
 
@@ -143,6 +143,9 @@ public class ArgosTestUtil {
 					break;
 				case INTEGER:
 					data.setValue(String.valueOf(getRandomInteger(0, Integer.MAX_VALUE)));
+					break;
+				case LONG:
+					data.setValue(String.valueOf(getRandomLong()));
 					break;
 				case FLOAT:
 					data.setValue(String.valueOf(getRandomFloat()));

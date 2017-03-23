@@ -165,8 +165,8 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Product getProduct(int externalProductId) {
-		return databaseConnection.getProduct(externalProductId);
+	public Product getProductByExternalId(long externalProductId) {
+		return databaseConnection.getProductByExternalId(externalProductId);
 	}
 
 	/**
@@ -302,8 +302,8 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Product getProduct(ProductFamily productFamily, int externalProductId) {
-		Product product = databaseConnection.getProduct(externalProductId);
+	public Product getProduct(ProductFamily productFamily, long externalProductId) {
+		Product product = databaseConnection.getProductByExternalId(externalProductId);
 
 		if (product == null) {
 			product = new ProductImpl();
@@ -325,7 +325,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Product getProduct(String productFamilyName, int externalProductId) {
+	public Product getProduct(String productFamilyName, long externalProductId) {
 		ProductFamily productFamily = getProductFamily(productFamilyName);
 
 		return getProduct(productFamily, externalProductId);
@@ -397,10 +397,15 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * @param eventData - the event data of the requested event
 	 * @return - the product identification
 	 */
-	protected int getProductIdentification(List<EventData> eventData) {
+	protected long getProductIdentification(List<EventData> eventData) {
 		for (EventData data : eventData) {
 			if (data.getEventAttribute().getName().equals(EventType.getProductIdentificationAttributeName())) {
-				return Integer.parseInt(data.getValue());
+				try {
+					return Long.parseLong(data.getValue());
+				} catch (Exception e) {
+					logger.error(String.format("can not cast '%1$s' to external product id (long)", data.getValue()), e);
+					return - 1;
+				}
 			}
 		}
 

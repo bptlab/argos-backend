@@ -41,7 +41,7 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	protected String name = "Unknown Product";
 
 	@Column(name = "OrderNumber")
-	protected int orderNumber = 0;
+	protected long orderNumber = 0;
 
 	@Column(name = "StateDescription")
 	protected String stateDescription = "State is not defined yet";
@@ -132,7 +132,7 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int getOrderNumber() {
+	public long getOrderNumber() {
 		return orderNumber;
 	}
 
@@ -140,7 +140,7 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setOrderNumber(int orderNumber) {
+	public void setOrderNumber(long orderNumber) {
 		this.orderNumber = orderNumber;
 	}
 

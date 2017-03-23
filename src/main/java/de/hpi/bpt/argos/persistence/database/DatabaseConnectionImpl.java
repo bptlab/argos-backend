@@ -199,7 +199,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Product getProduct(int externalProductId) {
+	public Product getProductByExternalId(long externalProductId) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction transaction = session.beginTransaction();
 		Query<Product> query = session.createQuery("FROM ProductImpl pr "

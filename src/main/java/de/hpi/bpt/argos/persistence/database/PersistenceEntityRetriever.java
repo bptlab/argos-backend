@@ -77,7 +77,7 @@ public interface PersistenceEntityRetriever {
 	 * @param externalProductId - the external product id
 	 * @return - the product
 	 */
-	Product getProduct(int externalProductId);
+	Product getProductByExternalId(long externalProductId);
 
 	/**
 	 * This method makes the database call to retrieve the requested product family.
