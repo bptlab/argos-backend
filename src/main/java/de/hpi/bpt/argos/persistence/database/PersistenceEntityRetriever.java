@@ -2,6 +2,7 @@ package de.hpi.bpt.argos.persistence.database;
 
 import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
+import de.hpi.bpt.argos.persistence.model.parsing.DataFile;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 
@@ -98,4 +99,11 @@ public interface PersistenceEntityRetriever {
 	 * @return - the requested event
 	 */
 	Event getEvent(long eventId);
+
+	/**
+	 * This method makes the database call to retrieve a single data file.
+	 * @param path - the of the file to look for
+	 * @return - the requested data file
+	 */
+	DataFile getDataFile(String path);
 }

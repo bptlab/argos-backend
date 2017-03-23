@@ -10,16 +10,53 @@ import java.util.Set;
 public interface ErrorType extends PersistenceEntity {
 
 	/**
+	 * This method returns the error type id of this error type.
+	 * @return - the error type id
+	 */
+	String getErrorTypeId();
+
+	/**
+	 * This method sets the error type id of this error type, which consists of the display code and the cause code.
+	 * @param displayCode - the display code of this error type
+	 * @param causeCode - the cause code of this error type
+	 */
+	void setErrorTypeId(String displayCode, int causeCode);
+
+	/**
+	 * This method returns the display code of this error type.
+	 * @return - the display code of this error type
+	 */
+	String getDisplayCode();
+
+	/**
+	 * This method sets the display code of this error type and also updates the errorTypeId.
+	 * @param displayCode - the display code to be set
+	 */
+	void setDisplayCode(String displayCode);
+
+	/**
 	 * This method returns the cause code for this error type.
 	 * @return - the cause code for this event type.
 	 */
 	int getCauseCode();
 
 	/**
-	 * This method sets the cause code for this error type.
+	 * This method sets the cause code for this error type and also updates the errorTypeId.
 	 * @param causeCode - the cause code to be set
 	 */
 	void setCauseCode(int causeCode);
+
+	/**
+	 * This method returns the error description for this error type.
+	 * @return - the error description for this error type
+	 */
+	String getErrorDescription();
+
+	/**
+	 * This method sets the error description for this error type.
+	 * @param errorDescription - the error description to be set
+	 */
+	void setErrorDescription(String errorDescription);
 
 	/**
 	 * This method returns a set of error causes, which might lead to an event of this error type.

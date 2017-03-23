@@ -20,6 +20,8 @@ import de.hpi.bpt.argos.persistence.model.event.data.EventDataType;
 import de.hpi.bpt.argos.persistence.model.event.statusUpdate.StatusUpdateEventType;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.event.type.EventTypeImpl;
+import de.hpi.bpt.argos.persistence.model.parsing.DataFile;
+import de.hpi.bpt.argos.persistence.model.parsing.DataFileImpl;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamilyImpl;
@@ -183,6 +185,24 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	@Override
 	public Event getEvent(long eventId) {
 		return databaseConnection.getEvent(eventId);
+	}
+
+	/**
+	 * This method returns a data file with the specified path and, if it did not exist, creates it in the database.
+	 * @param path - the file to look for
+	 * @return - a data file
+	 */
+	@Override
+	public DataFile getDataFile(String path) {
+		DataFile file = databaseConnection.getDataFile(path);
+
+		if (file == null) {
+			file = new DataFileImpl();
+			file.setPath(path);
+			updateEntity(file);
+		}
+
+		return file;
 	}
 
 	/**

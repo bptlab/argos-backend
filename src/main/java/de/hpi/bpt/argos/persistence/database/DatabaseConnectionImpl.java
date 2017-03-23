@@ -3,6 +3,7 @@ package de.hpi.bpt.argos.persistence.database;
 import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
+import de.hpi.bpt.argos.persistence.model.parsing.DataFile;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import de.hpi.bpt.argos.properties.PropertyEditor;
@@ -248,6 +249,20 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 		Query<Event> query = session.createQuery("FROM EventImpl e "
 				+ "WHERE e.id = :eventId", Event.class)
 				.setParameter("eventId", eventId);
+
+		return getEntities(session, query, transaction, query::getSingleResult, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public DataFile getDataFile(String path) {
+		Session session = databaseSessionFactory.openSession();
+		Transaction transaction = session.beginTransaction();
+		Query<DataFile> query = session.createQuery("FROM DataFileImpl df "
+				+ "WHERE df.path = :path", DataFile.class)
+				.setParameter("path", path);
 
 		return getEntities(session, query, transaction, query::getSingleResult, null);
 	}

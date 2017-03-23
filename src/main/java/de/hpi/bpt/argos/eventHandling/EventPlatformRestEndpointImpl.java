@@ -9,6 +9,7 @@ import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
 import de.hpi.bpt.argos.persistence.model.event.statusUpdate.StatusUpdateEventTypeImpl;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.parsing.BackboneDataParserImpl;
+import de.hpi.bpt.argos.persistence.model.parsing.DataFile;
 import de.hpi.bpt.argos.properties.PropertyEditor;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import org.hibernate.annotations.common.util.impl.LoggerFactory;
@@ -86,12 +87,12 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 			// since the path is delivered as URI, it is represented as a HTML string. Thus we need to replace %20 with file system spaces.
 			File eventTypesDirectory = new File(eventTypesDirectoryPath.replaceAll("%20", " "));
 
-			for (File eventType : eventTypesDirectory.listFiles()) {
-				if (!eventType.getName().endsWith(".json")) {
+			for (File eventTypeFile : eventTypesDirectory.listFiles()) {
+				if (!eventTypeFile.getName().endsWith(".json")) {
 					continue;
 				}
 
-				loadDefaultEventType(eventType);
+				loadDefaultEventType(eventTypeFile);
 			}
 
 		} catch (NullPointerException e) {
@@ -119,10 +120,20 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 	 */
 	protected void loadDefaultEventType(File eventTypeFile) {
 		try {
+			DataFile file = entityManager.getDataFile(eventTypeFile.getAbsolutePath());
+
+			if (file.getModificationTimestamp() == eventTypeFile.lastModified()) {
+				logger.info(String.format("skipped default event type file '%1$s', since it was loaded already", eventTypeFile.getName()));
+				return;
+			}
+
 			String fileContent = new String(Files.readAllBytes(Paths.get(eventTypeFile.toURI())), StandardCharsets.UTF_8);
 
 			JsonObject jsonEventType = jsonParser.parse(fileContent).getAsJsonObject();
 			entityManager.createSimpleEventType(jsonEventType);
+
+			file.setModificationTimestamp(eventTypeFile.lastModified());
+			entityManager.updateEntity(file);
 
 		} catch (Exception e) {
 			logger.error("cannot load default event type from '" + eventTypeFile.getName() + "'.", e);
@@ -174,7 +185,17 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 	protected void loadBackboneDataFile(XMLFileParser parser, File backboneDataFile) {
 		try {
 
+			DataFile file = entityManager.getDataFile(backboneDataFile.getAbsolutePath());
+
+			if (file.getModificationTimestamp() == backboneDataFile.lastModified()) {
+				logger.info(String.format("skipped backbone data file '%1$s', since it was loaded already", backboneDataFile.getName()));
+				return;
+			}
+
 			parser.parse(backboneDataFile);
+
+			file.setModificationTimestamp(backboneDataFile.lastModified());
+			entityManager.updateEntity(file);
 
 		} catch (Exception e) {
 			logger.error("cannot load backbone data from '" + backboneDataFile.getName() + "'.", e);

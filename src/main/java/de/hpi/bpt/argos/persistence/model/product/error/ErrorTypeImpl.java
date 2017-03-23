@@ -19,11 +19,53 @@ import java.util.Set;
 @Table(name = "ErrorType")
 public class ErrorTypeImpl extends PersistenceEntityImpl implements ErrorType {
 
+	@Column(name = "ErrorTypeId")
+	protected String errorTypeId = "";
+
+	@Column(name = "DisplayCode")
+	protected String displayCode = "";
+
 	@Column(name = "CauseCode")
 	protected int causeCode = 0;
 
+	@Column(name = "Description")
+	protected String description = "";
+
 	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = ErrorCauseImpl.class)
 	protected Set<ErrorCause> errorCauses = new HashSet<>();
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getErrorTypeId() {
+		return errorTypeId;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setErrorTypeId(String displayCode, int causeCode) {
+		errorTypeId = String.format("%1$s-%2$s", displayCode, causeCode);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getDisplayCode() {
+		return displayCode;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setDisplayCode(String displayCode) {
+		this.displayCode = displayCode;
+		setErrorTypeId(displayCode, causeCode);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -39,6 +81,23 @@ public class ErrorTypeImpl extends PersistenceEntityImpl implements ErrorType {
 	@Override
 	public void setCauseCode(int causeCode) {
 		this.causeCode = causeCode;
+		setErrorTypeId(displayCode, causeCode);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getErrorDescription() {
+		return description;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setErrorDescription(String errorDescription) {
+		description = errorDescription;
 	}
 
 	/**

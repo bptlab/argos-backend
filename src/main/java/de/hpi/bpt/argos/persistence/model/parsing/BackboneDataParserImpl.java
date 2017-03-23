@@ -3,28 +3,56 @@ package de.hpi.bpt.argos.persistence.model.parsing;
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.common.parsing.XMLFileParserImpl;
 import de.hpi.bpt.argos.persistence.model.product.Product;
+import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import de.hpi.bpt.argos.persistence.model.product.error.ErrorCause;
 import de.hpi.bpt.argos.persistence.model.product.error.ErrorCauseImpl;
 import de.hpi.bpt.argos.persistence.model.product.error.ErrorType;
 import de.hpi.bpt.argos.persistence.model.product.error.ErrorTypeImpl;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class parses backbone data from XML files.
  */
 public class BackboneDataParserImpl extends XMLFileParserImpl {
+	// these variables are in the order of the XML file, the order is important!
 	protected static final String PRODUCT_ELEMENT = "product";
 	protected static final String PRODUCT_IDENTIFIER_ELEMENT = "productIdentifier";
 	protected static final String PRODUCT_DESCRIPTION_ELEMENT = "productDescription";
+	protected static final String DISPLAY_CODE_ELEMENT = "displayCode";
 	protected static final String CAUSE_CODE_ELEMENT = "causeCode";
+	protected static final String ERROR_DESCRIPTION_ELEMENT = "errorDescription";
 	protected static final String CAUSE_DESCRIPTION_ELEMENT = "causeDescription";
 	protected static final String CAUSE_PREDICTION_ELEMENT = "causePrediction";
 
+	protected List<Long> cachedExternalProductIdentifiers = new ArrayList<>();
 	protected String tempCurrentProductExternalId = "";
 	protected String tempCurrentProductFamilyId = "";
 	protected String tempCurrentCauseDescription = "";
 	protected String tempCurrentProductName = "";
+	protected String tempCurrentCauseCode = "";
+	protected String tempCurrentErrorDisplayCode = "";
 	protected Product currentProduct = null;
 	protected ErrorType currentErrorType = null;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void parse(File dataFile) {
+		super.parse(dataFile);
+
+		List<ProductFamily> families = entityManager.getProductFamilies();
+		cachedExternalProductIdentifiers.clear();
+
+		for (ProductFamily family : families) {
+			for (Product product : family.getProducts()) {
+				cachedExternalProductIdentifiers.add(product.getOrderNumber());
+			}
+		}
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -47,17 +75,33 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 			case PRODUCT_IDENTIFIER_ELEMENT:
 				tempCurrentProductExternalId = elementData;
 				break;
+
 			case PRODUCT_DESCRIPTION_ELEMENT:
 				startNewProduct(elementData);
 				break;
+
+			case DISPLAY_CODE_ELEMENT:
+				tempCurrentErrorDisplayCode = elementData;
+				break;
+
 			case CAUSE_CODE_ELEMENT:
+				tempCurrentCauseCode = elementData;
+				break;
+
+			case ERROR_DESCRIPTION_ELEMENT:
 				startNewErrorType(elementData);
 				break;
+
 			case CAUSE_DESCRIPTION_ELEMENT:
 				tempCurrentCauseDescription = elementData;
 				break;
+
 			case CAUSE_PREDICTION_ELEMENT:
 				startNewErrorCause(elementData);
+				break;
+
+			default:
+				// empty, since nothing to do
 				break;
 		}
 	}
@@ -79,7 +123,7 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 		}
 
 		if (!splitProductDescription(productDescription)
-				|| entityManager.getProductByExternalId(externalProductId) != null) {
+				|| cachedExternalProductIdentifiers.contains(externalProductId)) {
 			resetCurrentEntities();
 			return;
 		}
@@ -109,26 +153,34 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 
 	/**
 	 * This method starts a new errorEventType and adds it to the current product.
-	 * @param causeCode - the cause code for this error type as string
+	 * @param errorDescription - the error description for the current error type
 	 */
-	protected void startNewErrorType(String causeCode) {
+	protected void startNewErrorType(String errorDescription) {
 
 		if (currentProduct == null) {
 			return;
 		}
 
-		int code;
+		int causeCode;
 
 		try {
-			code = Integer.parseInt(causeCode);
+			causeCode = Integer.parseInt(tempCurrentCauseCode);
 		} catch (Exception e) {
-			logger.error(String.format("can not parse cause code '%1$s'", causeCode), e);
+			logger.error(String.format("can not parse cause code '%1$s'", tempCurrentCauseCode), e);
 			currentErrorType = null;
 			return;
 		}
 
 		currentErrorType = new ErrorTypeImpl();
-		currentErrorType.setCauseCode(code);
+		currentErrorType.setCauseCode(causeCode);
+		currentErrorType.setDisplayCode(tempCurrentErrorDisplayCode);
+		currentErrorType.setErrorDescription(errorDescription);
+
+		if (currentProductHasErrorType(currentErrorType)) {
+			currentErrorType = null;
+			return;
+		}
+
 		currentProduct.addErrorType(currentErrorType);
 	}
 
@@ -181,11 +233,32 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	 */
 	protected void resetCurrentEntities() {
 
-		tempCurrentProductName = "";
-		tempCurrentProductFamilyId = "";
 		tempCurrentProductExternalId = "";
+		tempCurrentProductFamilyId = "";
 		tempCurrentCauseDescription = "";
+		tempCurrentProductName = "";
+		tempCurrentCauseCode = "";
+		tempCurrentErrorDisplayCode = "";
 		currentProduct = null;
 		currentErrorType = null;
+	}
+
+	/**
+	 * This method checks, whether a error type is already present in the current product.
+	 * @param errorType - the error type to check
+	 * @return - true, if the error type is already present
+	 */
+	protected boolean currentProductHasErrorType(ErrorType errorType) {
+		if (currentProduct == null) {
+			return false;
+		}
+
+		for (ErrorType type : currentProduct.getErrorTypes()) {
+			if (type.getErrorTypeId().equalsIgnoreCase(errorType.getErrorTypeId())) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }
