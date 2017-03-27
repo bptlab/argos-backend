@@ -10,6 +10,7 @@ import de.hpi.bpt.argos.core.ArgosTestUtil;
 import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfiguration;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import de.hpi.bpt.argos.persistence.model.product.ProductState;
 import org.junit.BeforeClass;
@@ -19,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 
 public class ProductEndpointTest extends CustomerEndpointParentClass {
 
+	protected static ProductConfiguration testProductConfiguration;
 	protected static Product testProduct;
 	protected static EventType testEventType;
 	protected static Event testEvent;
@@ -27,9 +29,10 @@ public class ProductEndpointTest extends CustomerEndpointParentClass {
 	public static void createTestProduct() {
 		ProductFamily productFamily = ArgosTestUtil.createProductFamily();
 		testProduct = ArgosTestUtil.createProduct(productFamily);
+		testProductConfiguration = ArgosTestUtil.createProductConfiguration(testProduct);
 
 		testEventType = ArgosTestUtil.createEventType();
-		testEvent = ArgosTestUtil.createEvent(testEventType, testProduct);
+		testEvent = ArgosTestUtil.createEvent(testEventType, testProductConfiguration);
 	}
 
 	@Test
@@ -125,7 +128,7 @@ public class ProductEndpointTest extends CustomerEndpointParentClass {
 		ProductState newState = ProductState.RUNNING;
 
 		request = requestFactory.createPostRequest(TEST_HOST,
-				getUpdateStatusQueryUri(testProduct.getId(), newState),
+				getUpdateStatusQueryUri(testProductConfiguration.getId(), newState),
 				TEST_CONTENT_TYPE,
 				TEST_ACCEPT_TYPE_PLAIN);
 
@@ -137,8 +140,11 @@ public class ProductEndpointTest extends CustomerEndpointParentClass {
 		request.setContent(serializer.toJson(jsonQuery));
 		assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
 
+		ProductConfiguration updatedConfiguration = ArgosTestParent.argos.getPersistenceEntityManager()
+				.getProductConfiguration(testProductConfiguration.getId());
+
 		Product updatedProduct = ArgosTestParent.argos.getPersistenceEntityManager().getProduct(testProduct.getId());
-		assertEquals(newEventQuery, updatedProduct.getStatusUpdateQuery(newState).getQueryString());
+		assertEquals(newEventQuery, updatedConfiguration.getStatusUpdateQuery(newState).getQueryString());
 	}
 
 	@Test
