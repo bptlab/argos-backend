@@ -1,6 +1,6 @@
 FROM maven:3
 
-ARG frontendBranch=master
+ARG frontendBranch=dev
 ARG backendBranch=master
 
 RUN curl -sL https://deb.nodesource.com/setup_7.x | bash - && \
@@ -20,4 +20,5 @@ RUN mv /argos-backend/target /target && \
     rm -rf /argos-frontend && rm -rf /argos-backend
 
 EXPOSE 8989
-CMD ["sh", "-c", "java -DargosBackendHost=\"http://`hostname -i`\" -DdatabaseConnectionHost=\"${MYSQL_PORT_3306_TCP_ADDR}:${MYSQL_PORT_3306_TCP_PORT}\" -DeventPlatformHost=\"http://${UNICORN_PORT_8080_TCP_ADDR}:${UNICORN_PORT_8080_TCP_PORT}\" -jar /target/argos-backend.jar"]
+
+CMD ["sh", "-c", "java -DargosBackendHost=\"http://`hostname -i`\" -DdatabaseConnectionHost=\"${MYSQL_PORT_3306_TCP_ADDR}:${MYSQL_PORT_3306_TCP_PORT}\" -DdatabaseConnectionUsername=\"${MYSQL_ENV_MYSQL_USER}\" -DdatabaseConnectionPassword=\"${MYSQL_ENV_MYSQL_PASSWORD}\" -DeventPlatformHost=\"http://${UNICORN_PORT_8080_TCP_ADDR}:${UNICORN_PORT_8080_TCP_PORT}\" -jar /target/argos-backend.jar"]
