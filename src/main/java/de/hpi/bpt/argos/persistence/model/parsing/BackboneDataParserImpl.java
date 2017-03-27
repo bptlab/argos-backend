@@ -3,6 +3,8 @@ package de.hpi.bpt.argos.persistence.model.parsing;
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.common.parsing.XMLFileParserImpl;
 import de.hpi.bpt.argos.persistence.model.product.Product;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfiguration;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfigurationImpl;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import de.hpi.bpt.argos.persistence.model.product.error.ErrorCause;
 import de.hpi.bpt.argos.persistence.model.product.error.ErrorCauseImpl;
@@ -21,6 +23,9 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	protected static final String PRODUCT_ELEMENT = "product";
 	protected static final String PRODUCT_IDENTIFIER_ELEMENT = "productIdentifier";
 	protected static final String PRODUCT_DESCRIPTION_ELEMENT = "productDescription";
+	protected static final String PRODUCT_CONFIGURATION_ELEMENT = "productConfiguration";
+	protected static final String CODING_PLUG_ELEMENT = "codingPlug";
+	protected static final String CODING_PLUG_SOFTWARE_VERSION_ELEMENT = "codingPlugSoftwareVersion";
 	protected static final String DISPLAY_CODE_ELEMENT = "displayCode";
 	protected static final String CAUSE_CODE_ELEMENT = "causeCode";
 	protected static final String ERROR_DESCRIPTION_ELEMENT = "errorDescription";
@@ -38,8 +43,10 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	protected String tempCurrentProductName = "";
 	protected String tempCurrentCauseCode = "";
 	protected String tempCurrentErrorDisplayCode = "";
+	protected String tempCurrentCodingPlug = "";
 	protected Product currentProduct = null;
 	protected ErrorType currentErrorType = null;
+	protected ProductConfiguration currentProductConfiguration = null;
 
 	/**
 	 * {@inheritDoc}
@@ -65,6 +72,16 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	protected void endElement(String elementName) {
 		super.startElement(elementName);
 
+		switch (elementName) {
+			case PRODUCT_ELEMENT:
+				saveCurrentProduct();
+				break;
+
+			case PRODUCT_CONFIGURATION_ELEMENT:
+				currentProductConfiguration = null;
+				break;
+		}
+
 		if (elementName.equals(PRODUCT_ELEMENT)) {
 			saveCurrentProduct();
 		}
@@ -82,6 +99,14 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 
 			case PRODUCT_DESCRIPTION_ELEMENT:
 				startNewProduct(elementData);
+				break;
+
+			case CODING_PLUG_ELEMENT:
+				tempCurrentCodingPlug = elementData;
+				break;
+
+			case CODING_PLUG_SOFTWARE_VERSION_ELEMENT:
+				startNewProductConfiguration(elementData);
 				break;
 
 			case DISPLAY_CODE_ELEMENT:
@@ -165,12 +190,51 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	}
 
 	/**
+	 * This method starts a new product configuration and adds it to the current product.
+	 * @param codingPlugSoftwareVersion - the coding plug software version of the new configuration
+	 */
+	protected void startNewProductConfiguration(String codingPlugSoftwareVersion) {
+
+		int codingPlugId;
+		float version;
+
+		try {
+			version = Float.parseFloat(codingPlugSoftwareVersion);
+		} catch (Exception e) {
+			logger.debug(String.format("can not parse coding plug software version '%1$s'", codingPlugSoftwareVersion), e);
+			return;
+		}
+
+		try {
+			codingPlugId = Integer.parseInt(tempCurrentCodingPlug);
+		} catch (Exception e) {
+			logger.debug(String.format("can not parse coding plug id '%1$s'", tempCurrentCodingPlug), e);
+			return;
+		}
+
+		if (currentProductConfiguration != null) {
+			currentProductConfiguration.addCodingPlugSoftwareVersion(version);
+			return;
+		}
+
+		if (currentProduct == null) {
+			return;
+		}
+
+		currentProductConfiguration = new ProductConfigurationImpl();
+		currentProductConfiguration.setProduct(currentProduct);
+		currentProductConfiguration.setCodingPlugId(codingPlugId);
+		currentProductConfiguration.addCodingPlugSoftwareVersion(version);
+		currentProduct.addProductConfiguration(currentProductConfiguration);
+	}
+
+	/**
 	 * This method starts a new errorEventType and adds it to the current product.
 	 * @param errorDescription - the error description for the current error type
 	 */
 	protected void startNewErrorType(String errorDescription) {
 
-		if (currentProduct == null) {
+		if (currentProductConfiguration == null) {
 			return;
 		}
 
@@ -189,12 +253,12 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 		currentErrorType.setDisplayCode(tempCurrentErrorDisplayCode);
 		currentErrorType.setErrorDescription(errorDescription);
 
-		if (currentProductHasErrorType(currentErrorType)) {
+		if (currentProductConfigurationHasErrorType(currentErrorType)) {
 			currentErrorType = null;
 			return;
 		}
 
-		currentProduct.addErrorType(currentErrorType);
+		currentProductConfiguration.addErrorType(currentErrorType);
 	}
 
 	/**
@@ -203,7 +267,7 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	 */
 	protected void startNewErrorCause(String causePrediction) {
 
-		if (currentProduct == null
+		if (currentProductConfiguration == null
 				|| currentErrorType == null) {
 			return;
 		}
@@ -253,8 +317,10 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 		tempCurrentProductName = "";
 		tempCurrentCauseCode = "";
 		tempCurrentErrorDisplayCode = "";
+		tempCurrentCodingPlug = "";
 		currentProduct = null;
 		currentErrorType = null;
+		currentProductConfiguration = null;
 	}
 
 	/**
@@ -262,12 +328,12 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	 * @param errorType - the error type to check
 	 * @return - true, if the error type is already present
 	 */
-	protected boolean currentProductHasErrorType(ErrorType errorType) {
-		if (currentProduct == null) {
+	protected boolean currentProductConfigurationHasErrorType(ErrorType errorType) {
+		if (currentProductConfiguration == null) {
 			return false;
 		}
 
-		for (ErrorType type : currentProduct.getErrorTypes()) {
+		for (ErrorType type : currentProductConfiguration.getErrorTypes()) {
 			if (type.getErrorTypeId().equalsIgnoreCase(errorType.getErrorTypeId())) {
 				return true;
 			}
