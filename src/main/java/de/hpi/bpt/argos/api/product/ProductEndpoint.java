@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.api.product;
 
+import de.hpi.bpt.argos.api.productConfiguration.ProductConfigurationEndPoint;
 import de.hpi.bpt.argos.common.RestEndpoint;
 import de.hpi.bpt.argos.persistence.model.product.ProductState;
 import spark.Request;
@@ -79,7 +80,7 @@ public interface ProductEndpoint extends RestEndpoint {
 	 */
 	static String getUpdateStatusQueryBaseUri() {
 		return String.format("/api/products/%1$s/update/statuschange/%2$s",
-				getProductIdParameter(true),
+				ProductConfigurationEndPoint.getProductConfigurationIdParameter(true),
 				getNewProductStatusParameter(true));
 	}
 
@@ -120,13 +121,13 @@ public interface ProductEndpoint extends RestEndpoint {
 
 	/**
 	 * This method returns the URI to post product status change query updates to.
-	 * @param productId - the product id
-	 * @param newState - the new state of the product, after an event of this query arrived
+	 * @param productConfigurationId - the product configuration id
+	 * @param newState - the new state of the product configuration, after an event of this query arrived
 	 * @return - the URI to post product status change query updates to
 	 */
-	static String getUpdateStatusQueryUri(long productId, ProductState newState) {
+	static String getUpdateStatusQueryUri(long productConfigurationId, ProductState newState) {
 		return getUpdateStatusQueryBaseUri()
-				.replaceAll(getProductIdParameter(true), Objects.toString(productId, "0"))
+				.replaceAll(ProductConfigurationEndPoint.getProductConfigurationIdParameter(true), Objects.toString(productConfigurationId, "0"))
 				.replaceAll(getNewProductStatusParameter(true), newState.toString());
 	}
 

@@ -34,26 +34,11 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	@Column(name = "ProductionStart")
 	protected Date productionStart = new Date();
 
-	@Column(name = "State")
-	protected ProductState state = ProductState.UNDEFINED;
-
 	@Column(name = "Name")
 	protected String name = "Unknown Product";
 
 	@Column(name = "OrderNumber")
 	protected long orderNumber = 0;
-
-	@Column(name = "StateDescription")
-	protected String stateDescription = "State is not defined yet";
-
-	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventQueryImpl.class)
-	protected EventQuery transitionToRunningState = new EventQueryImpl();
-
-	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventQueryImpl.class)
-	protected EventQuery transitionToWarningState = new EventQueryImpl();
-
-	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = EventQueryImpl.class)
-	protected EventQuery transitionToErrorState = new EventQueryImpl();
 
 	@Column(name = "NumberOfDevices")
 	protected long numberOfDevices = 0;
@@ -61,8 +46,8 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	@Column(name = "NumberOfEvents")
 	protected long numberOfEvents = 0;
 
-	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = ErrorTypeImpl.class)
-	protected Set<ErrorType> errorTypes = new HashSet<>();
+	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = ProductConfigurationImpl.class)
+	protected Set<ProductConfiguration> productConfigurations = new HashSet<>();
 
 	/**
 	 * {@inheritDoc}
@@ -94,22 +79,6 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	@Override
 	public void setProductionStart(Date productionStart) {
 		this.productionStart = productionStart;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ProductState getState() {
-		return state;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setState(ProductState productState) {
-		this.state = productState;
 	}
 
 	/**
@@ -148,108 +117,6 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getStateDescription() {
-		return stateDescription;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setStateDescription(String stateDescription) {
-		this.stateDescription = stateDescription;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public EventQuery getTransitionToRunningState() {
-		return transitionToRunningState;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setTransitionToRunningState(EventQuery eventQuery) {
-		transitionToRunningState = eventQuery;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public EventQuery getTransitionToWarningState() {
-		return transitionToWarningState;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setTransitionToWarningState(EventQuery eventQuery) {
-		transitionToWarningState = eventQuery;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public EventQuery getTransitionToErrorState() {
-		return transitionToErrorState;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setTransitionToErrorState(EventQuery eventQuery) {
-		transitionToErrorState = eventQuery;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public EventQuery getStatusUpdateQuery(ProductState newState) {
-		switch (newState) {
-			case RUNNING:
-				return getTransitionToRunningState();
-			case WARNING:
-				return getTransitionToWarningState();
-			case ERROR:
-				return getTransitionToErrorState();
-			default:
-				return null;
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setStatusUpdateQuery(ProductState newState, EventQuery eventQuery) {
-		switch (newState) {
-			case RUNNING:
-				setTransitionToRunningState(eventQuery);
-				break;
-			case WARNING:
-				setTransitionToWarningState(eventQuery);
-				break;
-			case ERROR:
-				setTransitionToErrorState(eventQuery);
-				break;
-			default:
-				// empty, since there is nothing to do
-				break;
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public long getNumberOfDevices() {
 		return numberOfDevices;
 	}
@@ -282,37 +149,38 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Set<ErrorType> getErrorTypes() {
-		return errorTypes;
+	public Set<ProductConfiguration> getProductConfigurations() {
+		return productConfigurations;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ErrorType getErrorType(int causeCode) {
-		for (ErrorType type : errorTypes) {
-			if (type.getCauseCode() == causeCode) {
-				return type;
+	public void setProductConfigurations(Set<ProductConfiguration> productConfigurations) {
+		this.productConfigurations = productConfigurations;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void addProductConfiguration(ProductConfiguration productConfiguration) {
+		productConfigurations.add(productConfiguration);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ProductConfiguration getProductConfiguration(int codingPlugId, float codingPlugSoftwareVersion) {
+		for (ProductConfiguration configuration : productConfigurations) {
+			if (configuration.getCodingPlugId() == codingPlugId
+					&& configuration.supports(codingPlugSoftwareVersion)) {
+				return configuration;
 			}
 		}
 
 		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setErrorTypes(Set<ErrorType> errorTypes) {
-		this.errorTypes = errorTypes;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void addErrorType(ErrorType errorType) {
-		errorTypes.add(errorType);
 	}
 }

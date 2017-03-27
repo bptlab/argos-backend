@@ -23,6 +23,7 @@ import de.hpi.bpt.argos.persistence.model.event.type.EventTypeImpl;
 import de.hpi.bpt.argos.persistence.model.parsing.DataFile;
 import de.hpi.bpt.argos.persistence.model.parsing.DataFileImpl;
 import de.hpi.bpt.argos.persistence.model.product.Product;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfiguration;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamilyImpl;
 import de.hpi.bpt.argos.persistence.model.product.ProductImpl;
@@ -143,6 +144,14 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public ProductConfiguration getProductConfiguration(long productConfigurationId) {
+		return databaseConnection.getProductConfiguration(productConfigurationId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public Map<EventType, Integer> getEventTypes(long productId) {
 		return databaseConnection.getEventTypes(productId);
 	}
@@ -234,7 +243,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		Product product = getProduct(getProductFamilyIdentification(event.getEventData()),
 				getProductIdentification(event.getEventData()));
 
-		event.setProduct(product);
+		event.setProductConfiguration(product);
 
 		product.incrementNumberOfEvents(1);
 		if (!databaseConnection.saveEntities(product, event)) {
@@ -250,28 +259,30 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Event createStatusUpdateEvent(long productId, ProductState newProductState, String requestBody) {
+	public Event createStatusUpdateEvent(long productConfigurationId, ProductState newProductState, String requestBody) {
 
-		Product product = getProduct(productId);
+		ProductConfiguration configuration = getProductConfiguration(productConfigurationId);
 		EventType statusUpdateEventType = getEventType(EventType.getStatusUpdateEventTypeName());
 
-		if (product == null || statusUpdateEventType == null) {
+		if (configuration == null || statusUpdateEventType == null) {
 			return null;
 		}
 
 		Event statusUpdateEvent = new EventImpl();
 		statusUpdateEvent.setEventType(statusUpdateEventType);
-		statusUpdateEvent.setProduct(product);
+		statusUpdateEvent.setProductConfiguration(configuration);
 
 		JsonObject jsonBody = jsonParser.parse(requestBody).getAsJsonObject();
-		statusUpdateEvent.setEventData(getStatusUpdateEventData(product, newProductState, statusUpdateEventType, jsonBody));
+		statusUpdateEvent.setEventData(getStatusUpdateEventData(configuration, newProductState, statusUpdateEventType, jsonBody));
 
-		product.setState(newProductState);
+		configuration.setState(newProductState);
 
-		if (!databaseConnection.saveEntities(product, statusUpdateEvent)) {
+		if (!databaseConnection.saveEntities(configuration, statusUpdateEvent)) {
 			return null;
 		}
-		updateEntity(PushNotificationType.UPDATE, product, ProductEndpoint.getProductUri(product.getId()));
+
+		updateEntity(PushNotificationType.UPDATE, configuration.getProduct(), ProductEndpoint.getProductUri(configuration.getProduct().getId()));
+		// TODO: update configuration
 		updateEntity(PushNotificationType.CREATE, statusUpdateEvent, EventEndpoint.getEventUri(statusUpdateEvent.getId()));
 
 		return statusUpdateEvent;
@@ -654,18 +665,18 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 
 	/**
 	 * This method returns a list of event data for the json representation of a status update event.
-	 * @param product - the product which status is updated
-	 * @param jsonEvent - the json representation of the event
-	 * @param updateStatusEventType - the update event status event type
+	 * @param productConfiguration - the product configuration which status is updated
 	 * @param newProductState - the updated product state
+	 * @param updateStatusEventType - the update event status event type
+	 * @param jsonEvent - the json representation of the event
 	 * @return - a list of event data
 	 */
-	protected List<EventData> getStatusUpdateEventData(Product product, ProductState newProductState, EventType updateStatusEventType,
-													   JsonObject jsonEvent) {
+	protected List<EventData> getStatusUpdateEventData(ProductConfiguration productConfiguration, ProductState newProductState,
+													   EventType updateStatusEventType, JsonObject jsonEvent) {
 
 		EventData oldStatus = new EventDataImpl();
 		oldStatus.setEventAttribute(getAttributeForEventDataMember(updateStatusEventType, StatusUpdateEventType.getOldStatusAttributeName()));
-		oldStatus.setValue(product.getState().toString());
+		oldStatus.setValue(productConfiguration.getState().toString());
 
 		EventData newStatus = new EventDataImpl();
 		newStatus.setEventAttribute(getAttributeForEventDataMember(updateStatusEventType, StatusUpdateEventType.getNewStatusAttributeName()));

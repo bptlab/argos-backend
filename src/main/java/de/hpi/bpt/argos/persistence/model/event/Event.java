@@ -3,7 +3,7 @@ package de.hpi.bpt.argos.persistence.model.event;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
 import de.hpi.bpt.argos.persistence.model.event.data.EventData;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
-import de.hpi.bpt.argos.persistence.model.product.Product;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfiguration;
 
 import java.util.List;
 
@@ -13,16 +13,16 @@ import java.util.List;
 public interface Event extends PersistenceEntity {
 
 	/**
-	 * This method return the related product.
-	 * @return - the related product
+	 * This method return the related product configuration.
+	 * @return - the related product configuration
 	 */
-	Product getProduct();
+	ProductConfiguration getProductConfiguration();
 
 	/**
-	 * This method sets related product.
-	 * @param product - the related product to be set
+	 * This method sets related product configuration.
+	 * @param productConfiguration - the related product configuration to be set
 	 */
-	void setProduct(Product product);
+	void setProductConfiguration(ProductConfiguration productConfiguration);
 
 	/**
 	 * This method returns the event eventType of this event.

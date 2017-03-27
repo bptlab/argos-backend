@@ -2,6 +2,7 @@ package de.hpi.bpt.argos.eventHandling;
 
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
+import de.hpi.bpt.argos.api.productConfiguration.ProductConfigurationEndPoint;
 import de.hpi.bpt.argos.common.RestEndpoint;
 import de.hpi.bpt.argos.persistence.model.product.ProductState;
 import spark.Request;
@@ -47,7 +48,7 @@ public interface EventReceiver extends RestEndpoint {
 	 */
 	static String getReceiveStatusUpdateEventBaseUri() {
 		return String.format("/api/events/statuschange/%1$s/%2$s",
-				ProductEndpoint.getProductIdParameter(true),
+				ProductConfigurationEndPoint.getProductConfigurationIdParameter(true),
 				ProductEndpoint.getNewProductStatusParameter(true));
 	}
 

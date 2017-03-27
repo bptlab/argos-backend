@@ -5,6 +5,8 @@ import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.parsing.DataFile;
 import de.hpi.bpt.argos.persistence.model.product.Product;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfiguration;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfigurationImpl;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import de.hpi.bpt.argos.properties.PropertyEditor;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
@@ -117,6 +119,21 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 						+ "WHERE p.id = :productId",
 				Product.class)
 				.setParameter("productId", productId);
+
+		return getEntities(session, query, transaction, query::uniqueResult, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ProductConfiguration getProductConfiguration(long productConfigurationId) {
+		Session session = databaseSessionFactory.openSession();
+		Transaction transaction = session.beginTransaction();
+		Query<ProductConfiguration> query = session.createQuery("FROM ProductConfiguration pc "
+						+ "WHERE pc.id = :productConfigurationId",
+				ProductConfiguration.class)
+				.setParameter("productConfigurationId", productConfigurationId);
 
 		return getEntities(session, query, transaction, query::uniqueResult, null);
 	}

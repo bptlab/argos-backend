@@ -120,7 +120,7 @@ public class ArgosTestUtil {
 	public static Event createEvent(EventType type, Product product) {
 		Event newEvent = new EventImpl();
 
-		newEvent.setProduct(product);
+		newEvent.setProductConfiguration(product);
 		product.incrementNumberOfEvents(1);
 
 		newEvent.setEventType(type);

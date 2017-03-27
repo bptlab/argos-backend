@@ -4,6 +4,7 @@ import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.parsing.DataFile;
 import de.hpi.bpt.argos.persistence.model.product.Product;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfiguration;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 
 import java.util.List;
@@ -39,6 +40,13 @@ public interface PersistenceEntityRetriever {
 	 * @return - the specified product
 	 */
 	Product getProduct(long productId);
+
+	/**
+	 * This method makes the database call to retrieve one specific product configuration.
+	 * @param productConfigurationId - the id of the requested product configuration
+	 * @return - the specified product configuration
+	 */
+	ProductConfiguration getProductConfiguration(long productConfigurationId);
 
 	/**
 	 * This method makes the database call to retrieve the necessary data for the API that serves all event types for a certain product.

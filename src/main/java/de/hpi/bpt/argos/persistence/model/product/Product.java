@@ -37,18 +37,6 @@ public interface Product extends PersistenceEntity {
 	void setProductionStart(Date productionStart);
 
 	/**
-	 * This method returns the state of this product.
-	 * @return - the product state as a ProductState enum
-	 */
-	ProductState getState();
-
-	/**
-	 * This method sets the state of this product.
-	 * @param productState - the product state to be set
-	 */
-	void setState(ProductState productState);
-
-	/**
 	 * This method returns the name of this product.
 	 * @return - the name of this product to be set
 	 */
@@ -73,72 +61,16 @@ public interface Product extends PersistenceEntity {
 	void setOrderNumber(long orderNumber);
 
 	/**
-	 * This method returns the status description of this product.
-	 * @return - the status description of this product as a string
-	 */
-	String getStateDescription();
-
-	/**
-	 * This method sets the status description of this product.
-	 * @param stateDescription - the status description of this product to be set
-	 */
-	void setStateDescription(String stateDescription);
-
-	/**
-	 * This method returns the event query which leads to a change in the state of this product.
-	 * @return - the event query which sets this product in Running state
-	 */
-	EventQuery getTransitionToRunningState();
-
-	/**
-	 * This method sets the event query which leads to a change in the state of this product.
-	 * @param eventQuery - the event query which sets this product in Running state
-	 */
-	void setTransitionToRunningState(EventQuery eventQuery);
-
-	/**
-	 * This method returns the event query which leads to a change in the state of this product.
-	 * @return - the event query which sets this product in Warning state
-	 */
-	EventQuery getTransitionToWarningState();
-
-	/**
-	 * This method sets the event query which leads to a change in the state of this product.
-	 * @param eventQuery - the event query which sets this product in Warning state
-	 */
-	void setTransitionToWarningState(EventQuery eventQuery);
-
-	/**
-	 * This method returns the event query which leads to a change in the state of this product.
-	 * @return - the event query which sets this product in Error state
-	 */
-	EventQuery getTransitionToErrorState();
-
-	/**
-	 * This method sets the event query which leads to a change in the state of this product.
-	 * @param eventQuery - the event query which sets this product in Error state
-	 */
-	void setTransitionToErrorState(EventQuery eventQuery);
-
-	/**
-	 * This method returns the status update query which changes the product state to a specific state.
-	 * @param newState - the new state of the product, after an event of the query arrived
-	 * @return - the status update query which changes the product state to a specific state
-	 */
-	EventQuery getStatusUpdateQuery(ProductState newState);
-
-	/**
-	 * This method sets the status update query which changes the product state to a specific state.
-	 * @param newState - the new state of the product, after an event of the query arrived
-	 * @param eventQuery - the status update query to be set
-	 */
-	void setStatusUpdateQuery(ProductState newState, EventQuery eventQuery);
-
-	/**
 	 * This method returns the number of devices that are installed from this product families.
 	 * @return - the number of devices installed as an integer
 	 */
 	long getNumberOfDevices();
+
+	/**
+	 * This method increments the number of devices for this product.
+	 * @param count - the count of how much new devices were found
+	 */
+	void incrementNumberOfDevices(long count);
 
 	/**
 	 * This method returns the number of events that occurred for this product.
@@ -153,33 +85,28 @@ public interface Product extends PersistenceEntity {
 	void incrementNumberOfEvents(long count);
 
 	/**
-	 * This method increments the number of devices for this product.
-	 * @param count - the count of how much new devices were found
+	 * This method returns all configurations of this product.
+	 * @return - a set of all configurations for this product
 	 */
-	void incrementNumberOfDevices(long count);
+	Set<ProductConfiguration> getProductConfigurations();
 
 	/**
-	 * This method returns a set of error types, which occurred for this product.
-	 * @return - a set of error types
+	 * This method sets all configurations of this product.
+	 * @param productConfigurations - a set of product configurations to be set
 	 */
-	Set<ErrorType> getErrorTypes();
+	void setProductConfigurations(Set<ProductConfiguration> productConfigurations);
 
 	/**
-	 * This method returns the error type with the corresponding cause code, or null.
-	 * @param causeCode - the cause code of the error type
-	 * @return - the error type with the cause code or null
+	 * This method adds a new product configuration to the configurations of this product.
+	 * @param productConfiguration - the configuration to be added
 	 */
-	ErrorType getErrorType(int causeCode);
+	void addProductConfiguration(ProductConfiguration productConfiguration);
 
 	/**
-	 * This method sets the error types, which occurred for this product.
-	 * @param errorTypes - a set of error types to be set
+	 * This method returns the configuration with supports a given coding plug and a given coding plug software version.
+	 * @param codingPlugId - the coding plug id of the configuration
+	 * @param codingPlugSoftwareVersion - the supported coding plug software version
+	 * @return - the configuration, or null if no configuration matches the parameters
 	 */
-	void setErrorTypes(Set<ErrorType> errorTypes);
-
-	/**
-	 * This method adds a new error type to this product.
-	 * @param errorType - the error type to be added
-	 */
-	void addErrorType(ErrorType errorType);
+	ProductConfiguration getProductConfiguration(int codingPlugId, float codingPlugSoftwareVersion);
 }

@@ -2,6 +2,7 @@ package de.hpi.bpt.argos.api.response;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
@@ -16,8 +17,11 @@ import de.hpi.bpt.argos.persistence.model.event.data.EventData;
 import de.hpi.bpt.argos.persistence.model.event.data.EventDataType;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfiguration;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import de.hpi.bpt.argos.persistence.model.product.ProductState;
+import de.hpi.bpt.argos.persistence.model.product.error.ErrorCause;
+import de.hpi.bpt.argos.persistence.model.product.error.ErrorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.HaltException;
@@ -97,6 +101,22 @@ public class ResponseFactoryImpl implements ResponseFactory {
 		JsonObject jsonProduct = getProductBase(product);
 
 		return serializer.toJson(jsonProduct);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getProductConfiguration(long productConfigurationId) {
+		ProductConfiguration configuration = entityManager.getProductConfiguration(productConfigurationId);
+
+		if (configuration == null) {
+			halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "cannot find product configuration");
+		}
+
+		JsonObject jsonConfiguration = getProductConfigurationBase(configuration);
+
+		return serializer.toJson(jsonConfiguration);
 	}
 
 	/**
@@ -434,6 +454,97 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			return jsonProduct;
 		} catch (Exception exception) {
 			logger.error("Cannot parse product base", exception);
+			return new JsonObject();
+		}
+	}
+
+	/**
+	 * This method returns a product configuration as json object.
+	 * @param configuration - the product configuration to serialize
+	 * @return - the configuration as json object
+	 */
+	protected JsonObject getProductConfigurationBase(ProductConfiguration configuration) {
+		try {
+			JsonObject jsonConfiguration = new JsonObject();
+			jsonConfiguration.addProperty("id", configuration.getId());
+			jsonConfiguration.addProperty("productId", configuration.getProduct().getId());
+			jsonConfiguration.addProperty("state", configuration.getState().toString());
+			jsonConfiguration.addProperty("codingPlugId", configuration.getCodingPlugId());
+			jsonConfiguration.addProperty("stateDescription", configuration.getStateDescription());
+			jsonConfiguration.addProperty("numberOfEvents", configuration.getNumberOfEvents());
+
+			JsonObject stateQueries = new JsonObject();
+			for (ProductState state : ProductState.values()) {
+				if (configuration.getStatusUpdateQuery(state) == null) {
+					continue;
+				}
+
+				stateQueries.addProperty(state.toString(), configuration.getStatusUpdateQuery(state).getQueryString());
+			}
+			jsonConfiguration.add("statusUpdateQueries", stateQueries);
+
+			JsonArray softwareVersions = new JsonArray();
+			for (float version : configuration.getCodingPlugSoftwareVersions()) {
+				softwareVersions.add(version);
+			}
+			jsonConfiguration.add("codingPlugSoftwareVersions", softwareVersions);
+
+			JsonArray errorTypes = new JsonArray();
+			for (ErrorType errorType : configuration.getErrorTypes()) {
+				errorTypes.add(getErrorTypeBase(errorType));
+			}
+			jsonConfiguration.add("errorTypes", errorTypes);
+
+			return jsonConfiguration;
+		} catch (Exception e) {
+			logger.error("Cannot parse product configuration base", e);
+			return new JsonObject();
+		}
+	}
+
+	/**
+	 * This method returns an error type as a json object.
+	 * @param errorType - the error type to serialize
+	 * @return - the error type as json object
+	 */
+	protected JsonObject getErrorTypeBase(ErrorType errorType) {
+		try {
+			JsonObject jsonErrorType = new JsonObject();
+			jsonErrorType.addProperty("id", errorType.getId());
+			jsonErrorType.addProperty("errorTypeId", errorType.getErrorTypeId());
+			jsonErrorType.addProperty("displayCode", errorType.getDisplayCode());
+			jsonErrorType.addProperty("causeCode", errorType.getCauseCode());
+			jsonErrorType.addProperty("errorDescription", errorType.getDisplayCode());
+
+			JsonArray errorCauses = new JsonArray();
+			for (ErrorCause cause : errorType.getErrorCauses()) {
+				errorCauses.add(getErrorCauseBase(cause));
+			}
+			jsonErrorType.add("errorCauses", errorCauses);
+
+			return jsonErrorType;
+		} catch (Exception e) {
+			logger.error("Cannot parse error type base", e);
+			return new JsonObject();
+		}
+	}
+
+	/**
+	 * This method returns a error cause as json object.
+	 * @param errorCause - the error cause to serialize
+	 * @return - the error cause as json object
+	 */
+	protected JsonObject getErrorCauseBase(ErrorCause errorCause) {
+		try {
+			JsonObject jsonErrorCause = new JsonObject();
+			jsonErrorCause.addProperty("id", errorCause.getId());
+			jsonErrorCause.addProperty("causeDescription", errorCause.getDescription());
+			jsonErrorCause.addProperty("errorOccurrences", errorCause.getErrorOccurrences());
+			jsonErrorCause.addProperty("errorPrediction", errorCause.getErrorPrediction());
+
+			return jsonErrorCause;
+		} catch (Exception e) {
+			logger.error("Cannot parse error cause base", e);
 			return new JsonObject();
 		}
 	}
