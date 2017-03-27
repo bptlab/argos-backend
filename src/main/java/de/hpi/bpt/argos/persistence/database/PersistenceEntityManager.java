@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfiguration;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import de.hpi.bpt.argos.persistence.model.product.ProductState;
 
@@ -101,6 +102,15 @@ public interface PersistenceEntityManager extends PersistenceEntityRetriever {
 	 * @return - the product product
 	 */
 	Product getProduct(String productFamilyName, long externalProductId);
+
+	/**
+	 * This method returns a product configuration and creates it, if it does not exist in the database.
+	 * @param product - the product to which the configuration belongs
+	 * @param codingPlugId - the coding plug id of the configuration
+	 * @param codingPlugSoftwareVersion - the coding plug software version of the configuration
+	 * @return - the product configuration
+	 */
+	ProductConfiguration getProductConfiguration(Product product, int codingPlugId, float codingPlugSoftwareVersion);
 
 	/**
 	 * This method returns a product family and create it, if it doe not exist in the database.

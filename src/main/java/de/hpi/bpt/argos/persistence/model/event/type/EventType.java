@@ -128,7 +128,7 @@ public interface EventType extends PersistenceEntity {
 	 * This method returns the name of the codingPlugId attribute.
 	 * @return - the name of the codingPlugId attribute
 	 */
-	static String getCodingPlugIdAttributeName() {
+	static String getCodingPlugIdentificationAttributeName() {
 		return "codingPlugId";
 	}
 
@@ -138,6 +138,22 @@ public interface EventType extends PersistenceEntity {
 	 */
 	static String getCodingPlugSoftwareVersionAttributeName() {
 		return "codingPlugSoftwareVersion";
+	}
+
+	/**
+	 * This method returns the cause identifier attribute name.
+	 * @return - the name of the cause identifier attribute
+	 */
+	static String getCauseIdentifierAttributeName() {
+		return "causeId";
+	}
+
+	/**
+	 * This method returns the name of the errorDescription attribute.
+	 * @return - the name of the errorDescription attribute
+	 */
+	static String getErrorDescriptionAttributeName() {
+		return "errorDescription";
 	}
 
 	/**

@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.event.EventEndpoint;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
+import de.hpi.bpt.argos.api.productConfiguration.ProductConfigurationEndPoint;
 import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpoint;
 import de.hpi.bpt.argos.notifications.PushNotificationType;
 import de.hpi.bpt.argos.persistence.model.event.Event;
@@ -24,10 +25,13 @@ import de.hpi.bpt.argos.persistence.model.parsing.DataFile;
 import de.hpi.bpt.argos.persistence.model.parsing.DataFileImpl;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductConfiguration;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfigurationImpl;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamilyImpl;
 import de.hpi.bpt.argos.persistence.model.product.ProductImpl;
 import de.hpi.bpt.argos.persistence.model.product.ProductState;
+import de.hpi.bpt.argos.persistence.model.product.error.ErrorCause;
+import de.hpi.bpt.argos.persistence.model.product.error.ErrorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -243,13 +247,32 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		Product product = getProduct(getProductFamilyIdentification(event.getEventData()),
 				getProductIdentification(event.getEventData()));
 
-		event.setProductConfiguration(product);
+		if (product == null) {
+			logger.error(String.format("can not find product for event '%1$s'", requestBody));
+			return null;
+		}
 
-		product.incrementNumberOfEvents(1);
-		if (!databaseConnection.saveEntities(product, event)) {
+		ProductConfiguration configuration = getProductConfiguration(product,
+				getCodingPlugIdentifier(event.getEventData()),
+				getCodingPlugSoftwareVersion(event.getEventData()));
+
+		ErrorType errorType = configuration.getErrorType(getCauseIdentifier(event.getEventData()));
+		if (errorType != null) {
+			ErrorCause cause = errorType.getErrorCause(getErrorDescription(event.getEventData()));
+
+			if (cause != null) {
+				cause.incrementErrorOccurrences(1);
+			}
+		}
+
+		event.setProductConfiguration(configuration);
+
+		configuration.incrementNumberOfEvents(1);
+		if (!databaseConnection.saveEntities(product, configuration, event)) {
 			return null;
 		}
 		updateEntity(PushNotificationType.UPDATE, product, ProductEndpoint.getProductUri(product.getId()));
+		updateEntity(PushNotificationType.UPDATE, configuration, ProductConfigurationEndPoint.getProductConfigurationUri(configuration.getId()));
 		updateEntity(PushNotificationType.CREATE, event, EventEndpoint.getEventUri(event.getId()));
 
 		return event;
@@ -282,7 +305,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		}
 
 		updateEntity(PushNotificationType.UPDATE, configuration.getProduct(), ProductEndpoint.getProductUri(configuration.getProduct().getId()));
-		// TODO: update configuration
+		updateEntity(PushNotificationType.UPDATE, configuration, ProductConfigurationEndPoint.getProductConfigurationUri(configuration.getId()));
 		updateEntity(PushNotificationType.CREATE, statusUpdateEvent, EventEndpoint.getEventUri(statusUpdateEvent.getId()));
 
 		return statusUpdateEvent;
@@ -340,7 +363,6 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 			product = new ProductImpl();
 			product.setOrderNumber(externalProductId);
 			product.setProductFamily(productFamily);
-			product.setState(ProductState.UNDEFINED);
 
 			productFamily.getProducts().add(product);
 			if (!databaseConnection.saveEntities(productFamily, product)) {
@@ -360,6 +382,29 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		ProductFamily productFamily = getProductFamily(productFamilyName);
 
 		return getProduct(productFamily, externalProductId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ProductConfiguration getProductConfiguration(Product product, int codingPlugId, float codingPlugSoftwareVersion) {
+		ProductConfiguration configuration = product.getProductConfiguration(codingPlugId, codingPlugSoftwareVersion);
+
+		if (configuration == null) {
+			configuration = new ProductConfigurationImpl();
+			configuration.setProduct(product);
+			configuration.setCodingPlugId(codingPlugId);
+			configuration.addCodingPlugSoftwareVersion(codingPlugSoftwareVersion);
+
+			if (!databaseConnection.saveEntities(product, configuration)) {
+				return null;
+			}
+			updateEntity(PushNotificationType.UPDATE, product, ProductEndpoint.getProductUri(product.getId()));
+			updateEntity(PushNotificationType.CREATE, configuration, ProductConfigurationEndPoint.getProductConfigurationUri(configuration.getId()));
+		}
+
+		return configuration;
 	}
 
 	/**
@@ -444,13 +489,88 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	}
 
 	/**
-	 * This method returns the product family identification for an event type and a list of event data.
+	 * This method returns the product family identification for a list of event data.
 	 * @param eventData - the event data of the requested event
 	 * @return - the product family identification
 	 */
 	protected String getProductFamilyIdentification(List<EventData> eventData) {
 		for (EventData data : eventData) {
-			if (data.getEventAttribute().getName().equals(EventType.getProductFamilyIdentificationAttributeName())) {
+			if (data.getEventAttribute().getName().equalsIgnoreCase(EventType.getProductFamilyIdentificationAttributeName())) {
+				return data.getValue();
+			}
+		}
+
+		return "";
+	}
+
+	/**
+	 * This method returns the coding plug id for a list of event data.
+	 * @param eventData - the event data for the requested event
+	 * @return - the coding plug id
+	 */
+	protected int getCodingPlugIdentifier(List<EventData> eventData) {
+		for (EventData data : eventData) {
+			if (data.getEventAttribute().getName().equalsIgnoreCase(EventType.getCodingPlugIdentificationAttributeName())) {
+				try {
+					return Integer.parseInt(data.getValue());
+				} catch (Exception e) {
+					logger.error(String.format("can not cast '%1$s' to coding plug id (int)", data.getValue()), e);
+					return -1;
+				}
+			}
+		}
+
+		return -1;
+	}
+
+	/**
+	 * This method returns the coding plug software version for a list of event data.
+	 * @param eventData - the event data for the requested event
+	 * @return - the coding plug software version
+	 */
+	protected float getCodingPlugSoftwareVersion(List<EventData> eventData) {
+		for (EventData data : eventData) {
+			if (data.getEventAttribute().getName().equalsIgnoreCase(EventType.getCodingPlugSoftwareVersionAttributeName())) {
+				try {
+					return Float.parseFloat(data.getValue());
+				} catch (Exception e) {
+					logger.error(String.format("can not cast '%1$s' to coding plug software version (float)", data.getValue()), e);
+					return -1.0f;
+				}
+			}
+		}
+
+		return -1.0f;
+	}
+
+	/**
+	 * This method returns the cause id for a list of event data.
+	 * @param eventData - the event data for the requested event
+	 * @return - the cause id
+	 */
+	protected int getCauseIdentifier(List<EventData> eventData) {
+		for (EventData data : eventData) {
+			if (data.getEventAttribute().getName().equalsIgnoreCase(EventType.getCauseIdentifierAttributeName())) {
+				try {
+					return Integer.parseInt(data.getValue());
+				} catch (Exception e) {
+					logger.error(String.format("can not cast '%1$s' to cause id (int)", data.getValue()), e);
+					return -1;
+				}
+			}
+		}
+
+		return -1;
+	}
+
+	/**
+	 * This method returns the error description for a list of event data.
+	 * @param eventData - the event data for the requested event
+	 * @return - the error description
+	 */
+	protected String getErrorDescription(List<EventData> eventData) {
+		for (EventData data : eventData) {
+			if (data.getEventAttribute().getName().equalsIgnoreCase(EventType.getErrorDescriptionAttributeName())) {
 				return data.getValue();
 			}
 		}

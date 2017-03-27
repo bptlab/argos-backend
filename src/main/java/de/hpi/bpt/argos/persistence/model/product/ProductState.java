@@ -28,6 +28,9 @@ public enum ProductState {
 
 			case UNDEFINED:
 				return true;
+
+			default:
+				return false;
 		}
 	}
 }
