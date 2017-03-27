@@ -30,13 +30,32 @@ folder.
 * Database and other applications server
     * Tool by Johannes Schneider (Hannes01071995) -- very lightweight, but Windows only
     * Xampp -- for beginners
-    * Docker -- not all tools are available yet
+    * Docker (see below)
 
-## Build and Deployment Process
+
+## Build Process
 We integrated [Travis CI](http://travis-ci.org/bptlab) as a continuous integration tool. It builds the project 
-after 
-every commit, sends a the sonarLint diagnose to the Sonarqube server at the chair and executes all tests.
-For the deployment we intend to use Docker and publish the images on Dockerhub.
+after every commit, sends a sonarLint diagnose to the Sonarqube server at the chair and executes all tests.
+
+
+## Deployment Process
+Let's take it step by step.
+1. First of all, deploy a database container (i.e. mysql).
+```
+docker run --name argos-database -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -d mysql:latest
+```
+2. Now that you've got yourself a database, deploy Unicorn as an event processing system.
+```
+docker run --name unicorn -p 8080:8080 --link argos-database:mysql -d bptlab/unicorn:latest
+```
+3. When Unicorn is started, deploy Argos. Windows only: please share the drive in your docker settings, that your event types directory is located on.
+```
+docker run --name argos -p 8989:8989 --link argos-database:mysql --link unicorn:unicorn -d -v [PATH TO DIR WITH EVENT TYPES WITH TRAILING SLASH]:/target/classes/event_types bptlab/argos:latest
+```
+Note:
+- It's important to deploy step by step, because of the --link flags. Link flags only work on currently existing containers.
+- The -p flag exposes a port on the Docker host machine. If that port is already in use on your system you should change the second parameter of the -p flag.
+
 
 ## Troubleshooting
 1. Can't access the database although MySQL/MariaDB server is running on the correct port and server? 
