@@ -1,0 +1,8 @@
+{
+	"name":"DefaultEventType",
+	"timestamp":"dateOfEvent",
+	"attributes":{
+		"productFamilyId":"STRING",
+		"productId":"INTEGER",
+	}
+}
