@@ -2,11 +2,11 @@ package de.hpi.bpt.argos.api.response;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
+import de.hpi.bpt.argos.api.productConfiguration.ProductConfigurationEndPoint;
 import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpoint;
 import de.hpi.bpt.argos.eventHandling.EventReceiver;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
@@ -292,7 +292,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void updateStatusEventQuery(long productId, ProductState newState, String requestBody) {
+	public void updateStatusEventQuery(long productConfigurationId, ProductState newState, String requestBody) {
 		try {
 			JsonObject jsonBody = jsonParser.parse(requestBody).getAsJsonObject();
 
@@ -302,24 +302,24 @@ public class ResponseFactoryImpl implements ResponseFactory {
 				halt(ResponseFactory.HTTP_ERROR_CODE, "no event query given in body");
 			}
 
-			Product product = entityManager.getProduct(productId);
+			ProductConfiguration configuration = entityManager.getProductConfiguration(productConfigurationId);
 
-			if (product == null) {
+			if (configuration == null) {
 				halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "product not found");
 			} else {
 
-				if (product.getStatusUpdateQuery(newState) == null) {
+				if (configuration.getStatusUpdateQuery(newState) == null) {
 					halt(ResponseFactory.HTTP_ERROR_CODE, "new state is not supported by this product");
 				}
 
 				if (!eventPlatformRestEndpoint.getEventSubscriber().updateEventQuery(
-						product.getStatusUpdateQuery(newState),
+						configuration.getStatusUpdateQuery(newState),
 						eventQuery,
-						EventReceiver.getReceiveStatusUpdateEventUri(product.getId(), newState))) {
+						EventReceiver.getReceiveStatusUpdateEventUri(configuration.getId(), newState))) {
 					halt(ResponseFactory.HTTP_ERROR_CODE, "event platform did not accept the updated status query");
 				}
 
-				entityManager.updateEntity(product, ProductEndpoint.getProductUri(productId));
+				entityManager.updateEntity(configuration, ProductConfigurationEndPoint.getProductConfigurationUri(productConfigurationId));
 			}
 
 		} catch (HaltException halt) {
@@ -440,16 +440,11 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			jsonProduct.addProperty("state", product.getState().toString());
 			jsonProduct.addProperty("stateDescription", product.getStateDescription());
 
-			JsonObject stateQueries = new JsonObject();
-			for (ProductState state : ProductState.values()) {
-				if (product.getStatusUpdateQuery(state) == null) {
-					continue;
-				}
-
-				stateQueries.addProperty(state.toString(), product.getStatusUpdateQuery(state).getQueryString());
+			JsonArray configurationIds = new JsonArray();
+			for (ProductConfiguration configuration : product.getProductConfigurations()) {
+				configurationIds.add(configuration.getId());
 			}
-
-			jsonProduct.add("statusUpdateQueries", stateQueries);
+			jsonProduct.add("configurationIds", configurationIds);
 
 			return jsonProduct;
 		} catch (Exception exception) {

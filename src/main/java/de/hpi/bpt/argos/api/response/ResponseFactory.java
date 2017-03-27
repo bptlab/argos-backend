@@ -103,11 +103,11 @@ public interface ResponseFactory {
 
 	/**
 	 * This method tries to update the status update event query for a specific product.
-	 * @param productId - the product to update
+	 * @param productConfigurationId - the product configuration to update
 	 * @param newState - the new state of the product, after an event for this query arrived
 	 * @param requestBody - the request body, which should contain the new status update query and the corresponding state
 	 */
-	void updateStatusEventQuery(long productId, ProductState newState, String requestBody);
+	void updateStatusEventQuery(long productConfigurationId, ProductState newState, String requestBody);
 
 	/**
 	 * This method tries to delete an existing event type.

@@ -43,9 +43,6 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	@Column(name = "NumberOfDevices")
 	protected long numberOfDevices = 0;
 
-	@Column(name = "NumberOfEvents")
-	protected long numberOfEvents = 0;
-
 	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = ProductConfigurationImpl.class)
 	protected Set<ProductConfiguration> productConfigurations = new HashSet<>();
 
@@ -126,15 +123,47 @@ public class ProductImpl extends PersistenceEntityImpl implements Product {
 	 */
 	@Override
 	public long getNumberOfEvents() {
-		return numberOfEvents;
+		long events = 0;
+
+		for (ProductConfiguration configuration : productConfigurations) {
+			events += configuration.getNumberOfEvents();
+		}
+
+		return events;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void incrementNumberOfEvents(long count) {
-		this.numberOfEvents += count;
+	public ProductState getState() {
+		ProductState state = ProductState.UNDEFINED;
+
+		for (ProductConfiguration configuration : productConfigurations) {
+			if (state == ProductState.ERROR) {
+				break;
+			}
+
+			if (configuration.getState().isWorse(state)) {
+				state = configuration.getState();
+			}
+		}
+
+		return state;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getStateDescription() {
+		ProductState state = getState();
+
+		if (state == ProductState.RUNNING) {
+			return "";
+		} else {
+			return String.format("one or more configurations caused the state '%1$s'", state.toString());
+		}
 	}
 
 	/**

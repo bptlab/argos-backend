@@ -79,10 +79,16 @@ public interface Product extends PersistenceEntity {
 	long getNumberOfEvents();
 
 	/**
-	 * This method increments the number of events for this product.
-	 * @param count - the count of how much new events were received
+	 * This method returns the state of this product.
+	 * @return - the product state as a ProductState enum
 	 */
-	void incrementNumberOfEvents(long count);
+	ProductState getState();
+
+	/**
+	 * This method returns the status description of this product.
+	 * @return - the status description of this product as a string
+	 */
+	String getStateDescription();
 
 	/**
 	 * This method returns all configurations of this product.
