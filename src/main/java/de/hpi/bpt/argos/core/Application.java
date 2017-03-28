@@ -4,12 +4,15 @@ import de.hpi.bpt.argos.eventHandling.EventSubscriber;
 import de.hpi.bpt.argos.persistence.database.DatabaseConnection;
 import de.hpi.bpt.argos.properties.PropertyEditor;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The main class that will be called on start of the application. Creates new argos.
  */
 public final class Application {
 
+	protected static final Logger logger = LoggerFactory.getLogger(Application.class);
 	/**
 	 * This method informs the user that this class should not be instantiated, as it is a utility class.
 	 */
@@ -33,6 +36,9 @@ public final class Application {
 				DatabaseConnection.getDatabaseConnectionUsernamePropertyKey());
 		String databaseConnectionPassword = System.getProperty(
 				DatabaseConnection.getDatabaseConnectionPasswordPropertyKey());
+
+		logger.info(databaseConnectionUser);
+		logger.info(databaseConnectionPassword);
 
 		String testMode = System.getProperty(Argos.getArgosBackendTestModePropertyKey());
 
@@ -62,6 +68,9 @@ public final class Application {
 			propertyEditor.setProperty(Argos.getArgosBackendTestModePropertyKey(), testMode);
 			argos.setTestMode(Boolean.parseBoolean(testMode));
 		}
+
+		logger.info(propertyEditor.getProperty(DatabaseConnection.getDatabaseConnectionUsernamePropertyKey()));
+		logger.info(propertyEditor.getProperty(DatabaseConnection.getDatabaseConnectionPasswordPropertyKey()));
 
 		argos.run();
 	}
