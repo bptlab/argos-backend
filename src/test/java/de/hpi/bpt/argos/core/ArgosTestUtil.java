@@ -158,6 +158,18 @@ public class ArgosTestUtil {
 
 		newEventType.getAttributes().add(productFamilyId);
 
+		EventAttribute codingPlugId = new EventAttributeImpl();
+		codingPlugId.setName("codingPlugId");
+		codingPlugId.setType(EventDataType.INTEGER);
+
+		newEventType.getAttributes().add(codingPlugId);
+
+		EventAttribute codingPlugSoftwareVersion = new EventAttributeImpl();
+		codingPlugSoftwareVersion.setName("codingPlugSoftwareVersion");
+		codingPlugSoftwareVersion.setType(EventDataType.FLOAT);
+
+		newEventType.getAttributes().add(codingPlugSoftwareVersion);
+
 		argos.getPersistenceEntityManager().updateEntity(newEventType);
 
 		return newEventType;

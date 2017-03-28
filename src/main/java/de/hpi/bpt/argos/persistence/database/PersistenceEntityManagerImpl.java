@@ -777,6 +777,14 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 			return false;
 		}
 
+		if (!isValid(eventType.getAttribute(EventType.getCodingPlugIdentificationAttributeName()))) {
+			return false;
+		}
+
+		if (!isValid(eventType.getAttribute(EventType.getCodingPlugSoftwareVersionAttributeName()))) {
+			return false;
+		}
+
 		if (!isValid(eventType.getTimestampAttribute())) {
 			return false;
 		}

@@ -84,10 +84,13 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 
 		assertEquals(2, updatedProduct.getProductConfigurations().size());
 
-		List<Event> databaseEvents = ArgosTestParent.argos.getPersistenceEntityManager()
-				.getEvents(testProduct.getId(), testEventType.getId(), 0,999);
+		for (ProductConfiguration configuration : updatedProduct.getProductConfigurations()) {
+			if (configuration.getId() == testProductConfiguration.getId()) {
+				continue;
+			}
 
-		assertEquals(1, databaseEvents.size());
+			assertEquals(1, configuration.getNumberOfEvents());
+		}
 	}
 
 	@Test
@@ -109,6 +112,8 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 
 		Product product = ArgosTestParent.argos.getPersistenceEntityManager().getProductByExternalId(orderNumber);
 		assertEquals(true, product != null);
+
+		assertEquals(1, product.getProductConfigurations().size());
 
 		List<ProductFamily> productFamilies = ArgosTestParent.argos.getPersistenceEntityManager().getProductFamilies();
 		assertEquals(1, productFamilies.size());
@@ -138,6 +143,8 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 
 		Product product = ArgosTestParent.argos.getPersistenceEntityManager().getProductByExternalId(orderNumber);
 		assertEquals(true, product != null);
+
+		assertEquals(1, product.getProductConfigurations().size());
 
 		List<ProductFamily> productFamilies = ArgosTestParent.argos.getPersistenceEntityManager().getProductFamilies();
 		assertEquals(2, productFamilies.size());
