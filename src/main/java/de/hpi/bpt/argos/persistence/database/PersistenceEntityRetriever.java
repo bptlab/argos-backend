@@ -54,7 +54,15 @@ public interface PersistenceEntityRetriever {
 	 * @return - a map of event types that can occur for the product with the number of events that occurred for this
 	 * event type
 	 */
-	Map<EventType, Integer> getEventTypes(long productId);
+	Map<EventType, Integer> getProductEventTypes(long productId);
+
+	/**
+	 * This method makes the database call to retrieve the necessary data for the API that serves all event types for a certain product configuration.
+	 * @param productConfigurationId - the product configuration that we want the event types for
+	 * @return - a map of event types that can occur for the product configuration with the number of events that occurred for this
+	 * event type
+	 */
+	Map<EventType, Integer> getProductConfigurationEventTypes(long productConfigurationId);
 
 	/**
 	 * This method makes the database call to retrieve the necessary data for the API that serves events for a
@@ -65,7 +73,18 @@ public interface PersistenceEntityRetriever {
 	 * @param indexTo - the end of the index range that the events should come from
 	 * @return - a list of events that satisfies the parameters
 	 */
-	List<Event> getEvents(long productId, long eventTypeId, int indexFrom, int indexTo);
+	List<Event> getEventsForProduct(long productId, long eventTypeId, int indexFrom, int indexTo);
+
+	/**
+	 * This method makes the database call to retrieve the necessary data for the API that serves events for a
+	 * certain product configuration of a defined event type within a defined index range.
+	 * @param productConfigurationId - the product configuration to be searched identified by its id
+	 * @param eventTypeId - the event type to be searched identified by its id
+	 * @param indexFrom - the start of the index range that the events should come from
+	 * @param indexTo - the end of the index range that the events should come from
+	 * @return - a list of events that satisfies the parameters
+	 */
+	List<Event> getEventsForProductConfiguration(long productConfigurationId, long eventTypeId, int indexFrom, int indexTo);
 
 	/**
 	 * This method makes the database call to retrieve the requested event type.

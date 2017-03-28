@@ -1,7 +1,6 @@
 package de.hpi.bpt.argos.api;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
@@ -60,21 +59,7 @@ public class ProductEndpointTest extends CustomerEndpointParentClass {
 		assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
 
 		JsonArray jsonEventTypes = jsonParser.parse(request.getResponse()).getAsJsonArray();
-		boolean testEventTypeFound = false;
-
-		for (JsonElement element : jsonEventTypes) {
-			JsonObject jsonEventType = element.getAsJsonObject();
-
-			if (jsonEventType.get("id").getAsLong() == testEventType.getId()) {
-				testEventTypeFound = true;
-
-				assertEquals(1, jsonEventType.get("numberOfEvents").getAsInt());
-
-				break;
-			}
-		}
-
-		assertEquals(true, testEventTypeFound);
+		assertEquals(true, assertEventTypeExists(jsonEventTypes, testEventType.getId(), 1));
 	}
 
 	@Test

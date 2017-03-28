@@ -56,7 +56,14 @@ public interface ResponseFactory {
 	 * @param productId - the specific product identifier
 	 * @return - a json representation of all event types
 	 */
-	String getAllEventTypes(long productId);
+	String getAllProductEventTypes(long productId);
+
+	/**
+	 * This method returns a json representation of all event types for one specific product configuration id.
+	 * @param productConfigurationId - the specific product configuration identifier
+	 * @return - a json representation of all event types
+	 */
+	String getAllProductConfigurationEventTypes(long productConfigurationId);
 
 	/**
 	 * This method returns a json representation of the specified event type.
@@ -80,6 +87,17 @@ public interface ResponseFactory {
 	 * @return - a json representation of the requested events
 	 */
 	String getEventsForProduct(long productId, long eventTypeId, int eventIndexFrom, int eventIndexTo);
+
+	/**
+	 * This method returns a json representation of all events for one specific product configuration with a specific event type within a certain
+	 * range.
+	 * @param productConfigurationId - the product configuration identifier
+	 * @param eventTypeId - the event type identifier
+	 * @param eventIndexFrom - the start index for the events
+	 * @param eventIndexTo - the end index of the events
+	 * @return - a json representation of the requested events
+	 */
+	String getEventsForProductConfiguration(long productConfigurationId, long eventTypeId, int eventIndexFrom, int eventIndexTo);
 
 	/**
 	 * This method returns a json representation of an event defined by the event id.

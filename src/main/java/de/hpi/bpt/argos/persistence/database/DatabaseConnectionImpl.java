@@ -141,7 +141,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Map<EventType, Integer> getEventTypes(long productId) {
+	public Map<EventType, Integer> getProductEventTypes(long productId) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction transaction = session.beginTransaction();
 		Query<Event> query = session.createQuery("FROM EventImpl e WHERE e.productConfiguration.product.id = :productId",
@@ -150,24 +150,30 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 
 		List<Event> events = getEntities(session, query, transaction, query::list, new ArrayList<>());
 
-		Map<EventType, Integer> eventTypes = new HashMap<>();
-		for (Event event: events) {
-			EventType currentEventType = event.getEventType();
-			if (eventTypes.containsKey(currentEventType)) {
-				int oldNumberOfEventTypes = eventTypes.get(event.getEventType());
-				eventTypes.put(currentEventType, oldNumberOfEventTypes + 1);
-			} else {
-				eventTypes.put(currentEventType, 1);
-			}
-		}
-		return eventTypes;
+		return getEventTypesOccurrences(events);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Event> getEvents(long productId, long eventTypeId, int indexFrom, int indexTo) {
+	public Map<EventType, Integer> getProductConfigurationEventTypes(long productConfigurationId) {
+		Session session = databaseSessionFactory.openSession();
+		Transaction transaction = session.beginTransaction();
+		Query<Event> query = session.createQuery("FROM EventImpl e WHERE e.productConfiguration.id = :configurationId",
+				Event.class)
+				.setParameter("configurationId", productConfigurationId);
+
+		List<Event> events = getEntities(session, query, transaction, query::list, new ArrayList<>());
+
+		return getEventTypesOccurrences(events);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Event> getEventsForProduct(long productId, long eventTypeId, int indexFrom, int indexTo) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction transaction = session.beginTransaction();
 		Query<Event> query = session.createQuery("FROM EventImpl ev "
@@ -175,6 +181,25 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 						+ "ORDER BY ev.id ASC",
 				Event.class)
 				.setParameter("productId", productId)
+				.setParameter("eventTypeId", eventTypeId)
+				.setFirstResult(indexFrom)
+				.setMaxResults(indexTo);
+
+		return getEntities(session, query, transaction, query::list, new ArrayList<>());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Event> getEventsForProductConfiguration(long productConfigurationId, long eventTypeId, int indexFrom, int indexTo) {
+		Session session = databaseSessionFactory.openSession();
+		Transaction transaction = session.beginTransaction();
+		Query<Event> query = session.createQuery("FROM EventImpl ev "
+						+ "WHERE ev.productConfiguration.id = :configurationId AND ev.eventType.id = :eventTypeId "
+						+ "ORDER BY ev.id ASC",
+				Event.class)
+				.setParameter("configurationId", productConfigurationId)
 				.setParameter("eventTypeId", eventTypeId)
 				.setFirstResult(indexFrom)
 				.setMaxResults(indexTo);
@@ -366,6 +391,26 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 		} finally {
 			session.close();
 		}
+	}
+
+	/**
+	 * This method returns a map of event types with their occurrences.
+	 * @param events - the events to get the types and their occurrences from
+	 * @return - a map of event types with their occurrences
+	 */
+	protected Map<EventType, Integer> getEventTypesOccurrences(List<Event> events) {
+		Map<EventType, Integer> eventTypes = new HashMap<>();
+		for (Event event: events) {
+			EventType currentEventType = event.getEventType();
+			if (eventTypes.containsKey(currentEventType)) {
+				int oldNumberOfEventTypes = eventTypes.get(event.getEventType());
+				eventTypes.put(currentEventType, oldNumberOfEventTypes + 1);
+			} else {
+				eventTypes.put(currentEventType, 1);
+			}
+		}
+
+		return eventTypes;
 	}
 
 	/**

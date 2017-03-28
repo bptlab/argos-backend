@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.api.productConfiguration;
 
+import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
 import de.hpi.bpt.argos.common.RestEndpointImpl;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
@@ -21,6 +22,8 @@ public class ProductConfigurationEndpointImpl extends RestEndpointImpl implement
 	public void setup(ResponseFactory responseFactory, PersistenceEntityManager entityManager, Service sparkService) {
 		super.setup(responseFactory, entityManager, sparkService);
 		sparkService.get(ProductConfigurationEndPoint.getProductConfigurationBaseUri(), this::getProductConfiguration);
+		sparkService.get(ProductConfigurationEndPoint.getEventTypesForProductConfigurationBaseUri(), this::getEventTypesForProductConfiguration);
+		sparkService.get(ProductConfigurationEndPoint.getEventsForProductConfigurationBaseUri(), this::getEventsForProductConfiguration);
 		sparkService.post(ProductConfigurationEndPoint.getUpdateStatusQueryBaseUri(), this::updateStatusQuery);
 	}
 
@@ -36,6 +39,49 @@ public class ProductConfigurationEndpointImpl extends RestEndpointImpl implement
 				(Long input) -> input > 0);
 
 		String json = responseFactory.getProductConfiguration(productConfigurationId);
+
+		logInfoForSendingResponse(request);
+		return json;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEventTypesForProductConfiguration(Request request, Response response) {
+		logInfoForReceivedRequest(request);
+
+		long productConfigurationId = inputValidation.validateLong(
+				request.params(ProductConfigurationEndPoint.getProductConfigurationIdParameter(false)),
+				(Long input) -> input > 0);
+
+		String json = responseFactory.getAllProductConfigurationEventTypes(productConfigurationId);
+
+		logInfoForSendingResponse(request);
+		return json;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEventsForProductConfiguration(Request request, Response response) {
+		logInfoForReceivedRequest(request);
+
+		long productConfigurationId = inputValidation.validateLong(
+				request.params(ProductConfigurationEndPoint.getProductConfigurationIdParameter(false)),
+				(Long input) -> input > 0);
+		long eventTypeId = inputValidation.validateLong(
+				request.params(ProductEndpoint.getEventTypeIdParameter(false)),
+				(Long input) -> input >	0);
+		int indexFrom = inputValidation.validateInteger(
+				request.params(ProductEndpoint.getIndexFromParameter(false)),
+				(Integer input) -> input >= 0);
+		int indexTo = inputValidation.validateInteger(
+				request.params(ProductEndpoint.getIndexToParameter(false)),
+				(Integer input) -> input >= indexFrom);
+
+		String json = responseFactory.getEventsForProductConfiguration(productConfigurationId, eventTypeId, indexFrom, indexTo);
 
 		logInfoForSendingResponse(request);
 		return json;

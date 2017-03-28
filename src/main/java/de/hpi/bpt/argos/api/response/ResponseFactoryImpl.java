@@ -122,7 +122,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getAllEventTypes(long productId) {
+	public String getAllProductEventTypes(long productId) {
 
 		Product product = entityManager.getProduct(productId);
 
@@ -130,7 +130,30 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "cannot find product");
 		}
 
-		Map<EventType, Integer> eventTypes = entityManager.getEventTypes(productId);
+		Map<EventType, Integer> eventTypes = entityManager.getProductEventTypes(productId);
+
+		JsonArray jsonEventTypes = new JsonArray();
+
+		for (Map.Entry<EventType, Integer> eventTypeEntry : eventTypes.entrySet()) {
+			JsonObject jsonEventType = getEventType(eventTypeEntry.getKey());
+			jsonEventType.addProperty("numberOfEvents", eventTypeEntry.getValue());
+
+			jsonEventTypes.add(jsonEventType);
+		}
+
+		return serializer.toJson(jsonEventTypes);
+	}
+
+	@Override
+	public String getAllProductConfigurationEventTypes(long productConfigurationId) {
+
+		ProductConfiguration configuration = entityManager.getProductConfiguration(productConfigurationId);
+
+		if (configuration == null) {
+			halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "cannot find product configuration");
+		}
+
+		Map<EventType, Integer> eventTypes = entityManager.getProductConfigurationEventTypes(productConfigurationId);
 
 		JsonArray jsonEventTypes = new JsonArray();
 
@@ -177,7 +200,22 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	 */
 	@Override
 	public String getEventsForProduct(long productId, long eventTypeId, int eventIndexFrom, int eventIndexTo) {
-		List<Event> events = entityManager.getEvents(productId, eventTypeId, eventIndexFrom, eventIndexTo);
+		List<Event> events = entityManager.getEventsForProduct(productId, eventTypeId, eventIndexFrom, eventIndexTo);
+		JsonArray jsonEvents = new JsonArray();
+
+		for (Event event : events) {
+			jsonEvents.add(getEvent(event));
+		}
+
+		return serializer.toJson(jsonEvents);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEventsForProductConfiguration(long productConfigurationId, long eventTypeId, int eventIndexFrom, int eventIndexTo) {
+		List<Event> events = entityManager.getEventsForProductConfiguration(productConfigurationId, eventTypeId, eventIndexFrom, eventIndexTo);
 		JsonArray jsonEvents = new JsonArray();
 
 		for (Event event : events) {

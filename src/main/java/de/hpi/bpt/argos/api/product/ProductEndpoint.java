@@ -28,11 +28,11 @@ public interface ProductEndpoint extends RestEndpoint {
 	String getEventTypesForProduct(Request request, Response response);
 
 	/**
-	 * This method is called via API and returns all events for a specified product family currently registered
+	 * This method is called via API and returns all events within a certain index range for a specified product currently registered
 	 * in the persistence.
 	 * @param request - Spark defined parameter containing request object
 	 * @param response - Spark defined parameter containing response object
-	 * @return - returns a JSON string of a list of all events for a specified product family
+	 * @return - returns a JSON string of a list of all events for a specified product within a certain index range
 	 */
 	String getEventsForProduct(Request request, Response response);
 

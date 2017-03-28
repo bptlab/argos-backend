@@ -60,7 +60,7 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 		assertEquals(1, updatedProduct.getProductConfigurations().size());
 
 		List<Event> databaseEvents = ArgosTestParent.argos.getPersistenceEntityManager()
-				.getEvents(testProduct.getId(), testEventType.getId(), 0,999);
+				.getEventsForProduct(testProduct.getId(), testEventType.getId(), 0,999);
 
 		assertEquals(1, databaseEvents.size());
 	}
