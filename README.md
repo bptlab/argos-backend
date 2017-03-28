@@ -50,7 +50,7 @@ docker run --name argos-database -e MYSQL_ROOT_PASSWORD=secret -e MYSQL_USER=use
 
 Then grant new user root privileges: 
 1. Execute ```mysql -u root -p``` in container. Enter your root password.
-1. Execute ```GRANT ALL PRIVILEGES ON *.* TO user@localhost WITH GRANT OPTION;```
+1. Execute ```GRANT ALL PRIVILEGES ON *.* TO 'user' WITH GRANT OPTION;```
 
 
 ### Deploy Unicorn.
