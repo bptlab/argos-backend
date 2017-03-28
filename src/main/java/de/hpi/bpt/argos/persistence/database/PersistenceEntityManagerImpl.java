@@ -396,6 +396,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 			configuration.setProduct(product);
 			configuration.setCodingPlugId(codingPlugId);
 			configuration.addCodingPlugSoftwareVersion(codingPlugSoftwareVersion);
+			product.addProductConfiguration(configuration);
 
 			if (!databaseConnection.saveEntities(product, configuration)) {
 				return null;

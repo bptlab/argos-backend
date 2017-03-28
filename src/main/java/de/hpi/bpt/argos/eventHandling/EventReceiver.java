@@ -1,7 +1,6 @@
 package de.hpi.bpt.argos.eventHandling;
 
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
-import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.api.productConfiguration.ProductConfigurationEndPoint;
 import de.hpi.bpt.argos.common.RestEndpoint;
 import de.hpi.bpt.argos.persistence.model.product.ProductState;
@@ -49,7 +48,7 @@ public interface EventReceiver extends RestEndpoint {
 	static String getReceiveStatusUpdateEventBaseUri() {
 		return String.format("/api/events/statuschange/%1$s/%2$s",
 				ProductConfigurationEndPoint.getProductConfigurationIdParameter(true),
-				ProductEndpoint.getNewProductStatusParameter(true));
+				ProductConfigurationEndPoint.getNewProductStatusParameter(true));
 	}
 
 	/**
@@ -71,6 +70,6 @@ public interface EventReceiver extends RestEndpoint {
 	static String getReceiveStatusUpdateEventUri(long productConfigurationId, ProductState newProductState) {
 		return getReceiveStatusUpdateEventBaseUri()
 				.replaceAll(ProductConfigurationEndPoint.getProductConfigurationIdParameter(true), Objects.toString(productConfigurationId, "0"))
-				.replaceAll(ProductEndpoint.getNewProductStatusParameter(true), Objects.toString(newProductState, ""));
+				.replaceAll(ProductConfigurationEndPoint.getNewProductStatusParameter(true), Objects.toString(newProductState, ""));
 	}
 }

@@ -144,7 +144,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	public Map<EventType, Integer> getEventTypes(long productId) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction transaction = session.beginTransaction();
-		Query<Event> query = session.createQuery("FROM EventImpl e WHERE e.product.id = :productId",
+		Query<Event> query = session.createQuery("FROM EventImpl e WHERE e.productConfiguration.product.id = :productId",
 				Event.class)
 				.setParameter("productId", productId);
 
@@ -171,7 +171,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 		Session session = databaseSessionFactory.openSession();
 		Transaction transaction = session.beginTransaction();
 		Query<Event> query = session.createQuery("FROM EventImpl ev "
-						+ "WHERE ev.product.id = :productId AND ev.eventType.id = :eventTypeId "
+						+ "WHERE ev.productConfiguration.product.id = :productId AND ev.eventType.id = :eventTypeId "
 						+ "ORDER BY ev.id ASC",
 				Event.class)
 				.setParameter("productId", productId)

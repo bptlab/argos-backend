@@ -1,7 +1,6 @@
 package de.hpi.bpt.argos.eventHandling;
 
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
-import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.api.productConfiguration.ProductConfigurationEndPoint;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
 import de.hpi.bpt.argos.common.RestEndpointImpl;
@@ -64,7 +63,7 @@ public class EventReceiverImpl extends RestEndpointImpl implements EventReceiver
 				(Long input) -> input > 0);
 		ProductState newState = inputValidation.validateEnum(
 				ProductState.class,
-				request.params(ProductEndpoint.getNewProductStatusParameter(false)));
+				request.params(ProductConfigurationEndPoint.getNewProductStatusParameter(false)));
 
 		if (newState == null) {
 			halt(ResponseFactory.HTTP_ERROR_CODE, "unable to parse new status");

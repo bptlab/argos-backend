@@ -5,14 +5,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
-import de.hpi.bpt.argos.core.ArgosTestParent;
 import de.hpi.bpt.argos.core.ArgosTestUtil;
 import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductConfiguration;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
-import de.hpi.bpt.argos.persistence.model.product.ProductState;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -123,84 +121,6 @@ public class ProductEndpointTest extends CustomerEndpointParentClass {
 		assertEquals(0, jsonEvents.size());
 	}
 
-	@Test
-	public void testUpdateStatusQuery() {
-		ProductState newState = ProductState.RUNNING;
-
-		request = requestFactory.createPostRequest(TEST_HOST,
-				getUpdateStatusQueryUri(testProductConfiguration.getId(), newState),
-				TEST_CONTENT_TYPE,
-				TEST_ACCEPT_TYPE_PLAIN);
-
-		String newEventQuery = "new event query";
-
-		JsonObject jsonQuery = new JsonObject();
-		jsonQuery.addProperty("eventQuery", newEventQuery);
-
-		request.setContent(serializer.toJson(jsonQuery));
-		assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
-
-		ProductConfiguration updatedConfiguration = ArgosTestParent.argos.getPersistenceEntityManager()
-				.getProductConfiguration(testProductConfiguration.getId());
-
-		Product updatedProduct = ArgosTestParent.argos.getPersistenceEntityManager().getProduct(testProduct.getId());
-		assertEquals(newEventQuery, updatedConfiguration.getStatusUpdateQuery(newState).getQueryString());
-	}
-
-	@Test
-	public void testUpdateStatusQuery_InvalidQuery_Error() {
-		ProductState newState = ProductState.RUNNING;
-
-		request = requestFactory.createPostRequest(TEST_HOST,
-				getUpdateStatusQueryUri(testProduct.getId(), newState),
-				TEST_CONTENT_TYPE,
-				TEST_ACCEPT_TYPE_PLAIN);
-
-		String newEventQuery = "";
-
-		JsonObject jsonQuery = new JsonObject();
-		jsonQuery.addProperty("eventQuery", newEventQuery);
-
-		request.setContent(serializer.toJson(jsonQuery));
-		assertEquals(ResponseFactory.HTTP_ERROR_CODE, request.getResponseCode());
-	}
-
-	@Test
-	public void testUpdateStatusQuery_InvalidId_NotFound() {
-		ProductState newState = ProductState.RUNNING;
-
-		request = requestFactory.createPostRequest(TEST_HOST,
-				getUpdateStatusQueryUri(testProduct.getId() - 1, newState),
-				TEST_CONTENT_TYPE,
-				TEST_ACCEPT_TYPE_PLAIN);
-
-		String newEventQuery = "new event query";
-
-		JsonObject jsonQuery = new JsonObject();
-		jsonQuery.addProperty("eventQuery", newEventQuery);
-
-		request.setContent(serializer.toJson(jsonQuery));
-		assertEquals(ResponseFactory.HTTP_NOT_FOUND_CODE, request.getResponseCode());
-	}
-
-	@Test
-	public void testUpdateStatusQuery_InvalidNewState_Error() {
-		ProductState newState = ProductState.UNDEFINED;
-
-		request = requestFactory.createPostRequest(TEST_HOST,
-				getUpdateStatusQueryUri(testProduct.getId(), newState),
-				TEST_CONTENT_TYPE,
-				TEST_ACCEPT_TYPE_PLAIN);
-
-		String newEventQuery = "new event query";
-
-		JsonObject jsonQuery = new JsonObject();
-		jsonQuery.addProperty("eventQuery", newEventQuery);
-
-		request.setContent(serializer.toJson(jsonQuery));
-		assertEquals(ResponseFactory.HTTP_ERROR_CODE, request.getResponseCode());
-	}
-
 	private String getProduct(Object productId) {
 		return ProductEndpoint.getProductBaseUri()
 				.replaceAll(ProductEndpoint.getProductIdParameter(true), productId.toString());
@@ -218,11 +138,4 @@ public class ProductEndpointTest extends CustomerEndpointParentClass {
 				.replaceAll(ProductEndpoint.getIndexFromParameter(true), indexFrom.toString())
 				.replaceAll(ProductEndpoint.getIndexToParameter(true), indexTo.toString());
 	}
-
-	private String getUpdateStatusQueryUri(Object productId, Object newState) {
-		return ProductEndpoint.getUpdateStatusQueryBaseUri()
-				.replaceAll(ProductEndpoint.getProductIdParameter(true), productId.toString())
-				.replaceAll(ProductEndpoint.getNewProductStatusParameter(true), newState.toString());
-	}
-
 }

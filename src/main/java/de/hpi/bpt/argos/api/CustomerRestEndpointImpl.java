@@ -10,6 +10,8 @@ import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpointImpl;
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.api.product.ProductEndpointImpl;
+import de.hpi.bpt.argos.api.productConfiguration.ProductConfigurationEndPoint;
+import de.hpi.bpt.argos.api.productConfiguration.ProductConfigurationEndpointImpl;
 import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpoint;
 import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpointImpl;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
@@ -33,6 +35,7 @@ public class CustomerRestEndpointImpl implements CustomerRestEndpoint {
 	protected EventQueryEndpoint eventQueryEndpoint;
 	protected EventTypeEndpoint eventTypeEndpoint;
 	protected ProductEndpoint productEndpoint;
+	protected ProductConfigurationEndPoint productConfigurationEndPoint;
 	protected ProductFamilyEndpoint productFamilyEndpoint;
 
 	/**
@@ -59,6 +62,9 @@ public class CustomerRestEndpointImpl implements CustomerRestEndpoint {
 
 		productEndpoint = new ProductEndpointImpl();
 		productEndpoint.setup(responseFactory, entityManager, sparkService);
+
+		productConfigurationEndPoint = new ProductConfigurationEndpointImpl();
+		productConfigurationEndPoint.setup(responseFactory, entityManager, sparkService);
 
 		productFamilyEndpoint = new ProductFamilyEndpointImpl();
 		productFamilyEndpoint.setup(responseFactory, entityManager, sparkService);

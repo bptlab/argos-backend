@@ -34,7 +34,7 @@ public class ProductConfigurationImpl extends PersistenceEntityImpl implements P
 	@Column(name = "CodingPlugId")
 	protected int codingPlugId = 0;
 
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	@Column(name = "CodingPlugSoftwareVersions")
 	protected Set<Float> codingPlugSoftwareVersions = new HashSet<>();
 
