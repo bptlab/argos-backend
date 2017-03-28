@@ -79,7 +79,7 @@ public interface ProductConfigurationEndPoint extends RestEndpoint {
 	 * @return - the basic URI to post product status change query updates to with path variables
 	 */
 	static String getUpdateStatusQueryBaseUri() {
-		return String.format("/api/products/%1$s/update/statuschange/%2$s",
+		return String.format("/api/productconfigurations/%1$s/update/statuschange/%2$s",
 				ProductConfigurationEndPoint.getProductConfigurationIdParameter(true),
 				getNewProductStatusParameter(true));
 	}

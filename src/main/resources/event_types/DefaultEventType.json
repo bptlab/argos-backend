@@ -3,6 +3,8 @@
 	"timestamp":"dateOfEvent",
 	"attributes":{
 		"productFamilyId":"STRING",
-		"productId":"INTEGER"
+		"productId":"LONG",
+		"codingPlugId":"INTEGER",
+		"codingPlugSoftwareVersion":"FLOAT"
 	}
 }

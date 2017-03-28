@@ -477,11 +477,22 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			jsonProduct.addProperty("state", product.getState().toString());
 			jsonProduct.addProperty("stateDescription", product.getStateDescription());
 
-			JsonArray configurationIds = new JsonArray();
+			JsonArray configurations = new JsonArray();
 			for (ProductConfiguration configuration : product.getProductConfigurations()) {
-				configurationIds.add(configuration.getId());
+				JsonObject jsonConfiguration = new JsonObject();
+
+				jsonConfiguration.addProperty("id", configuration.getId());
+				jsonConfiguration.addProperty("codingPlugId", configuration.getCodingPlugId());
+
+				JsonArray codingPlugSoftwareVersions = new JsonArray();
+
+				for (float version : configuration.getCodingPlugSoftwareVersions()) {
+					codingPlugSoftwareVersions.add(version);
+				}
+				jsonConfiguration.add("codingPlugSoftwareVersions", codingPlugSoftwareVersions);
+				configurations.add(jsonConfiguration);
 			}
-			jsonProduct.add("configurationIds", configurationIds);
+			jsonProduct.add("configurations", configurations);
 
 			return jsonProduct;
 		} catch (Exception exception) {

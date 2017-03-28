@@ -25,6 +25,7 @@ paths:
               properties:
                 id:
                   type: integer
+                  format: long
                 name:
                   type: string
                 brand:
@@ -38,12 +39,18 @@ paths:
                     properties:
                       id:
                         type: integer
+                        format: long
+                      productFamilyId:
+                        type: integer
+                        format: long
                       name:
                         type: string
                       numberOfDevices:
                         type: integer
+                        format: long
                       numberOfEvents:
                         type: integer
+                        format: long
                       productionStart:
                         type: string
                         format: date
@@ -54,15 +61,25 @@ paths:
                         type: string
                       stateDescription:
                         type: string
-                      statusUpdateQueries:
-                        type: object
-                        properties:
-                          RUNNING:
-                            type: string
-                          WARNING:
-                            type: string
-                          ERROR:
-                            type: string
+                      configurations:
+                        title: ArrayOfConfigurationHeaders
+                        type: array
+                        items:
+                          title: ConfigurationHeader
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              format: long
+                            codingPlugId:
+                              type: integer
+                            codingPlugSoftwareVersions:
+                              title: ArrayOfFloat
+                              type: array
+                              items:
+                                title: SoftwareVersion
+                                type: number
+                                format: float
 
   /api/productfamilies/{productFamilyId}:
     get:
@@ -83,6 +100,7 @@ paths:
             properties:
               id:
                 type: integer
+                format: long
               name:
                 type: string
               brand:
@@ -107,12 +125,18 @@ paths:
             properties:
               id:
                 type: integer
+                format: long
+              productFamilyId:
+                type: integer
+                format: long
               name:
                 type: string
               numberOfDevices:
                 type: integer
+                format: long
               numberOfEvents:
                 type: integer
+                format: long
               productionStart:
                 type: string
                 format: date
@@ -123,15 +147,25 @@ paths:
                 type: string
               stateDescription:
                 type: string
-              statusUpdateQueries:
-                type: object
-                properties:
-                  RUNNING:
-                    type: string
-                  WARNING:
-                    type: string
-                  ERROR:
-                    type: string
+              configurations:
+                title: ArrayOfConfigurationHeaders
+                type: array
+                items:
+                  title: ConfigurationHeader
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: long
+                    codingPlugId:
+                      type: integer
+                    codingPlugSoftwareVersions:
+                      title: ArrayOfFloat
+                      type: array
+                      items:
+                        title: SoftwareVersion
+                        type: number
+                        format: float
 
   /api/products/{productId}/eventtypes:
     get:
@@ -155,6 +189,7 @@ paths:
               properties:
                 id:
                   type: integer
+                  format: long
                 name:
                   type: string
                 numberOfEvents:
@@ -172,6 +207,7 @@ paths:
                     properties:
                       id:
                         type: integer
+                        format: long
                       name:
                         type: string
                       type:
@@ -216,37 +252,6 @@ paths:
               title: Event
               description: An object which contains all attributes specified in `EventType`
               type: object
-              
-  /api/products/{productId}/update/statuschange/{newProductStatus}:
-    post:
-      description: Updates an `EventQuery` which events will change the status of the specified `Product`.
-      parameters:
-        -
-          name: productId
-          in: path
-          description: Unique identifier for the `Product`
-          required: true
-          type: integer
-        -
-          name: newProductStatus
-          in: path
-          description: The new state of the `Product` after an `Event` for the given `EventQuery` is received
-          required: true
-          type: string
-        - 
-          name: eventQuery
-          in: body
-          description: The new event query that should be saved for the status change
-          required: true
-          schema:
-            type: object
-            properties:
-              eventQuery:
-                type: string
-      
-      responses:
-        200:
-          description: Successful response
 
   /api/events/{eventId}:
     get:
@@ -283,6 +288,7 @@ paths:
               properties:
                 id:
                   type: integer
+                  format: long
                 name:
                   type: string
                 timestampAttributeName:
@@ -298,6 +304,7 @@ paths:
                     properties:
                       id:
                         type: integer
+                        format: long
                       name:
                         type: string
                       type:
@@ -323,6 +330,7 @@ paths:
             properties:
               id:
                 type: integer
+                format: long
               name:
                 type: string
               timestampAttributeName:
@@ -338,6 +346,7 @@ paths:
                   properties:
                     id:
                       type: integer
+                      format: long
                     name:
                       type: string
                     type:
@@ -371,7 +380,7 @@ paths:
                     type: array
                     items:
                       title: EventAttribute
-                      description: There must be two `EventAttributes` named "ProductId" (integer) and "ProductFamilyId" (string).
+                      description: There must be four `EventAttributes` named "productId" (long), "productFamilyId" (string), "codingPlugId" (integer) and "codingPlugSoftwareVersion" (float).
                       type: object
                       properties:
                         name:
@@ -403,6 +412,7 @@ paths:
             items:
               title: EventTypeId
               type: integer
+              format: long
       
   /api/eventqueries/update/{eventTypeId}:
     post:
@@ -441,3 +451,209 @@ paths:
             items:
               title: DataTypeName
               type: string
+              
+  /api/productconfigurations/{productConfigurationId}/update/statuschange/{newProductStatus}:
+    post:
+      description: Updates an `EventQuery` which events will change the status of the specified `ProductConfiguration`.
+      parameters:
+        -
+          name: productConfigurationId
+          in: path
+          description: Unique identifier for the `ProductConfiguration`
+          required: true
+          type: integer
+        -
+          name: newProductStatus
+          in: path
+          description: The new state of the `Product` after an `Event` for the given `EventQuery` is received
+          required: true
+          type: string
+        - 
+          name: eventQuery
+          in: body
+          description: The new event query that should be saved for the status change
+          required: true
+          schema:
+            type: object
+            properties:
+              eventQuery:
+                type: string
+      
+      responses:
+        200:
+          description: Successful response
+          
+  /api/productconfigurations/{productConfigurationId}:
+    get:
+      description: Get a single `ProductConfiguration` object defined by its id.
+      parameters:
+        -
+          name: productConfigurationId
+          in: path
+          description: Unique identifier for the `ProductConfiguration`
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Successful response
+          schema:
+            title: ProductConfiguration
+            type: object
+            properties:
+              id:
+                type: integer
+                format: long
+              productId:
+                type: integer
+                format: long
+              state:
+                type: string
+              stateDescription:
+                type: string
+              codingPlugId:
+                type: integer
+              codingPlugSoftwareVersions:
+                title: ArrayOfFloat
+                type: array
+                items:
+                  title: SoftwareVersion
+                  type: number
+                  format: float
+              numberOfEvents:
+                type: integer
+                format: long
+              statusUpdateQueries:
+                type: object
+                properties:
+                  RUNNING:
+                    type: string
+                  WARNING:
+                    type: string
+                  ERROR:
+                    type: string
+              errorTypes:
+                title: ArrayOfErrorTypes
+                type: array
+                items:
+                  title: ErrorType
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: long
+                    errorTypeId:
+                      type: string
+                    displayCode:
+                      type: string
+                    causeCode:
+                      type: integer
+                    errorDescription:
+                      type: string
+                    errorCauses:
+                      title: ArrayOfErrorCauses
+                      type: array
+                      items:
+                        title: ErrorCause
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            format: long
+                          causeDescription:
+                            type: string
+                          errorOccurrences:
+                            type: integer
+                            format: long
+                          errorPrediction:
+                            type: number
+                            format: float
+          
+  /api/productconfigurations/{productConfigurationId}/eventtypes:
+    get:
+      description: Gets an array of `EventType` objects for a defined `ProductConfiguration`.
+      parameters:
+        -
+          name: productConfigurationId
+          in: path
+          description: Unique identifier for the `ProductConfiguration`
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Successful response
+          schema:
+            title: ArrayOfEventTypes
+            type: array
+            items:
+              title: EventType
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: long
+                name:
+                  type: string
+                numberOfEvents:
+                  type: integer
+                timestampAttributeName:
+                  type: string
+                eventQuery:
+                  type: string
+                attributes:
+                  title: ArrayOfEventAttributes
+                  type: array
+                  items:
+                    title: EventAttribute
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        format: long
+                      name:
+                        type: string
+                      type:
+                        type: string
+
+  /api/productconfigurations/{productConfigurationId}/events/{eventTypeId}/{indexFrom}/{indexTo}:
+    get:
+      description: Gets an array of `Event` objects for a defined `ProductConfiguration` within a certain index range.
+      parameters:
+        -
+          name: productConfigurationId
+          in: path
+          description: Unique identifier for the `ProductConfiguration`
+          required: true
+          type: integer
+        -
+          name: eventTypeId
+          in: path
+          description: Unique identifier for the `EventType`
+          required: true
+          type: integer
+        -
+          name: indexFrom
+          in: path
+          description: Start index for the `Event` objects to receive
+          required: true
+          type: integer
+        -
+          name: indexTo
+          in: path
+          description: End index for the `Event` objects to receive
+          required: true
+          type: integer
+
+      responses:
+        200:
+          description: Successful response
+          schema:
+            title: ArrayOfEvents
+            type: array
+            items:
+              title: Event
+              description: An object which contains all attributes specified in `EventType`
+              type: object
+              
+              
+              
+              
