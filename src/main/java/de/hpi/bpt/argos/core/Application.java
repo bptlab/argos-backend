@@ -29,6 +29,11 @@ public final class Application {
 		String argosHost = System.getProperty(Argos.getArgosBackendHostPropertyKey());
 		String eventPlatformHost = System.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
 		String databaseConnectionHost = System.getProperty(DatabaseConnection.getDatabaseConnectionHostPropertyKey());
+		String databaseConnectionUser = System.getProperty(
+				DatabaseConnection.getDatabaseConnectionUsernamePropertyKey());
+		String databaseConnectionPassword = System.getProperty(
+				DatabaseConnection.getDatabaseConnectionPasswordPropertyKey());
+
 		String testMode = System.getProperty(Argos.getArgosBackendTestModePropertyKey());
 
 		// TODO: validate input in a more sophisticated way
@@ -42,6 +47,16 @@ public final class Application {
 
 		if (databaseConnectionHost != null && databaseConnectionHost.length() > 0) {
 			propertyEditor.setProperty(DatabaseConnection.getDatabaseConnectionHostPropertyKey(), databaseConnectionHost);
+		}
+
+		if (databaseConnectionUser != null && databaseConnectionUser.length() > 0) {
+			propertyEditor.setProperty(DatabaseConnection.getDatabaseConnectionUsernamePropertyKey(),
+					databaseConnectionUser);
+		}
+
+		if (databaseConnectionPassword != null && databaseConnectionPassword.length() > 0) {
+			propertyEditor.setProperty(DatabaseConnection.getDatabaseConnectionPasswordPropertyKey(),
+					databaseConnectionPassword);
 		}
 
 		if (testMode != null && testMode.length() > 0) {
