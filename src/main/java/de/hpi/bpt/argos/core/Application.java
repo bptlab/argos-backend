@@ -56,7 +56,8 @@ public final class Application {
 		}
 
 		if (databaseConnectionUser != null && databaseConnectionUser.length() > 0) {
-			propertyEditor.setProperty(DatabaseConnection.getDatabaseConnectionHostPropertyKey(), databaseConnectionHost);
+			propertyEditor.setProperty(DatabaseConnection.getDatabaseConnectionUsernamePropertyKey(),
+					databaseConnectionUser);
 		}
 
 		if (databaseConnectionPassword != null && databaseConnectionPassword.length() > 0) {
