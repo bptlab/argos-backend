@@ -39,16 +39,26 @@ after every commit, sends a sonarLint diagnose to the Sonarqube server at the ch
 
 
 ## Deployment Process
-Let's take it step by step.
-1. First of all, deploy a database container (i.e. mysql).
+### Deploy a database.
 ```
-docker run --name argos-database -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -d mysql:latest
+docker run --name argos-database -e MYSQL_ROOT_PASSWORD=[secret] -e MYSQL_USER=[user] -e MYSQL_PASSWORD=[password] -d mysql:latest
 ```
-2. Now that you've got yourself a database, deploy Unicorn as an event processing system.
+e.g.
+```
+docker run --name argos-database -e MYSQL_ROOT_PASSWORD=secret -e MYSQL_USER=user -e MYSQL_PASSWORD=password -d mysql:latest
+```
+
+Then grant new user root privileges: 
+1. Execute ```mysql -u root -p``` in container. Enter your root password.
+1. Execute ```GRANT ALL PRIVILEGES ON *.* TO user@localhost WITH GRANT OPTION;```
+
+
+### Deploy Unicorn.
 ```
 docker run --name unicorn -p 8080:8080 --link argos-database:mysql -d bptlab/unicorn:latest
 ```
-3. When Unicorn is started, deploy Argos. Windows only: please share the drive in your docker settings, that your event types directory is located on.
+### Deploy Argos. 
+Windows only: please share the drive in your docker settings, that your event types directory is located on.
 ```
 docker run --name argos -p 8989:8989 --link argos-database:mysql --link unicorn:unicorn -d -v [PATH TO DIR WITH EVENT TYPES WITH TRAILING SLASH]:/target/classes/event_types bptlab/argos:latest
 ```
