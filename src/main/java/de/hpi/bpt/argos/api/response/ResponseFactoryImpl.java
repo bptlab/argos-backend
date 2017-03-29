@@ -643,9 +643,9 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			jsonEventType.add("attributes", jsonEventAttributes);
 
 			return jsonEventType;
-		} catch (Exception exception) {
+		} catch (Exception e) {
 			logger.error("cannot parse event type");
-			logTrace(exception);
+			logTrace(e);
 			return new JsonObject();
 		}
 	}
