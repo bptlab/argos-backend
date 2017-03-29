@@ -13,6 +13,7 @@ import de.hpi.bpt.argos.persistence.model.product.error.ErrorTypeImpl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -20,6 +21,7 @@ import java.util.List;
  */
 public class BackboneDataParserImpl extends XMLFileParserImpl {
 	// these variables are in the order of the XML file, the order is important!
+	protected static final String PRODUCTS_ELEMENT = "products";
 	protected static final String PRODUCT_ELEMENT = "product";
 	protected static final String PRODUCT_IDENTIFIER_ELEMENT = "productIdentifier";
 	protected static final String PRODUCT_DESCRIPTION_ELEMENT = "productDescription";
@@ -48,12 +50,21 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	protected ErrorType currentErrorType = null;
 	protected ProductConfiguration currentProductConfiguration = null;
 
+	// statistics
+	protected String fileName;
+	protected Date importStartTime;
+	protected long productsImported = 0;
+	protected long productConfigurationsImported = 0;
+	protected long errorTypesImported = 0;
+	protected long errorCausesImported = 0;
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void parse(File dataFile) {
-		super.parse(dataFile);
+		fileName = dataFile.getName();
+		importStartTime = new Date();
 
 		List<ProductFamily> families = entityManager.getProductFamilies();
 		cachedExternalProductIdentifiers.clear();
@@ -63,6 +74,8 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 				cachedExternalProductIdentifiers.add(product.getOrderNumber());
 			}
 		}
+
+		super.parse(dataFile);
 	}
 
 	/**
@@ -79,6 +92,14 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 
 			case PRODUCT_CONFIGURATION_ELEMENT:
 				currentProductConfiguration = null;
+				break;
+
+			case PRODUCTS_ELEMENT:
+				logStatistics();
+				break;
+
+			default:
+				// empty, since nothing to do
 				break;
 		}
 
@@ -160,6 +181,7 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 
 		currentProduct = entityManager.getProduct(tempCurrentProductFamilyId, externalProductId);
 		currentProduct.setName(tempCurrentProductName);
+		productsImported++;
 	}
 
 	/**
@@ -180,7 +202,7 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 		productName.append(split[1]);
 
 		// add separator to product name, if more than two split parts exist
-		for (int i = 2; i < split.length; i++) {
+		for (int i = PRODUCT_FAMILY_SPLIT_LENGTH; i < split.length; i++) {
 			productName.append(PRODUCT_FAMILY_SEPARATOR);
 			productName.append(split[i]);
 		}
@@ -229,6 +251,7 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 		currentProductConfiguration.setCodingPlugId(codingPlugId);
 		currentProductConfiguration.addCodingPlugSoftwareVersion(version);
 		currentProduct.addProductConfiguration(currentProductConfiguration);
+		productConfigurationsImported++;
 	}
 
 	/**
@@ -263,6 +286,7 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 		}
 
 		currentProductConfiguration.addErrorType(currentErrorType);
+		errorTypesImported++;
 	}
 
 	/**
@@ -294,6 +318,8 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 		cause.setDescription(tempCurrentCauseDescription);
 		cause.setErrorPrediction(prediction);
 		currentErrorType.addErrorCause(cause);
+
+		errorCausesImported++;
 	}
 
 	/**
@@ -305,7 +331,8 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 			return;
 		}
 
-		logger.info(String.format("added product '%1$s' in family '%2$s'", currentProduct.getName(), currentProduct.getProductFamily().getName()));
+		logger.info(String.format("added product '%1$s' with '%2$d' configurations in family '%3$s'", currentProduct.getName(), currentProduct
+				.getProductConfigurations().size(), currentProduct.getProductFamily().getName()));
 		entityManager.updateEntity(currentProduct, ProductEndpoint.getProductUri(currentProduct.getId()));
 
 		resetCurrentEntities();
@@ -354,4 +381,51 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	private void logTrace(Exception e) {
         logger.trace("Reason: ", e);
     }
+  
+	/**
+	 * This method logs the statistics about the imported entities.
+	 */
+	protected void logStatistics() {
+		logger.info(String.format("finished importing data from '%1$s' in '%2$s'. "
+				+ "imported %3$d products, "
+				+ "%4$d productConfigurations, "
+				+ "%5$d errorTypes and "
+				+ "%6$d errorCauses.",
+				fileName,
+				getTimeSinceStart(),
+				productsImported,
+				productConfigurationsImported,
+				errorTypesImported,
+				errorCausesImported));
+	}
+
+	/**
+	 * This method calculates the passed time since the import process started and returns it as a string.
+	 * @return - the passed time since start of the import process as string
+	 */
+	protected String getTimeSinceStart() {
+
+		long passedTimeInSeconds = ((new Date()).getTime() - importStartTime.getTime()) / 1000;
+		long passedTime[] = new long[] { 0, 0, 0, 0 };
+
+		// sec
+		passedTime[3] = passedTimeInSeconds >= 60 ? passedTimeInSeconds % 60 : passedTimeInSeconds;
+		// min
+		passedTime[2] = (passedTimeInSeconds = passedTimeInSeconds / 60) >= 60 ? passedTimeInSeconds % 60 : passedTimeInSeconds;
+		// hour
+		passedTime[1] = (passedTimeInSeconds = passedTimeInSeconds / 60) >= 24 ? passedTimeInSeconds % 24 : passedTimeInSeconds;
+		// day
+		passedTime[0] = passedTimeInSeconds / 24;
+
+		return String.format(
+				"%d day%s, %d hour%s, %d minute%s, %d second%s",
+				passedTime[0],
+				passedTime[0] > 1 ? "s" : "",
+				passedTime[1],
+				passedTime[1] > 1 ? "s" : "",
+				passedTime[2],
+				passedTime[2] > 1 ? "s" : "",
+				passedTime[3],
+				passedTime[3] > 1 ? "s" : "");
+	}
 }

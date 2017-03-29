@@ -12,6 +12,8 @@ import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductConfiguration;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import de.hpi.bpt.argos.persistence.model.product.ProductState;
+import de.hpi.bpt.argos.persistence.model.product.error.ErrorCause;
+import de.hpi.bpt.argos.persistence.model.product.error.ErrorType;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -19,12 +21,15 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class EventReceiverTest extends EventPlatformEndpointParentClass {
 
 	protected static ProductConfiguration testProductConfiguration;
 	protected static Product testProduct;
 	protected static EventType testEventType;
+	protected static ErrorType testErrorType;
+	protected static ErrorCause testErrorCause;
 
 	@BeforeClass
 	public static void initialize() {
@@ -32,10 +37,16 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 		testProduct = ArgosTestUtil.createProduct(productFamily);
 		testProductConfiguration = ArgosTestUtil.createProductConfiguration(testProduct);
 		testEventType = ArgosTestUtil.createEventType();
+		testErrorType = ArgosTestUtil.createErrorType(testProductConfiguration);
+		testErrorCause = ArgosTestUtil.createErrorCause(testErrorType);
 	}
 
 	@Test
 	public void testReceiveEvent() {
+		List<Event> databaseEvents = ArgosTestParent.argos.getPersistenceEntityManager()
+				.getEventsForProduct(testProduct.getId(), testEventType.getId(), 0,999);
+		long currentNumberOfEvents = databaseEvents.size();
+
 		float codingPlugSoftwareVersion = 1.0f;
 		testProductConfiguration.addCodingPlugSoftwareVersion(codingPlugSoftwareVersion);
 		ArgosTestParent.argos.getPersistenceEntityManager().updateEntity(testProductConfiguration);
@@ -51,6 +62,8 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 		jsonEvent.addProperty("productFamilyId", testProduct.getProductFamily().getName());
 		jsonEvent.addProperty("codingPlugId", testProductConfiguration.getCodingPlugId());
 		jsonEvent.addProperty("codingPlugSoftwareVersion", codingPlugSoftwareVersion);
+		jsonEvent.addProperty("causeId", testErrorType.getCauseCode());
+		jsonEvent.addProperty("errorDescription", testErrorCause.getDescription());
 
 		request.setContent(serializer.toJson(jsonEvent));
 		assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
@@ -59,10 +72,57 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 
 		assertEquals(1, updatedProduct.getProductConfigurations().size());
 
+		assertEquals(1, updatedProduct.getProductConfiguration(testProductConfiguration.getCodingPlugId(), codingPlugSoftwareVersion)
+				.getErrorType(testErrorType.getCauseCode()).
+						getErrorCause(testErrorCause.getDescription()).
+						getErrorOccurrences());
+
+		databaseEvents = ArgosTestParent.argos.getPersistenceEntityManager()
+				.getEventsForProduct(testProduct.getId(), testEventType.getId(), 0,999);
+		assertEquals(currentNumberOfEvents + 1, databaseEvents.size());
+	}
+
+	@Test
+	public void testReceiveEvent_NoCause_Success() {
 		List<Event> databaseEvents = ArgosTestParent.argos.getPersistenceEntityManager()
 				.getEventsForProduct(testProduct.getId(), testEventType.getId(), 0,999);
+		long currentNumberOfEvents = databaseEvents.size();
 
-		assertEquals(1, databaseEvents.size());
+		float codingPlugSoftwareVersion = 1.0f;
+		testProductConfiguration.addCodingPlugSoftwareVersion(codingPlugSoftwareVersion);
+		ArgosTestParent.argos.getPersistenceEntityManager().updateEntity(testProductConfiguration);
+
+		request = requestFactory.createPostRequest(TEST_HOST,
+				getReceiveEventUri(testEventType.getId()),
+				TEST_CONTENT_TYPE,
+				TEST_ACCEPT_TYPE_PLAIN);
+
+		JsonObject jsonEvent = new JsonObject();
+		jsonEvent.addProperty(testEventType.getTimestampAttribute().getName(), (new Date()).toString());
+		jsonEvent.addProperty("productId", testProduct.getOrderNumber());
+		jsonEvent.addProperty("productFamilyId", testProduct.getProductFamily().getName());
+		jsonEvent.addProperty("codingPlugId", testProductConfiguration.getCodingPlugId());
+		jsonEvent.addProperty("codingPlugSoftwareVersion", codingPlugSoftwareVersion);
+		// do not add causeId and errorDescription, so we can not put this event to any specific error cause
+//		jsonEvent.addProperty("causeId", testErrorType.getCauseCode());
+//		jsonEvent.addProperty("errorDescription", testErrorCause.getDescription());
+
+		request.setContent(serializer.toJson(jsonEvent));
+		assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
+
+		Product updatedProduct = ArgosTestParent.argos.getPersistenceEntityManager().getProduct(testProduct.getId());
+
+		assertEquals(1, updatedProduct.getProductConfigurations().size());
+
+		assertEquals(0, updatedProduct.getProductConfiguration(testProductConfiguration.getCodingPlugId(), codingPlugSoftwareVersion)
+				.getErrorType(testErrorType.getCauseCode()).
+						getErrorCause(testErrorCause.getDescription()).
+						getErrorOccurrences());
+
+		databaseEvents = ArgosTestParent.argos.getPersistenceEntityManager()
+				.getEventsForProduct(testProduct.getId(), testEventType.getId(), 0,999);
+
+		assertEquals(currentNumberOfEvents + 1, databaseEvents.size());
 	}
 
 	@Test
@@ -90,6 +150,7 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 			}
 
 			assertEquals(1, configuration.getNumberOfEvents());
+			assertEquals(0, configuration.getErrorTypes().size());
 		}
 	}
 
@@ -111,7 +172,7 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 		assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
 
 		Product product = ArgosTestParent.argos.getPersistenceEntityManager().getProductByExternalId(orderNumber);
-		assertEquals(true, product != null);
+		assertNotNull(product);
 
 		assertEquals(1, product.getProductConfigurations().size());
 
@@ -142,7 +203,7 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 		assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
 
 		Product product = ArgosTestParent.argos.getPersistenceEntityManager().getProductByExternalId(orderNumber);
-		assertEquals(true, product != null);
+		assertNotNull(product);
 
 		assertEquals(1, product.getProductConfigurations().size());
 
@@ -150,7 +211,7 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 		assertEquals(2, productFamilies.size());
 
 		ProductFamily productFamily = ArgosTestParent.argos.getPersistenceEntityManager().getProductFamily(productFamilyId);
-		assertEquals(true, productFamily != null);
+		assertNotNull(productFamily);
 	}
 
 	@Test
