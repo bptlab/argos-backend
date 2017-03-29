@@ -76,7 +76,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 
 		logRestRequestInfo("register event type: ", createEventTypeRequest);
 
-		return registerEventQuery(eventType);
+		return createEventTypeRequest.isSuccessful() && registerEventQuery(eventType);
 	}
 
 	/**

@@ -7,6 +7,6 @@
 		"codingPlugId":"INTEGER",
 		"codingPlugSoftwareVersion":"FLOAT",
 		"causeId":"INTEGER",
-		"errorDescription":"STRING"
+		"causeDescription":"STRING"
 	}
 }

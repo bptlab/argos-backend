@@ -149,11 +149,11 @@ public interface EventType extends PersistenceEntity {
 	}
 
 	/**
-	 * This method returns the name of the errorDescription attribute.
-	 * @return - the name of the errorDescription attribute
+	 * This method returns the name of the errorCauseDescription attribute.
+	 * @return - the name of the errorCauseDescription attribute
 	 */
-	static String getErrorDescriptionAttributeName() {
-		return "errorDescription";
+	static String getErrorCauseDescriptionAttributeName() {
+		return "causeDescription";
 	}
 
 	/**

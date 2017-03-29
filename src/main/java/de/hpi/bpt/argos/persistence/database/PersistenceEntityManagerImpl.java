@@ -591,7 +591,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 */
 	protected String getErrorDescription(List<EventData> eventData) {
 		for (EventData data : eventData) {
-			if (data.getEventAttribute().getName().equalsIgnoreCase(EventType.getErrorDescriptionAttributeName())) {
+			if (data.getEventAttribute().getName().equalsIgnoreCase(EventType.getErrorCauseDescriptionAttributeName())) {
 				return data.getValue();
 			}
 		}
