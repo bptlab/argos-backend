@@ -80,6 +80,10 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 			case PRODUCT_CONFIGURATION_ELEMENT:
 				currentProductConfiguration = null;
 				break;
+
+			default:
+				// empty, since nothing to do
+				break;
 		}
 
 		if (elementName.equals(PRODUCT_ELEMENT)) {
@@ -179,7 +183,7 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 		productName.append(split[1]);
 
 		// add separator to product name, if more than two split parts exist
-		for (int i = 2; i < split.length; i++) {
+		for (int i = PRODUCT_FAMILY_SPLIT_LENGTH; i < split.length; i++) {
 			productName.append(PRODUCT_FAMILY_SEPARATOR);
 			productName.append(split[i]);
 		}
