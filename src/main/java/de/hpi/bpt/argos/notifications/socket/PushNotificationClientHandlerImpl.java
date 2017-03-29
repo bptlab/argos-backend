@@ -66,8 +66,8 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 				sendNotificationToClient(client, it, notification);
 			}
 
-		} catch (Exception exception) {
-			logErrorWhileTryingToAcquireClientsLock(exception);
+		} catch (Exception e) {
+			logErrorWhileTryingToAcquireClientsLock(e);
 
 		} finally {
 			clientsLock.unlock();
@@ -93,9 +93,9 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 
 			client.getRemote().sendString(notification);
 
-		} catch (Exception exception) {
+		} catch (Exception e) {
 			logger.error("Cannot send notification to client");
-            logger.trace("Reason: ", exception);
+            logger.trace("Reason: ", e);
 			client.close();
 			it.remove();
 		}
@@ -115,8 +115,8 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 					client.getRemoteAddress().getHostString(), clients
 					.size()));
 
-		} catch (Exception exception) {
-			logErrorWhileTryingToAcquireClientsLock(exception);
+		} catch (Exception e) {
+			logErrorWhileTryingToAcquireClientsLock(e);
 
 		} finally {
 			clientsLock.unlock();
@@ -140,8 +140,8 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 					reason,
 					clients.size()));
 
-		} catch (Exception exception) {
-			logErrorWhileTryingToAcquireClientsLock(exception);
+		} catch (Exception e) {
+			logErrorWhileTryingToAcquireClientsLock(e);
 
 		} finally {
 			clientsLock.unlock();

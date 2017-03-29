@@ -498,9 +498,9 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			jsonProduct.add("configurations", configurations);
 
 			return jsonProduct;
-		} catch (Exception exception) {
+		} catch (Exception e) {
 			logger.error("Cannot parse product base");
-			logTrace(exception);
+			logTrace(e);
 			return new JsonObject();
 		}
 	}
@@ -618,9 +618,9 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			}
 
 			return jsonEventType;
-		} catch (Exception exception) {
+		} catch (Exception e) {
 			logger.error("Cannot parse event type base");
-			logTrace(exception);
+			logTrace(e);
 			return new JsonObject();
 		}
 	}
@@ -663,9 +663,9 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			jsonEventAttribute.addProperty("type", eventAttribute.getType().toString());
 
 			return jsonEventAttribute;
-		} catch (Exception exception) {
+		} catch (Exception e) {
 			logger.error("Cannot parse event attribute");
-			logTrace(exception);
+			logTrace(e);
 			return new JsonObject();
 		}
 	}
@@ -686,13 +686,17 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			}
 
 			return jsonEvent;
-		} catch (Exception exception) {
+		} catch (Exception e) {
 			logger.error("Cannot parse event");
-			logTrace(exception);
+			logTrace(e);
 			return new JsonObject();
 		}
 	}
 
+	/**
+	 * Logs an exception on log level trace.
+	 * @param e - exception to be logged.
+	 */
 	private void logTrace(Exception e) {
 		logger.trace("Reason: ", e);
 	}
