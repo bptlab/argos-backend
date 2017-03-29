@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.productConfiguration.ProductConfigurationEndPoint;
+import de.hpi.bpt.argos.eventHandling.EventPlatformFeedback;
 import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpoint;
 import de.hpi.bpt.argos.eventHandling.EventReceiver;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
@@ -269,8 +270,10 @@ public class ResponseFactoryImpl implements ResponseFactory {
 
 				eventType.getEventQuery().setQueryString(eventQuery);
 
-				if (!eventPlatformRestEndpoint.getEventSubscriber().registerEventQuery(eventType)) {
-					halt(ResponseFactory.HTTP_ERROR_CODE, "cannot register event type");
+				EventPlatformFeedback feedback = eventPlatformRestEndpoint.getEventSubscriber().registerEventQuery(eventType);
+
+				if (!feedback.isSuccessful()) {
+					halt(ResponseFactory.HTTP_ERROR_CODE, String.format("cannot register event type: %1$s", feedback.getResponseText()));
 				}
 
 				entityManager.updateEntity(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
@@ -310,8 +313,11 @@ public class ResponseFactoryImpl implements ResponseFactory {
 					halt(ResponseFactory.HTTP_FORBIDDEN_CODE, "you must not edit this event type");
 				}
 
-				if (!eventPlatformRestEndpoint.getEventSubscriber().updateEventQuery(eventType, eventQuery)) {
-					halt(ResponseFactory.HTTP_ERROR_CODE, "event platform did not accept the updated event query");
+				EventPlatformFeedback feedback = eventPlatformRestEndpoint.getEventSubscriber().updateEventQuery(eventType, eventQuery);
+
+				if (!feedback.isSuccessful()) {
+					halt(ResponseFactory.HTTP_ERROR_CODE,
+							String.format("event platform did not accept the updated event query: %1$s", feedback.getResponseText()));
 				}
 
 				entityManager.updateEntity(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
@@ -351,11 +357,14 @@ public class ResponseFactoryImpl implements ResponseFactory {
 					halt(ResponseFactory.HTTP_ERROR_CODE, "new state is not supported by this product");
 				}
 
-				if (!eventPlatformRestEndpoint.getEventSubscriber().updateEventQuery(
+				EventPlatformFeedback feedback = eventPlatformRestEndpoint.getEventSubscriber().updateEventQuery(
 						configuration.getStatusUpdateQuery(newState),
 						eventQuery,
-						EventReceiver.getReceiveStatusUpdateEventUri(configuration.getId(), newState))) {
-					halt(ResponseFactory.HTTP_ERROR_CODE, "event platform did not accept the updated status query");
+						EventReceiver.getReceiveStatusUpdateEventUri(configuration.getId(), newState));
+
+				if (!feedback.isSuccessful()) {
+					halt(ResponseFactory.HTTP_ERROR_CODE,
+							String.format("event platform did not accept the updated status query: %1$s", feedback.getResponseText()));
 				}
 
 				entityManager.updateEntity(configuration, ProductConfigurationEndPoint.getProductConfigurationUri(productConfigurationId));
