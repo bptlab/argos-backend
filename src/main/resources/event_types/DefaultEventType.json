@@ -5,6 +5,8 @@
 		"productFamilyId":"STRING",
 		"productId":"LONG",
 		"codingPlugId":"INTEGER",
-		"codingPlugSoftwareVersion":"FLOAT"
+		"codingPlugSoftwareVersion":"FLOAT",
+		"causeId":"INTEGER",
+		"errorDescription":"STRING"
 	}
 }
