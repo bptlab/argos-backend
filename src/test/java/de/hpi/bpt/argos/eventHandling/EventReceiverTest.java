@@ -43,6 +43,10 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 
 	@Test
 	public void testReceiveEvent() {
+		List<Event> databaseEvents = ArgosTestParent.argos.getPersistenceEntityManager()
+				.getEventsForProduct(testProduct.getId(), testEventType.getId(), 0,999);
+		long currentNumberOfEvents = databaseEvents.size();
+
 		float codingPlugSoftwareVersion = 1.0f;
 		testProductConfiguration.addCodingPlugSoftwareVersion(codingPlugSoftwareVersion);
 		ArgosTestParent.argos.getPersistenceEntityManager().updateEntity(testProductConfiguration);
@@ -73,14 +77,17 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 						getErrorCause(testErrorCause.getDescription()).
 						getErrorOccurrences());
 
-		List<Event> databaseEvents = ArgosTestParent.argos.getPersistenceEntityManager()
+		databaseEvents = ArgosTestParent.argos.getPersistenceEntityManager()
 				.getEventsForProduct(testProduct.getId(), testEventType.getId(), 0,999);
-
-		assertEquals(1, databaseEvents.size());
+		assertEquals(currentNumberOfEvents + 1, databaseEvents.size());
 	}
 
 	@Test
 	public void testReceiveEvent_NoCause_Success() {
+		List<Event> databaseEvents = ArgosTestParent.argos.getPersistenceEntityManager()
+				.getEventsForProduct(testProduct.getId(), testEventType.getId(), 0,999);
+		long currentNumberOfEvents = databaseEvents.size();
+
 		float codingPlugSoftwareVersion = 1.0f;
 		testProductConfiguration.addCodingPlugSoftwareVersion(codingPlugSoftwareVersion);
 		ArgosTestParent.argos.getPersistenceEntityManager().updateEntity(testProductConfiguration);
@@ -112,10 +119,10 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 						getErrorCause(testErrorCause.getDescription()).
 						getErrorOccurrences());
 
-		List<Event> databaseEvents = ArgosTestParent.argos.getPersistenceEntityManager()
+		databaseEvents = ArgosTestParent.argos.getPersistenceEntityManager()
 				.getEventsForProduct(testProduct.getId(), testEventType.getId(), 0,999);
 
-		assertEquals(1, databaseEvents.size());
+		assertEquals(currentNumberOfEvents + 1, databaseEvents.size());
 	}
 
 	@Test
