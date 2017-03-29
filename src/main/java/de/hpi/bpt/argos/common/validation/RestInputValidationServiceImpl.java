@@ -26,7 +26,8 @@ public class RestInputValidationServiceImpl implements RestInputValidationServic
 				throw new InputValidationException(inputValue, "Integer");
 			}
 		} catch (InputValidationException e) {
-			logger.error(e.getMessage(), e);
+			logger.error(e.getMessage());
+			logger.trace("Reason: ", e);
 			halt(ResponseFactory.HTTP_ERROR_CODE, e.getMessage());
 		} catch (NumberFormatException e) {
 			logger.error(e.getMessage());
@@ -45,7 +46,8 @@ public class RestInputValidationServiceImpl implements RestInputValidationServic
 				throw new InputValidationException(inputValue, "Long");
 			}
 		} catch (InputValidationException e) {
-			logger.error(e.getMessage(), e);
+			logger.error(e.getMessage());
+            logger.trace("Reason: ", e);
 			halt(ResponseFactory.HTTP_ERROR_CODE, e.getMessage());
 		} catch (NumberFormatException e) {
 			logger.error(e.getMessage());
@@ -68,7 +70,8 @@ public class RestInputValidationServiceImpl implements RestInputValidationServic
 			throw new InputValidationException(inputValue, "Enum<" + clazz.getName() + ">");
 
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.error(e.getMessage());
+            logger.trace("Reason: ", e);
 			halt(ResponseFactory.HTTP_ERROR_CODE, e.getMessage());
 		}
 

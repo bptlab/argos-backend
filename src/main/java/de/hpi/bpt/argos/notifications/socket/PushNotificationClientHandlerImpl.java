@@ -66,8 +66,8 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 				sendNotificationToClient(client, it, notification);
 			}
 
-		} catch (Exception exception) {
-			logErrorWhileTryingToAcquireClientsLock(exception);
+		} catch (Exception e) {
+			logErrorWhileTryingToAcquireClientsLock(e);
 
 		} finally {
 			clientsLock.unlock();
@@ -93,8 +93,9 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 
 			client.getRemote().sendString(notification);
 
-		} catch (Exception exception) {
-			logger.error("Cannot send notification to client", exception);
+		} catch (Exception e) {
+			logger.error("Cannot send notification to client");
+            logger.trace("Reason: ", e);
 			client.close();
 			it.remove();
 		}
@@ -114,8 +115,8 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 					client.getRemoteAddress().getHostString(), clients
 					.size()));
 
-		} catch (Exception exception) {
-			logErrorWhileTryingToAcquireClientsLock(exception);
+		} catch (Exception e) {
+			logErrorWhileTryingToAcquireClientsLock(e);
 
 		} finally {
 			clientsLock.unlock();
@@ -139,8 +140,8 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 					reason,
 					clients.size()));
 
-		} catch (Exception exception) {
-			logErrorWhileTryingToAcquireClientsLock(exception);
+		} catch (Exception e) {
+			logErrorWhileTryingToAcquireClientsLock(e);
 
 		} finally {
 			clientsLock.unlock();
@@ -162,6 +163,7 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 	 * @param exception - the thrown exception
 	 */
 	protected void logErrorWhileTryingToAcquireClientsLock(Throwable exception) {
-		logger.error("can't acquire client list lock", exception);
+		logger.error("can't acquire client list lock");
+        logger.trace("Reason: ", exception);
 	}
 }

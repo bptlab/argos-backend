@@ -167,7 +167,8 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 		try {
 			externalProductId = Long.parseLong(tempCurrentProductExternalId);
 		} catch (Exception e) {
-			logger.debug(String.format("can not parse product identifier '%1$s'", tempCurrentProductExternalId), e);
+			logger.debug(String.format("can not parse product identifier '%1$s'", tempCurrentProductExternalId));
+			logTrace(e);
 			resetCurrentEntities();
 			return;
 		}
@@ -223,14 +224,16 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 		try {
 			version = Float.parseFloat(codingPlugSoftwareVersion);
 		} catch (Exception e) {
-			logger.debug(String.format("can not parse coding plug software version '%1$s'", codingPlugSoftwareVersion), e);
+			logger.debug(String.format("can not parse coding plug software version '%1$s'", codingPlugSoftwareVersion));
+			logTrace(e);
 			return;
 		}
 
 		try {
 			codingPlugId = Integer.parseInt(tempCurrentCodingPlug);
 		} catch (Exception e) {
-			logger.debug(String.format("can not parse coding plug id '%1$s'", tempCurrentCodingPlug), e);
+			logger.debug(String.format("can not parse coding plug id '%1$s'", tempCurrentCodingPlug));
+			logTrace(e);
 			return;
 		}
 
@@ -266,7 +269,8 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 		try {
 			causeCode = Integer.parseInt(tempCurrentCauseCode);
 		} catch (Exception e) {
-			logger.debug(String.format("can not parse cause code '%1$s'", tempCurrentCauseCode), e);
+			logger.debug(String.format("can not parse cause code '%1$s'", tempCurrentCauseCode));
+			logTrace(e);
 			currentErrorType = null;
 			return;
 		}
@@ -305,7 +309,8 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 				prediction *= TO_PERCENT;
 			}
 		} catch (Exception e) {
-			logger.debug(String.format("can not parse cause prediction '%1$s'", causePrediction), e);
+			logger.debug(String.format("can not parse cause prediction '%1$s'", causePrediction));
+			logTrace(e);
 			return;
 		}
 
@@ -369,6 +374,14 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 		return false;
 	}
 
+    /**
+     * Logs an exception on log level trace.
+     * @param e - exception to log
+     */
+	private void logTrace(Exception e) {
+        logger.trace("Reason: ", e);
+    }
+  
 	/**
 	 * This method logs the statistics about the imported entities.
 	 */

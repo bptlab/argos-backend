@@ -21,4 +21,4 @@ RUN mv /argos-backend/target /target && \
 
 EXPOSE 8989
 
-CMD ["sh", "-c", "java -DargosBackendHost=\"http://`hostname -i`\" -DdatabaseConnectionHost=\"${MYSQL_PORT_3306_TCP_ADDR}:${MYSQL_PORT_3306_TCP_PORT}\" -DdatabaseConnectionUsername=\"${MYSQL_ENV_MYSQL_USER}\" -DdatabaseConnectionPassword=\"${MYSQL_ENV_MYSQL_PASSWORD}\" -DeventPlatformHost=\"http://${UNICORN_PORT_8080_TCP_ADDR}:${UNICORN_PORT_8080_TCP_PORT}\" -jar /target/argos-backend.jar"]
+CMD ["sh", "-c", "java -Dorg.slf4j.simpleLogger.defaultLogLevel=error -DargosBackendHost=\"http://`hostname -i`\"-DdatabaseConnectionHost=\"${MYSQL_PORT_3306_TCP_ADDR}:${MYSQL_PORT_3306_TCP_PORT}\" -DdatabaseConnectionUsername=\"${MYSQL_ENV_MYSQL_USER}\" -DdatabaseConnectionPassword=\"${MYSQL_ENV_MYSQL_PASSWORD}\" -DeventPlatformHost=\"http://${UNICORN_PORT_8080_TCP_ADDR}:${UNICORN_PORT_8080_TCP_PORT}\" -jar /target/argos-backend.jar"]

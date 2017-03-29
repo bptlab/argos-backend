@@ -24,8 +24,25 @@ public final class Application {
 	public static void main(String[] args) {
 		Argos argos = new ArgosImpl();
 
-		// edit properties if needed
+		PropertyEditor propertyEditor = updateProperties();
+
+		if (isTestMode()) {
+			argos.setTestMode(true);
+			propertyEditor.setProperty(Argos.getArgosBackendTestModePropertyKey(), "true");
+		}
+
+		argos.run();
+	}
+
+	/**
+	 * Updates all properties given from the command line and returns a property editor.
+	 * @return - property editor
+	 */
+	private static PropertyEditor updateProperties() {
+
 		PropertyEditor propertyEditor = new PropertyEditorImpl();
+
+		// edit properties if needed
 		String argosHost = System.getProperty(Argos.getArgosBackendHostPropertyKey());
 		String eventPlatformHost = System.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
 		String databaseConnectionHost = System.getProperty(DatabaseConnection.getDatabaseConnectionHostPropertyKey());
@@ -34,36 +51,44 @@ public final class Application {
 		String databaseConnectionPassword = System.getProperty(
 				DatabaseConnection.getDatabaseConnectionPasswordPropertyKey());
 
-		String testMode = System.getProperty(Argos.getArgosBackendTestModePropertyKey());
-
-		// TODO: validate input in a more sophisticated way
-		if (argosHost != null && argosHost.length() > 0) {
+		if (isPropertySet(argosHost)) {
 			propertyEditor.setProperty(Argos.getArgosBackendHostPropertyKey(), argosHost);
 		}
 
-		if (eventPlatformHost != null && eventPlatformHost.length() > 0) {
+		if (isPropertySet(eventPlatformHost)) {
 			propertyEditor.setProperty(EventSubscriber.getEventPlatformHostPropertyKey(), eventPlatformHost);
 		}
-
-		if (databaseConnectionHost != null && databaseConnectionHost.length() > 0) {
+		if (isPropertySet(databaseConnectionHost)) {
 			propertyEditor.setProperty(DatabaseConnection.getDatabaseConnectionHostPropertyKey(), databaseConnectionHost);
 		}
 
-		if (databaseConnectionUser != null && databaseConnectionUser.length() > 0) {
+		if (isPropertySet(databaseConnectionUser)) {
 			propertyEditor.setProperty(DatabaseConnection.getDatabaseConnectionUsernamePropertyKey(),
 					databaseConnectionUser);
 		}
 
-		if (databaseConnectionPassword != null && databaseConnectionPassword.length() > 0) {
+		if (isPropertySet(databaseConnectionPassword)) {
 			propertyEditor.setProperty(DatabaseConnection.getDatabaseConnectionPasswordPropertyKey(),
 					databaseConnectionPassword);
 		}
+		return propertyEditor;
+	}
 
-		if (testMode != null && testMode.length() > 0) {
-			propertyEditor.setProperty(Argos.getArgosBackendTestModePropertyKey(), testMode);
-			argos.setTestMode(Boolean.parseBoolean(testMode));
-		}
+	/**
+	 * Checks if a property is set from a command line argument correctly.
+	 * @param property - the property to verify
+	 * @return - boolean if property is set
+	 */
+	private static boolean isPropertySet(String property) {
+		return property != null && property.length() > 0;
+	}
 
-		argos.run();
+	/**
+	 * Checks if the system is in test mode.
+	 * @return - boolean if the system is in test mode.
+	 */
+	private static boolean isTestMode() {
+		String testMode = System.getProperty(Argos.getArgosBackendTestModePropertyKey());
+		return ("true".equals(testMode) || "false".equals(testMode)) && Boolean.parseBoolean(testMode);
 	}
 }

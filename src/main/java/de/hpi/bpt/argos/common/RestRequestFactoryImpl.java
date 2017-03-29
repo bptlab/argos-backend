@@ -153,25 +153,18 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 
 			return true;
 		} catch (IOException e) {
-			logger.error("unable to reach host at '" + host.toString() + "'", e);
+			logger.error("unable to reach host at '" + host.toString() + "'");
+			logger.trace("Reason: ", e);
 			return false;
 		}
-	}
-
-	/**
-     * This method logs an exception on error level.
-     * @param head - string message to be logged
-     * @param exception - throwable exception to be logged
-     */
-	protected void logException(String head, Throwable exception) {
-		logger.error(head, exception.toString());
 	}
 
     /**
      * This method logs an exception while creating the request.
      * @param exception - throwable exception to be logged
      */
-	protected void logExceptionInRequestCreation(Throwable exception) {
-		logException("can't create RestRequest: ", exception);
+	private void logExceptionInRequestCreation(Throwable exception) {
+		logger.error("can't create RestRequest: ");
+		logger.trace(exception.toString());
 	}
 }

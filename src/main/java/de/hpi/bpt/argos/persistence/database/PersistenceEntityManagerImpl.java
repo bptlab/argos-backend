@@ -496,7 +496,8 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 				try {
 					return Long.parseLong(data.getValue());
 				} catch (Exception e) {
-					logger.error(String.format("can not cast '%1$s' to external product id (long)", data.getValue()), e);
+					logger.error(String.format("can not cast '%1$s' to external product id (long)", data.getValue()));
+					logTrace(e);
 					return -1;
 				}
 			}
@@ -531,7 +532,8 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 				try {
 					return Integer.parseInt(data.getValue());
 				} catch (Exception e) {
-					logger.error(String.format("can not cast '%1$s' to coding plug id (int)", data.getValue()), e);
+					logger.error(String.format("can not cast '%1$s' to coding plug id (int)", data.getValue()));
+					logTrace(e);
 					return -1;
 				}
 			}
@@ -551,7 +553,8 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 				try {
 					return Float.parseFloat(data.getValue());
 				} catch (Exception e) {
-					logger.error(String.format("can not cast '%1$s' to coding plug software version (float)", data.getValue()), e);
+					logger.error(String.format("can not cast '%1$s' to coding plug software version (float)", data.getValue()));
+					logTrace(e);
 					return -1.0f;
 				}
 			}
@@ -571,7 +574,8 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 				try {
 					return Integer.parseInt(data.getValue());
 				} catch (Exception e) {
-					logger.error(String.format("can not cast '%1$s' to cause id (int)", data.getValue()), e);
+					logger.error(String.format("can not cast '%1$s' to cause id (int)", data.getValue()));
+					logTrace(e);
 					return -1;
 				}
 			}
@@ -841,5 +845,13 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 */
 	protected boolean isValid(EventAttribute attribute) {
 		return attribute != null && attribute.getName().length() > 0;
+	}
+
+	/**
+	 * Logs an exception stack trace on log level trace.
+	 * @param e - exception to log
+	 */
+	private void logTrace(Exception e) {
+		logger.trace("Reason: ", e);
 	}
 }

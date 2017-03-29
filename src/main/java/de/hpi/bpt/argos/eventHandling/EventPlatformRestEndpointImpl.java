@@ -96,7 +96,8 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 			}
 
 		} catch (NullPointerException e) {
-			logger.error("cannot find directory for default event types or not defined in properties", e);
+			logger.error("cannot find directory for default event types or not defined in properties");
+            logger.trace("Reason: ", e);
 		}
 	}
 
@@ -136,7 +137,8 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 			entityManager.updateEntity(file);
 
 		} catch (Exception e) {
-			logger.error("cannot load default event type from '" + eventTypeFile.getName() + "'.", e);
+			logger.error("cannot load default event type from '" + eventTypeFile.getName() + "'.");
+            logger.trace("Reason: ", e);
 		}
 	}
 
@@ -173,7 +175,8 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 			}
 
 		} catch (Exception e) {
-			logger.error("cannot find directory for backbone data or not defined in properties", e);
+			logger.error("cannot find directory for backbone data or not defined in properties");
+            logger.trace("Reason: ", e);
 		}
 	}
 
@@ -198,7 +201,8 @@ public class EventPlatformRestEndpointImpl implements EventPlatformRestEndpoint 
 			entityManager.updateEntity(file);
 
 		} catch (Exception e) {
-			logger.error("cannot load backbone data from '" + backboneDataFile.getName() + "'.", e);
+			logger.error("cannot load backbone data from '" + backboneDataFile.getName() + "'.");
+            logger.trace("Reason: ", e);
 		}
 	}
 }

@@ -40,7 +40,8 @@ public class RestRequestImpl implements RestRequest {
 		try {
 			this.connection.setRequestMethod(method);
 		} catch (ProtocolException e) {
-			logger.error("cannot set request method to '" + method + "'", e);
+			logger.error("cannot set request method to '" + method + "'");
+			logTrace(e);
 		}
 	}
 
@@ -75,7 +76,8 @@ public class RestRequestImpl implements RestRequest {
 
 			content = requestContent;
 		} catch (IOException e) {
-			logger.error("Cannot set content of rest request", e);
+			logger.error("Cannot set content of rest request");
+			logTrace(e);
 		}
 	}
 
@@ -88,7 +90,8 @@ public class RestRequestImpl implements RestRequest {
 		try {
 			return connection.getResponseCode();
 		} catch (IOException e) {
-			logger.error("Cannot get response code of rest request", e);
+			logger.error("Cannot get response code of rest request");
+			logTrace(e);
 			return 0;
 		}
 	}
@@ -125,7 +128,8 @@ public class RestRequestImpl implements RestRequest {
 			responseReader.close();
 
 		} catch (IOException e) {
-			logger.error("Cannot read response of rest request", e);
+			logger.error("Cannot read response of rest request");
+			logTrace(e);
 			return RestRequest.getErrorResponse();
 		}
 
@@ -139,5 +143,13 @@ public class RestRequestImpl implements RestRequest {
 	@Override
 	public boolean isSuccessful() {
 		return getResponseCode() == ResponseFactory.HTTP_SUCCESS_CODE;
+	}
+
+	/**
+	 * Logs the stack trace of the exception on log level trace.
+	 * @param e - exception to log
+	 */
+	private void logTrace(Exception e) {
+		logger.trace("Reason: ", e);
 	}
 }

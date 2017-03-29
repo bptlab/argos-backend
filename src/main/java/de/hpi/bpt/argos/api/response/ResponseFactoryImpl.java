@@ -280,7 +280,8 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			logger.info(String.format("cannot create event type: %1$s -> %2$s", halt.statusCode(), halt.body()));
 			throw halt;
 		} catch (Exception e) {
-			logger.error("cannot parse request body to event type '" + requestBody + "'", e);
+			logger.error("cannot parse request body to event type '" + requestBody + "'");
+			logTrace(e);
 			halt(ResponseFactory.HTTP_ERROR_CODE, e.getMessage());
 		}
 	}
@@ -320,7 +321,8 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			logger.info(String.format("cannot update event query: %1$s -> %2$s", halt.statusCode(), halt.body()));
 			throw halt;
 		} catch (Exception e) {
-			logger.error("cannot parse request body to event query '" + requestBody + "'", e);
+			logger.error("cannot parse request body to event query '" + requestBody + "'");
+			logTrace(e);
 			halt(ResponseFactory.HTTP_ERROR_CODE, e.getMessage());
 		}
 	}
@@ -363,7 +365,8 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			logger.info(String.format("cannot update status event query: %1$s -> %2$s", halt.statusCode(), halt.body()));
 			throw halt;
 		} catch (Exception e) {
-			logger.error("cannot parse request body to status event query '" + requestBody + "'", e);
+			logger.error("cannot parse request body to status event query '" + requestBody + "'");
+            logTrace(e);
 			halt(ResponseFactory.HTTP_ERROR_CODE, e.getMessage());
 		}
 	}
@@ -495,8 +498,9 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			jsonProduct.add("configurations", configurations);
 
 			return jsonProduct;
-		} catch (Exception exception) {
-			logger.error("Cannot parse product base", exception);
+		} catch (Exception e) {
+			logger.error("Cannot parse product base");
+			logTrace(e);
 			return new JsonObject();
 		}
 	}
@@ -540,7 +544,8 @@ public class ResponseFactoryImpl implements ResponseFactory {
 
 			return jsonConfiguration;
 		} catch (Exception e) {
-			logger.error("Cannot parse product configuration base", e);
+			logger.error("Cannot parse product configuration base");
+			logTrace(e);
 			return new JsonObject();
 		}
 	}
@@ -567,7 +572,8 @@ public class ResponseFactoryImpl implements ResponseFactory {
 
 			return jsonErrorType;
 		} catch (Exception e) {
-			logger.error("Cannot parse error type base", e);
+			logger.error("Cannot parse error type base");
+			logTrace(e);
 			return new JsonObject();
 		}
 	}
@@ -587,7 +593,8 @@ public class ResponseFactoryImpl implements ResponseFactory {
 
 			return jsonErrorCause;
 		} catch (Exception e) {
-			logger.error("Cannot parse error cause base", e);
+			logger.error("Cannot parse error cause base");
+			logTrace(e);
 			return new JsonObject();
 		}
 	}
@@ -611,8 +618,9 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			}
 
 			return jsonEventType;
-		} catch (Exception exception) {
-			logger.error("Cannot parse event type base", exception);
+		} catch (Exception e) {
+			logger.error("Cannot parse event type base");
+			logTrace(e);
 			return new JsonObject();
 		}
 	}
@@ -635,8 +643,9 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			jsonEventType.add("attributes", jsonEventAttributes);
 
 			return jsonEventType;
-		} catch (Exception exception) {
-			logger.error("cannot parse event type", exception);
+		} catch (Exception e) {
+			logger.error("cannot parse event type");
+			logTrace(e);
 			return new JsonObject();
 		}
 	}
@@ -654,8 +663,9 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			jsonEventAttribute.addProperty("type", eventAttribute.getType().toString());
 
 			return jsonEventAttribute;
-		} catch (Exception exception) {
-			logger.error("Cannot parse event attribute", exception);
+		} catch (Exception e) {
+			logger.error("Cannot parse event attribute");
+			logTrace(e);
 			return new JsonObject();
 		}
 	}
@@ -676,9 +686,18 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			}
 
 			return jsonEvent;
-		} catch (Exception exception) {
-			logger.error("Cannot parse event", exception);
+		} catch (Exception e) {
+			logger.error("Cannot parse event");
+			logTrace(e);
 			return new JsonObject();
 		}
+	}
+
+	/**
+	 * Logs an exception on log level trace.
+	 * @param e - exception to be logged.
+	 */
+	private void logTrace(Exception e) {
+		logger.trace("Reason: ", e);
 	}
 }
