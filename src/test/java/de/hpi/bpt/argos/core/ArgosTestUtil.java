@@ -176,11 +176,11 @@ public class ArgosTestUtil {
 
 		newEventType.getAttributes().add(causeId);
 
-		EventAttribute errorDescription = new EventAttributeImpl();
-		errorDescription.setName("errorDescription");
-		errorDescription.setType(EventDataType.STRING);
+		EventAttribute causeDescription = new EventAttributeImpl();
+		causeDescription.setName("causeDescription");
+		causeDescription.setType(EventDataType.STRING);
 
-		newEventType.getAttributes().add(errorDescription);
+		newEventType.getAttributes().add(causeDescription);
 
 		argos.getPersistenceEntityManager().updateEntity(newEventType);
 

@@ -63,7 +63,7 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 		jsonEvent.addProperty("codingPlugId", testProductConfiguration.getCodingPlugId());
 		jsonEvent.addProperty("codingPlugSoftwareVersion", codingPlugSoftwareVersion);
 		jsonEvent.addProperty("causeId", testErrorType.getCauseCode());
-		jsonEvent.addProperty("errorDescription", testErrorCause.getDescription());
+		jsonEvent.addProperty("causeDescription", testErrorCause.getDescription());
 
 		request.setContent(serializer.toJson(jsonEvent));
 		assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
