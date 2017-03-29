@@ -63,7 +63,8 @@ public class ClientUpdateServiceImpl implements ClientUpdateService {
 				try {
 					updatePeriod = Duration.ofMillis(Long.parseLong(periodInMs));
 				} catch (Exception e) {
-					logger.error("cannot parse push notification update period", e);
+					logger.error("cannot parse push notification update period");
+					logger.trace("Reason: ", e);
 				}
 			}
 

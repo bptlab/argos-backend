@@ -59,7 +59,8 @@ public class PropertyEditorImpl implements PropertyEditor {
 			try {
 				properties.load(inputStream);
 			} catch (IOException e) {
-				logger.error("cannot read from property file", e);
+				logger.error("cannot read from property file");
+				logger.trace("Reason: ", e);
 			}
 		} else {
 			logger.error(String.format("cannot find property file '%1$s'.", PropertyEditor.getPropertyFile()));

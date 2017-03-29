@@ -47,7 +47,8 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 		try {
 			parser = parserFactory.newSAXParser();
 		} catch (Exception e) {
-			logger.error("can not setup XML file parser", e);
+			logger.error("can not setup XML file parser");
+			logger.trace("Reason: ", e);
 		}
 		this.entityManager = entityManager;
 	}
@@ -71,7 +72,8 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 
 			parser.parse(source, this);
 		} catch (Exception e) {
-			logger.error(String.format("can not parse file '%1$s'", dataFile.getName()), e);
+			logger.error(String.format("can not parse file '%1$s'", dataFile.getName()));
+			logger.trace("Reason: ", e);
 		}
 	}
 

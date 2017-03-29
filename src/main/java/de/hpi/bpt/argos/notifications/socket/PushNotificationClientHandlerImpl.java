@@ -94,7 +94,8 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 			client.getRemote().sendString(notification);
 
 		} catch (Exception exception) {
-			logger.error("Cannot send notification to client", exception);
+			logger.error("Cannot send notification to client");
+            logger.trace("Reason: ", exception);
 			client.close();
 			it.remove();
 		}
@@ -162,6 +163,7 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 	 * @param exception - the thrown exception
 	 */
 	protected void logErrorWhileTryingToAcquireClientsLock(Throwable exception) {
-		logger.error("can't acquire client list lock", exception);
+		logger.error("can't acquire client list lock");
+        logger.trace("Reason: ", exception);
 	}
 }

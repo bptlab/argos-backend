@@ -72,7 +72,8 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 			databaseSessionFactory = configuration.buildSessionFactory();
 
 		} catch (ServiceException e) {
-			logger.error("can't connect to the database server", e);
+			logger.error("Can't connect to the database server");
+			logger.trace("Reason: ", e);
 			return false;
 		}
 
@@ -328,7 +329,8 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 			if (tx != null) {
 				tx.rollback();
 			}
-			logger.error("can't save entities in database", exception);
+			logger.error("can't save entities in database");
+			logger.trace("Reason: ", exception);
 			return false;
 		} finally {
 			session.close();
@@ -355,7 +357,8 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 			if (tx != null) {
 				tx.rollback();
 			}
-			logger.error("can't delete entities in database", exception);
+			logger.error("can't delete entities in database");
+			logger.trace("Reason: ", exception);
 			return false;
 		} finally {
 			session.close();
@@ -423,7 +426,8 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 		if (query != null) {
 			queryString = query.getQueryString();
 		}
-		logger.error(String.format("can't retrieve entities from database: %1$s", queryString), exception);
+		logger.error(String.format("can't retrieve entities from database: %1$s", queryString));
+		logger.trace("Reason: ", exception);
 	}
 
 	/**
@@ -436,6 +440,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 		if (query != null) {
 			queryString = query.getQueryString();
 		}
-		logger.debug(String.format("no entities for query '%1$s' found", queryString), exception);
+		logger.debug(String.format("no entities for query '%1$s' found", queryString));
+		logger.trace("Reason: ", exception);
 	}
 }
