@@ -55,7 +55,7 @@ public class ProductConfigurationEndpointImpl extends RestEndpointImpl implement
 				request.params(ProductConfigurationEndPoint.getProductConfigurationIdParameter(false)),
 				(Long input) -> input > 0);
 
-		String json = responseFactory.getAllProductConfigurationEventTypes(productConfigurationId);
+		String json = responseFactory.getEventTypesForProductConfiguration(productConfigurationId);
 
 		logInfoForSendingResponse(request);
 		return json;

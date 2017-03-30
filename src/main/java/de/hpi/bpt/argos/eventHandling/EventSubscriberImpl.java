@@ -198,8 +198,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 	 */
 	protected void deleteEventQuery(EventType eventType) {
 
-		if (eventType.getEventQuery() == null
-				|| eventType.getEventQuery().getUuid().length() == 0) {
+		if (eventType.getEventQuery() == null || eventType.getEventQuery().getUuid().length() == 0) {
 			return;
 		}
 

@@ -50,7 +50,7 @@ public class ProductEndpointImpl extends RestEndpointImpl implements ProductEndp
 		long productId = inputValidation.validateLong(
 				request.params(ProductEndpoint.getProductIdParameter(false)),
 				(Long input) -> input > 0);
-		String json = responseFactory.getAllProductEventTypes(productId);
+		String json = responseFactory.getEventTypesForProduct(productId);
 
 		logInfoForSendingResponse(request);
 		return json;

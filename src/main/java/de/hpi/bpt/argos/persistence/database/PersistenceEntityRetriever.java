@@ -54,7 +54,7 @@ public interface PersistenceEntityRetriever {
 	 * @return - a map of event types that can occur for the product with the number of events that occurred for this
 	 * event type
 	 */
-	Map<EventType, Integer> getProductEventTypes(long productId);
+	Map<EventType, Integer> getEventTypesForProduct(long productId);
 
 	/**
 	 * This method makes the database call to retrieve the necessary data for the API that serves all event types for a certain product configuration.
@@ -62,7 +62,7 @@ public interface PersistenceEntityRetriever {
 	 * @return - a map of event types that can occur for the product configuration with the number of events that occurred for this
 	 * event type
 	 */
-	Map<EventType, Integer> getProductConfigurationEventTypes(long productConfigurationId);
+	Map<EventType, Integer> getEventTypesForProductConfiguration(long productConfigurationId);
 
 	/**
 	 * This method makes the database call to retrieve the necessary data for the API that serves events for a
@@ -94,7 +94,7 @@ public interface PersistenceEntityRetriever {
 	EventType getEventType(long eventTypeId);
 
 	/**
-	 * This methid makes the database call to retrieve the requested event type.
+	 * This method makes the database call to retrieve the requested event type.
 	 * @param eventTypeName - the name of the event type
 	 * @return - the requested event type or null
 	 */

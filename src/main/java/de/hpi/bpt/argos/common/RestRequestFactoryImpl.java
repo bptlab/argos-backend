@@ -164,7 +164,7 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
      * @param exception - throwable exception to be logged
      */
 	private void logExceptionInRequestCreation(Throwable exception) {
-		logger.error("can't create RestRequest: ");
+		logger.error("can't create RestRequest");
 		logger.trace(exception.toString());
 	}
 }

@@ -58,8 +58,7 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 	 */
 	@Override
 	public void parse(File dataFile) {
-		if (parser == null
-				|| entityManager == null) {
+		if (parser == null || entityManager == null) {
 			logger.error(String.format("can not parse XML file '%1$s', parser is not initialized", dataFile.getName()));
 			return;
 		}

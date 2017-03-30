@@ -50,6 +50,7 @@ public final class Application {
 				DatabaseConnection.getDatabaseConnectionUsernamePropertyKey());
 		String databaseConnectionPassword = System.getProperty(
 				DatabaseConnection.getDatabaseConnectionPasswordPropertyKey());
+		String loadBackboneDataFiles = System.getProperty(Argos.getArgosBackendLoadBackboneDataPropertyKey());
 
 		if (isPropertySet(argosHost)) {
 			propertyEditor.setProperty(Argos.getArgosBackendHostPropertyKey(), argosHost);
@@ -70,6 +71,10 @@ public final class Application {
 		if (isPropertySet(databaseConnectionPassword)) {
 			propertyEditor.setProperty(DatabaseConnection.getDatabaseConnectionPasswordPropertyKey(),
 					databaseConnectionPassword);
+		}
+
+		if (isPropertySet(loadBackboneDataFiles)) {
+			propertyEditor.setProperty(Argos.getArgosBackendLoadBackboneDataPropertyKey(), loadBackboneDataFiles);
 		}
 		return propertyEditor;
 	}

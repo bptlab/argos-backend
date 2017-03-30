@@ -379,7 +379,7 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
      * @param e - exception to log
      */
 	private void logTrace(Exception e) {
-        logger.trace("Reason: ", e);
+		logger.trace("Reason: ", e);
     }
   
 	/**

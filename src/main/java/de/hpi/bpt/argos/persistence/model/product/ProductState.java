@@ -11,12 +11,12 @@ public enum ProductState {
 
 	/**
 	 * This method checks whether another product state is worse than this state.
-	 * @param other - the other state to compare
+	 * @param otherState - the other state to compare
 	 * @return true, if this state is worse than the other
 	 */
-	boolean isWorse(ProductState other) {
+	boolean isWorse(ProductState otherState) {
 
-		switch (other) {
+		switch (otherState) {
 			case RUNNING:
 				return this == WARNING || this == ERROR;
 

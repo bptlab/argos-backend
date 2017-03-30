@@ -122,7 +122,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getAllProductEventTypes(long productId) {
+	public String getEventTypesForProduct(long productId) {
 
 		Product product = entityManager.getProduct(productId);
 
@@ -130,7 +130,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "cannot find product");
 		}
 
-		Map<EventType, Integer> eventTypes = entityManager.getProductEventTypes(productId);
+		Map<EventType, Integer> eventTypes = entityManager.getEventTypesForProduct(productId);
 
 		JsonArray jsonEventTypes = new JsonArray();
 
@@ -144,8 +144,11 @@ public class ResponseFactoryImpl implements ResponseFactory {
 		return serializer.toJson(jsonEventTypes);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public String getAllProductConfigurationEventTypes(long productConfigurationId) {
+	public String getEventTypesForProductConfiguration(long productConfigurationId) {
 
 		ProductConfiguration configuration = entityManager.getProductConfiguration(productConfigurationId);
 
@@ -153,7 +156,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "cannot find product configuration");
 		}
 
-		Map<EventType, Integer> eventTypes = entityManager.getProductConfigurationEventTypes(productConfigurationId);
+		Map<EventType, Integer> eventTypes = entityManager.getEventTypesForProductConfiguration(productConfigurationId);
 
 		JsonArray jsonEventTypes = new JsonArray();
 

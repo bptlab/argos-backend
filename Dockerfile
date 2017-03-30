@@ -1,6 +1,6 @@
 FROM maven:3
 
-ARG frontendBranch=dev
+ARG frontendBranch=master
 ARG backendBranch=master
 
 RUN curl -sL https://deb.nodesource.com/setup_7.x | bash - && \

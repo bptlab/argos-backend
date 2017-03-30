@@ -56,14 +56,14 @@ public interface ResponseFactory {
 	 * @param productId - the specific product identifier
 	 * @return - a json representation of all event types
 	 */
-	String getAllProductEventTypes(long productId);
+	String getEventTypesForProduct(long productId);
 
 	/**
 	 * This method returns a json representation of all event types for one specific product configuration id.
 	 * @param productConfigurationId - the specific product configuration identifier
 	 * @return - a json representation of all event types
 	 */
-	String getAllProductConfigurationEventTypes(long productConfigurationId);
+	String getEventTypesForProductConfiguration(long productConfigurationId);
 
 	/**
 	 * This method returns a json representation of the specified event type.

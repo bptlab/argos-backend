@@ -156,16 +156,16 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Map<EventType, Integer> getProductEventTypes(long productId) {
-		return databaseConnection.getProductEventTypes(productId);
+	public Map<EventType, Integer> getEventTypesForProduct(long productId) {
+		return databaseConnection.getEventTypesForProduct(productId);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Map<EventType, Integer> getProductConfigurationEventTypes(long productConfigurationId) {
-		return databaseConnection.getProductConfigurationEventTypes(productConfigurationId);
+	public Map<EventType, Integer> getEventTypesForProductConfiguration(long productConfigurationId) {
+		return databaseConnection.getEventTypesForProductConfiguration(productConfigurationId);
 	}
 
 	/**

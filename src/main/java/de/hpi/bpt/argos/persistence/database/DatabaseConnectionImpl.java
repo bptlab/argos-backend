@@ -142,7 +142,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Map<EventType, Integer> getProductEventTypes(long productId) {
+	public Map<EventType, Integer> getEventTypesForProduct(long productId) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction transaction = session.beginTransaction();
 		Query<Event> query = session.createQuery("FROM EventImpl e WHERE e.productConfiguration.product.id = :productId",
@@ -158,7 +158,7 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Map<EventType, Integer> getProductConfigurationEventTypes(long productConfigurationId) {
+	public Map<EventType, Integer> getEventTypesForProductConfiguration(long productConfigurationId) {
 		Session session = databaseSessionFactory.openSession();
 		Transaction transaction = session.beginTransaction();
 		Query<Event> query = session.createQuery("FROM EventImpl e WHERE e.productConfiguration.id = :configurationId",
