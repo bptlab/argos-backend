@@ -58,6 +58,11 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	protected long errorTypesImported = 0;
 	protected long errorCausesImported = 0;
 
+	// time conversion
+	protected static final int SECONDS_PER_MINUTE = 60;
+	protected static final int MINUTES_PER_HOUR = 60;
+	protected static final int HOURS_PER_DAY = 24;
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -381,7 +386,7 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	private void logTrace(Exception e) {
 		logger.trace("Reason: ", e);
     }
-  
+
 	/**
 	 * This method logs the statistics about the imported entities.
 	 */
@@ -406,26 +411,38 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	protected String getTimeSinceStart() {
 
 		long passedTimeInSeconds = ((new Date()).getTime() - importStartTime.getTime()) / 1000;
-		long passedTime[] = new long[] { 0, 0, 0, 0 };
+		long[] passedTime = new long[] { 0, 0, 0, 0 };
 
-		// sec
-		passedTime[3] = passedTimeInSeconds >= 60 ? passedTimeInSeconds % 60 : passedTimeInSeconds;
-		// min
-		passedTime[2] = (passedTimeInSeconds = passedTimeInSeconds / 60) >= 60 ? passedTimeInSeconds % 60 : passedTimeInSeconds;
-		// hour
-		passedTime[1] = (passedTimeInSeconds = passedTimeInSeconds / 60) >= 24 ? passedTimeInSeconds % 24 : passedTimeInSeconds;
-		// day
-		passedTime[0] = passedTimeInSeconds / 24;
+		if (passedTimeInSeconds >= SECONDS_PER_MINUTE) {
+			passedTime[3] = passedTimeInSeconds % SECONDS_PER_MINUTE;
+		} else {
+			passedTime[3] = passedTimeInSeconds;
+		}
+
+		long passedTimeInMinutes = passedTimeInSeconds / SECONDS_PER_MINUTE;
+
+		if (passedTimeInMinutes >= MINUTES_PER_HOUR) {
+			passedTime[2] = passedTimeInMinutes % MINUTES_PER_HOUR;
+		} else {
+			passedTime[2] = passedTimeInMinutes;
+		}
+
+		long passedTimeInHours = passedTimeInMinutes / MINUTES_PER_HOUR;
+
+		if (passedTimeInHours >= HOURS_PER_DAY) {
+			passedTime[1] = passedTimeInHours % HOURS_PER_DAY;
+		} else {
+			passedTime[1] = passedTimeInHours;
+		}
+
+		long passedTimeInDays = passedTimeInHours / HOURS_PER_DAY;
+		passedTime[0] = passedTimeInDays;
 
 		return String.format(
-				"%d day%s, %d hour%s, %d minute%s, %d second%s",
+				"%d days, %d hours, %d minutes, %d seconds",
 				passedTime[0],
-				passedTime[0] > 1 ? "s" : "",
 				passedTime[1],
-				passedTime[1] > 1 ? "s" : "",
 				passedTime[2],
-				passedTime[2] > 1 ? "s" : "",
-				passedTime[3],
-				passedTime[3] > 1 ? "s" : "");
+				passedTime[3]);
 	}
 }
