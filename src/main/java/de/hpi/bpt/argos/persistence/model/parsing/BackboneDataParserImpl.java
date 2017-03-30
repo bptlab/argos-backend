@@ -59,6 +59,7 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	protected long errorCausesImported = 0;
 
 	// time conversion
+	protected static final int MS_PER_SECOND = 1000;
 	protected static final int SECONDS_PER_MINUTE = 60;
 	protected static final int MINUTES_PER_HOUR = 60;
 	protected static final int HOURS_PER_DAY = 24;
@@ -410,39 +411,42 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	 */
 	protected String getTimeSinceStart() {
 
-		long passedTimeInSeconds = ((new Date()).getTime() - importStartTime.getTime()) / 1000;
-		long[] passedTime = new long[] { 0, 0, 0, 0 };
+		long passedTimeInSeconds = ((new Date()).getTime() - importStartTime.getTime()) / MS_PER_SECOND;
+
+		long seconds;
+		long minutes;
+		long hours;
+		long days;
 
 		if (passedTimeInSeconds >= SECONDS_PER_MINUTE) {
-			passedTime[3] = passedTimeInSeconds % SECONDS_PER_MINUTE;
+			seconds = passedTimeInSeconds % SECONDS_PER_MINUTE;
 		} else {
-			passedTime[3] = passedTimeInSeconds;
+			seconds = passedTimeInSeconds;
 		}
 
 		long passedTimeInMinutes = passedTimeInSeconds / SECONDS_PER_MINUTE;
 
 		if (passedTimeInMinutes >= MINUTES_PER_HOUR) {
-			passedTime[2] = passedTimeInMinutes % MINUTES_PER_HOUR;
+			minutes = passedTimeInMinutes % MINUTES_PER_HOUR;
 		} else {
-			passedTime[2] = passedTimeInMinutes;
+			minutes = passedTimeInMinutes;
 		}
 
 		long passedTimeInHours = passedTimeInMinutes / MINUTES_PER_HOUR;
 
 		if (passedTimeInHours >= HOURS_PER_DAY) {
-			passedTime[1] = passedTimeInHours % HOURS_PER_DAY;
+			hours = passedTimeInHours % HOURS_PER_DAY;
 		} else {
-			passedTime[1] = passedTimeInHours;
+			hours = passedTimeInHours;
 		}
 
-		long passedTimeInDays = passedTimeInHours / HOURS_PER_DAY;
-		passedTime[0] = passedTimeInDays;
+		days = passedTimeInHours / HOURS_PER_DAY;
 
 		return String.format(
 				"%d days, %d hours, %d minutes, %d seconds",
-				passedTime[0],
-				passedTime[1],
-				passedTime[2],
-				passedTime[3]);
+				days,
+				hours,
+				minutes,
+				seconds);
 	}
 }
