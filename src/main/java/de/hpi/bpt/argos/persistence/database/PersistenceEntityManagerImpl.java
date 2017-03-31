@@ -789,23 +789,27 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 			return false;
 		}
 
-		if (!isValid(eventType.getAttribute(EventType.getProductIdentificationAttributeName()))) {
+		if (!isValid(eventType.getAttribute(EventType.getProductIdentificationAttributeName()),
+				EventType.getProductIdentificationAttributeDataType())) {
 			return false;
 		}
 
-		if (!isValid(eventType.getAttribute(EventType.getProductFamilyIdentificationAttributeName()))) {
+		if (!isValid(eventType.getAttribute(EventType.getProductFamilyIdentificationAttributeName()),
+				EventType.getProductFamilyIdentificationAttributeDataType())) {
 			return false;
 		}
 
-		if (!isValid(eventType.getAttribute(EventType.getCodingPlugIdentificationAttributeName()))) {
+		if (!isValid(eventType.getAttribute(EventType.getCodingPlugIdentificationAttributeName()),
+				EventType.getCodingPlugIdentificationAttributeDataType())) {
 			return false;
 		}
 
-		if (!isValid(eventType.getAttribute(EventType.getCodingPlugSoftwareVersionAttributeName()))) {
+		if (!isValid(eventType.getAttribute(EventType.getCodingPlugSoftwareVersionAttributeName()),
+				EventType.getCodingPlugSoftwareVersionAttributeDataType())) {
 			return false;
 		}
 
-		if (!isValid(eventType.getTimestampAttribute())) {
+		if (!isValid(eventType.getTimestampAttribute(), EventDataType.DATE)) {
 			return false;
 		}
 
@@ -841,10 +845,11 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	/**
 	 * This method checks whether an event attribute is valid.
 	 * @param attribute - the event attribute to check
+	 * @param attributeDataType - the attribute data type for the event
 	 * @return - true if event attribute is valid
 	 */
-	protected boolean isValid(EventAttribute attribute) {
-		return attribute != null && attribute.getName().length() > 0;
+	protected boolean isValid(EventAttribute attribute, EventDataType attributeDataType) {
+		return attribute != null && attribute.getName().length() > 0 && attribute.getType() == attributeDataType;
 	}
 
 	/**
