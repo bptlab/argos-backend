@@ -26,40 +26,40 @@ public interface EventSubscriber {
     /**
      * This method creates a given event type on the default event processing platform.
      * @param eventType - the event type to be registered
-     * @return - boolean if the subscription was successful
+     * @return - the feedback of the event platform
      */
-	boolean registerEventType(EventType eventType);
+	EventPlatformFeedback registerEventType(EventType eventType);
 
 	/**
 	 * This method deletes a given event type. This will delete the entry in the event processing platform as well as the entry in our database.
 	 * @param eventType - the event type to delete
-	 * @return - boolean if the update was successful
+	 * @return - the feedback of the event platform
 	 */
-	boolean deleteEventType(EventType eventType);
+	EventPlatformFeedback deleteEventType(EventType eventType);
 
 	/**
 	 * This method updates the event query of a given event type.
 	 * @param eventType - the event type, which event query should be updated
 	 * @param newQueryString - the new event query string
-	 * @return - boolean if the update was successful
+	 * @return - the feedback of the event platform
 	 */
-	boolean updateEventQuery(EventType eventType, String newQueryString);
+	EventPlatformFeedback updateEventQuery(EventType eventType, String newQueryString);
 
 	/**
 	 * This method updates an event query.
 	 * @param eventQuery - the event query to update
 	 * @param newQueryString - the new event query string
 	 * @param notificationUri - the uri to send events for this query to
-	 * @return - boolean if the update was successful
+	 * @return - the feedback of the event platform
 	 */
-	boolean updateEventQuery(EventQuery eventQuery, String newQueryString, String notificationUri);
+	EventPlatformFeedback updateEventQuery(EventQuery eventQuery, String newQueryString, String notificationUri);
 
 	/**
 	 * This method subscribes to the default event platform using an EventQuery.
 	 * @param eventType - the event type which contains the event query
-	 * @return - true if subscription was successful
+	 * @return - the feedback of the event platform
 	 */
-	boolean registerEventQuery(EventType eventType);
+	EventPlatformFeedback registerEventQuery(EventType eventType);
 
 	/**
 	 * This method returns the property key for the eventPlatformHost property.

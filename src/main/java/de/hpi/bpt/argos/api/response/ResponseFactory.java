@@ -45,11 +45,25 @@ public interface ResponseFactory {
 	String getProduct(long productId);
 
 	/**
+	 * This method returns a json representation of one specific product configuration.
+	 * @param productConfigurationId - the product configuration id
+	 * @return - a json representation of the specific product configuration
+	 */
+	String getProductConfiguration(long productConfigurationId);
+
+	/**
 	 * This method returns a json representation of all event types for one specific product id.
 	 * @param productId - the specific product identifier
 	 * @return - a json representation of all event types
 	 */
-	String getAllEventTypes(long productId);
+	String getEventTypesForProduct(long productId);
+
+	/**
+	 * This method returns a json representation of all event types for one specific product configuration id.
+	 * @param productConfigurationId - the specific product configuration identifier
+	 * @return - a json representation of all event types
+	 */
+	String getEventTypesForProductConfiguration(long productConfigurationId);
 
 	/**
 	 * This method returns a json representation of the specified event type.
@@ -75,6 +89,17 @@ public interface ResponseFactory {
 	String getEventsForProduct(long productId, long eventTypeId, int eventIndexFrom, int eventIndexTo);
 
 	/**
+	 * This method returns a json representation of all events for one specific product configuration with a specific event type within a certain
+	 * range.
+	 * @param productConfigurationId - the product configuration identifier
+	 * @param eventTypeId - the event type identifier
+	 * @param eventIndexFrom - the start index for the events
+	 * @param eventIndexTo - the end index of the events
+	 * @return - a json representation of the requested events
+	 */
+	String getEventsForProductConfiguration(long productConfigurationId, long eventTypeId, int eventIndexFrom, int eventIndexTo);
+
+	/**
 	 * This method returns a json representation of an event defined by the event id.
 	 * @param eventId - the event identifier
 	 * @return - a json representation of the requested event
@@ -96,11 +121,11 @@ public interface ResponseFactory {
 
 	/**
 	 * This method tries to update the status update event query for a specific product.
-	 * @param productId - the product to update
+	 * @param productConfigurationId - the product configuration to update
 	 * @param newState - the new state of the product, after an event for this query arrived
 	 * @param requestBody - the request body, which should contain the new status update query and the corresponding state
 	 */
-	void updateStatusEventQuery(long productId, ProductState newState, String requestBody);
+	void updateStatusEventQuery(long productConfigurationId, ProductState newState, String requestBody);
 
 	/**
 	 * This method tries to delete an existing event type.
@@ -108,6 +133,12 @@ public interface ResponseFactory {
 	 * @return - a json array of event type ids, which block the deletion process or the success response
 	 */
 	String deleteEventType(long eventTypeId);
+
+	/**
+	 * This method returns a json representation of all supported data types.
+	 * @return - a json representation of all supported data types
+	 */
+	String getSupportedDataTypes();
 
 	/**
 	 * This method returns a default response to generic requests.

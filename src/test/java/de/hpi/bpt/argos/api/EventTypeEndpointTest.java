@@ -35,17 +35,18 @@ public class EventTypeEndpointTest extends CustomerEndpointParentClass {
 		assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
 
 		JsonArray jsonEventTypes = jsonParser.parse(request.getResponse()).getAsJsonArray();
-		boolean testEventTypeFound = false;
+		boolean eventTypeFound = false;
 
-		for (JsonElement element : jsonEventTypes) {
-			JsonObject jsonEventType = element.getAsJsonObject();
+		for (JsonElement eventType : jsonEventTypes) {
+			JsonObject jsonEventType = eventType.getAsJsonObject();
 
 			if (jsonEventType.get("id").getAsLong() == testEventType.getId()) {
-				testEventTypeFound = true;
+				eventTypeFound = true;
 				break;
 			}
 		}
-		assertEquals(true, testEventTypeFound);
+
+		assertEquals(true, eventTypeFound);
 	}
 
 	@Test
@@ -86,6 +87,8 @@ public class EventTypeEndpointTest extends CustomerEndpointParentClass {
 		JsonObject attributes = new JsonObject();
 		attributes.addProperty("productId", "INTEGER");
 		attributes.addProperty("productFamilyId", "STRING");
+		attributes.addProperty("codingPlugId", "INTEGER");
+		attributes.addProperty("codingPlugSoftwareVersion", "FLOAT");
 
 		testType.add("attributes", attributes);
 
@@ -196,7 +199,7 @@ public class EventTypeEndpointTest extends CustomerEndpointParentClass {
 	}
 
 	@Test
-	public void testCreateEventType_EventTypeNameIsUse_Error() {
+	public void testCreateEventType_EventTypeNameInUse_Error() {
 		request = requestFactory.createPostRequest(TEST_HOST,
 				createEventType(),
 				TEST_CONTENT_TYPE,

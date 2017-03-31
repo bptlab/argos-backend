@@ -4,6 +4,7 @@
 # User-specific stuff:
 .idea/
 src/main/resources/argos-backend.properties
+src/main/resources/backbone_data/*
 lib/
 
 ## File-based project format:

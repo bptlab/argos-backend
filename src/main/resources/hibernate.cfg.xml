@@ -21,6 +21,10 @@
         <mapping class="de.hpi.bpt.argos.persistence.model.event.data.EventDataImpl"/>
         <mapping class="de.hpi.bpt.argos.persistence.model.product.ProductFamilyImpl"/>
         <mapping class="de.hpi.bpt.argos.persistence.model.product.ProductImpl"/>
+        <mapping class="de.hpi.bpt.argos.persistence.model.product.ProductConfigurationImpl"/>
+        <mapping class="de.hpi.bpt.argos.persistence.model.product.error.ErrorTypeImpl"/>
+        <mapping class="de.hpi.bpt.argos.persistence.model.product.error.ErrorCauseImpl"/>
+        <mapping class="de.hpi.bpt.argos.persistence.model.parsing.DataFileImpl"/>
 
     </session-factory>
 </hibernate-configuration>

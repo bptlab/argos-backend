@@ -125,6 +125,38 @@ public interface EventType extends PersistenceEntity {
 	}
 
 	/**
+	 * This method returns the name of the codingPlugId attribute.
+	 * @return - the name of the codingPlugId attribute
+	 */
+	static String getCodingPlugIdentificationAttributeName() {
+		return "codingPlugId";
+	}
+
+	/**
+	 * This method returns the name of codingPlugSoftwareVersion attribute.
+	 * @return - the name of the codingPlugSoftwareVersion attribute
+	 */
+	static String getCodingPlugSoftwareVersionAttributeName() {
+		return "codingPlugSoftwareVersion";
+	}
+
+	/**
+	 * This method returns the cause identifier attribute name.
+	 * @return - the name of the cause identifier attribute
+	 */
+	static String getCauseIdentifierAttributeName() {
+		return "causeId";
+	}
+
+	/**
+	 * This method returns the name of the errorCauseDescription attribute.
+	 * @return - the name of the errorCauseDescription attribute
+	 */
+	static String getErrorCauseDescriptionAttributeName() {
+		return "causeDescription";
+	}
+
+	/**
 	 * This method returns the special name for the status update event type.
 	 * @return - the special name for the status update event type
 	 */

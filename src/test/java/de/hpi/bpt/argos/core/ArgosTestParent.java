@@ -23,6 +23,7 @@ public class ArgosTestParent {
 
 		PropertyEditor propertyEditor = new PropertyEditorImpl();
 		propertyEditor.setProperty(EventSubscriber.getEventPlatformHostPropertyKey(), "http://localhost:0"); // make event platform unreachable
+		propertyEditor.setProperty(Argos.getArgosBackendLoadBackboneDataPropertyKey(), "false"); // do not load backbone data
 
 		argos.run(TEST_PORT, TEST_NUMBER_OF_THREADS);
 

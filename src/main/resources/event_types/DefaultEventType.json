@@ -1,0 +1,12 @@
+{
+	"name":"DefaultEventType",
+	"timestamp":"dateOfEvent",
+	"attributes":{
+		"productFamilyId":"STRING",
+		"productId":"LONG",
+		"codingPlugId":"INTEGER",
+		"codingPlugSoftwareVersion":"FLOAT",
+		"causeId":"INTEGER",
+		"causeDescription":"STRING"
+	}
+}

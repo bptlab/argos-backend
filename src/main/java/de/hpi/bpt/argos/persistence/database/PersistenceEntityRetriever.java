@@ -2,7 +2,9 @@ package de.hpi.bpt.argos.persistence.database;
 
 import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
+import de.hpi.bpt.argos.persistence.model.parsing.DataFile;
 import de.hpi.bpt.argos.persistence.model.product.Product;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfiguration;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 
 import java.util.List;
@@ -40,12 +42,27 @@ public interface PersistenceEntityRetriever {
 	Product getProduct(long productId);
 
 	/**
+	 * This method makes the database call to retrieve one specific product configuration.
+	 * @param productConfigurationId - the id of the requested product configuration
+	 * @return - the specified product configuration
+	 */
+	ProductConfiguration getProductConfiguration(long productConfigurationId);
+
+	/**
 	 * This method makes the database call to retrieve the necessary data for the API that serves all event types for a certain product.
 	 * @param productId - the product that we want the event types for
 	 * @return - a map of event types that can occur for the product with the number of events that occurred for this
 	 * event type
 	 */
-	Map<EventType, Integer> getEventTypes(long productId);
+	Map<EventType, Integer> getEventTypesForProduct(long productId);
+
+	/**
+	 * This method makes the database call to retrieve the necessary data for the API that serves all event types for a certain product configuration.
+	 * @param productConfigurationId - the product configuration that we want the event types for
+	 * @return - a map of event types that can occur for the product configuration with the number of events that occurred for this
+	 * event type
+	 */
+	Map<EventType, Integer> getEventTypesForProductConfiguration(long productConfigurationId);
 
 	/**
 	 * This method makes the database call to retrieve the necessary data for the API that serves events for a
@@ -56,7 +73,18 @@ public interface PersistenceEntityRetriever {
 	 * @param indexTo - the end of the index range that the events should come from
 	 * @return - a list of events that satisfies the parameters
 	 */
-	List<Event> getEvents(long productId, long eventTypeId, int indexFrom, int indexTo);
+	List<Event> getEventsForProduct(long productId, long eventTypeId, int indexFrom, int indexTo);
+
+	/**
+	 * This method makes the database call to retrieve the necessary data for the API that serves events for a
+	 * certain product configuration of a defined event type within a defined index range.
+	 * @param productConfigurationId - the product configuration to be searched identified by its id
+	 * @param eventTypeId - the event type to be searched identified by its id
+	 * @param indexFrom - the start of the index range that the events should come from
+	 * @param indexTo - the end of the index range that the events should come from
+	 * @return - a list of events that satisfies the parameters
+	 */
+	List<Event> getEventsForProductConfiguration(long productConfigurationId, long eventTypeId, int indexFrom, int indexTo);
 
 	/**
 	 * This method makes the database call to retrieve the requested event type.
@@ -66,7 +94,7 @@ public interface PersistenceEntityRetriever {
 	EventType getEventType(long eventTypeId);
 
 	/**
-	 * This methid makes the database call to retrieve the requested event type.
+	 * This method makes the database call to retrieve the requested event type.
 	 * @param eventTypeName - the name of the event type
 	 * @return - the requested event type or null
 	 */
@@ -77,7 +105,7 @@ public interface PersistenceEntityRetriever {
 	 * @param externalProductId - the external product id
 	 * @return - the product
 	 */
-	Product getProduct(int externalProductId);
+	Product getProductByExternalId(long externalProductId);
 
 	/**
 	 * This method makes the database call to retrieve the requested product family.
@@ -98,4 +126,11 @@ public interface PersistenceEntityRetriever {
 	 * @return - the requested event
 	 */
 	Event getEvent(long eventId);
+
+	/**
+	 * This method makes the database call to retrieve a single data file.
+	 * @param path - the of the file to look for
+	 * @return - the requested data file
+	 */
+	DataFile getDataFile(String path);
 }

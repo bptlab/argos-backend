@@ -35,7 +35,7 @@ public class EventQueryEndpointTest extends CustomerEndpointParentClass {
 		assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
 
 		EventType updatedEventType = ArgosTestParent.argos.getPersistenceEntityManager().getEventType(testEventType.getId());
-		assertEquals(updatedEventType.getEventQuery().getQueryString(), newQueryString);
+		assertEquals(newQueryString, updatedEventType.getEventQuery().getQueryString());
 	}
 
 	@Test
@@ -87,8 +87,6 @@ public class EventQueryEndpointTest extends CustomerEndpointParentClass {
 		request.setContent(serializer.toJson(jsonBody));
 		assertEquals(ResponseFactory.HTTP_FORBIDDEN_CODE, request.getResponseCode());
 	}
-
-
 
 	private String updateEventQuery(Object eventTypeId) {
 		return EventQueryEndpoint.getUpdateEventQueryBaseUri().replaceAll(

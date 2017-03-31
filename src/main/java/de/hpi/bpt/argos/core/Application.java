@@ -24,31 +24,76 @@ public final class Application {
 	public static void main(String[] args) {
 		Argos argos = new ArgosImpl();
 
-		// edit properties if needed
-		PropertyEditor propertyEditor = new PropertyEditorImpl();
-		String argosHost = System.getProperty(Argos.getArgosBackendHostPropertyKey());
-		String eventPlatformHost = System.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
-		String databaseConnectionHost = System.getProperty(DatabaseConnection.getDatabaseConnectionHostPropertyKey());
-		String testMode = System.getProperty(Argos.getArgosBackendTestModePropertyKey());
+		PropertyEditor propertyEditor = updateProperties();
 
-		// TODO: validate input in a more sophisticated way
-		if (argosHost != null && argosHost.length() > 0) {
-			propertyEditor.setProperty(Argos.getArgosBackendHostPropertyKey(), argosHost);
-		}
-
-		if (eventPlatformHost != null && eventPlatformHost.length() > 0) {
-			propertyEditor.setProperty(EventSubscriber.getEventPlatformHostPropertyKey(), eventPlatformHost);
-		}
-
-		if (databaseConnectionHost != null && databaseConnectionHost.length() > 0) {
-			propertyEditor.setProperty(DatabaseConnection.getDatabaseConnectionHostPropertyKey(), databaseConnectionHost);
-		}
-
-		if (testMode != null && testMode.length() > 0) {
-			propertyEditor.setProperty(Argos.getArgosBackendTestModePropertyKey(), testMode);
-			argos.setTestMode(Boolean.parseBoolean(testMode));
+		if (isTestMode()) {
+			argos.setTestMode(true);
+			propertyEditor.setProperty(Argos.getArgosBackendTestModePropertyKey(), "true");
 		}
 
 		argos.run();
+	}
+
+	/**
+	 * Updates all properties given from the command line and returns a property editor.
+	 * @return - property editor
+	 */
+	private static PropertyEditor updateProperties() {
+
+		PropertyEditor propertyEditor = new PropertyEditorImpl();
+
+		// edit properties if needed
+		String argosHost = System.getProperty(Argos.getArgosBackendHostPropertyKey());
+		String eventPlatformHost = System.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
+		String databaseConnectionHost = System.getProperty(DatabaseConnection.getDatabaseConnectionHostPropertyKey());
+		String databaseConnectionUser = System.getProperty(
+				DatabaseConnection.getDatabaseConnectionUsernamePropertyKey());
+		String databaseConnectionPassword = System.getProperty(
+				DatabaseConnection.getDatabaseConnectionPasswordPropertyKey());
+		String loadBackboneDataFiles = System.getProperty(Argos.getArgosBackendLoadBackboneDataPropertyKey());
+
+		if (isPropertySet(argosHost)) {
+			propertyEditor.setProperty(Argos.getArgosBackendHostPropertyKey(), argosHost);
+		}
+
+		if (isPropertySet(eventPlatformHost)) {
+			propertyEditor.setProperty(EventSubscriber.getEventPlatformHostPropertyKey(), eventPlatformHost);
+		}
+		if (isPropertySet(databaseConnectionHost)) {
+			propertyEditor.setProperty(DatabaseConnection.getDatabaseConnectionHostPropertyKey(), databaseConnectionHost);
+		}
+
+		if (isPropertySet(databaseConnectionUser)) {
+			propertyEditor.setProperty(DatabaseConnection.getDatabaseConnectionUsernamePropertyKey(),
+					databaseConnectionUser);
+		}
+
+		if (isPropertySet(databaseConnectionPassword)) {
+			propertyEditor.setProperty(DatabaseConnection.getDatabaseConnectionPasswordPropertyKey(),
+					databaseConnectionPassword);
+		}
+
+		if (isPropertySet(loadBackboneDataFiles)) {
+			propertyEditor.setProperty(Argos.getArgosBackendLoadBackboneDataPropertyKey(), loadBackboneDataFiles);
+		}
+		return propertyEditor;
+	}
+
+	/**
+	 * Checks if a property is set from a command line argument correctly.
+	 * @param property - the property to verify
+	 * @return - boolean if property is set
+	 */
+	private static boolean isPropertySet(String property) {
+		return property != null && property.length() > 0;
+	}
+
+	/**
+	 * Checks if the system is in test mode.
+	 * @return - boolean if the system is in test mode.
+	 */
+	private static boolean isTestMode() {
+		String testMode = System.getProperty(Argos.getArgosBackendTestModePropertyKey());
+		return ("true".equals(testMode) || "false".equals(testMode)) && Boolean.parseBoolean(testMode);
 	}
 }
