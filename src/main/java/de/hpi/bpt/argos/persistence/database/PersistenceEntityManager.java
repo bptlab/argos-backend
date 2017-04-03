@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfiguration;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import de.hpi.bpt.argos.persistence.model.product.ProductState;
 
@@ -56,12 +57,12 @@ public interface PersistenceEntityManager extends PersistenceEntityRetriever {
 
 	/**
 	 * This method returns a newly created status update event from its json representation.
-	 * @param productId - the product id
+	 * @param productConfigurationId - the product configuration id
 	 * @param newProductState - the updated product state
 	 * @param requestBody - the json representation of the event
 	 * @return - the new event
 	 */
-	Event createStatusUpdateEvent(long productId, ProductState newProductState, String requestBody);
+	Event createStatusUpdateEvent(long productConfigurationId, ProductState newProductState, String requestBody);
 
 	/**
 	 * This method returns a newly created, simple event type from its json representation.
@@ -89,18 +90,27 @@ public interface PersistenceEntityManager extends PersistenceEntityRetriever {
 	/**
 	 * This method returns a product or creates it, if it does not exist in the database.
 	 * @param productFamily - the family of the product
-	 * @param productOrderNumber - the unique product order number
+	 * @param externalProductId - the unique product order number
 	 * @return - the product
 	 */
-	Product getProduct(ProductFamily productFamily, int productOrderNumber);
+	Product getProduct(ProductFamily productFamily, long externalProductId);
 
 	/**
 	 * This method returns a product and creates it, if it does not exist in the database.
 	 * @param productFamilyName - the identifier for the product family
-	 * @param productIdentifier - the identifier for the product
-	 * @return - a product
+	 * @param externalProductId - the identifier for the product
+	 * @return - the product product
 	 */
-	Product getProduct(String productFamilyName, int productIdentifier);
+	Product getProduct(String productFamilyName, long externalProductId);
+
+	/**
+	 * This method returns a product configuration and creates it, if it does not exist in the database.
+	 * @param product - the product to which the configuration belongs
+	 * @param codingPlugId - the coding plug id of the configuration
+	 * @param codingPlugSoftwareVersion - the coding plug software version of the configuration
+	 * @return - the product configuration
+	 */
+	ProductConfiguration getProductConfiguration(Product product, int codingPlugId, float codingPlugSoftwareVersion);
 
 	/**
 	 * This method returns a product family and create it, if it doe not exist in the database.

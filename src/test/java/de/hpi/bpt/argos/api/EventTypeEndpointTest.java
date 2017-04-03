@@ -35,17 +35,18 @@ public class EventTypeEndpointTest extends CustomerEndpointParentClass {
 		assertEquals(ResponseFactory.HTTP_SUCCESS_CODE, request.getResponseCode());
 
 		JsonArray jsonEventTypes = jsonParser.parse(request.getResponse()).getAsJsonArray();
-		boolean testEventTypeFound = false;
+		boolean eventTypeFound = false;
 
-		for (JsonElement element : jsonEventTypes) {
-			JsonObject jsonEventType = element.getAsJsonObject();
+		for (JsonElement eventType : jsonEventTypes) {
+			JsonObject jsonEventType = eventType.getAsJsonObject();
 
 			if (jsonEventType.get("id").getAsLong() == testEventType.getId()) {
-				testEventTypeFound = true;
+				eventTypeFound = true;
 				break;
 			}
 		}
-		assertEquals(true, testEventTypeFound);
+
+		assertEquals(true, eventTypeFound);
 	}
 
 	@Test
@@ -84,8 +85,10 @@ public class EventTypeEndpointTest extends CustomerEndpointParentClass {
 		testType.addProperty("timestamp", "timestamp");
 
 		JsonObject attributes = new JsonObject();
-		attributes.addProperty("productId", "INTEGER");
+		attributes.addProperty("productId", "LONG");
 		attributes.addProperty("productFamilyId", "STRING");
+		attributes.addProperty("codingPlugId", "INTEGER");
+		attributes.addProperty("codingPlugSoftwareVersion", "FLOAT");
 
 		testType.add("attributes", attributes);
 
@@ -106,6 +109,38 @@ public class EventTypeEndpointTest extends CustomerEndpointParentClass {
 		}
 
 		assertEquals(true, eventTypeFound);
+	}
+
+	@Test
+	public void testCreateEventType_InvalidEventAttributeDataType_Error() {
+		request = requestFactory.createPostRequest(TEST_HOST,
+				createEventType(),
+				TEST_CONTENT_TYPE,
+				TEST_ACCEPT_TYPE_PLAIN);
+
+		String eventTypeName = "TestType_" + ArgosTestUtil.getCurrentTimestamp();
+
+		JsonObject jsonBody = new JsonObject();
+		jsonBody.addProperty("eventQuery", "SELECT * FROM " + eventTypeName);
+
+		JsonObject testType = new JsonObject();
+		testType.addProperty("name", eventTypeName);
+		testType.addProperty("timestamp", "timestamp");
+
+		JsonObject attributes = new JsonObject();
+
+		// the product id has to be LONG
+		attributes.addProperty("productId", "INTEGER");
+		attributes.addProperty("productFamilyId", "STRING");
+		attributes.addProperty("codingPlugId", "INTEGER");
+		attributes.addProperty("codingPlugSoftwareVersion", "FLOAT");
+
+		testType.add("attributes", attributes);
+
+		jsonBody.add("eventType", testType);
+
+		request.setContent(serializer.toJson(jsonBody));
+		assertEquals(ResponseFactory.HTTP_ERROR_CODE, request.getResponseCode());
 	}
 
 	@Test
@@ -196,7 +231,7 @@ public class EventTypeEndpointTest extends CustomerEndpointParentClass {
 	}
 
 	@Test
-	public void testCreateEventType_EventTypeNameIsUse_Error() {
+	public void testCreateEventType_EventTypeNameInUse_Error() {
 		request = requestFactory.createPostRequest(TEST_HOST,
 				createEventType(),
 				TEST_CONTENT_TYPE,

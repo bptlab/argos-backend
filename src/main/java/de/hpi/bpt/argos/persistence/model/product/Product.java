@@ -1,9 +1,9 @@
 package de.hpi.bpt.argos.persistence.model.product;
 
 import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
-import de.hpi.bpt.argos.persistence.model.event.EventQuery;
 
 import java.util.Date;
+import java.util.Set;
 
 /**
  * This interface represents the products. It extends persistence entity.
@@ -35,18 +35,6 @@ public interface Product extends PersistenceEntity {
 	void setProductionStart(Date productionStart);
 
 	/**
-	 * This method returns the state of this product.
-	 * @return - the product state as a ProductState enum
-	 */
-	ProductState getState();
-
-	/**
-	 * This method sets the state of this product.
-	 * @param productState - the product state to be set
-	 */
-	void setState(ProductState productState);
-
-	/**
 	 * This method returns the name of this product.
 	 * @return - the name of this product to be set
 	 */
@@ -62,75 +50,13 @@ public interface Product extends PersistenceEntity {
 	 * This method returns the order number of this product.
 	 * @return - the order number of this product as an integer
 	 */
-	int getOrderNumber();
+	long getOrderNumber();
 
 	/**
 	 * This method sets the order number of this product.
 	 * @param orderNumber - the order number of this product to be set
 	 */
-	void setOrderNumber(int orderNumber);
-
-	/**
-	 * This method returns the status description of this product.
-	 * @return - the status description of this product as a string
-	 */
-	String getStateDescription();
-
-	/**
-	 * This method sets the status description of this product.
-	 * @param stateDescription - the status description of this product to be set
-	 */
-	void setStateDescription(String stateDescription);
-
-	/**
-	 * This method returns the event query which leads to a change in the state of this product.
-	 * @return - the event query which sets this product in Running state
-	 */
-	EventQuery getTransitionToRunningState();
-
-	/**
-	 * This method sets the event query which leads to a change in the state of this product.
-	 * @param eventQuery - the event query which sets this product in Running state
-	 */
-	void setTransitionToRunningState(EventQuery eventQuery);
-
-	/**
-	 * This method returns the event query which leads to a change in the state of this product.
-	 * @return - the event query which sets this product in Warning state
-	 */
-	EventQuery getTransitionToWarningState();
-
-	/**
-	 * This method sets the event query which leads to a change in the state of this product.
-	 * @param eventQuery - the event query which sets this product in Warning state
-	 */
-	void setTransitionToWarningState(EventQuery eventQuery);
-
-	/**
-	 * This method returns the event query which leads to a change in the state of this product.
-	 * @return - the event query which sets this product in Error state
-	 */
-	EventQuery getTransitionToErrorState();
-
-	/**
-	 * This method sets the event query which leads to a change in the state of this product.
-	 * @param eventQuery - the event query which sets this product in Error state
-	 */
-	void setTransitionToErrorState(EventQuery eventQuery);
-
-	/**
-	 * This method returns the status update query which changes the product state to a specific state.
-	 * @param newState - the new state of the product, after an event of the query arrived
-	 * @return - the status update query which changes the product state to a specific state
-	 */
-	EventQuery getStatusUpdateQuery(ProductState newState);
-
-	/**
-	 * This method sets the status update query which changes the product state to a specific state.
-	 * @param newState - the new state of the product, after an event of the query arrived
-	 * @param eventQuery - the status update query to be set
-	 */
-	void setStatusUpdateQuery(ProductState newState, EventQuery eventQuery);
+	void setOrderNumber(long orderNumber);
 
 	/**
 	 * This method returns the number of devices that are installed from this product families.
@@ -139,20 +65,52 @@ public interface Product extends PersistenceEntity {
 	long getNumberOfDevices();
 
 	/**
+	 * This method increments the number of devices for this product.
+	 * @param count - the count of how much new devices were found
+	 */
+	void incrementNumberOfDevices(long count);
+
+	/**
 	 * This method returns the number of events that occurred for this product.
 	 * @return - the number of events occurred as an integer
 	 */
 	long getNumberOfEvents();
 
 	/**
-	 * This method increments the number of events for this product.
-	 * @param count - the count of how much new events were received
+	 * This method returns the state of this product.
+	 * @return - the product state as a ProductState enum
 	 */
-	void incrementNumberOfEvents(long count);
+	ProductState getState();
 
 	/**
-	 * This method increments the number of devices for this product.
-	 * @param count - the count of how much new devices were found
+	 * This method returns the status description of this product.
+	 * @return - the status description of this product as a string
 	 */
-	void incrementNumberOfDevices(long count);
+	String getStateDescription();
+
+	/**
+	 * This method returns all configurations of this product.
+	 * @return - a set of all configurations for this product
+	 */
+	Set<ProductConfiguration> getProductConfigurations();
+
+	/**
+	 * This method sets all configurations of this product.
+	 * @param productConfigurations - a set of product configurations to be set
+	 */
+	void setProductConfigurations(Set<ProductConfiguration> productConfigurations);
+
+	/**
+	 * This method adds a new product configuration to the configurations of this product.
+	 * @param productConfiguration - the configuration to be added
+	 */
+	void addProductConfiguration(ProductConfiguration productConfiguration);
+
+	/**
+	 * This method returns the configuration with supports a given coding plug and a given coding plug software version.
+	 * @param codingPlugId - the coding plug id of the configuration
+	 * @param codingPlugSoftwareVersion - the supported coding plug software version
+	 * @return - the configuration, or null if no configuration matches the parameters
+	 */
+	ProductConfiguration getProductConfiguration(int codingPlugId, float codingPlugSoftwareVersion);
 }

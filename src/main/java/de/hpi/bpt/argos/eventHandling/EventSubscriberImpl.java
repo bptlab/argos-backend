@@ -36,6 +36,9 @@ public class EventSubscriberImpl implements EventSubscriber {
 		this.entityManager = entityManager;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setupEventPlatform() {
 
@@ -50,7 +53,7 @@ public class EventSubscriberImpl implements EventSubscriber {
      * {@inheritDoc}
      */
 	@Override
-	public boolean registerEventType(EventType eventType) {
+	public EventPlatformFeedback registerEventType(EventType eventType) {
 
 		if (!eventType.shouldBeRegistered()) {
 			return registerEventQuery(eventType);
@@ -64,7 +67,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 		RestRequest createEventTypeRequest = restRequestFactory.createPostRequest(eventPlatformHost, eventPlatformEventTypeUri);
 
 		if (createEventTypeRequest == null) {
-			return false;
+			return new EventPlatformFeedbackImpl("cannot create request", false);
 		}
 
 		JsonObject requestContent = new JsonObject();
@@ -77,17 +80,17 @@ public class EventSubscriberImpl implements EventSubscriber {
 		logRestRequestInfo("register event type: ", createEventTypeRequest);
 
 		if (!createEventTypeRequest.isSuccessful()) {
-			return false;
+			return new EventPlatformFeedbackImpl(createEventTypeRequest.getResponse(), false);
 		}
 
-		return registerEventQuery(eventType);
+		return  registerEventQuery(eventType);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean deleteEventType(EventType eventType) {
+	public EventPlatformFeedback deleteEventType(EventType eventType) {
 
 		deleteEventQuery(eventType);
 
@@ -102,14 +105,14 @@ public class EventSubscriberImpl implements EventSubscriber {
 				deleteEventTypeRequest.getResponseCode()));
 
 		entityManager.deleteEntity(eventType);
-		return true;
+		return new EventPlatformFeedbackImpl(deleteEventTypeRequest.getResponse(), true);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean updateEventQuery(EventType eventType, String newQueryString) {
+	public EventPlatformFeedback updateEventQuery(EventType eventType, String newQueryString) {
 
 		String notificationPath = Argos.getHost() + EventReceiver.getReceiveEventUri(eventType.getId());
 
@@ -120,10 +123,10 @@ public class EventSubscriberImpl implements EventSubscriber {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean updateEventQuery(EventQuery eventQuery, String newQueryString, String notificationUri) {
+	public EventPlatformFeedback updateEventQuery(EventQuery eventQuery, String newQueryString, String notificationUri) {
 
 		if (eventQuery == null) {
-			return false;
+			return new EventPlatformFeedbackImpl("event query was null", false);
 		}
 
 		PropertyEditor propertyReader = new PropertyEditorImpl();
@@ -150,17 +153,17 @@ public class EventSubscriberImpl implements EventSubscriber {
 			entityManager.updateEntity(eventQuery);
 		}
 
-		return updateEventQueryRequest.isSuccessful();
+		return new EventPlatformFeedbackImpl(updateEventQueryRequest.getResponse(), updateEventQueryRequest.isSuccessful());
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean registerEventQuery(EventType eventType) {
+	public EventPlatformFeedback registerEventQuery(EventType eventType) {
 
 		if (eventType.getName().equals(EventType.getStatusUpdateEventTypeName())) {
-			return true;
+			return new EventPlatformFeedbackImpl("no query to be registered", true);
 		}
 
 		PropertyEditor propertyReader = new PropertyEditorImpl();
@@ -173,7 +176,7 @@ public class EventSubscriberImpl implements EventSubscriber {
 		String notificationPath = Argos.getHost() + EventReceiver.getReceiveEventUri(eventType.getId());
 
 		if (subscriptionRequest == null) {
-			return false;
+			return new EventPlatformFeedbackImpl("cannot create request", false);
 		}
 
 		JsonObject requestContent = new JsonObject();
@@ -186,19 +189,27 @@ public class EventSubscriberImpl implements EventSubscriber {
 
 		if (!subscriptionRequest.isSuccessful()) {
 			deleteEventType(eventType);
-			return false;
+			return new EventPlatformFeedbackImpl(subscriptionRequest.getResponse(), false);
 		}
+
+		deleteEventQuery(eventType);
 
 		eventType.getEventQuery().setUuid(subscriptionRequest.getResponse());
 		entityManager.updateEntity(eventType);
-		return true;
+		return new EventPlatformFeedbackImpl(subscriptionRequest.getResponse(), true);
 	}
 
 	/**
 	 * This method deletes the event query for a given event type.
 	 * @param eventType - the event type, for which the event query should be deleted
+	 * @return - the feedback of the event platform
 	 */
-	protected void deleteEventQuery(EventType eventType) {
+	protected EventPlatformFeedback deleteEventQuery(EventType eventType) {
+
+		if (eventType.getEventQuery() == null || eventType.getEventQuery().getUuid().length() == 0) {
+			return new EventPlatformFeedbackImpl("no event query given", false);
+		}
+
 		PropertyEditor propertyReader = new PropertyEditorImpl();
 
 		String eventPlatformHost = propertyReader.getProperty(EventSubscriber.getEventPlatformHostPropertyKey());
@@ -209,6 +220,8 @@ public class EventSubscriberImpl implements EventSubscriber {
 		logger.info(String.format("deleting event query '%1$s' -> Response Code %2$d",
 				eventType.getEventQuery().getQueryString(),
 				deleteEventQueryRequest.getResponseCode()));
+
+		return new EventPlatformFeedbackImpl(deleteEventQueryRequest.getResponse(), deleteEventQueryRequest.isSuccessful());
 	}
 
 	/**

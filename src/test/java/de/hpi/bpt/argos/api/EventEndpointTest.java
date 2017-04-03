@@ -8,6 +8,7 @@ import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.data.EventData;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfiguration;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,7 +24,8 @@ public class EventEndpointTest extends CustomerEndpointParentClass {
 		EventType eventType = ArgosTestUtil.createEventType();
 		ProductFamily productFamily = ArgosTestUtil.createProductFamily();
 		Product product = ArgosTestUtil.createProduct(productFamily);
-		testEvent = ArgosTestUtil.createEvent(eventType, product);
+		ProductConfiguration configuration = ArgosTestUtil.createProductConfiguration(product);
+		testEvent = ArgosTestUtil.createEvent(eventType, configuration);
 	}
 
     @Test

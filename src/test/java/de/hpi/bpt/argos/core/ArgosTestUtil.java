@@ -11,10 +11,16 @@ import de.hpi.bpt.argos.persistence.model.event.data.EventDataType;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.event.type.EventTypeImpl;
 import de.hpi.bpt.argos.persistence.model.product.Product;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfiguration;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfigurationImpl;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamilyImpl;
 import de.hpi.bpt.argos.persistence.model.product.ProductImpl;
 import de.hpi.bpt.argos.persistence.model.product.ProductState;
+import de.hpi.bpt.argos.persistence.model.product.error.ErrorCause;
+import de.hpi.bpt.argos.persistence.model.product.error.ErrorCauseImpl;
+import de.hpi.bpt.argos.persistence.model.product.error.ErrorType;
+import de.hpi.bpt.argos.persistence.model.product.error.ErrorTypeImpl;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -65,16 +71,8 @@ public class ArgosTestUtil {
 		Product newProduct = new ProductImpl();
 
 		newProduct.setName("Product_" + getCurrentTimestamp());
-		newProduct.setState(ProductState.RUNNING);
-		newProduct.setStateDescription("This product is running smoothly");
-		newProduct.setOrderNumber(getRandomInteger(0, Integer.MAX_VALUE));
+		newProduct.setOrderNumber(getRandomLong());
 		newProduct.setProductionStart(new Date());
-		newProduct.getTransitionToRunningState().setQueryString("query to running");
-		newProduct.getTransitionToRunningState().setUuid(getRandomString());
-		newProduct.getTransitionToWarningState().setQueryString("query to warning");
-		newProduct.getTransitionToWarningState().setUuid(getRandomString());
-		newProduct.getTransitionToErrorState().setQueryString("query to error");
-		newProduct.getTransitionToErrorState().setUuid(getRandomString());
 		newProduct.setProductFamily(productFamily);
 		productFamily.getProducts().add(newProduct);
 
@@ -82,6 +80,54 @@ public class ArgosTestUtil {
 		argos.getPersistenceEntityManager().updateEntity(productFamily);
 
 		return newProduct;
+	}
+
+	public static ProductConfiguration createProductConfiguration(Product product) {
+		ProductConfiguration configuration = new ProductConfigurationImpl();
+
+		configuration.setProduct(product);
+		configuration.setCodingPlugId(getRandomInteger(0, Integer.MAX_VALUE));
+		configuration.setState(ProductState.RUNNING);
+		configuration.setStateDescription("running smoothly");
+		configuration.getTransitionToRunningState().setQueryString("query to running");
+		configuration.getTransitionToRunningState().setUuid(getRandomString());
+		configuration.getTransitionToWarningState().setQueryString("query to warning");
+		configuration.getTransitionToWarningState().setUuid(getRandomString());
+		configuration.getTransitionToErrorState().setQueryString("query to error");
+		configuration.getTransitionToErrorState().setUuid(getRandomString());
+
+		product.addProductConfiguration(configuration);
+
+		argos.getPersistenceEntityManager().updateEntity(product);
+		argos.getPersistenceEntityManager().updateEntity(configuration);
+
+		return configuration;
+	}
+
+	public static ErrorType createErrorType(ProductConfiguration configuration) {
+		ErrorType type = new ErrorTypeImpl();
+
+		type.setCauseCode(getRandomInteger(0, Integer.MAX_VALUE));
+		type.setDisplayCode(getRandomString());
+		configuration.addErrorType(type);
+
+		argos.getPersistenceEntityManager().updateEntity(configuration);
+		argos.getPersistenceEntityManager().updateEntity(type);
+
+		return type;
+	}
+
+	public static ErrorCause createErrorCause(ErrorType errorType) {
+		ErrorCause cause = new ErrorCauseImpl();
+
+		cause.setDescription(getRandomString());
+		cause.setErrorPrediction(getRandomFloat());
+		errorType.addErrorCause(cause);
+
+		argos.getPersistenceEntityManager().updateEntity(errorType);
+		argos.getPersistenceEntityManager().updateEntity(cause);
+
+		return cause;
 	}
 
 	public static EventType createEventType() {
@@ -102,7 +148,7 @@ public class ArgosTestUtil {
 
 		EventAttribute productId = new EventAttributeImpl();
 		productId.setName("productId");
-		productId.setType(EventDataType.INTEGER);
+		productId.setType(EventDataType.LONG);
 
 		newEventType.getAttributes().add(productId);
 
@@ -112,16 +158,40 @@ public class ArgosTestUtil {
 
 		newEventType.getAttributes().add(productFamilyId);
 
+		EventAttribute codingPlugId = new EventAttributeImpl();
+		codingPlugId.setName("codingPlugId");
+		codingPlugId.setType(EventDataType.INTEGER);
+
+		newEventType.getAttributes().add(codingPlugId);
+
+		EventAttribute codingPlugSoftwareVersion = new EventAttributeImpl();
+		codingPlugSoftwareVersion.setName("codingPlugSoftwareVersion");
+		codingPlugSoftwareVersion.setType(EventDataType.FLOAT);
+
+		newEventType.getAttributes().add(codingPlugSoftwareVersion);
+
+		EventAttribute causeId = new EventAttributeImpl();
+		causeId.setName("causeId");
+		causeId.setType(EventDataType.INTEGER);
+
+		newEventType.getAttributes().add(causeId);
+
+		EventAttribute causeDescription = new EventAttributeImpl();
+		causeDescription.setName("causeDescription");
+		causeDescription.setType(EventDataType.STRING);
+
+		newEventType.getAttributes().add(causeDescription);
+
 		argos.getPersistenceEntityManager().updateEntity(newEventType);
 
 		return newEventType;
 	}
 
-	public static Event createEvent(EventType type, Product product) {
+	public static Event createEvent(EventType type, ProductConfiguration productConfiguration) {
 		Event newEvent = new EventImpl();
 
-		newEvent.setProduct(product);
-		product.incrementNumberOfEvents(1);
+		newEvent.setProductConfiguration(productConfiguration);
+		productConfiguration.incrementNumberOfEvents(1);
 
 		newEvent.setEventType(type);
 		generateEventData(newEvent);
@@ -143,6 +213,9 @@ public class ArgosTestUtil {
 					break;
 				case INTEGER:
 					data.setValue(String.valueOf(getRandomInteger(0, Integer.MAX_VALUE)));
+					break;
+				case LONG:
+					data.setValue(String.valueOf(getRandomLong()));
 					break;
 				case FLOAT:
 					data.setValue(String.valueOf(getRandomFloat()));

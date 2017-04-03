@@ -38,6 +38,14 @@ public interface Argos {
 	PersistenceEntityManager getPersistenceEntityManager();
 
 	/**
+	 * This method returns the property key for the argosBackendHost property.
+	 * @return - the property key for the argosBackendHost property
+	 */
+	static String getArgosBackendHostPropertyKey() {
+		return "argosBackendHost";
+	}
+
+	/**
 	 * This method returns the property key for the argosBackendPort property.
 	 * @return - the property key for the argosBackendPort property
 	 */
@@ -78,6 +86,22 @@ public interface Argos {
 	}
 
 	/**
+	 * This method returns the property key for the argosBackendBackboneDataDirectory property.
+	 * @return - the property key for the argosBackendBackboneDataDirectory property
+	 */
+	static String getArgosBackendBackboneDataDirectoryPropertyKey() {
+		return "argosBackendBackboneDataDirectory";
+	}
+
+	/**
+	 * This method returns the property key for the argosBackendLoadBackboneData property.
+	 * @return - the property key for the argosBackendLoadBackboneData property
+	 */
+	static String getArgosBackendLoadBackboneDataPropertyKey() {
+		return "argosBackendLoadBackboneData";
+	}
+
+	/**
 	 * This method returns the port of the argos application as configured in the argos-backend.properties file.
 	 * @return - the port of the argos application as configured in the argos-backend.properties file
 	 */
@@ -114,7 +138,15 @@ public interface Argos {
 	 * @return - the host name of the argos application
 	 */
 	static String getHost() {
-		return String.format("http://localhost:%1$d", getPort());
+		PropertyEditor propertyReader = new PropertyEditorImpl();
+
+		String host = propertyReader.getProperty(getArgosBackendHostPropertyKey());
+
+		if (host.length() == 0) {
+			host = "http://localhost";
+		}
+
+		return String.format("%1$s:%2$s", host, getPort());
 	}
 
 	/**

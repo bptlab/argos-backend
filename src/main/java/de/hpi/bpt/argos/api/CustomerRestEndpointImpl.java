@@ -1,5 +1,7 @@
 package de.hpi.bpt.argos.api;
 
+import de.hpi.bpt.argos.api.dataType.DataTypeEndpoint;
+import de.hpi.bpt.argos.api.dataType.DataTypeEndpointImpl;
 import de.hpi.bpt.argos.api.event.EventEndpoint;
 import de.hpi.bpt.argos.api.event.EventEndpointImpl;
 import de.hpi.bpt.argos.api.eventQuery.EventQueryEndpoint;
@@ -8,6 +10,8 @@ import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpointImpl;
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.api.product.ProductEndpointImpl;
+import de.hpi.bpt.argos.api.productConfiguration.ProductConfigurationEndPoint;
+import de.hpi.bpt.argos.api.productConfiguration.ProductConfigurationEndpointImpl;
 import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpoint;
 import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpointImpl;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
@@ -26,11 +30,13 @@ public class CustomerRestEndpointImpl implements CustomerRestEndpoint {
 	protected ResponseFactory responseFactory;
 
 	protected ClientUpdateService clientUpdateService;
+	protected DataTypeEndpoint dataTypeEndpoint;
 	protected EventEndpoint eventEndpoint;
+	protected EventQueryEndpoint eventQueryEndpoint;
 	protected EventTypeEndpoint eventTypeEndpoint;
 	protected ProductEndpoint productEndpoint;
+	protected ProductConfigurationEndPoint productConfigurationEndPoint;
 	protected ProductFamilyEndpoint productFamilyEndpoint;
-	protected EventQueryEndpoint eventQueryEndpoint;
 
 	/**
 	 * {@inheritDoc}
@@ -45,6 +51,9 @@ public class CustomerRestEndpointImpl implements CustomerRestEndpoint {
 		entityManager.subscribe(clientUpdateService);
 		clientUpdateService.setup(sparkService);
 
+		dataTypeEndpoint = new DataTypeEndpointImpl();
+		dataTypeEndpoint.setup(responseFactory, entityManager, sparkService);
+
 		eventEndpoint = new EventEndpointImpl();
 		eventEndpoint.setup(responseFactory, entityManager, sparkService);
 
@@ -53,6 +62,9 @@ public class CustomerRestEndpointImpl implements CustomerRestEndpoint {
 
 		productEndpoint = new ProductEndpointImpl();
 		productEndpoint.setup(responseFactory, entityManager, sparkService);
+
+		productConfigurationEndPoint = new ProductConfigurationEndpointImpl();
+		productConfigurationEndPoint.setup(responseFactory, entityManager, sparkService);
 
 		productFamilyEndpoint = new ProductFamilyEndpointImpl();
 		productFamilyEndpoint.setup(responseFactory, entityManager, sparkService);

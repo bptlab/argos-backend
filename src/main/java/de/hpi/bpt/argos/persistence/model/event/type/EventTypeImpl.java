@@ -131,7 +131,7 @@ public class EventTypeImpl extends PersistenceEntityImpl implements EventType {
 	@Override
 	public EventAttribute getAttribute(String attributeName) {
 		for (EventAttribute attribute : attributes) {
-			if (attribute.getName().equals(attributeName)) {
+			if (attribute.getName().equalsIgnoreCase(attributeName)) {
 				return attribute;
 			}
 		}

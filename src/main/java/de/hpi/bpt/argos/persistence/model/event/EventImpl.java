@@ -5,8 +5,8 @@ import de.hpi.bpt.argos.persistence.model.event.data.EventData;
 import de.hpi.bpt.argos.persistence.model.event.data.EventDataImpl;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.event.type.EventTypeImpl;
-import de.hpi.bpt.argos.persistence.model.product.Product;
-import de.hpi.bpt.argos.persistence.model.product.ProductImpl;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfiguration;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfigurationImpl;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -26,9 +26,9 @@ import java.util.List;
 @Table(name = "Event")
 public class EventImpl extends PersistenceEntityImpl implements Event {
 
-	@ManyToOne(cascade = {CascadeType.ALL}, targetEntity = ProductImpl.class)
-	@JoinColumn(name = "product_Id")
-	protected Product product;
+	@ManyToOne(cascade = {CascadeType.ALL}, targetEntity = ProductConfigurationImpl.class)
+	@JoinColumn(name = "product_configuration_Id")
+	protected ProductConfiguration productConfiguration;
 
 	@ManyToOne(cascade = {CascadeType.ALL}, targetEntity = EventTypeImpl.class)
 	protected EventType eventType;
@@ -40,16 +40,17 @@ public class EventImpl extends PersistenceEntityImpl implements Event {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Product getProduct() {
-		return product;
+	public ProductConfiguration getProductConfiguration() {
+		return productConfiguration;
 	}
 
 	/**
 	 * {@inheritDoc}
+	 * @param productConfiguration
 	 */
 	@Override
-	public void setProduct(Product product) {
-		this.product = product;
+	public void setProductConfiguration(ProductConfiguration productConfiguration) {
+		this.productConfiguration = productConfiguration;
 	}
 
 	/**

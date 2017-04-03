@@ -3,6 +3,7 @@ package de.hpi.bpt.argos.persistence.model.event.type;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntity;
 import de.hpi.bpt.argos.persistence.model.event.EventQuery;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
+import de.hpi.bpt.argos.persistence.model.event.data.EventDataType;
 
 import java.util.List;
 
@@ -117,11 +118,75 @@ public interface EventType extends PersistenceEntity {
 	}
 
 	/**
+	 * This method returns the event data type of the productIdentification attribute.
+	 * @return - the event data type of the productIdentification attribute
+	 */
+	static EventDataType getProductIdentificationAttributeDataType() {
+		return EventDataType.LONG;
+	}
+
+	/**
 	 * This method returns the name of the productFamilyIdentification attribute.
 	 * @return - the name of the productFamilyIdentification attribute
 	 */
 	static String getProductFamilyIdentificationAttributeName() {
 		return "productFamilyId";
+	}
+
+	/**
+	 * This method returns the event data type of the productFamilyIdentification attribute.
+	 * @return - the event data type of the productFamilyIdentification attribute
+	 */
+	static EventDataType getProductFamilyIdentificationAttributeDataType() {
+		return EventDataType.STRING;
+	}
+
+	/**
+	 * This method returns the name of the codingPlugId attribute.
+	 * @return - the name of the codingPlugId attribute
+	 */
+	static String getCodingPlugIdentificationAttributeName() {
+		return "codingPlugId";
+	}
+
+	/**
+	 * This method returns the event data type of the codingPlugIdentification attribute.
+	 * @return - the event data type of the codingPlugIdentification attribute
+	 */
+	static EventDataType getCodingPlugIdentificationAttributeDataType() {
+		return EventDataType.INTEGER;
+	}
+
+	/**
+	 * This method returns the name of codingPlugSoftwareVersion attribute.
+	 * @return - the name of the codingPlugSoftwareVersion attribute
+	 */
+	static String getCodingPlugSoftwareVersionAttributeName() {
+		return "codingPlugSoftwareVersion";
+	}
+
+	/**
+	 * This method returns the event data type of the codingPlugSoftwareVersion attribute.
+	 * @return - the event data type of the codingPlugSoftwareVersion attribute
+	 */
+	static EventDataType getCodingPlugSoftwareVersionAttributeDataType() {
+		return EventDataType.FLOAT;
+	}
+
+	/**
+	 * This method returns the cause identifier attribute name.
+	 * @return - the name of the cause identifier attribute
+	 */
+	static String getCauseIdentifierAttributeName() {
+		return "causeId";
+	}
+
+	/**
+	 * This method returns the name of the errorCauseDescription attribute.
+	 * @return - the name of the errorCauseDescription attribute
+	 */
+	static String getErrorCauseDescriptionAttributeName() {
+		return "causeDescription";
 	}
 
 	/**

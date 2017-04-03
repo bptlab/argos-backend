@@ -4,6 +4,7 @@
 # User-specific stuff:
 .idea/
 src/main/resources/argos-backend.properties
+src/main/resources/backbone_data/*
 lib/
 
 ## File-based project format:
@@ -26,3 +27,4 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+src/main/resources/backbone_data/

@@ -5,7 +5,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
-import de.hpi.bpt.argos.api.product.ProductEndpoint;
+import de.hpi.bpt.argos.api.productConfiguration.ProductConfigurationEndPoint;
+import de.hpi.bpt.argos.eventHandling.EventPlatformFeedback;
 import de.hpi.bpt.argos.eventHandling.EventPlatformRestEndpoint;
 import de.hpi.bpt.argos.eventHandling.EventReceiver;
 import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
@@ -13,10 +14,14 @@ import de.hpi.bpt.argos.persistence.model.event.Event;
 import de.hpi.bpt.argos.persistence.model.event.EventQueryImpl;
 import de.hpi.bpt.argos.persistence.model.event.attribute.EventAttribute;
 import de.hpi.bpt.argos.persistence.model.event.data.EventData;
+import de.hpi.bpt.argos.persistence.model.event.data.EventDataType;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.product.Product;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfiguration;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import de.hpi.bpt.argos.persistence.model.product.ProductState;
+import de.hpi.bpt.argos.persistence.model.product.error.ErrorCause;
+import de.hpi.bpt.argos.persistence.model.product.error.ErrorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.HaltException;
@@ -102,7 +107,23 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getAllEventTypes(long productId) {
+	public String getProductConfiguration(long productConfigurationId) {
+		ProductConfiguration configuration = entityManager.getProductConfiguration(productConfigurationId);
+
+		if (configuration == null) {
+			halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "cannot find product configuration");
+		}
+
+		JsonObject jsonConfiguration = getProductConfigurationBase(configuration);
+
+		return serializer.toJson(jsonConfiguration);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEventTypesForProduct(long productId) {
 
 		Product product = entityManager.getProduct(productId);
 
@@ -110,7 +131,33 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "cannot find product");
 		}
 
-		Map<EventType, Integer> eventTypes = entityManager.getEventTypes(productId);
+		Map<EventType, Integer> eventTypes = entityManager.getEventTypesForProduct(productId);
+
+		JsonArray jsonEventTypes = new JsonArray();
+
+		for (Map.Entry<EventType, Integer> eventTypeEntry : eventTypes.entrySet()) {
+			JsonObject jsonEventType = getEventType(eventTypeEntry.getKey());
+			jsonEventType.addProperty("numberOfEvents", eventTypeEntry.getValue());
+
+			jsonEventTypes.add(jsonEventType);
+		}
+
+		return serializer.toJson(jsonEventTypes);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEventTypesForProductConfiguration(long productConfigurationId) {
+
+		ProductConfiguration configuration = entityManager.getProductConfiguration(productConfigurationId);
+
+		if (configuration == null) {
+			halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "cannot find product configuration");
+		}
+
+		Map<EventType, Integer> eventTypes = entityManager.getEventTypesForProductConfiguration(productConfigurationId);
 
 		JsonArray jsonEventTypes = new JsonArray();
 
@@ -157,7 +204,22 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	 */
 	@Override
 	public String getEventsForProduct(long productId, long eventTypeId, int eventIndexFrom, int eventIndexTo) {
-		List<Event> events = entityManager.getEvents(productId, eventTypeId, eventIndexFrom, eventIndexTo);
+		List<Event> events = entityManager.getEventsForProduct(productId, eventTypeId, eventIndexFrom, eventIndexTo);
+		JsonArray jsonEvents = new JsonArray();
+
+		for (Event event : events) {
+			jsonEvents.add(getEvent(event));
+		}
+
+		return serializer.toJson(jsonEvents);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEventsForProductConfiguration(long productConfigurationId, long eventTypeId, int eventIndexFrom, int eventIndexTo) {
+		List<Event> events = entityManager.getEventsForProductConfiguration(productConfigurationId, eventTypeId, eventIndexFrom, eventIndexTo);
 		JsonArray jsonEvents = new JsonArray();
 
 		for (Event event : events) {
@@ -211,8 +273,10 @@ public class ResponseFactoryImpl implements ResponseFactory {
 
 				eventType.getEventQuery().setQueryString(eventQuery);
 
-				if (!eventPlatformRestEndpoint.getEventSubscriber().registerEventQuery(eventType)) {
-					halt(ResponseFactory.HTTP_ERROR_CODE, "cannot register event type");
+				EventPlatformFeedback feedback = eventPlatformRestEndpoint.getEventSubscriber().registerEventQuery(eventType);
+
+				if (!feedback.isSuccessful()) {
+					halt(ResponseFactory.HTTP_ERROR_CODE, String.format("cannot register event type: %1$s", feedback.getResponseText()));
 				}
 
 				entityManager.updateEntity(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
@@ -222,7 +286,8 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			logger.info(String.format("cannot create event type: %1$s -> %2$s", halt.statusCode(), halt.body()));
 			throw halt;
 		} catch (Exception e) {
-			logger.error("cannot parse request body to event type '" + requestBody + "'", e);
+			logger.error("cannot parse request body to event type '" + requestBody + "'");
+			logTrace(e);
 			halt(ResponseFactory.HTTP_ERROR_CODE, e.getMessage());
 		}
 	}
@@ -251,8 +316,11 @@ public class ResponseFactoryImpl implements ResponseFactory {
 					halt(ResponseFactory.HTTP_FORBIDDEN_CODE, "you must not edit this event type");
 				}
 
-				if (!eventPlatformRestEndpoint.getEventSubscriber().updateEventQuery(eventType, eventQuery)) {
-					halt(ResponseFactory.HTTP_ERROR_CODE, "event platform did not accept the updated event query");
+				EventPlatformFeedback feedback = eventPlatformRestEndpoint.getEventSubscriber().updateEventQuery(eventType, eventQuery);
+
+				if (!feedback.isSuccessful()) {
+					halt(ResponseFactory.HTTP_ERROR_CODE,
+							String.format("event platform did not accept the updated event query: %1$s", feedback.getResponseText()));
 				}
 
 				entityManager.updateEntity(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
@@ -262,7 +330,8 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			logger.info(String.format("cannot update event query: %1$s -> %2$s", halt.statusCode(), halt.body()));
 			throw halt;
 		} catch (Exception e) {
-			logger.error("cannot parse request body to event query '" + requestBody + "'", e);
+			logger.error("cannot parse request body to event query '" + requestBody + "'");
+			logTrace(e);
 			halt(ResponseFactory.HTTP_ERROR_CODE, e.getMessage());
 		}
 	}
@@ -271,7 +340,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void updateStatusEventQuery(long productId, ProductState newState, String requestBody) {
+	public void updateStatusEventQuery(long productConfigurationId, ProductState newState, String requestBody) {
 		try {
 			JsonObject jsonBody = jsonParser.parse(requestBody).getAsJsonObject();
 
@@ -281,31 +350,35 @@ public class ResponseFactoryImpl implements ResponseFactory {
 				halt(ResponseFactory.HTTP_ERROR_CODE, "no event query given in body");
 			}
 
-			Product product = entityManager.getProduct(productId);
+			ProductConfiguration configuration = entityManager.getProductConfiguration(productConfigurationId);
 
-			if (product == null) {
+			if (configuration == null) {
 				halt(ResponseFactory.HTTP_NOT_FOUND_CODE, "product not found");
 			} else {
 
-				if (product.getStatusUpdateQuery(newState) == null) {
+				if (configuration.getStatusUpdateQuery(newState) == null) {
 					halt(ResponseFactory.HTTP_ERROR_CODE, "new state is not supported by this product");
 				}
 
-				if (!eventPlatformRestEndpoint.getEventSubscriber().updateEventQuery(
-						product.getStatusUpdateQuery(newState),
+				EventPlatformFeedback feedback = eventPlatformRestEndpoint.getEventSubscriber().updateEventQuery(
+						configuration.getStatusUpdateQuery(newState),
 						eventQuery,
-						EventReceiver.getReceiveStatusUpdateEventUri(product.getOrderNumber(), newState))) {
-					halt(ResponseFactory.HTTP_ERROR_CODE, "event platform did not accept the updated status query");
+						EventReceiver.getReceiveStatusUpdateEventUri(configuration.getId(), newState));
+
+				if (!feedback.isSuccessful()) {
+					halt(ResponseFactory.HTTP_ERROR_CODE,
+							String.format("event platform did not accept the updated status query: %1$s", feedback.getResponseText()));
 				}
 
-				entityManager.updateEntity(product, ProductEndpoint.getProductUri(productId));
+				entityManager.updateEntity(configuration, ProductConfigurationEndPoint.getProductConfigurationUri(productConfigurationId));
 			}
 
 		} catch (HaltException halt) {
 			logger.info(String.format("cannot update status event query: %1$s -> %2$s", halt.statusCode(), halt.body()));
 			throw halt;
 		} catch (Exception e) {
-			logger.error("cannot parse request body to status event query '" + requestBody + "'", e);
+			logger.error("cannot parse request body to status event query '" + requestBody + "'");
+            logTrace(e);
 			halt(ResponseFactory.HTTP_ERROR_CODE, e.getMessage());
 		}
 	}
@@ -353,6 +426,20 @@ public class ResponseFactoryImpl implements ResponseFactory {
 		}
 
 		return "";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getSupportedDataTypes() {
+		JsonArray dataTypes = new JsonArray();
+
+		for (EventDataType type : EventDataType.values()) {
+			dataTypes.add(type.toString());
+		}
+
+		return serializer.toJson(dataTypes);
 	}
 
 	/**
@@ -405,20 +492,121 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			jsonProduct.addProperty("state", product.getState().toString());
 			jsonProduct.addProperty("stateDescription", product.getStateDescription());
 
+			JsonArray configurations = new JsonArray();
+			for (ProductConfiguration configuration : product.getProductConfigurations()) {
+				JsonObject jsonConfiguration = new JsonObject();
+
+				jsonConfiguration.addProperty("id", configuration.getId());
+				jsonConfiguration.addProperty("codingPlugId", configuration.getCodingPlugId());
+
+				JsonArray codingPlugSoftwareVersions = new JsonArray();
+
+				for (float version : configuration.getCodingPlugSoftwareVersions()) {
+					codingPlugSoftwareVersions.add(version);
+				}
+				jsonConfiguration.add("codingPlugSoftwareVersions", codingPlugSoftwareVersions);
+				configurations.add(jsonConfiguration);
+			}
+			jsonProduct.add("configurations", configurations);
+
+			return jsonProduct;
+		} catch (Exception e) {
+			logger.error("Cannot parse product base");
+			logTrace(e);
+			return new JsonObject();
+		}
+	}
+
+	/**
+	 * This method returns a product configuration as json object.
+	 * @param configuration - the product configuration to serialize
+	 * @return - the configuration as json object
+	 */
+	protected JsonObject getProductConfigurationBase(ProductConfiguration configuration) {
+		try {
+			JsonObject jsonConfiguration = new JsonObject();
+			jsonConfiguration.addProperty("id", configuration.getId());
+			jsonConfiguration.addProperty("productId", configuration.getProduct().getId());
+			jsonConfiguration.addProperty("state", configuration.getState().toString());
+			jsonConfiguration.addProperty("codingPlugId", configuration.getCodingPlugId());
+			jsonConfiguration.addProperty("stateDescription", configuration.getStateDescription());
+			jsonConfiguration.addProperty("numberOfEvents", configuration.getNumberOfEvents());
+
 			JsonObject stateQueries = new JsonObject();
 			for (ProductState state : ProductState.values()) {
-				if (product.getStatusUpdateQuery(state) == null) {
+				if (configuration.getStatusUpdateQuery(state) == null) {
 					continue;
 				}
 
-				stateQueries.addProperty(state.toString(), product.getStatusUpdateQuery(state).getQueryString());
+				stateQueries.addProperty(state.toString(), configuration.getStatusUpdateQuery(state).getQueryString());
 			}
+			jsonConfiguration.add("statusUpdateQueries", stateQueries);
 
-			jsonProduct.add("statusUpdateQueries", stateQueries);
+			JsonArray softwareVersions = new JsonArray();
+			for (float version : configuration.getCodingPlugSoftwareVersions()) {
+				softwareVersions.add(version);
+			}
+			jsonConfiguration.add("codingPlugSoftwareVersions", softwareVersions);
 
-			return jsonProduct;
-		} catch (Exception exception) {
-			logger.error("Cannot parse product base", exception);
+			JsonArray errorTypes = new JsonArray();
+			for (ErrorType errorType : configuration.getErrorTypes()) {
+				errorTypes.add(getErrorTypeBase(errorType));
+			}
+			jsonConfiguration.add("errorTypes", errorTypes);
+
+			return jsonConfiguration;
+		} catch (Exception e) {
+			logger.error("Cannot parse product configuration base");
+			logTrace(e);
+			return new JsonObject();
+		}
+	}
+
+	/**
+	 * This method returns an error type as a json object.
+	 * @param errorType - the error type to serialize
+	 * @return - the error type as json object
+	 */
+	protected JsonObject getErrorTypeBase(ErrorType errorType) {
+		try {
+			JsonObject jsonErrorType = new JsonObject();
+			jsonErrorType.addProperty("id", errorType.getId());
+			jsonErrorType.addProperty("errorTypeId", errorType.getErrorTypeId());
+			jsonErrorType.addProperty("displayCode", errorType.getDisplayCode());
+			jsonErrorType.addProperty("causeCode", errorType.getCauseCode());
+			jsonErrorType.addProperty("errorDescription", errorType.getDisplayCode());
+
+			JsonArray errorCauses = new JsonArray();
+			for (ErrorCause cause : errorType.getErrorCauses()) {
+				errorCauses.add(getErrorCauseBase(cause));
+			}
+			jsonErrorType.add("errorCauses", errorCauses);
+
+			return jsonErrorType;
+		} catch (Exception e) {
+			logger.error("Cannot parse error type base");
+			logTrace(e);
+			return new JsonObject();
+		}
+	}
+
+	/**
+	 * This method returns a error cause as json object.
+	 * @param errorCause - the error cause to serialize
+	 * @return - the error cause as json object
+	 */
+	protected JsonObject getErrorCauseBase(ErrorCause errorCause) {
+		try {
+			JsonObject jsonErrorCause = new JsonObject();
+			jsonErrorCause.addProperty("id", errorCause.getId());
+			jsonErrorCause.addProperty("causeDescription", errorCause.getDescription());
+			jsonErrorCause.addProperty("errorOccurrences", errorCause.getErrorOccurrences());
+			jsonErrorCause.addProperty("errorPrediction", errorCause.getErrorPrediction());
+
+			return jsonErrorCause;
+		} catch (Exception e) {
+			logger.error("Cannot parse error cause base");
+			logTrace(e);
 			return new JsonObject();
 		}
 	}
@@ -442,8 +630,9 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			}
 
 			return jsonEventType;
-		} catch (Exception exception) {
-			logger.error("Cannot parse event type base", exception);
+		} catch (Exception e) {
+			logger.error("Cannot parse event type base");
+			logTrace(e);
 			return new JsonObject();
 		}
 	}
@@ -466,8 +655,9 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			jsonEventType.add("attributes", jsonEventAttributes);
 
 			return jsonEventType;
-		} catch (Exception exception) {
-			logger.error("cannot parse event type", exception);
+		} catch (Exception e) {
+			logger.error("cannot parse event type");
+			logTrace(e);
 			return new JsonObject();
 		}
 	}
@@ -485,8 +675,9 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			jsonEventAttribute.addProperty("type", eventAttribute.getType().toString());
 
 			return jsonEventAttribute;
-		} catch (Exception exception) {
-			logger.error("Cannot parse event attribute", exception);
+		} catch (Exception e) {
+			logger.error("Cannot parse event attribute");
+			logTrace(e);
 			return new JsonObject();
 		}
 	}
@@ -502,33 +693,23 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			jsonEvent.addProperty("id", event.getId());
 
 			for (EventData data : event.getEventData()) {
-				switch (data.getEventAttribute().getType()) {
-					case STRING:
-						jsonEvent.addProperty(data.getEventAttribute().getName(), data.getValue());
-						break;
 
-					case INTEGER:
-						jsonEvent.addProperty(data.getEventAttribute().getName(), serializer.fromJson(data.getValue(), Integer.class));
-						break;
-
-					case FLOAT:
-						jsonEvent.addProperty(data.getEventAttribute().getName(), serializer.fromJson(data.getValue(), Float.class));
-						break;
-
-					case DATE:
-						jsonEvent.addProperty(data.getEventAttribute().getName(), data.getValue());
-						break;
-
-					default:
-						jsonEvent.addProperty(data.getEventAttribute().getName(), data.getValue());
-						break;
-				}
+				data.getEventAttribute().getType().addJSONProperty(jsonEvent, data.getEventAttribute().getName(), data.getValue());
 			}
 
 			return jsonEvent;
-		} catch (Exception exception) {
-			logger.error("Cannot parse event", exception);
+		} catch (Exception e) {
+			logger.error("Cannot parse event");
+			logTrace(e);
 			return new JsonObject();
 		}
+	}
+
+	/**
+	 * Logs an exception on log level trace.
+	 * @param e - exception to be logged.
+	 */
+	private void logTrace(Exception e) {
+		logger.trace("Reason: ", e);
 	}
 }

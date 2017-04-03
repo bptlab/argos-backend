@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.event.EventEndpoint;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.product.ProductEndpoint;
+import de.hpi.bpt.argos.api.productConfiguration.ProductConfigurationEndPoint;
 import de.hpi.bpt.argos.api.productFamily.ProductFamilyEndpoint;
 import de.hpi.bpt.argos.notifications.PushNotificationType;
 import de.hpi.bpt.argos.persistence.model.event.Event;
@@ -20,11 +21,17 @@ import de.hpi.bpt.argos.persistence.model.event.data.EventDataType;
 import de.hpi.bpt.argos.persistence.model.event.statusUpdate.StatusUpdateEventType;
 import de.hpi.bpt.argos.persistence.model.event.type.EventType;
 import de.hpi.bpt.argos.persistence.model.event.type.EventTypeImpl;
+import de.hpi.bpt.argos.persistence.model.parsing.DataFile;
+import de.hpi.bpt.argos.persistence.model.parsing.DataFileImpl;
 import de.hpi.bpt.argos.persistence.model.product.Product;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfiguration;
+import de.hpi.bpt.argos.persistence.model.product.ProductConfigurationImpl;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamily;
 import de.hpi.bpt.argos.persistence.model.product.ProductFamilyImpl;
 import de.hpi.bpt.argos.persistence.model.product.ProductImpl;
 import de.hpi.bpt.argos.persistence.model.product.ProductState;
+import de.hpi.bpt.argos.persistence.model.product.error.ErrorCause;
+import de.hpi.bpt.argos.persistence.model.product.error.ErrorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,16 +148,40 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Map<EventType, Integer> getEventTypes(long productId) {
-		return databaseConnection.getEventTypes(productId);
+	public ProductConfiguration getProductConfiguration(long productConfigurationId) {
+		return databaseConnection.getProductConfiguration(productConfigurationId);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Event> getEvents(long productId, long eventTypeId, int indexFrom, int indexTo) {
-		return databaseConnection.getEvents(productId, eventTypeId, indexFrom, indexTo);
+	public Map<EventType, Integer> getEventTypesForProduct(long productId) {
+		return databaseConnection.getEventTypesForProduct(productId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<EventType, Integer> getEventTypesForProductConfiguration(long productConfigurationId) {
+		return databaseConnection.getEventTypesForProductConfiguration(productConfigurationId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Event> getEventsForProduct(long productId, long eventTypeId, int indexFrom, int indexTo) {
+		return databaseConnection.getEventsForProduct(productId, eventTypeId, indexFrom, indexTo);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Event> getEventsForProductConfiguration(long productConfigurationId, long eventTypeId, int indexFrom, int indexTo) {
+		return databaseConnection.getEventsForProductConfiguration(productConfigurationId, eventTypeId, indexFrom, indexTo);
 	}
 
 	/**
@@ -165,8 +196,8 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Product getProduct(int externalProductId) {
-		return databaseConnection.getProduct(externalProductId);
+	public Product getProductByExternalId(long externalProductId) {
+		return databaseConnection.getProductByExternalId(externalProductId);
 	}
 
 	/**
@@ -183,6 +214,24 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	@Override
 	public Event getEvent(long eventId) {
 		return databaseConnection.getEvent(eventId);
+	}
+
+	/**
+	 * This method returns a data file with the specified path and, if it did not exist, creates it in the database.
+	 * @param path - the file to look for
+	 * @return - a data file
+	 */
+	@Override
+	public DataFile getDataFile(String path) {
+		DataFile file = databaseConnection.getDataFile(path);
+
+		if (file == null) {
+			file = new DataFileImpl();
+			file.setPath(path);
+			updateEntity(file);
+		}
+
+		return file;
 	}
 
 	/**
@@ -214,11 +263,32 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		Product product = getProduct(getProductFamilyIdentification(event.getEventData()),
 				getProductIdentification(event.getEventData()));
 
-		event.setProduct(product);
+		if (product == null) {
+			logger.error(String.format("can not find product for event '%1$s'", requestBody));
+			return null;
+		}
 
-		product.incrementNumberOfEvents(1);
-		databaseConnection.saveEntities(product, event);
+		ProductConfiguration configuration = getProductConfiguration(product,
+				getCodingPlugIdentifier(event.getEventData()),
+				getCodingPlugSoftwareVersion(event.getEventData()));
+
+		ErrorType errorType = configuration.getErrorType(getCauseIdentifier(event.getEventData()));
+		if (errorType != null) {
+			ErrorCause cause = errorType.getErrorCause(getErrorDescription(event.getEventData()));
+
+			if (cause != null) {
+				cause.incrementErrorOccurrences(1);
+			}
+		}
+
+		event.setProductConfiguration(configuration);
+
+		configuration.incrementNumberOfEvents(1);
+		if (!databaseConnection.saveEntities(product, configuration, event)) {
+			return null;
+		}
 		updateEntity(PushNotificationType.UPDATE, product, ProductEndpoint.getProductUri(product.getId()));
+		updateEntity(PushNotificationType.UPDATE, configuration, ProductConfigurationEndPoint.getProductConfigurationUri(configuration.getId()));
 		updateEntity(PushNotificationType.CREATE, event, EventEndpoint.getEventUri(event.getId()));
 
 		return event;
@@ -228,28 +298,30 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Event createStatusUpdateEvent(long productId, ProductState newProductState, String requestBody) {
+	public Event createStatusUpdateEvent(long productConfigurationId, ProductState newProductState, String requestBody) {
 
-		Product product = getProduct(productId);
+		ProductConfiguration configuration = getProductConfiguration(productConfigurationId);
 		EventType statusUpdateEventType = getEventType(EventType.getStatusUpdateEventTypeName());
 
-		if (product == null || statusUpdateEventType == null) {
+		if (configuration == null || statusUpdateEventType == null) {
 			return null;
 		}
 
 		Event statusUpdateEvent = new EventImpl();
 		statusUpdateEvent.setEventType(statusUpdateEventType);
-		statusUpdateEvent.setProduct(product);
+		statusUpdateEvent.setProductConfiguration(configuration);
 
 		JsonObject jsonBody = jsonParser.parse(requestBody).getAsJsonObject();
-		statusUpdateEvent.setEventData(getStatusUpdateEventData(product, newProductState, statusUpdateEventType, jsonBody));
+		statusUpdateEvent.setEventData(getStatusUpdateEventData(configuration, newProductState, statusUpdateEventType, jsonBody));
 
-		product.setState(newProductState);
+		configuration.setState(newProductState);
 
-		if (!databaseConnection.saveEntities(product, statusUpdateEvent)) {
+		if (!databaseConnection.saveEntities(configuration, statusUpdateEvent)) {
 			return null;
 		}
-		updateEntity(PushNotificationType.UPDATE, product, ProductEndpoint.getProductUri(product.getId()));
+
+		updateEntity(PushNotificationType.UPDATE, configuration.getProduct(), ProductEndpoint.getProductUri(configuration.getProduct().getId()));
+		updateEntity(PushNotificationType.UPDATE, configuration, ProductConfigurationEndPoint.getProductConfigurationUri(configuration.getId()));
 		updateEntity(PushNotificationType.CREATE, statusUpdateEvent, EventEndpoint.getEventUri(statusUpdateEvent.getId()));
 
 		return statusUpdateEvent;
@@ -288,7 +360,9 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		updatedEventType.setId(eventTypeId);
 		updatedEventType.setEventQuery(eventType.getEventQuery());
 
-		databaseConnection.saveEntities(updatedEventType);
+		if (!databaseConnection.saveEntities(updatedEventType)) {
+			return null;
+		}
 		updateEntity(PushNotificationType.UPDATE, updatedEventType, EventTypeEndpoint.getEventTypeUri(eventTypeId));
 
 		return updatedEventType;
@@ -298,17 +372,18 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Product getProduct(ProductFamily productFamily, int productOrderNumber) {
-		Product product = databaseConnection.getProduct(productOrderNumber);
+	public Product getProduct(ProductFamily productFamily, long externalProductId) {
+		Product product = databaseConnection.getProductByExternalId(externalProductId);
 
 		if (product == null) {
 			product = new ProductImpl();
-			product.setOrderNumber(productOrderNumber);
+			product.setOrderNumber(externalProductId);
 			product.setProductFamily(productFamily);
-			product.setState(ProductState.UNDEFINED);
 
 			productFamily.getProducts().add(product);
-			databaseConnection.saveEntities(productFamily, product);
+			if (!databaseConnection.saveEntities(productFamily, product)) {
+				return null;
+			}
 			updateEntity(PushNotificationType.CREATE, product, ProductEndpoint.getProductUri(product.getId()));
 		}
 
@@ -319,10 +394,34 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Product getProduct(String productFamilyName, int productIdentifier) {
+	public Product getProduct(String productFamilyName, long externalProductId) {
 		ProductFamily productFamily = getProductFamily(productFamilyName);
 
-		return getProduct(productFamily, productIdentifier);
+		return getProduct(productFamily, externalProductId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ProductConfiguration getProductConfiguration(Product product, int codingPlugId, float codingPlugSoftwareVersion) {
+		ProductConfiguration configuration = product.getProductConfiguration(codingPlugId, codingPlugSoftwareVersion);
+
+		if (configuration == null) {
+			configuration = new ProductConfigurationImpl();
+			configuration.setProduct(product);
+			configuration.setCodingPlugId(codingPlugId);
+			configuration.addCodingPlugSoftwareVersion(codingPlugSoftwareVersion);
+			product.addProductConfiguration(configuration);
+
+			if (!databaseConnection.saveEntities(product, configuration)) {
+				return null;
+			}
+			updateEntity(PushNotificationType.UPDATE, product, ProductEndpoint.getProductUri(product.getId()));
+			updateEntity(PushNotificationType.CREATE, configuration, ProductConfigurationEndPoint.getProductConfigurationUri(configuration.getId()));
+		}
+
+		return configuration;
 	}
 
 	/**
@@ -336,7 +435,9 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 			productFamily = new ProductFamilyImpl();
 			productFamily.setName(productFamilyName);
 
-			databaseConnection.saveEntities(productFamily);
+			if (!databaseConnection.saveEntities(productFamily)) {
+				return null;
+			}
 			updateEntity(PushNotificationType.CREATE, productFamily, ProductFamilyEndpoint.getProductFamilyUri(productFamily.getId()));
 		}
 
@@ -389,10 +490,16 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * @param eventData - the event data of the requested event
 	 * @return - the product identification
 	 */
-	protected int getProductIdentification(List<EventData> eventData) {
+	protected long getProductIdentification(List<EventData> eventData) {
 		for (EventData data : eventData) {
 			if (data.getEventAttribute().getName().equals(EventType.getProductIdentificationAttributeName())) {
-				return Integer.parseInt(data.getValue());
+				try {
+					return Long.parseLong(data.getValue());
+				} catch (Exception e) {
+					logger.error(String.format("can not cast '%1$s' to external product id (long)", data.getValue()));
+					logTrace(e);
+					return -1;
+				}
 			}
 		}
 
@@ -400,13 +507,91 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	}
 
 	/**
-	 * This method returns the product family identification for an event type and a list of event data.
+	 * This method returns the product family identification for a list of event data.
 	 * @param eventData - the event data of the requested event
 	 * @return - the product family identification
 	 */
 	protected String getProductFamilyIdentification(List<EventData> eventData) {
 		for (EventData data : eventData) {
-			if (data.getEventAttribute().getName().equals(EventType.getProductFamilyIdentificationAttributeName())) {
+			if (data.getEventAttribute().getName().equalsIgnoreCase(EventType.getProductFamilyIdentificationAttributeName())) {
+				return data.getValue();
+			}
+		}
+
+		return "";
+	}
+
+	/**
+	 * This method returns the coding plug id for a list of event data.
+	 * @param eventData - the event data for the requested event
+	 * @return - the coding plug id
+	 */
+	protected int getCodingPlugIdentifier(List<EventData> eventData) {
+		for (EventData data : eventData) {
+			if (data.getEventAttribute().getName().equalsIgnoreCase(EventType.getCodingPlugIdentificationAttributeName())) {
+				try {
+					return Integer.parseInt(data.getValue());
+				} catch (Exception e) {
+					logger.error(String.format("can not cast '%1$s' to coding plug id (int)", data.getValue()));
+					logTrace(e);
+					return -1;
+				}
+			}
+		}
+
+		return -1;
+	}
+
+	/**
+	 * This method returns the coding plug software version for a list of event data.
+	 * @param eventData - the event data for the requested event
+	 * @return - the coding plug software version
+	 */
+	protected float getCodingPlugSoftwareVersion(List<EventData> eventData) {
+		for (EventData data : eventData) {
+			if (data.getEventAttribute().getName().equalsIgnoreCase(EventType.getCodingPlugSoftwareVersionAttributeName())) {
+				try {
+					return Float.parseFloat(data.getValue());
+				} catch (Exception e) {
+					logger.error(String.format("can not cast '%1$s' to coding plug software version (float)", data.getValue()));
+					logTrace(e);
+					return -1.0f;
+				}
+			}
+		}
+
+		return -1.0f;
+	}
+
+	/**
+	 * This method returns the cause id for a list of event data.
+	 * @param eventData - the event data for the requested event
+	 * @return - the cause id
+	 */
+	protected int getCauseIdentifier(List<EventData> eventData) {
+		for (EventData data : eventData) {
+			if (data.getEventAttribute().getName().equalsIgnoreCase(EventType.getCauseIdentifierAttributeName())) {
+				try {
+					return Integer.parseInt(data.getValue());
+				} catch (Exception e) {
+					logger.error(String.format("can not cast '%1$s' to cause id (int)", data.getValue()));
+					logTrace(e);
+					return -1;
+				}
+			}
+		}
+
+		return -1;
+	}
+
+	/**
+	 * This method returns the error description for a list of event data.
+	 * @param eventData - the event data for the requested event
+	 * @return - the error description
+	 */
+	protected String getErrorDescription(List<EventData> eventData) {
+		for (EventData data : eventData) {
+			if (data.getEventAttribute().getName().equalsIgnoreCase(EventType.getErrorCauseDescriptionAttributeName())) {
 				return data.getValue();
 			}
 		}
@@ -583,7 +768,9 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 			return null;
 		}
 
-		databaseConnection.saveEntities(eventType);
+		if (!databaseConnection.saveEntities(eventType)) {
+			return null;
+		}
 
 		if (notifyClients) {
 			updateEntity(PushNotificationType.CREATE, eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
@@ -602,15 +789,27 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 			return false;
 		}
 
-		if (!isValid(eventType.getAttribute(EventType.getProductIdentificationAttributeName()))) {
+		if (!isValid(eventType.getAttribute(EventType.getProductIdentificationAttributeName()),
+				EventType.getProductIdentificationAttributeDataType())) {
 			return false;
 		}
 
-		if (!isValid(eventType.getAttribute(EventType.getProductFamilyIdentificationAttributeName()))) {
+		if (!isValid(eventType.getAttribute(EventType.getProductFamilyIdentificationAttributeName()),
+				EventType.getProductFamilyIdentificationAttributeDataType())) {
 			return false;
 		}
 
-		if (!isValid(eventType.getTimestampAttribute())) {
+		if (!isValid(eventType.getAttribute(EventType.getCodingPlugIdentificationAttributeName()),
+				EventType.getCodingPlugIdentificationAttributeDataType())) {
+			return false;
+		}
+
+		if (!isValid(eventType.getAttribute(EventType.getCodingPlugSoftwareVersionAttributeName()),
+				EventType.getCodingPlugSoftwareVersionAttributeDataType())) {
+			return false;
+		}
+
+		if (!isValid(eventType.getTimestampAttribute(), EventDataType.DATE)) {
 			return false;
 		}
 
@@ -619,18 +818,18 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 
 	/**
 	 * This method returns a list of event data for the json representation of a status update event.
-	 * @param product - the product which status is updated
-	 * @param jsonEvent - the json representation of the event
-	 * @param updateStatusEventType - the update event status event type
+	 * @param productConfiguration - the product configuration which status is updated
 	 * @param newProductState - the updated product state
+	 * @param updateStatusEventType - the update event status event type
+	 * @param jsonEvent - the json representation of the event
 	 * @return - a list of event data
 	 */
-	protected List<EventData> getStatusUpdateEventData(Product product, ProductState newProductState, EventType updateStatusEventType,
-													   JsonObject jsonEvent) {
+	protected List<EventData> getStatusUpdateEventData(ProductConfiguration productConfiguration, ProductState newProductState,
+													   EventType updateStatusEventType, JsonObject jsonEvent) {
 
 		EventData oldStatus = new EventDataImpl();
 		oldStatus.setEventAttribute(getAttributeForEventDataMember(updateStatusEventType, StatusUpdateEventType.getOldStatusAttributeName()));
-		oldStatus.setValue(product.getState().toString());
+		oldStatus.setValue(productConfiguration.getState().toString());
 
 		EventData newStatus = new EventDataImpl();
 		newStatus.setEventAttribute(getAttributeForEventDataMember(updateStatusEventType, StatusUpdateEventType.getNewStatusAttributeName()));
@@ -646,9 +845,18 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	/**
 	 * This method checks whether an event attribute is valid.
 	 * @param attribute - the event attribute to check
+	 * @param attributeDataType - the attribute data type for the event
 	 * @return - true if event attribute is valid
 	 */
-	protected boolean isValid(EventAttribute attribute) {
-		return attribute != null && attribute.getName().length() > 0;
+	protected boolean isValid(EventAttribute attribute, EventDataType attributeDataType) {
+		return attribute != null && attribute.getName().length() > 0 && attribute.getType() == attributeDataType;
+	}
+
+	/**
+	 * Logs an exception stack trace on log level trace.
+	 * @param e - exception to log
+	 */
+	private void logTrace(Exception e) {
+		logger.trace("Reason: ", e);
 	}
 }
