@@ -24,6 +24,7 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	protected static final String PRODUCTS_ELEMENT = "products";
 	protected static final String PRODUCT_ELEMENT = "product";
 	protected static final String PRODUCT_IDENTIFIER_ELEMENT = "productIdentifier";
+	protected static final String PRODUCT_FAMILY_IDENTIFIER_ELEMENT = "productFamilyIdentifier";
 	protected static final String PRODUCT_DESCRIPTION_ELEMENT = "productDescription";
 	protected static final String PRODUCT_CONFIGURATION_ELEMENT = "productConfiguration";
 	protected static final String CODING_PLUG_ELEMENT = "codingPlug";
@@ -34,15 +35,12 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	protected static final String CAUSE_DESCRIPTION_ELEMENT = "causeDescription";
 	protected static final String CAUSE_PREDICTION_ELEMENT = "causePrediction";
 
-	protected static final String PRODUCT_FAMILY_SEPARATOR = "-";
-	protected static final int PRODUCT_FAMILY_SPLIT_LENGTH = 2;
 	protected static final double TO_PERCENT = 1.0 / 100.0;
 
 	protected List<Long> cachedExternalProductIdentifiers = new ArrayList<>();
 	protected String tempCurrentProductExternalId = "";
 	protected String tempCurrentProductFamilyId = "";
 	protected String tempCurrentCauseDescription = "";
-	protected String tempCurrentProductName = "";
 	protected String tempCurrentCauseCode = "";
 	protected String tempCurrentErrorDisplayCode = "";
 	protected String tempCurrentCodingPlug = "";
@@ -124,6 +122,10 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 				tempCurrentProductExternalId = elementData;
 				break;
 
+			case PRODUCT_FAMILY_IDENTIFIER_ELEMENT:
+				tempCurrentProductFamilyId = elementData;
+				break;
+
 			case PRODUCT_DESCRIPTION_ELEMENT:
 				startNewProduct(elementData);
 				break;
@@ -168,6 +170,11 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	 */
 	protected void startNewProduct(String productDescription) {
 
+		if (tempCurrentProductFamilyId.length() == 0) {
+			logger.debug(String.format("unsupported product: '%1$s'. No product family identifier given", productDescription));
+			resetCurrentEntities();
+		}
+
 		long externalProductId;
 
 		try {
@@ -179,43 +186,14 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 			return;
 		}
 
-		if (!splitProductDescription(productDescription)
-				|| cachedExternalProductIdentifiers.contains(externalProductId)) {
+		if (cachedExternalProductIdentifiers.contains(externalProductId)) {
 			resetCurrentEntities();
 			return;
 		}
 
 		currentProduct = entityManager.getProduct(tempCurrentProductFamilyId, externalProductId);
-		currentProduct.setName(tempCurrentProductName);
+		currentProduct.setName(productDescription);
 		productsImported++;
-	}
-
-	/**
-	 * This method splits a product description and sets the current productFamilyId and the currentProductName.
-	 * @param productDescription - the description for the current product
-	 * @return - true if the description is valid
-	 */
-	protected boolean splitProductDescription(String productDescription) {
-
-		String[] split = productDescription.split(PRODUCT_FAMILY_SEPARATOR);
-
-		if (split.length < PRODUCT_FAMILY_SPLIT_LENGTH) {
-			logger.info(String.format("product '%1$s' is not supported", productDescription));
-			return false;
-		}
-
-		StringBuilder productName = new StringBuilder();
-		productName.append(split[1]);
-
-		// add separator to product name, if more than two split parts exist
-		for (int i = PRODUCT_FAMILY_SPLIT_LENGTH; i < split.length; i++) {
-			productName.append(PRODUCT_FAMILY_SEPARATOR);
-			productName.append(split[i]);
-		}
-
-		tempCurrentProductFamilyId = split[0];
-		tempCurrentProductName = productName.toString();
-		return true;
 	}
 
 	/**
@@ -352,7 +330,6 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 		tempCurrentProductExternalId = "";
 		tempCurrentProductFamilyId = "";
 		tempCurrentCauseDescription = "";
-		tempCurrentProductName = "";
 		tempCurrentCauseCode = "";
 		tempCurrentErrorDisplayCode = "";
 		tempCurrentCodingPlug = "";
