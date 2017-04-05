@@ -575,6 +575,7 @@ public class ResponseFactoryImpl implements ResponseFactory {
 			jsonErrorType.addProperty("displayCode", errorType.getDisplayCode());
 			jsonErrorType.addProperty("causeCode", errorType.getCauseCode());
 			jsonErrorType.addProperty("errorDescription", errorType.getDisplayCode());
+			jsonErrorType.addProperty("errorOccurrences", errorType.getErrorOccurrences());
 
 			JsonArray errorCauses = new JsonArray();
 			for (ErrorCause cause : errorType.getErrorCauses()) {

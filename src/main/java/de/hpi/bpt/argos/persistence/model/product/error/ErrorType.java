@@ -82,4 +82,10 @@ public interface ErrorType extends PersistenceEntity {
 	 * @param errorCause - the error cause to be added
 	 */
 	void addErrorCause(ErrorCause errorCause);
+
+	/**
+	 * This method returns the number of all error events, which were received for this error type.
+	 * @return - the number of all error events, which were received for this error type
+	 */
+	long getErrorOccurrences();
 }
