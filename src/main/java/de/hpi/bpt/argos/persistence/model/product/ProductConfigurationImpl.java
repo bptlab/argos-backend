@@ -56,7 +56,7 @@ public class ProductConfigurationImpl extends PersistenceEntityImpl implements P
 	@Column(name = "NumberOfEvents")
 	protected long numberOfEvents = 0;
 
-	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER, targetEntity = ErrorTypeImpl.class)
+	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, targetEntity = ErrorTypeImpl.class)
 	protected Set<ErrorType> errorTypes = new HashSet<>();
 
 	/**

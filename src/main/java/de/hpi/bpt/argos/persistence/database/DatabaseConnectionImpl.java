@@ -131,9 +131,31 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 		Session session = databaseSessionFactory.openSession();
 		Transaction transaction = session.beginTransaction();
 		Query<ProductConfiguration> query = session.createQuery("FROM ProductConfiguration pc "
-						+ "WHERE pc.id = :productConfigurationId",
+						+ " left join fetch pc.errorTypes"
+						+ " where pc.id = :productConfigurationId",
 				ProductConfiguration.class)
 				.setParameter("productConfigurationId", productConfigurationId);
+
+		return getEntities(session, query, transaction, query::uniqueResult, null);
+	}
+
+	@Override
+	public ProductConfiguration getProductConfiguration(Product product, int codingPlugId, float
+			codingPlugSoftwareVersion) {
+		Session session = databaseSessionFactory.openSession();
+		Transaction transaction = session.beginTransaction();
+		System.out.println(product.getId());
+		System.out.println(codingPlugId);
+		System.out.println(codingPlugSoftwareVersion);
+		Query<ProductConfiguration> query = session.createQuery("FROM ProductConfiguration pc "
+						+ " left join fetch pc.errorTypes"
+						+ " where pc.product.id = :productId"
+						+ " and pc.codingPlugId = :codingPlugId"
+						+ " and :codingPlugSoftwareVersions in pc.codingPlugSoftwareVersions",
+				ProductConfiguration.class)
+				.setParameter("productId", product.getId())
+				.setParameter("codingPlugId", codingPlugId)
+				.setParameter("codingPlugSoftwareVersions", codingPlugSoftwareVersion);
 
 		return getEntities(session, query, transaction, query::uniqueResult, null);
 	}
