@@ -268,9 +268,24 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 			return null;
 		}
 
-		ProductConfiguration configuration = getProductConfiguration(product,
-				getCodingPlugIdentifier(event.getEventData()),
-				getCodingPlugSoftwareVersion(event.getEventData()));
+		long productConfigurationId;
+		ProductConfiguration configuration;
+
+		try {
+		    productConfigurationId = product.getProductConfiguration(
+                    getCodingPlugIdentifier(event.getEventData()), getCodingPlugSoftwareVersion(event.getEventData()))
+                    .getId();
+            configuration = databaseConnection.getProductConfiguration(productConfigurationId);
+        } catch (NullPointerException e) {
+		    logger.warn("No configurations for product");
+		    logger.trace(e.getMessage());
+		    configuration = new ProductConfigurationImpl();
+		    configuration.setProduct(product);
+		    product.addProductConfiguration(configuration);
+		    if (!databaseConnection.saveEntities(product)) {
+		        return null;
+            }
+        }
 
 		ErrorType errorType = configuration.getErrorType(getCauseIdentifier(event.getEventData()));
 		if (errorType != null) {
@@ -278,13 +293,16 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 
 			if (cause != null) {
 				cause.incrementErrorOccurrences(1);
+				if (!databaseConnection.saveEntities(cause)) {
+				   return null;
+                }
 			}
 		}
 
 		event.setProductConfiguration(configuration);
 
 		configuration.incrementNumberOfEvents(1);
-		if (!databaseConnection.saveEntities(product, configuration, event)) {
+		if (!databaseConnection.saveEntities(configuration, event)) {
 			return null;
 		}
 		updateEntity(PushNotificationType.UPDATE, product, ProductEndpoint.getProductUri(product.getId()));
