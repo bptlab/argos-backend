@@ -137,4 +137,18 @@ public class ErrorTypeImpl extends PersistenceEntityImpl implements ErrorType {
 	public void addErrorCause(ErrorCause errorCause) {
 		errorCauses.add(errorCause);
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public long getErrorOccurrences() {
+		long occurrences = 0;
+
+		for (ErrorCause cause : errorCauses) {
+			occurrences += cause.getErrorOccurrences();
+		}
+
+		return occurrences;
+	}
 }

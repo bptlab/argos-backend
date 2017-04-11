@@ -1,6 +1,5 @@
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/bptlab/argos-backend/master/LICENSE)
-[![GitHub release](https://img.shields.io/badge/release-1.2-blue.svg)](https://github
-.com/bptlab/argos-backend/releases/latest)
+[![GitHub release](https://img.shields.io/badge/release-1.3-blue.svg)](https://github.com/bptlab/argos-backend/releases/latest)
 
 [![Quality Gate - Dev](https://bpt-lab.org/sonarqube/api/badges/gate?key=de.hpi.bpt:argos-backend:dev "Developer branch")](https://bpt-lab.org/sonarqube/overview?id=de.hpi.bpt%3Aargos-backend)
 [![Build Status](https://travis-ci.org/bptlab/argos-backend.svg?branch=master)](https://travis-ci.org/bptlab/argos-backend "Default branch")
