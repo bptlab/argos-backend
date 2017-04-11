@@ -131,7 +131,8 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 		Session session = databaseSessionFactory.openSession();
 		Transaction transaction = session.beginTransaction();
 		Query<ProductConfiguration> query = session.createQuery("FROM ProductConfiguration pc "
-						+ "WHERE pc.id = :productConfigurationId",
+						+ " left join fetch pc.errorTypes"
+						+ " where pc.id = :productConfigurationId",
 				ProductConfiguration.class)
 				.setParameter("productConfigurationId", productConfigurationId);
 
