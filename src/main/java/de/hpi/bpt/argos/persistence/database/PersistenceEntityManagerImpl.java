@@ -278,7 +278,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
             configuration = databaseConnection.getProductConfiguration(productConfigurationId);
         } catch (NullPointerException e) {
 		    logger.warn("No configurations for product");
-		    logger.trace(e.getMessage());
+		    logger.trace(e.toString());
 		    configuration = new ProductConfigurationImpl();
 		    configuration.setProduct(product);
 		    product.addProductConfiguration(configuration);
