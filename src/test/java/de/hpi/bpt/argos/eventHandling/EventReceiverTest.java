@@ -215,8 +215,6 @@ public class EventReceiverTest extends EventPlatformEndpointParentClass {
 		Product product = ArgosTestParent.argos.getPersistenceEntityManager().getProductByExternalId(orderNumber);
 		assertNotNull(product);
 
-		assertEquals(1, product.getProductConfigurations().size());
-
 		List<ProductFamily> productFamilies = ArgosTestParent.argos.getPersistenceEntityManager().getProductFamilies();
 		assertEquals(2, productFamilies.size());
 
