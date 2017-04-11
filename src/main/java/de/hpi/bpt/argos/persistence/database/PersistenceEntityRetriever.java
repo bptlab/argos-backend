@@ -48,8 +48,6 @@ public interface PersistenceEntityRetriever {
 	 */
 	ProductConfiguration getProductConfiguration(long productConfigurationId);
 
-	ProductConfiguration getProductConfiguration(Product product, int codingPlugId, float codingPlugSoftwareVersion);
-
 	/**
 	 * This method makes the database call to retrieve the necessary data for the API that serves all event types for a certain product.
 	 * @param productId - the product that we want the event types for

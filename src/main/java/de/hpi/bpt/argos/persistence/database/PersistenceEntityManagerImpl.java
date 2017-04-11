@@ -405,7 +405,7 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 */
 	@Override
 	public ProductConfiguration getProductConfiguration(Product product, int codingPlugId, float codingPlugSoftwareVersion) {
-		ProductConfiguration configuration = databaseConnection.getProductConfiguration(product, codingPlugId, codingPlugSoftwareVersion);
+	    ProductConfiguration configuration = product.getProductConfiguration(codingPlugId, codingPlugSoftwareVersion);
 
 		if (configuration == null) {
 			configuration = new ProductConfigurationImpl();
