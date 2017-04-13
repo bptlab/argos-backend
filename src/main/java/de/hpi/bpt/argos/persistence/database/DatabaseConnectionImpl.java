@@ -35,6 +35,8 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	protected SessionFactory databaseSessionFactory;
 	protected int batchSize;
 
+	protected static final int TO_PERCENT = 100;
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -330,8 +332,10 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 
 				if (++count % batchSize == 0) {
 
-					logger.debug(String.format("saving entities... %1$d / %2$d = %3$,2f%%", count, entities.length, count * 100 / (double)entities
-							.length));
+					logger.debug(String.format("saving entities... %1$d / %2$d = %3$,2f%%",
+							count,
+							entities.length,
+							count * TO_PERCENT / (double) entities.length));
 
 					session.flush();
 					session.clear();
