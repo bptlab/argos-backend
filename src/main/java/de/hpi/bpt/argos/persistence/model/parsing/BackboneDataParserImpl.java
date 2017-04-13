@@ -61,10 +61,6 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	protected static final int MINUTES_PER_HOUR = 60;
 	protected static final int HOURS_PER_DAY = 24;
 
-	// cache
-	protected List<ErrorType> newErrorTypes = new ArrayList<>();
-	protected List<Product> newProducts = new ArrayList<>();
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -102,7 +98,6 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 				break;
 
 			case PRODUCTS_ELEMENT:
-				saveEntities();
 				logStatistics();
 				break;
 
@@ -322,11 +317,13 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 		logger.info(String.format("added product '%1$s' with '%2$d' configurations in family '%3$s'", currentProduct.getName(), currentProduct
 				.getProductConfigurations().size(), currentProduct.getProductFamily().getName()));
 
+		List<ErrorType> newErrorTypes = new ArrayList<>();
 		for (ProductConfiguration configuration : currentProduct.getProductConfigurations()) {
 			newErrorTypes.addAll(configuration.getErrorTypes());
 		}
 
-		newProducts.add(currentProduct);
+		entityManager.updateEntities(newErrorTypes.toArray(new ErrorType[0]));
+		entityManager.updateEntities(currentProduct);
 
 		resetCurrentEntities();
 	}
@@ -364,14 +361,6 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 		}
 
 		return false;
-	}
-
-	/**
-	 * This method saves all new entities.
-	 */
-	protected void saveEntities() {
-		entityManager.updateEntities(newErrorTypes.toArray(new ErrorType[0]));
-		entityManager.updateEntities(newProducts.toArray(new Product[0]));
 	}
 
     /**
