@@ -1,6 +1,5 @@
 package de.hpi.bpt.argos.persistence.model.parsing;
 
-import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.common.parsing.XMLFileParserImpl;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductConfiguration;
@@ -317,7 +316,14 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 
 		logger.info(String.format("added product '%1$s' with '%2$d' configurations in family '%3$s'", currentProduct.getName(), currentProduct
 				.getProductConfigurations().size(), currentProduct.getProductFamily().getName()));
-		entityManager.updateEntity(currentProduct, ProductEndpoint.getProductUri(currentProduct.getId()));
+
+		List<ErrorType> newErrorTypes = new ArrayList<>();
+		for (ProductConfiguration configuration : currentProduct.getProductConfigurations()) {
+			newErrorTypes.addAll(configuration.getErrorTypes());
+		}
+
+		entityManager.updateEntities(newErrorTypes.toArray(new ErrorType[0]));
+		entityManager.updateEntities(currentProduct);
 
 		resetCurrentEntities();
 	}

@@ -33,6 +33,9 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 	protected static final Logger logger = LoggerFactory.getLogger(DatabaseConnectionImpl.class);
 
 	protected SessionFactory databaseSessionFactory;
+	protected int batchSize;
+
+	protected static final int TO_PERCENT = 100;
 
 	/**
 	 * {@inheritDoc}
@@ -47,6 +50,9 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 			Configuration configuration = new Configuration();
 
 			configuration.configure();
+
+			batchSize = Integer.parseInt(configuration.getProperty("hibernate.jdbc.batch_size"));
+
 			configuration.setProperty("hibernate.connection.username",
 					propertyEditor.getProperty(DatabaseConnection.getDatabaseConnectionUsernamePropertyKey()));
 
@@ -319,9 +325,21 @@ public class DatabaseConnectionImpl implements DatabaseConnection {
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
+			int count = 0;
 
 			for (PersistenceEntity entity : entities) {
 				session.saveOrUpdate(entity);
+
+				if (++count % batchSize == 0) {
+
+					logger.debug(String.format("saving entities... %1$d / %2$d = %3$,2f%%",
+							count,
+							entities.length,
+							count * TO_PERCENT / (double) entities.length));
+
+					session.flush();
+					session.clear();
+				}
 			}
 
 			tx.commit();

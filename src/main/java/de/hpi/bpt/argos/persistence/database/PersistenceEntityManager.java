@@ -26,11 +26,18 @@ public interface PersistenceEntityManager extends PersistenceEntityRetriever {
 	void unsubscribe(PersistenceEntityManagerEventReceiver eventReceiver);
 
 	/**
-	 * This method stores a modified entity in the database. Only use this method if client should not be notified about changes.
+	 * This method stores a modified entity in the database. Use this method only if clients should not be notified about the changes.
 	 * @param entity - the modified entity
 	 * @return - true, if the entity was updated
 	 */
 	boolean updateEntity(PersistenceEntity entity);
+
+	/**
+	 * This method stores modified entities in the database. Use this method only if clients should not be notified about the changes.
+	 * @param entities - the modified entities
+	 * @return - true, if all entities were saved
+	 */
+	boolean updateEntities(PersistenceEntity... entities);
 
 	/**
 	 * This method stores a modified entity in the database. Use this method to also notify clients about the changes.
