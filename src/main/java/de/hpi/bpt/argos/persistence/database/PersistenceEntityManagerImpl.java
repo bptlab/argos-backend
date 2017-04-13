@@ -100,6 +100,14 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public boolean updateEntities(PersistenceEntity... entities) {
+		return databaseConnection.saveEntities(entities);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public boolean updateEntity(PersistenceEntity entity, String fetchUri) {
 		if (!updateEntity(entity)) {
 			return false;

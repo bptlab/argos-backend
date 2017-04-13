@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.productConfiguration.ProductConfigurationEndPoint;
 import de.hpi.bpt.argos.api.response.ResponseFactory;
-import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.core.ArgosTestParent;
 import de.hpi.bpt.argos.core.ArgosTestUtil;
 import de.hpi.bpt.argos.persistence.model.event.Event;

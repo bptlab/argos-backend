@@ -10,7 +10,12 @@
         <property name="hibernate.connection.driver_class">
             org.mariadb.jdbc.Driver
         </property>
-        <property name="hibernate.connection.pool_size">10</property>
+        <property name="hibernate.connection.pool_size">
+            10
+        </property>
+        <property name="hibernate.jdbc.batch_size">
+            50
+        </property>
 
         <!-- migration settings -->
 

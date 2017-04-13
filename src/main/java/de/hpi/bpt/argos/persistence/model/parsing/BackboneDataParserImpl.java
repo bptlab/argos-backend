@@ -1,6 +1,5 @@
 package de.hpi.bpt.argos.persistence.model.parsing;
 
-import de.hpi.bpt.argos.api.product.ProductEndpoint;
 import de.hpi.bpt.argos.common.parsing.XMLFileParserImpl;
 import de.hpi.bpt.argos.persistence.model.product.Product;
 import de.hpi.bpt.argos.persistence.model.product.ProductConfiguration;
@@ -62,6 +61,10 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 	protected static final int MINUTES_PER_HOUR = 60;
 	protected static final int HOURS_PER_DAY = 24;
 
+	// cache
+	protected List<ErrorType> newErrorTypes = new ArrayList<>();
+	protected List<Product> newProducts = new ArrayList<>();
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -99,6 +102,7 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 				break;
 
 			case PRODUCTS_ELEMENT:
+				saveEntities();
 				logStatistics();
 				break;
 
@@ -317,7 +321,12 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 
 		logger.info(String.format("added product '%1$s' with '%2$d' configurations in family '%3$s'", currentProduct.getName(), currentProduct
 				.getProductConfigurations().size(), currentProduct.getProductFamily().getName()));
-		entityManager.updateEntity(currentProduct, ProductEndpoint.getProductUri(currentProduct.getId()));
+
+		for (ProductConfiguration configuration : currentProduct.getProductConfigurations()) {
+			newErrorTypes.addAll(configuration.getErrorTypes());
+		}
+
+		newProducts.add(currentProduct);
 
 		resetCurrentEntities();
 	}
@@ -355,6 +364,14 @@ public class BackboneDataParserImpl extends XMLFileParserImpl {
 		}
 
 		return false;
+	}
+
+	/**
+	 * This method saves all new entities.
+	 */
+	protected void saveEntities() {
+		entityManager.updateEntities(newErrorTypes.toArray(new ErrorType[0]));
+		entityManager.updateEntities(newProducts.toArray(new Product[0]));
 	}
 
     /**
