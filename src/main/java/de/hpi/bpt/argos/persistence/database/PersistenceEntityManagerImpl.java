@@ -680,6 +680,13 @@ public class PersistenceEntityManagerImpl implements PersistenceEntityManager {
 		EventType eventType = new EventTypeImpl();
 		eventType.setName(name);
 
+		// event types should be editable and deletable
+		eventType.setEditable(true);
+		eventType.setDeletable(true);
+
+		// but they must not be registered, since they do use INSERT INTO in their queries
+		eventType.setShouldBeRegistered(false);
+
 		EventQuery query = new EventQueryImpl();
 		eventType.setEventQuery(query);
 
