@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.storage;
 
+import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifact;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import org.hibernate.Session;
@@ -46,9 +47,18 @@ public class DatabaseAccessImpl implements DatabaseAccess {
 			configuration.setProperty("hibernate.connection.username", DatabaseAccess.getConnectionUsername());
 			configuration.setProperty("hibernate.connection.password", DatabaseAccess.getConnectionPassword());
 
-			// TODO: add test mode
-			configuration.setProperty("hibernate.connection.url",
-					String.format("jdbc:mysql://%1$s/argosbackend?createDatabaseIfNotExist=true", DatabaseAccess.getConnectionHost()));
+			if (Argos.getTestMode()) {
+				configuration.setProperty("hibernate.connection.url",
+						String.format("jdbc:mysql://%1$s/argosbackend_test?createDatabaseIfNotExist=true", DatabaseAccess.getConnectionHost()));
+
+				// drop existing schema and re-create
+				configuration.setProperty("hibernate.hbm2ddl.auto", "create");
+			} else {
+				configuration.setProperty("hibernate.connection.url",
+						String.format("jdbc:mysql://%1$s/argosbackend?createDatabaseIfNotExist=true", DatabaseAccess.getConnectionHost()));
+
+				configuration.setProperty("hibernate.hbm2ddl.auto", "update");
+			}
 
 			sessionFactory = configuration.buildSessionFactory();
 		} catch (ServiceException e) {
@@ -81,6 +91,9 @@ public class DatabaseAccessImpl implements DatabaseAccess {
 				session.saveOrUpdate(artifact);
 
 				if (++batchCount % sessionBatchSize == 0) {
+
+					logger.debug(String.format("saving artifacts... %1$d / %2$d", batchCount, artifacts.length));
+
 					session.flush();
 					session.clear();
 				}

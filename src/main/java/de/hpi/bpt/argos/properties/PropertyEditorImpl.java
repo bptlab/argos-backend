@@ -52,6 +52,29 @@ public class PropertyEditorImpl implements PropertyEditor {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public boolean getPropertyAsBoolean(String propertyKey) {
+		try {
+			return Boolean.parseBoolean(getProperty(propertyKey));
+		} catch (Exception e) {
+			LoggerUtilImpl.getInstance().error(logger, String.format("cannot parse property value to boolean: '%1$s'", getProperty(propertyKey)), e);
+			return false;
+		}
+	}
+
+	@Override
+	public int getPropertyAsInt(String propertyKey) {
+		try {
+			return Integer.parseInt(getProperty(propertyKey));
+		} catch (Exception e) {
+			LoggerUtilImpl.getInstance().error(logger, String.format("cannot parse property value to int: '%1$s'", getProperty(propertyKey)), e);
+			return 0;
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void setProperty(String propertyKey, String propertyValue) {
 		properties.put(propertyKey, propertyValue);
 	}
