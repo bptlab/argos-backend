@@ -1,6 +1,6 @@
 package de.hpi.bpt.argos.storage.dataModel.entity.type;
 
-import de.hpi.bpt.argos.storage.dataModel.entity.PersistenceArtifactImpl;
+import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifactImpl;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

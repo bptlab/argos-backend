@@ -1,6 +1,6 @@
 package de.hpi.bpt.argos.storage.dataModel.entity.type;
 
-import de.hpi.bpt.argos.storage.dataModel.entity.PersistenceArtifact;
+import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifact;
 
 /**
  * This interface represents the 'class' of entities. (e.g. Product, ProductFamily)

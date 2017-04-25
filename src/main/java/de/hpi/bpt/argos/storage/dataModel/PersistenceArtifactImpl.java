@@ -1,4 +1,4 @@
-package de.hpi.bpt.argos.storage.dataModel.entity;
+package de.hpi.bpt.argos.storage.dataModel;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;

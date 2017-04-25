@@ -1,4 +1,4 @@
-package de.hpi.bpt.argos.storage.dataModel.entity;
+package de.hpi.bpt.argos.storage.dataModel;
 
 /**
  * This interface represents all kinds of storeable artifact.
