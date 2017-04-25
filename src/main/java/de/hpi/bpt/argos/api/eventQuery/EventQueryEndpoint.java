@@ -1,5 +1,7 @@
 package de.hpi.bpt.argos.api.eventQuery;
 
+import de.hpi.bpt.argos.core.Argos;
+import de.hpi.bpt.argos.util.RestUriUtil;
 import spark.Request;
 import spark.Response;
 
@@ -7,6 +9,7 @@ import spark.Response;
  * This interface represents the endpoint to receive event queries.
  */
 public interface EventQueryEndpoint {
+    String EVENT_QUERY_BASE_URI = String.format("%1$s/api/eventquery", Argos.getRoutePrefix());
 
     /**
      * This method is called via API and creates an event query to an event type.
@@ -31,4 +34,37 @@ public interface EventQueryEndpoint {
      * @return - the response for the editing process
      */
     String editEventQuery(Request request, Response response);
+
+    /**
+     * This method returns the basic URI to create an event query for an event type.
+     * @return - the URI to create an event query
+     */
+    static String getCreateEventQueryBaseUri() {
+        return  String.format("%1$s/create", EVENT_QUERY_BASE_URI);
+    }
+
+    /**
+     * This method returns the basic URI to delete an event query.
+     * @return - the URI to delete an event query
+     */
+    static String getDeleteEventQueryBaseUri() {
+        return  String.format("%1$s/%2$s/delete", EVENT_QUERY_BASE_URI, getEventQueryIdParameter(true));
+    }
+
+    /**
+     * This method returns the basic URI to edit an event query.
+     * @return - the URI to edit an event query
+     */
+    static String getEditEventQueryBaseUri() {
+        return  String.format("%1$s/%2$s/edit", EVENT_QUERY_BASE_URI, getEventQueryIdParameter(true));
+    }
+
+    /**
+     * This method returns the entity type id path parameter.
+     * @param includePrefix - if a prefix should be included
+     * @return - entity type id path parameter as a string
+     */
+    static String getEventQueryIdParameter(boolean includePrefix) {
+        return RestUriUtil.getParameter("typeId", includePrefix);
+    }
 }

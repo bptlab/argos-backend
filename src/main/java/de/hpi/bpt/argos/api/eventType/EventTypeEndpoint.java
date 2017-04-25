@@ -1,5 +1,7 @@
 package de.hpi.bpt.argos.api.eventType;
 
+import de.hpi.bpt.argos.core.Argos;
+import de.hpi.bpt.argos.util.RestUriUtil;
 import spark.Request;
 import spark.Response;
 
@@ -7,6 +9,7 @@ import spark.Response;
  * This interface represents the endpoint to receive event types.
  */
 public interface EventTypeEndpoint {
+    String EVENT_TYPE_BASE_URI = String.format("%1$s/api/eventtype", Argos.getRoutePrefix());
 
     /**
      * This method is called via API and returns all event types.
@@ -63,4 +66,69 @@ public interface EventTypeEndpoint {
      * @return - returns a JSON string of the entity mappings of an event type
      */
     String getEventTypeEntityMappings(Request request, Response response);
+
+    /**
+     * This method returns the basic URI to retrieve all event types.
+     * @return - the URI to retrieve all event types from
+     */
+    static String getEventTypesBaseUri() {
+        return Argos.getRoutePrefix() + "/api/eventtypes";
+    }
+
+    /**
+     * This method returns the basic URI to retrieve all event types.
+     * @return - the URI to retrieve all event types from
+     */
+    static String getEventTypeBaseUri() {
+        return String.format("%1$s/%2$s", EVENT_TYPE_BASE_URI, getEventTypeIdParameter(true));
+    }
+
+    /**
+     * This method returns the basic URI to create a new event type.
+     * @return - the URI to create a new event type
+     */
+    static String getCreateEventTypeBaseUri() {
+        return String.format("%1$s/create", EVENT_TYPE_BASE_URI);
+    }
+
+    /**
+     * This method returns the basic URI to delete a new event type.
+     * @return - the URI to delete a new event type
+     */
+    static String getDeleteEventTypeBaseUri() {
+        return String.format("%1$s/delete", EVENT_TYPE_BASE_URI);
+    }
+
+    /**
+     * This method returns the basic URI to retrieve attributes of an event type.
+     * @return - the URI to retrieve attributes of an event type
+     */
+    static String getEventTypeAttributesBaseUri() {
+        return String.format("%1$s/%2$s/attributes", EVENT_TYPE_BASE_URI, getEventTypeIdParameter(true));
+    }
+
+    /**
+     * This method returns the basic URI to retrieve queries of an event type.
+     * @return - the URI to retrieve queries of an event type
+     */
+    static String getEventTypeQueriesBaseUri() {
+        return String.format("%1$s/%2$s/queries", EVENT_TYPE_BASE_URI, getEventTypeIdParameter(true));
+    }
+
+    /**
+     * This method returns the basic URI to retrieve entity mappings of an event type.
+     * @return - the URI to retrieve entity mappings of an event type
+     */
+    static String getEventTypeEntityMappingsBaseUri() {
+        return String.format("%1$s/%2$s/entitymappings", EVENT_TYPE_BASE_URI, getEventTypeIdParameter(true));
+    }
+
+    /**
+     * This method returns the event type id path parameter.
+     * @param includePrefix - if a prefix should be included
+     * @return - event type id path parameter as a string
+     */
+    static String getEventTypeIdParameter(boolean includePrefix) {
+        return RestUriUtil.getParameter("eventTypeId", includePrefix);
+    }
 }
