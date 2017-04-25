@@ -21,7 +21,7 @@ public class EventPlatformFeedbackImpl implements EventPlatformFeedback {
 
 	/**
 	 * This constructor creates an instance of this class, based on a restRequest.
-	 * @param baseRequest
+	 * @param baseRequest - the base restRequest to create this feedback from
 	 */
 	public EventPlatformFeedbackImpl(RestRequest baseRequest) {
 		this(baseRequest.getResponse(), baseRequest.isSuccessful());

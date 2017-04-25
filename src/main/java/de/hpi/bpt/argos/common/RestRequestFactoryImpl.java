@@ -16,7 +16,7 @@ import java.net.URLConnection;
  * {@inheritDoc}
  * This is the implementation.
  */
-public class RestRequestFactoryImpl implements RestRequestFactory {
+public final class RestRequestFactoryImpl implements RestRequestFactory {
 	private static final Logger logger = LoggerFactory.getLogger(RestRequestFactoryImpl.class);
 	private static final String DEFAULT_CONTENT_TYPE = "application/json";
 	private static final String DEFAULT_ACCEPT_TYPE = "text/plain";
@@ -48,10 +48,6 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 	@Override
 	public RestRequest createRequest(String host, String uri, String requestMethod, String contentType, String acceptType) {
 		RestRequest request = createBasicRequest(host, uri);
-
-		if (request == null) {
-			return null;
-		}
 
 		request.setMethod(requestMethod);
 		request.setProperty("Content-Type", contentType);
@@ -142,7 +138,12 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 		}
 
 		if (!isReachable(requestURL)) {
-			return new NullRestRequestImpl(Argos.getTestMode() ? HttpStatusCodes.SUCCESS : HttpStatusCodes.REQUEST_TIMEOUT);
+			if (Argos.getTestMode()) {
+				return new NullRestRequestImpl(HttpStatusCodes.SUCCESS);
+			}
+			else {
+				return new NullRestRequestImpl(HttpStatusCodes.REQUEST_TIMEOUT);
+			}
 		}
 
 		try {
