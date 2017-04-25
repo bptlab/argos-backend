@@ -3,6 +3,7 @@ package de.hpi.bpt.argos.storage;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifact;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
@@ -22,6 +23,12 @@ public interface DatabaseAccess {
 	 * @return - true, if the connection was established
 	 */
 	boolean establishConnection();
+
+	/**
+	 * This method returns the sessionFactory for the database.
+	 * @return - the sessionFactory for the database
+	 */
+	SessionFactory getSessionFactory();
 
 	/**
 	 * This method stores/updates a list of persistenceArtifacts in the database.

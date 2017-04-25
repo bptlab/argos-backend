@@ -22,27 +22,14 @@ import java.util.concurrent.Callable;
 public class DatabaseAccessImpl implements DatabaseAccess {
 	private static final Logger logger = LoggerFactory.getLogger(DatabaseAccessImpl.class);
 
-	private static DatabaseAccess instance;
 	private SessionFactory sessionFactory;
 	private int sessionBatchSize;
 
 	/**
 	 * This constructor initializes all members with its default value.
 	 */
-	private DatabaseAccessImpl() {
+	public DatabaseAccessImpl() {
 		sessionBatchSize = 1;
-	}
-
-	/**
-	 * This method returns the singleton instance of this class.
-	 * @return - the singleton instance of this class
-	 */
-	public static DatabaseAccess getInstance() {
-		if (instance == null) {
-			instance = new DatabaseAccessImpl();
-		}
-
-		return instance;
 	}
 
 	/**
@@ -70,6 +57,14 @@ public class DatabaseAccessImpl implements DatabaseAccess {
 		}
 
 		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public SessionFactory getSessionFactory() {
+		return sessionFactory;
 	}
 
 	/**
