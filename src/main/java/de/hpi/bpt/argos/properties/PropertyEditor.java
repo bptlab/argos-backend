@@ -5,6 +5,8 @@ package de.hpi.bpt.argos.properties;
  */
 public interface PropertyEditor {
 
+	String PROPERTIES_FILE = "argos-backend.properties";
+
 	/**
 	 * This method returns a property value for a specific property key.
 	 * @param propertyKey - the key for the property
@@ -18,12 +20,4 @@ public interface PropertyEditor {
 	 * @param propertyValue - the new value for the property
 	 */
 	void setProperty(String propertyKey, String propertyValue);
-
-	/**
-	 * This method returns the properties file.
-	 * @return - the name of the properties file
-	 */
-	static String getPropertyFile() {
-		return "argos-backend.properties";
-	}
 }

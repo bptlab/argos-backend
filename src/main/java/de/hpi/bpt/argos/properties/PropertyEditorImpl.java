@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.properties;
 
+import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +17,7 @@ import java.util.Properties;
 public class PropertyEditorImpl implements PropertyEditor {
 	private static final Logger logger = LoggerFactory.getLogger(PropertyEditorImpl.class);
 
-	private static PropertyEditorImpl instance;
+	private static PropertyEditor instance;
 	private Map<String, String> properties;
 
 	/**
@@ -31,7 +32,7 @@ public class PropertyEditorImpl implements PropertyEditor {
 	 * This method returns the singleton instance of this class.
 	 * @return - the singleton instance of this class
 	 */
-	public static PropertyEditorImpl getInstance() {
+	public static PropertyEditor getInstance() {
 		if (instance == null) {
 			instance = new PropertyEditorImpl();
 		}
@@ -61,17 +62,16 @@ public class PropertyEditorImpl implements PropertyEditor {
 	private void loadProperties() {
 		Properties props = new Properties();
 
-		InputStream inputStream = getClass().getClassLoader().getResourceAsStream(PropertyEditor.getPropertyFile());
+		InputStream inputStream = getClass().getClassLoader().getResourceAsStream(PropertyEditor.PROPERTIES_FILE);
 
 		if (inputStream != null) {
 			try {
 				props.load(inputStream);
 			} catch (IOException e) {
-				logger.error("cannot read from property file");
-				logger.trace("Reason: ", e);
+				LoggerUtilImpl.getInstance().error(logger, "cannot read from property file", e);
 			}
 		} else {
-			logger.error(String.format("cannot find property file '%1$s'.", PropertyEditor.getPropertyFile()));
+			logger.error(String.format("cannot find property file '%1$s'.", PropertyEditor.PROPERTIES_FILE));
 		}
 
 		for (Object key : props.keySet()) {
