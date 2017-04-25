@@ -21,6 +21,27 @@ public class EventProcessingPlatformUpdaterImpl implements EventProcessingPlatfo
 	private static final Logger logger = LoggerFactory.getLogger(EventProcessingPlatformUpdaterImpl.class);
 	private static final Gson serializer = new Gson();
 
+	private static EventProcessingPlatformUpdater instance;
+
+	/**
+	 * This constructor hides the default public one to implement the singleton pattern.
+	 */
+	private EventProcessingPlatformUpdaterImpl() {
+
+	}
+
+	/**
+	 * This method returns the singleton instance of this class.
+	 * @return - the singleton instance of this class
+	 */
+	public static EventProcessingPlatformUpdater getInstance() {
+		if (instance == null) {
+			instance = new EventProcessingPlatformUpdaterImpl();
+		}
+
+		return instance;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

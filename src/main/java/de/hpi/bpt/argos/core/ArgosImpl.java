@@ -1,8 +1,7 @@
 package de.hpi.bpt.argos.core;
 
+import de.hpi.bpt.argos.common.EventProcessingPlatformUpdaterImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import spark.Service;
 
 /**
@@ -10,8 +9,6 @@ import spark.Service;
  * This is the implementation.
  */
 public class ArgosImpl implements Argos {
-	private static final Logger logger = LoggerFactory.getLogger(ArgosImpl.class);
-
 	private Service sparkService;
 
 	/**
@@ -29,7 +26,9 @@ public class ArgosImpl implements Argos {
 			return;
 		}
 
-		// TODO: check if unicorn is up
+		// TODO: parse default event types and entity data
+
+		EventProcessingPlatformUpdaterImpl.getInstance().setup();
 	}
 
 	/**

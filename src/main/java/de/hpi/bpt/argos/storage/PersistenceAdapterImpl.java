@@ -11,8 +11,6 @@ import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,13 +20,11 @@ import java.util.List;
  * This is the implementation.
  */
 public final class PersistenceAdapterImpl implements PersistenceAdapter {
-	private static final Logger logger = LoggerFactory.getLogger(PersistenceAdapterImpl.class);
-
 	private static PersistenceAdapter instance;
 	private DatabaseAccess databaseAccess;
 
 	/**
-	 * This constructor initializes all members with default values.
+	 * This constructor hides the default public one to implement the singleton pattern.
 	 */
 	private PersistenceAdapterImpl() {
 		databaseAccess = new DatabaseAccessImpl();

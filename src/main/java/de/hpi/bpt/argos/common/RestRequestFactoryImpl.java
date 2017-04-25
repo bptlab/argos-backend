@@ -24,7 +24,7 @@ public final class RestRequestFactoryImpl implements RestRequestFactory {
 	private static RestRequestFactory instance;
 
 	/**
-	 * This constructor initializes all members with default values.
+	 * This constructor hides the default public one to implement the singleton pattern.
 	 */
 	private RestRequestFactoryImpl() {
 
