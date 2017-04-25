@@ -12,7 +12,7 @@ import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 import java.util.List;
 
 /**
- * This interface offers methods to retrieve and store artifacts
+ * This interface offers methods to retrieve and store artifacts.
  */
 public interface PersistenceAdapter {
 
@@ -28,6 +28,13 @@ public interface PersistenceAdapter {
 	 * @return - a list of all attributes, which belong to a specific owner
 	 */
 	List<Attribute> getAttributes(long ownerId);
+
+	/**
+	 * This method returns the typeAttribute, identified by it's id.
+	 * @param id - the unique identifier of the typeAttribute
+	 * @return - the typeAttribute or null
+	 */
+	TypeAttribute getTypeAttribute(long id);
 
 	/**
 	 * This method returns a list of all typeAttributes, which belong to a specific type. (e.g. EntityType, EventType)

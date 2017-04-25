@@ -19,7 +19,7 @@ public class MappingConditionImpl extends PersistenceArtifactImpl implements Map
     @Column(name = "EntityTypeAttributeId")
     private long entityTypeAttributeId;
 
-    @Column(name= "EventTypeAttributeId")
+    @Column(name = "EventTypeAttributeId")
     private long eventTypeAttributeId;
 
     /**
@@ -59,7 +59,7 @@ public class MappingConditionImpl extends PersistenceArtifactImpl implements Map
      */
     @Override
     public long getEntityTypeAttributeId() {
-        return 0;
+        return entityTypeAttributeId;
     }
 
     /**
@@ -67,6 +67,6 @@ public class MappingConditionImpl extends PersistenceArtifactImpl implements Map
      */
     @Override
     public void setEntityTypeAttributeId(long entityTypeAttributeId) {
-
+        this.entityTypeAttributeId = entityTypeAttributeId;
     }
 }

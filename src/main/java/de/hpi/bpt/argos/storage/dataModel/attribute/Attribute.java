@@ -5,7 +5,7 @@ import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifact;
 /**
  * This interface represents an attribute of an event or entity.
  */
-public interface Attribute extends PersistenceArtifact{
+public interface Attribute extends PersistenceArtifact {
     /**
      * This method returns the value of this attribute.
      * @return - the value of this attribute

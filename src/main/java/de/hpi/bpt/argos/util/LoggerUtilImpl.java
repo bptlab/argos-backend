@@ -6,7 +6,7 @@ import org.slf4j.Logger;
  * {@inheritDoc}
  * This is the implementation.
  */
-public class LoggerUtilImpl implements LoggerUtil {
+public final class LoggerUtilImpl implements LoggerUtil {
 
 	private static LoggerUtil instance;
 

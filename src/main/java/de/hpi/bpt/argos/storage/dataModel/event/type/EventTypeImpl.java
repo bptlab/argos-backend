@@ -23,6 +23,9 @@ public class EventTypeImpl extends PersistenceArtifactImpl implements EventType 
     @Column (name = "TimestampAttributeId")
     private long timestampAttributeId;
 
+    @Column(name = "ShouldBeRegistered")
+    private boolean shouldBeRegistered;
+
     /**
      * {@inheritDoc}
      */
@@ -70,4 +73,20 @@ public class EventTypeImpl extends PersistenceArtifactImpl implements EventType 
     public void setTimeStampAttributeId(long timeStampAttributeId) {
         this.timestampAttributeId = timeStampAttributeId;
     }
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean shouldBeRegistered() {
+		return shouldBeRegistered;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setShouldBeRegistered(boolean shouldBeRegistered) {
+		this.shouldBeRegistered = shouldBeRegistered;
+	}
 }

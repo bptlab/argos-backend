@@ -3,6 +3,7 @@ package de.hpi.bpt.argos.storage.dataModel;
 /**
  * This interface represents all kinds of storeable artifact.
  */
+@FunctionalInterface
 public interface PersistenceArtifact {
 
 	/**

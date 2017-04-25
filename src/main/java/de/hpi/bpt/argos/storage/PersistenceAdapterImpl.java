@@ -21,7 +21,7 @@ import java.util.List;
  * {@inheritDoc}
  * This is the implementation.
  */
-public class PersistenceAdapterImpl implements PersistenceAdapter {
+public final class PersistenceAdapterImpl implements PersistenceAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(PersistenceAdapterImpl.class);
 
 	private static PersistenceAdapter instance;
@@ -73,6 +73,21 @@ public class PersistenceAdapterImpl implements PersistenceAdapter {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public TypeAttribute getTypeAttribute(long id) {
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		Query<TypeAttribute> query = session.createQuery("FROM TypeAttributeImpl typeAttribute WHERE typeAttribute.id = :id",
+				TypeAttribute.class)
+				.setParameter("id", id);
+
+		return databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public List<TypeAttribute> getTypeAttributes(long typeId) {
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
@@ -107,8 +122,8 @@ public class PersistenceAdapterImpl implements PersistenceAdapter {
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
 
-		Query<Entity> query = session.createQuery("FROM EntityImpl entity " +
-				"WHERE entity.typeId = :entityTypeId AND entity.parentId = :parentId",
+		Query<Entity> query = session.createQuery("FROM EntityImpl entity "
+				+ "WHERE entity.typeId = :entityTypeId AND entity.parentId = :parentId",
 				Entity.class)
 				.setParameter("entityTypeId", entityTypeId)
 				.setParameter("parentId", parentId);
@@ -138,8 +153,8 @@ public class PersistenceAdapterImpl implements PersistenceAdapter {
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
 
-		Query<Event> query = session.createQuery("FROM EventImpl event " +
-				"WHERE event.typeId = :eventTypeId AND event.entityId = :entityOwnerId",
+		Query<Event> query = session.createQuery("FROM EventImpl event "
+				+ "WHERE event.typeId = :eventTypeId AND event.entityId = :entityOwnerId",
 				Event.class)
 				.setParameter("eventTypeId", eventTypeId)
 				.setParameter("entityOwnerId", entityOwnerId);
@@ -199,8 +214,8 @@ public class PersistenceAdapterImpl implements PersistenceAdapter {
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
 
-		Query<EventEntityMapping> query = session.createQuery("FROM EventEntityMappingImpl eventEntityMapping WHERE " +
-				"eventEntityMapping.entityTypeId = :entityTypeId",
+		Query<EventEntityMapping> query = session.createQuery("FROM EventEntityMappingImpl eventEntityMapping WHERE "
+				+ "eventEntityMapping.entityTypeId = :entityTypeId",
 				EventEntityMapping.class)
 				.setParameter("entityTypeId", entityTypeId);
 
@@ -215,8 +230,8 @@ public class PersistenceAdapterImpl implements PersistenceAdapter {
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
 
-		Query<EventEntityMapping> query = session.createQuery("FROM EventEntityMappingImpl eventEntityMapping WHERE " +
-						"eventEntityMapping.eventTypeId = :eventTypeId",
+		Query<EventEntityMapping> query = session.createQuery("FROM EventEntityMappingImpl eventEntityMapping WHERE "
+						+ "eventEntityMapping.eventTypeId = :eventTypeId",
 				EventEntityMapping.class)
 				.setParameter("eventTypeId", eventTypeId);
 

@@ -5,7 +5,7 @@ import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifact;
 /**
  * This interface represents an event.
  */
-public interface Event extends PersistenceArtifact{
+public interface Event extends PersistenceArtifact {
 
     /**
      * This method returns the id of the eventType of this event.
