@@ -1,5 +1,7 @@
 package de.hpi.bpt.argos.storage;
 
+import de.hpi.bpt.argos.common.Observable;
+import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifact;
 import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.Entity;
@@ -14,13 +16,51 @@ import java.util.List;
 /**
  * This interface offers methods to retrieve and store artifacts.
  */
-public interface PersistenceAdapter {
+public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdateObserver> {
 
 	/**
 	 * This method tries to establish a connection to the database.
 	 * @return - true, if the connection was established
 	 */
 	boolean establishConnection();
+
+	/**
+	 * This method saves/updates a list of persistenceArtifacts. Connected web socket clients will *not* be notified.
+	 * @param artifacts - the artifacts to save/update
+	 * @return - true, if all artifacts were saved/updated
+	 */
+	boolean saveArtifacts(PersistenceArtifact... artifacts);
+
+	/**
+	 * This method deletes a list of persistenceArtifacts. Connected web socket clients will *not* be notified.
+	 * @param artifacts - the artifacts to delete
+	 * @return - true, if all artifacts were deleted
+	 */
+	boolean deleteArtifacts(PersistenceArtifact... artifacts);
+
+	/**
+	 * This method saves a new artifact in the database and notifies connected web socket clients.
+	 * @param artifact - the artifact to save
+	 * @param fetchUri - the uri, where connected web socket clients can fetch the new artifact from
+	 * @return - true, if the artifact was stored in the database
+	 */
+	boolean createArtifact(PersistenceArtifact artifact, String fetchUri);
+
+	/**
+	 * This method updates an existing artifact in the database and notifies connected web socket clients.
+	 * @param artifact - the artifact to update
+	 * @param fetchUri - the uri, where connected web socket clients can fetch the updated artifact from
+	 * @return - true, if the artifact was updated in the database
+	 */
+	boolean updateArtifact(PersistenceArtifact artifact, String fetchUri);
+
+	/**
+	 * This method deletes an existing artifact in the database and notifies connected web socket clients.
+	 * @param artifact - the artifact to delete
+	 * @param fetchUri - the fetch uri, where the artifact was fetched from
+	 * @return - true, if the artifact was deleted
+	 */
+	boolean deleteArtifact(PersistenceArtifact artifact, String fetchUri);
 
 	/**
 	 * This method returns a list of all attributes, which belong to a specific owner. (e.g. Entity, Event)

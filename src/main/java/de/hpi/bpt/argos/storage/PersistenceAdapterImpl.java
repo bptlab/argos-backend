@@ -1,5 +1,7 @@
 package de.hpi.bpt.argos.storage;
 
+import de.hpi.bpt.argos.common.ObservableImpl;
+import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifact;
 import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.Entity;
@@ -19,7 +21,7 @@ import java.util.List;
  * {@inheritDoc}
  * This is the implementation.
  */
-public final class PersistenceAdapterImpl implements PersistenceAdapter {
+public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArtifactUpdateObserver> implements PersistenceAdapter {
 	private static PersistenceAdapter instance;
 	private DatabaseAccess databaseAccess;
 
@@ -48,6 +50,67 @@ public final class PersistenceAdapterImpl implements PersistenceAdapter {
 	@Override
 	public boolean establishConnection() {
 		return databaseAccess.establishConnection();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean saveArtifacts(PersistenceArtifact... artifacts) {
+		return databaseAccess.saveArtifacts(artifacts);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean deleteArtifacts(PersistenceArtifact... artifacts) {
+		return databaseAccess.deleteArtifacts(artifacts);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean createArtifact(PersistenceArtifact artifact, String fetchUri) {
+		if (!saveArtifacts(artifact)) {
+			return false;
+		}
+
+		notifyObservers((PersistenceArtifactUpdateObserver observer) ->
+				observer.onArtifactUpdated(PersistenceArtifactUpdateType.CREATE, artifact, fetchUri));
+
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean updateArtifact(PersistenceArtifact artifact, String fetchUri) {
+		if (!saveArtifacts(artifact)) {
+			return false;
+		}
+
+		notifyObservers((PersistenceArtifactUpdateObserver observer) ->
+				observer.onArtifactUpdated(PersistenceArtifactUpdateType.MODIFY, artifact, fetchUri));
+
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean deleteArtifact(PersistenceArtifact artifact, String fetchUri) {
+		if (!deleteArtifacts(artifact)) {
+			return false;
+		}
+
+		notifyObservers((PersistenceArtifactUpdateObserver observer) ->
+				observer.onArtifactUpdated(PersistenceArtifactUpdateType.DELETE, artifact, fetchUri));
+
+		return true;
 	}
 
 	/**

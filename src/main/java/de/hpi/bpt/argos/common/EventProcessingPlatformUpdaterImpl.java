@@ -8,6 +8,7 @@ import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
+import de.hpi.bpt.argos.util.XSDParserImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,7 @@ import java.util.List;
  * {@inheritDoc}
  * This is the implementation.
  */
-public class EventProcessingPlatformUpdaterImpl implements EventProcessingPlatformUpdater {
+public final class EventProcessingPlatformUpdaterImpl implements EventProcessingPlatformUpdater {
 	private static final Logger logger = LoggerFactory.getLogger(EventProcessingPlatformUpdaterImpl.class);
 	private static final Gson serializer = new Gson();
 
@@ -73,6 +74,7 @@ public class EventProcessingPlatformUpdaterImpl implements EventProcessingPlatfo
 		}
 
 		TypeAttribute timestampAttribute = PersistenceAdapterImpl.getInstance().getTypeAttribute(eventType.getTimeStampAttributeId());
+		List<TypeAttribute> eventTypeAttributes = PersistenceAdapterImpl.getInstance().getTypeAttributes(eventType.getId());
 
 		if (timestampAttribute == null) {
 			return new EventPlatformFeedbackImpl("event type has no valid timestamp attribute", false);
@@ -84,7 +86,7 @@ public class EventProcessingPlatformUpdaterImpl implements EventProcessingPlatfo
 		RestRequest request = RestRequestFactoryImpl.getInstance().createPostRequest(host, uri);
 
 		JsonObject requestBody = new JsonObject();
-		requestBody.addProperty("xsd", ""); // TODO: implement xsd parsing
+		requestBody.addProperty("xsd", XSDParserImpl.getInstance().getEventTypeSchema(eventType, eventTypeAttributes));
 		requestBody.addProperty("schemaName", eventType.getName());
 		requestBody.addProperty("timestampName", timestampAttribute.getName());
 
