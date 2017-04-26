@@ -8,6 +8,13 @@ import java.util.Enumeration;
 public class Application {
 
 	/**
+	 * This constructor hides the implicit public one. This way this class can be instanced from any other class.
+	 */
+	private Application() {
+
+	}
+
+	/**
 	 * Application start method.
 	 * @param args - command line arguments
 	 */
