@@ -13,6 +13,8 @@ public interface Argos {
 	String ARGOS_BACKEND_THREADS_PROPERTY_KEY = "argosBackendThreads";
 	String ARGOS_BACKEND_PUBLIC_FILES_PROPERTY_KEY = "argosBackendPublicFiles";
 	String ARGOS_BACKEND_TEST_MODE_PROPERTY_KEY = "argosBackendTestMode";
+	String ARGOS_BACKEND_ALLOWED_ORIGIN_PROPERTY_KEY = "argosBackendAllowedOrigin";
+	String ARGOS_BACKEND_ALLOWED_REQUEST_METHOD_PROPERTY_KEY = "argosBackendAllowedRequestMethod";
 
 	/**
 	 * This method starts the argos backend.
@@ -70,5 +72,21 @@ public interface Argos {
 	 */
 	static boolean getTestMode() {
 		return PropertyEditorImpl.getInstance().getPropertyAsBoolean(ARGOS_BACKEND_TEST_MODE_PROPERTY_KEY);
+	}
+
+	/**
+	 * This method reads the allowedOrigin property from the properties-file and returns it's value.
+	 * @return - the allowedOrigin, specified in the properties-file
+	 */
+	static String getAllowedOrigin() {
+		return PropertyEditorImpl.getInstance().getProperty(ARGOS_BACKEND_ALLOWED_ORIGIN_PROPERTY_KEY);
+	}
+
+	/**
+	 * This method reads the allowedRequestMethod property from the properties-file and returns it's value.
+	 * @return - the allowedRequestMethod, specified in the properties-file
+	 */
+	static String getAllowedRequestMethod() {
+		return PropertyEditorImpl.getInstance().getProperty(ARGOS_BACKEND_ALLOWED_REQUEST_METHOD_PROPERTY_KEY);
 	}
 }
