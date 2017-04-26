@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.api.entity;
 
+import de.hpi.bpt.argos.common.RestEndpoint;
 import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
 import spark.Request;
@@ -11,7 +12,7 @@ import java.util.Objects;
 /**
  * This interface represents the endpoint to receive entities.
  */
-public interface EntityEndpoint {
+public interface EntityEndpoint extends RestEndpoint {
     String ENTITY_BASE_URI = String.format("%1$s/api/entity", Argos.getRoutePrefix());
 
     /**

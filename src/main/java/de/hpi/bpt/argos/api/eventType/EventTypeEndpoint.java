@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.api.eventType;
 
+import de.hpi.bpt.argos.common.RestEndpoint;
 import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
 import spark.Request;
@@ -10,7 +11,7 @@ import java.util.Objects;
 /**
  * This interface represents the endpoint to receive event types.
  */
-public interface EventTypeEndpoint {
+public interface EventTypeEndpoint extends RestEndpoint {
     String EVENT_TYPE_BASE_URI = String.format("%1$s/api/eventtype", Argos.getRoutePrefix());
 
     /**
