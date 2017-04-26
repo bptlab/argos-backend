@@ -1,8 +1,13 @@
 package de.hpi.bpt.argos.core;
 
 import de.hpi.bpt.argos.common.EventProcessingPlatformUpdaterImpl;
+import de.hpi.bpt.argos.common.RestEndpoint;
+import de.hpi.bpt.argos.eventProcessing.EventReceiverImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import spark.Service;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * {@inheritDoc}
@@ -29,6 +34,14 @@ public class ArgosImpl implements Argos {
 		// TODO: parse default event types and entity data
 
 		EventProcessingPlatformUpdaterImpl.getInstance().setup();
+
+		Set<RestEndpoint> restEndpoints = new HashSet<>();
+		restEndpoints.add(new EventReceiverImpl());
+		// TODO: add more restEndpoints here
+
+		for (RestEndpoint restEndpoint : restEndpoints) {
+			restEndpoint.setup(sparkService);
+		}
 	}
 
 	/**

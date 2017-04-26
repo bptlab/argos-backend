@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import spark.HaltException;
 import spark.Request;
 import spark.Response;
+import spark.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,14 @@ import static spark.Spark.halt;
 public class EventReceiverImpl extends ObservableImpl<EventCreationObserver> implements EventReceiver {
 	private static final Logger logger = LoggerFactory.getLogger(EventReceiverImpl.class);
 	private static final JsonParser jsonParser = new JsonParser();
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setup(Service sparkService) {
+		sparkService.post(EventReceiver.getReceiveEventBaseUri(), this::receiveEvent);
+	}
 
 	/**
 	 * {@inheritDoc}
