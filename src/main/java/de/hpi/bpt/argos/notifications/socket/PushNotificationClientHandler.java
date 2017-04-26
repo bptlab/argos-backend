@@ -9,8 +9,6 @@ import spark.Service;
  */
 public interface PushNotificationClientHandler {
 
-	String SOCKET_BASE_URI = String.format("%1$s/notifications", Argos.getRoutePrefix());
-
 	/**
 	 * This method sets up the push notification client handler.
 	 * @param sparkService - the spark service to register the web socket to
@@ -43,4 +41,12 @@ public interface PushNotificationClientHandler {
 	 * @param message - the message
 	 */
 	void onMessage(Session client, String message);
+
+	/**
+	 * This method returns the basic uri for the notificationClientHandler.
+	 * @return - the basic uri for the notificationClientHandler
+	 */
+	static String getWebSocketBaseUri() {
+		return String.format("%1$s/notifications", Argos.getRoutePrefix());
+	}
 }

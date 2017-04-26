@@ -43,7 +43,7 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 	 */
 	@Override
 	public void setup(Service sparkService) {
-		sparkService.webSocket(PushNotificationClientHandler.SOCKET_BASE_URI, this);
+		sparkService.webSocket(PushNotificationClientHandler.getWebSocketBaseUri(), this);
 	}
 
 	/**
