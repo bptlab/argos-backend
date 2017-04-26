@@ -47,7 +47,7 @@ public final class XSDParserImpl implements XSDParser {
 				elementType = "xs:date";
 			}
 
-			schema = appendElement(typeAttribute.getName(), elementType,schema);
+			schema = appendElement(typeAttribute.getName(), elementType, schema);
 		}
 
 		schema = extendWithSequence(schema);

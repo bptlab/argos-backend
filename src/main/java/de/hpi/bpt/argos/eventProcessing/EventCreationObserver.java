@@ -10,6 +10,7 @@ import java.util.List;
 /**
  * This interface represents observers, which want to be notified, whenever a new event was created.
  */
+@FunctionalInterface
 public interface EventCreationObserver {
 
 	/**
