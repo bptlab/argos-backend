@@ -27,8 +27,6 @@ public class ArgosImpl implements Argos {
 				.threadPool(Argos.getThreads())
 				.staticFileLocation(Argos.getPublicFiles());
 
-		enableCORS(sparkService);
-
 		if (!PersistenceAdapterImpl.getInstance().establishConnection()) {
 			stop();
 			return;
