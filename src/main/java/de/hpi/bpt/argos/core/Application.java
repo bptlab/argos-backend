@@ -5,7 +5,7 @@ import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 
 import java.util.Enumeration;
 
-public class Application {
+public final class Application {
 
 	/**
 	 * This constructor hides the implicit public one. This way this class can be instanced from any other class.
