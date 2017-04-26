@@ -56,11 +56,11 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void logSendingResponse(Logger logger, Request request, Response response) {
+	public void logSendingResponse(Logger logger, Request request, int responseStatus, String responseMessage) {
 		logger.info(String.format("sending response: '%1$s' -> %2$d -> %3$d bytes of response",
 				request.uri(),
-				response.status(),
-				response.body().length()));
-		logger.trace(String.format("response body: '%1$s'", response.body()));
+				responseStatus,
+				responseMessage.length()));
+		logger.trace(String.format("response body: '%1$s'", responseMessage));
 	}
 }

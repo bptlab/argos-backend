@@ -28,7 +28,8 @@ public interface RestEndpointUtil {
 	 * This method logs an info, whenever a request gets answered.
 	 * @param logger - the logger to use for logging
 	 * @param request - the received request
-	 * @param response - the generated response
+	 * @param responseStatus - the http status code of the response
+	 * @param responseMessage - the generated response
 	 */
-    void logSendingResponse(Logger logger, Request request, Response response);
+    void logSendingResponse(Logger logger, Request request, int responseStatus, String responseMessage);
 }
