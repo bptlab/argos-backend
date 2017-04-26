@@ -14,7 +14,7 @@ import java.util.Properties;
  * {@inheritDoc}
  * This is the implementation.
  */
-public class PropertyEditorImpl implements PropertyEditor {
+public final class PropertyEditorImpl implements PropertyEditor {
 	private static final Logger logger = LoggerFactory.getLogger(PropertyEditorImpl.class);
 
 	private static PropertyEditor instance;
