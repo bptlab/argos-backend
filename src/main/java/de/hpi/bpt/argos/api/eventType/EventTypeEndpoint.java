@@ -74,7 +74,7 @@ public interface EventTypeEndpoint {
      * @return - the URI to retrieve all event types from
      */
     static String getEventTypesBaseUri() {
-        return Argos.getRoutePrefix() + "/api/eventtypes";
+        return String.format("%1$s/api/eventtypes", Argos.getRoutePrefix());
     }
 
     /**
