@@ -5,6 +5,8 @@ import de.hpi.bpt.argos.util.RestUriUtil;
 import spark.Request;
 import spark.Response;
 
+import java.util.Objects;
+
 /**
  * This interface represents the endpoint to receive event queries.
  */
@@ -57,6 +59,24 @@ public interface EventQueryEndpoint {
      */
     static String getEditEventQueryBaseUri() {
         return  String.format("%1$s/%2$s/edit", EVENT_QUERY_BASE_URI, getEventQueryIdParameter(true));
+    }
+
+    /**
+     * This method returns the URI to delete an event query.
+     * @param eventQueryId - the id of the event query to be searched for
+     * @return - the URI to delete an event query
+     */
+    static String getDeleteEventQueryUri(long eventQueryId) {
+        return  getDeleteEventQueryBaseUri().replaceAll(getEventQueryIdParameter(true), Objects.toString(eventQueryId, "0"));
+    }
+
+    /**
+     * This method returns the URI to edit an event query.
+     * @param eventQueryId - the id of the event query to be searched for
+     * @return - the URI to edit an event query
+     */
+    static String getEditEventQueryUri(long eventQueryId) {
+        return  getEditEventQueryBaseUri().replaceAll(getEventQueryIdParameter(true), Objects.toString(eventQueryId, "0"));
     }
 
     /**

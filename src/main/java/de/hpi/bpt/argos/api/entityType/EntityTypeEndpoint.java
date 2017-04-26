@@ -5,6 +5,8 @@ import de.hpi.bpt.argos.util.RestUriUtil;
 import spark.Request;
 import spark.Response;
 
+import java.util.Objects;
+
 /**
  * This interface represents the endpoint to receive entity types.
  */
@@ -57,6 +59,24 @@ public interface EntityTypeEndpoint {
      */
     static String getEntityTypeEntityMappingsBaseUri() {
         return  String.format("%1$s/%2$s/entitymappings", ENTITY_TYPE_BASE_URI, getEntityTypeIdParameter(true));
+    }
+
+    /**
+     * This method returns the basic URI to retrieve the attributes of an event type.
+     * @param entityTypeId - the id of the entity type to be searched for
+     * @return - the URI to retrieve attributes from
+     */
+    static String getEntityTypeAttributesUri(long entityTypeId) {
+        return  getEntityTypeAttributesBaseUri().replaceAll(getEntityTypeIdParameter(true), Objects.toString(entityTypeId, "0"));
+    }
+
+    /**
+     * This method returns the basic URI to retrieve the event entity mappings of an event type.
+     * @param entityTypeId - the id of the entity type to be searched for
+     * @return - the URI to retrieve entity mappings from
+     */
+    static String getEntityTypeEntityMappingsUri(long entityTypeId) {
+        return  getEntityTypeEntityMappingsBaseUri().replaceAll(getEntityTypeIdParameter(true), Objects.toString(entityTypeId, "0"));
     }
 
     /**

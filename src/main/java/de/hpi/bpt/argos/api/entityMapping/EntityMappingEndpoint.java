@@ -5,6 +5,8 @@ import de.hpi.bpt.argos.util.RestUriUtil;
 import spark.Request;
 import spark.Response;
 
+import java.util.Objects;
+
 /**
  * This interface represents the endpoint to receive event entity mappings.
  */
@@ -58,6 +60,25 @@ public interface EntityMappingEndpoint {
     static String getEditEventQueryBaseUri() {
         return  String.format("%1$s/%2$s/edit", ENTITY_MAPPING_BASE_URI, getEntityMappingIdParameter(true));
     }
+
+    /**
+     * This method returns the basic URI to delete an entity mapping.
+     * @param entityMappingId - the id of the entity mapping to be searched for
+     * @return - the URI to delete an entity mapping
+     */
+    static String getDeleteEventQueryUri(long entityMappingId) {
+        return  getDeleteEventQueryBaseUri().replaceAll(getEntityMappingIdParameter(true), Objects.toString(entityMappingId, "0"));
+    }
+
+    /**
+     * This method returns the basic URI to edit an entity mapping.
+     * @param entityMappingId - the id of the entity mapping to be searched for
+     * @return - the URI to edit an entity mapping
+     */
+    static String getEditEventQueryUri(long entityMappingId) {
+        return  getEditEventQueryBaseUri().replaceAll(getEntityMappingIdParameter(true), Objects.toString(entityMappingId, "0"));
+    }
+
     /**
      * This method returns the entity type id path parameter.
      * @param includePrefix - if a prefix should be included

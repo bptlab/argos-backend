@@ -5,6 +5,9 @@ import de.hpi.bpt.argos.util.RestUriUtil;
 import spark.Request;
 import spark.Response;
 
+import java.util.List;
+import java.util.Objects;
+
 /**
  * This interface represents the endpoint to receive entities.
  */
@@ -47,7 +50,7 @@ public interface EntityEndpoint {
      * This method returns the basic URI to retrieve child entities.
      * @return - the URI to retrieve child entities from
      */
-    static String getChildEntitiesUri() {
+    static String getChildEntitiesBaseUri() {
         return  String.format("%1$s/%2$s/children/type/%3$s/%4$s", ENTITY_BASE_URI,
                 getEntityIdParameter(true),
                 getEntityTypeIdParameter(true),
@@ -58,7 +61,7 @@ public interface EntityEndpoint {
      * This method returns the basic URI to retrieve an entity.
      * @return - the URI to retrieve the entity from
      */
-    static String getEntityUri() {
+    static String getEntityBaseUri() {
         return  String.format("%1$s/%2$s", ENTITY_BASE_URI, getEntityIdParameter(true));
     }
 
@@ -66,7 +69,7 @@ public interface EntityEndpoint {
      * This method returns the basic URI to retrieve the event types of an entity.
      * @return - the URI to retrieve event types from
      */
-    static String getEventTypesOfEntityUri() {
+    static String getEventTypesOfEntityBaseUri() {
         return  String.format("%1$s/%2$s/eventtypes", ENTITY_BASE_URI, getEntityIdParameter(true));
     }
 
@@ -74,7 +77,7 @@ public interface EntityEndpoint {
      * This method returns the basic URI to retrieve the events of an entity.
      * @return - the URI to retrieve events from
      */
-    static String getEventsOfEntityUri() {
+    static String getEventsOfEntityBaseUri() {
         return  String.format("%1$s/%2$s/eventtype/%3$s/events/%4$s/%5$s", ENTITY_BASE_URI,
                 getEntityIdParameter(true),
                 getEntityTypeIdParameter(true),
@@ -83,9 +86,64 @@ public interface EntityEndpoint {
     }
 
     /**
-     * This method returns the entity type id path parameter.
+     * This method returns the basic URI to retrieve child entities.
+     * @param entityId - the id of the entity to be searched for
+     * @param entityTypeId - the id of the entity type to be searched for
+     * @param attributeNames - the names of the attributes to be searched for
+     * @return - the URI to retrieve child entities from
+     */
+    static String getChildEntitiesUri(long entityId, long entityTypeId, List<String> attributeNames) {
+        String attributeNamesAsString = "";
+        for (int i = 0; i < attributeNames.size(); i++) {
+            attributeNamesAsString = attributeNamesAsString + attributeNames.get(i);
+            if (i != attributeNames.size() - 1) {
+                attributeNamesAsString = attributeNamesAsString + "+";
+            }
+        }
+        return getChildEntitiesBaseUri()
+                .replaceAll(getEntityIdParameter(true), Objects.toString(entityId, "0"))
+                .replaceAll(getEntityTypeIdParameter(true), Objects.toString(entityTypeId, "0"))
+                .replaceAll(getAttributeNamesParameter(true), attributeNamesAsString);
+    }
+
+    /**
+     * This method returns the basic URI to retrieve an entity.
+     * @param entityId - the id of the entity to be searched for
+     * @return - the URI to retrieve the entity from
+     */
+    static String getEntityUri(long entityId) {
+        return  getEntityBaseUri().replaceAll(getEntityIdParameter(true), Objects.toString(entityId, "0"));
+    }
+
+    /**
+     * This method returns the basic URI to retrieve the event types of an entity.
+     * @param entityId - the id of the entity to be searched for
+     * @return - the URI to retrieve event types from
+     */
+    static String getEventTypesOfEntityUri(long entityId) {
+        return  getEventTypesOfEntityBaseUri().replaceAll(getEntityIdParameter(true), Objects.toString(entityId, "0"));
+    }
+
+    /**
+     * This method returns the basic URI to retrieve the events of an entity.
+     * @param entityId - the id of the entity to be searched for
+     * @param entityTypeId - the id of the entity type to be searched for
+     * @param fromIndex - the index of the start of the entities to be searched for
+     * @param toIndex - the index of the end of the entities to be searched for
+     * @return - the URI to retrieve events from
+     */
+    static String getEventsOfEntityUri(long entityId, long entityTypeId, int fromIndex, int toIndex) {
+        return getEventsOfEntityBaseUri()
+                .replaceAll(getEntityIdParameter(true), Objects.toString(entityId, "0"))
+                .replaceAll(getEntityTypeIdParameter(true), Objects.toString(entityTypeId, "0"))
+                .replaceAll(getIndexFromParameter(true), Objects.toString(fromIndex, "0") )
+                .replaceAll(getIndexToParameter(true), Objects.toString(toIndex, "0") );
+    }
+
+    /**
+     * This method returns the entity id path parameter.
      * @param includePrefix - if a prefix should be included
-     * @return - entity type id path parameter as a string
+     * @return - entity id path parameter as a string
      */
     static String getEntityIdParameter(boolean includePrefix) {
         return RestUriUtil.getParameter("entityId", includePrefix);
@@ -101,27 +159,27 @@ public interface EntityEndpoint {
     }
 
     /**
-     * This method returns the entity type id path parameter.
+     * This method returns the entity attribute names path parameter.
      * @param includePrefix - if a prefix should be included
-     * @return - entity type id path parameter as a string
+     * @return - entity attribute names path parameter as a string
      */
     static String getAttributeNamesParameter(boolean includePrefix) {
         return RestUriUtil.getParameter("attributeNames", includePrefix);
     }
 
     /**
-     * This method returns the entity type id path parameter.
+     * This method returns the from index path parameter.
      * @param includePrefix - if a prefix should be included
-     * @return - entity type id path parameter as a string
+     * @return - from index path parameter as a string
      */
     static String getIndexFromParameter(boolean includePrefix) {
         return RestUriUtil.getParameter("startIndex", includePrefix);
     }
 
     /**
-     * This method returns the entity type id path parameter.
+     * This method returns the to index path parameter.
      * @param includePrefix - if a prefix should be included
-     * @return - entity type id path parameter as a string
+     * @return - to index path parameter as a string
      */
     static String getIndexToParameter(boolean includePrefix) {
         return RestUriUtil.getParameter("endIndex", includePrefix);

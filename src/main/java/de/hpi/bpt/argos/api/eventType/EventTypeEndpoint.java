@@ -5,6 +5,8 @@ import de.hpi.bpt.argos.util.RestUriUtil;
 import spark.Request;
 import spark.Response;
 
+import java.util.Objects;
+
 /**
  * This interface represents the endpoint to receive event types.
  */
@@ -121,6 +123,42 @@ public interface EventTypeEndpoint {
      */
     static String getEventTypeEntityMappingsBaseUri() {
         return String.format("%1$s/%2$s/entitymappings", EVENT_TYPE_BASE_URI, getEventTypeIdParameter(true));
+    }
+
+    /**
+     * This method returns the URI to retrieve all event types.
+     * @param eventTypeId - the id of the event type to be searched for
+     * @return - the URI to retrieve all event types from
+     */
+    static String getEventTypeUri(long eventTypeId) {
+        return getEventTypeBaseUri().replaceAll(getEventTypeIdParameter(true), Objects.toString(eventTypeId, "0"));
+    }
+
+    /**
+     * This method returns the URI to retrieve attributes of an event type.
+     * @param eventTypeId - the id of the event type to be searched for
+     * @return - the URI to retrieve attributes of an event type
+     */
+    static String getEventTypeAttributesUri(long eventTypeId) {
+        return getEventTypeAttributesBaseUri().replaceAll(getEventTypeIdParameter(true), Objects.toString(eventTypeId, "0"));
+    }
+
+    /**
+     * This method returns the URI to retrieve queries of an event type.
+     * @param eventTypeId - the id of the event type to be searched for
+     * @return - the URI to retrieve queries of an event type
+     */
+    static String getEventTypeQueriesUri(long eventTypeId) {
+        return getEventTypeQueriesBaseUri().replaceAll(getEventTypeIdParameter(true), Objects.toString(eventTypeId, "0"));
+    }
+
+    /**
+     * This method returns the URI to retrieve entity mappings of an event type.
+     * @param eventTypeId - the id of the event type to be searched for
+     * @return - the URI to retrieve entity mappings of an event type
+     */
+    static String getEventTypeEntityMappingsUri(long eventTypeId) {
+        return getEventTypeEntityMappingsBaseUri().replaceAll(getEventTypeIdParameter(true), Objects.toString(eventTypeId, "0"));
     }
 
     /**
