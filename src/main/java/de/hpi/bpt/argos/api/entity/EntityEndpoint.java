@@ -136,8 +136,8 @@ public interface EntityEndpoint {
         return getEventsOfEntityBaseUri()
                 .replaceAll(getEntityIdParameter(true), Objects.toString(entityId, "0"))
                 .replaceAll(getEntityTypeIdParameter(true), Objects.toString(entityTypeId, "0"))
-                .replaceAll(getIndexFromParameter(true), Objects.toString(fromIndex, "0") )
-                .replaceAll(getIndexToParameter(true), Objects.toString(toIndex, "0") );
+                .replaceAll(getIndexFromParameter(true), Objects.toString(fromIndex, "0"))
+                .replaceAll(getIndexToParameter(true), Objects.toString(toIndex, "0"));
     }
 
     /**

@@ -22,7 +22,7 @@ public interface EntityTypeEndpoint {
     String getEntityTypeHierarchy(Request request, Response response);
 
     /**
-     * This method returns all attributes of an eventType
+     * This method returns all attributes of an eventType.
      * @param request - Spark defined parameter containing request object
      * @param response - Spark defined parameter containing response object
      * @return - returns a JSON String of the attributes
@@ -30,7 +30,7 @@ public interface EntityTypeEndpoint {
     String getEntityTypeAttributes(Request request, Response response);
 
     /**
-     * This method returns all entityMappings of an eventType
+     * This method returns all entityMappings of an eventType.
      * @param request - Spark defined parameter containing request object
      * @param response - Spark defined parameter containing response object
      * @return - returns a JSON String of the attributes
