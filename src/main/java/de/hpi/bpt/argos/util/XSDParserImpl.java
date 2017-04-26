@@ -9,7 +9,7 @@ import java.util.List;
  * {@inheritDoc}
  * This is the implementation.
  */
-public class XSDParserImpl implements XSDParser {
+public final class XSDParserImpl implements XSDParser {
 	private static final String SCHEMA_EXTENSION = "xsd";
 
 	private static XSDParser instance;

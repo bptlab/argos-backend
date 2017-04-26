@@ -5,6 +5,7 @@ import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifact;
 /**
  * This interface represents observers, which are interested in persistenceArtifact updates.
  */
+@FunctionalInterface
 public interface PersistenceArtifactUpdateObserver {
 
 	/**
