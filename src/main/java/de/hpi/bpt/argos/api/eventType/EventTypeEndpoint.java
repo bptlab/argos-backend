@@ -12,7 +12,6 @@ import java.util.Objects;
  * This interface represents the endpoint to receive event types.
  */
 public interface EventTypeEndpoint extends RestEndpoint {
-    String EVENT_TYPE_BASE_URI = String.format("%1$s/api/eventtype", Argos.getRoutePrefix());
 
     /**
      * This method is called via API and returns all event types.
@@ -70,6 +69,14 @@ public interface EventTypeEndpoint extends RestEndpoint {
      */
     String getEventTypeEntityMappings(Request request, Response response);
 
+	/**
+	 * This method returns the base uri for the eventTypeEndpoint.
+	 * @return - the base uri for the eventTypeEndpoint
+	 */
+	static String getEventTypeEndpointBaseUri() {
+    	return String.format("%1$s/api/eventtype", Argos.getRoutePrefix());
+	}
+
     /**
      * This method returns the basic URI to retrieve all event types.
      * @return - the URI to retrieve all event types from
@@ -83,7 +90,7 @@ public interface EventTypeEndpoint extends RestEndpoint {
      * @return - the URI to retrieve all event types from
      */
     static String getEventTypeBaseUri() {
-        return String.format("%1$s/%2$s", EVENT_TYPE_BASE_URI, getEventTypeIdParameter(true));
+        return String.format("%1$s/%2$s", getEventTypeEndpointBaseUri(), getEventTypeIdParameter(true));
     }
 
     /**
@@ -91,7 +98,7 @@ public interface EventTypeEndpoint extends RestEndpoint {
      * @return - the URI to create a new event type
      */
     static String getCreateEventTypeBaseUri() {
-        return String.format("%1$s/create", EVENT_TYPE_BASE_URI);
+        return String.format("%1$s/create", getEventTypeEndpointBaseUri());
     }
 
     /**
@@ -99,7 +106,7 @@ public interface EventTypeEndpoint extends RestEndpoint {
      * @return - the URI to delete a new event type
      */
     static String getDeleteEventTypeBaseUri() {
-        return String.format("%1$s/delete", EVENT_TYPE_BASE_URI);
+        return String.format("%1$s/delete", getEventTypeEndpointBaseUri());
     }
 
     /**
@@ -107,7 +114,7 @@ public interface EventTypeEndpoint extends RestEndpoint {
      * @return - the URI to retrieve attributes of an event type
      */
     static String getEventTypeAttributesBaseUri() {
-        return String.format("%1$s/%2$s/attributes", EVENT_TYPE_BASE_URI, getEventTypeIdParameter(true));
+        return String.format("%1$s/%2$s/attributes", getEventTypeEndpointBaseUri(), getEventTypeIdParameter(true));
     }
 
     /**
@@ -115,7 +122,7 @@ public interface EventTypeEndpoint extends RestEndpoint {
      * @return - the URI to retrieve queries of an event type
      */
     static String getEventTypeQueriesBaseUri() {
-        return String.format("%1$s/%2$s/queries", EVENT_TYPE_BASE_URI, getEventTypeIdParameter(true));
+        return String.format("%1$s/%2$s/queries", getEventTypeEndpointBaseUri(), getEventTypeIdParameter(true));
     }
 
     /**
@@ -123,7 +130,7 @@ public interface EventTypeEndpoint extends RestEndpoint {
      * @return - the URI to retrieve entity mappings of an event type
      */
     static String getEventTypeEntityMappingsBaseUri() {
-        return String.format("%1$s/%2$s/entitymappings", EVENT_TYPE_BASE_URI, getEventTypeIdParameter(true));
+        return String.format("%1$s/%2$s/entitymappings", getEventTypeEndpointBaseUri(), getEventTypeIdParameter(true));
     }
 
     /**

@@ -12,7 +12,6 @@ import java.util.Objects;
  * This interface represents the endpoint to receive event entity mappings.
  */
 public interface EntityMappingEndpoint extends RestEndpoint {
-    String ENTITY_MAPPING_BASE_URI = String.format("%1$s/api/entitymapping", Argos.getRoutePrefix());
 
     /**
      * This method is called via API and creates a event entity mapping.
@@ -38,12 +37,20 @@ public interface EntityMappingEndpoint extends RestEndpoint {
      */
     String editEntityMapping(Request request, Response response);
 
+	/**
+	 * This method returns the base uri for the entityMappingEndpoint.
+	 * @return - the base uri for the entityMappingEndpoint
+	 */
+	static String getEntityMappingEndpointBaseUri() {
+        return String.format("%1$s/api/entitymapping", Argos.getRoutePrefix());
+    }
+
     /**
      * This method returns the basic URI to create an entity mapping.
      * @return - the URI to create an entity mapping
      */
     static String getCreateEventQueryBaseUri() {
-        return  String.format("%1$s/create", ENTITY_MAPPING_BASE_URI);
+        return  String.format("%1$s/create", getEntityMappingEndpointBaseUri());
     }
 
     /**
@@ -51,7 +58,7 @@ public interface EntityMappingEndpoint extends RestEndpoint {
      * @return - the URI to delete an entity mapping
      */
     static String getDeleteEventQueryBaseUri() {
-        return  String.format("%1$s/%2$s/delete", ENTITY_MAPPING_BASE_URI, getEntityMappingIdParameter(true));
+        return  String.format("%1$s/%2$s/delete", getEntityMappingEndpointBaseUri(), getEntityMappingIdParameter(true));
     }
 
     /**
@@ -59,7 +66,7 @@ public interface EntityMappingEndpoint extends RestEndpoint {
      * @return - the URI to edit an entity mapping
      */
     static String getEditEventQueryBaseUri() {
-        return  String.format("%1$s/%2$s/edit", ENTITY_MAPPING_BASE_URI, getEntityMappingIdParameter(true));
+        return  String.format("%1$s/%2$s/edit", getEntityMappingEndpointBaseUri(), getEntityMappingIdParameter(true));
     }
 
     /**

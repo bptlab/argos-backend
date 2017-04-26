@@ -12,7 +12,6 @@ import java.util.Objects;
  * This interface represents the endpoint to receive event queries.
  */
 public interface EventQueryEndpoint extends RestEndpoint {
-    String EVENT_QUERY_BASE_URI = String.format("%1$s/api/eventquery", Argos.getRoutePrefix());
 
     /**
      * This method is called via API and creates an event query to an event type.
@@ -38,12 +37,16 @@ public interface EventQueryEndpoint extends RestEndpoint {
      */
     String editEventQuery(Request request, Response response);
 
+    static String getEventQueryEndpointBaseUri() {
+        return String.format("%1$s/api/eventquery", Argos.getRoutePrefix());
+    }
+
     /**
      * This method returns the basic URI to create an event query for an event type.
      * @return - the URI to create an event query
      */
     static String getCreateEventQueryBaseUri() {
-        return  String.format("%1$s/create", EVENT_QUERY_BASE_URI);
+        return  String.format("%1$s/create", getEventQueryEndpointBaseUri());
     }
 
     /**
@@ -51,7 +54,7 @@ public interface EventQueryEndpoint extends RestEndpoint {
      * @return - the URI to delete an event query
      */
     static String getDeleteEventQueryBaseUri() {
-        return  String.format("%1$s/%2$s/delete", EVENT_QUERY_BASE_URI, getEventQueryIdParameter(true));
+        return  String.format("%1$s/%2$s/delete", getEventQueryEndpointBaseUri(), getEventQueryIdParameter(true));
     }
 
     /**
@@ -59,7 +62,7 @@ public interface EventQueryEndpoint extends RestEndpoint {
      * @return - the URI to edit an event query
      */
     static String getEditEventQueryBaseUri() {
-        return  String.format("%1$s/%2$s/edit", EVENT_QUERY_BASE_URI, getEventQueryIdParameter(true));
+        return  String.format("%1$s/%2$s/edit", getEventQueryEndpointBaseUri(), getEventQueryIdParameter(true));
     }
 
     /**

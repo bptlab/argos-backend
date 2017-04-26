@@ -14,8 +14,6 @@ import java.util.Objects;
  */
 public interface EventReceiver extends Observable<EventCreationObserver>, RestEndpoint {
 
-	String EVENT_RECEIVER_BASE_URI = String.format("%1$s/api/eventreceiver", Argos.getRoutePrefix());
-
 	/**
 	 * This method is responsible for receiving events by reacting to the spark request sent from the event
 	 * processing platform.
@@ -26,11 +24,19 @@ public interface EventReceiver extends Observable<EventCreationObserver>, RestEn
 	String receiveEvent(Request request, Response response);
 
 	/**
+	 * This method returns the base uri for the eventReceiver.
+	 * @return - the base uri for the eventReceiver
+	 */
+	static String getEventReceiverBaseUri() {
+		return String.format("%1$s/api/eventreceiver", Argos.getRoutePrefix());
+	}
+
+	/**
 	 * This method returns the base uri to send events to.
 	 * @return - the base uri to send events to
 	 */
 	static String getReceiveEventBaseUri() {
-		return String.format("%1$s/%2$s", EVENT_RECEIVER_BASE_URI, getEventTypeIdParameter(true));
+		return String.format("%1$s/%2$s", getEventReceiverBaseUri(), getEventTypeIdParameter(true));
 	}
 
 	/**

@@ -13,7 +13,6 @@ import java.util.Objects;
  * This interface represents the endpoint to receive entities.
  */
 public interface EntityEndpoint extends RestEndpoint {
-    String ENTITY_BASE_URI = String.format("%1$s/api/entity", Argos.getRoutePrefix());
 
     /**
      * This method returns the requested entity.
@@ -48,11 +47,19 @@ public interface EntityEndpoint extends RestEndpoint {
     String getEventsOfEntity(Request request, Response response);
 
     /**
+     * This method returns the base uri for the entityEndpoint.
+     * @return - the base uri for the entityEndpoint
+     */
+    static String getEntityPointBaseUri() {
+        return String.format("%1$s/api/entity", Argos.getRoutePrefix());
+    }
+
+    /**
      * This method returns the basic URI to retrieve child entities.
      * @return - the URI to retrieve child entities from
      */
     static String getChildEntitiesBaseUri() {
-        return  String.format("%1$s/%2$s/children/type/%3$s/%4$s", ENTITY_BASE_URI,
+        return  String.format("%1$s/%2$s/children/type/%3$s/%4$s", getEntityPointBaseUri(),
                 getEntityIdParameter(true),
                 getEntityTypeIdParameter(true),
                 getAttributeNamesParameter(true));
@@ -63,7 +70,7 @@ public interface EntityEndpoint extends RestEndpoint {
      * @return - the URI to retrieve the entity from
      */
     static String getEntityBaseUri() {
-        return  String.format("%1$s/%2$s", ENTITY_BASE_URI, getEntityIdParameter(true));
+        return  String.format("%1$s/%2$s", getEntityPointBaseUri(), getEntityIdParameter(true));
     }
 
     /**
@@ -71,7 +78,7 @@ public interface EntityEndpoint extends RestEndpoint {
      * @return - the URI to retrieve event types from
      */
     static String getEventTypesOfEntityBaseUri() {
-        return  String.format("%1$s/%2$s/eventtypes", ENTITY_BASE_URI, getEntityIdParameter(true));
+        return  String.format("%1$s/%2$s/eventtypes", getEntityPointBaseUri(), getEntityIdParameter(true));
     }
 
     /**
@@ -79,7 +86,7 @@ public interface EntityEndpoint extends RestEndpoint {
      * @return - the URI to retrieve events from
      */
     static String getEventsOfEntityBaseUri() {
-        return  String.format("%1$s/%2$s/eventtype/%3$s/events/%4$s/%5$s", ENTITY_BASE_URI,
+        return  String.format("%1$s/%2$s/eventtype/%3$s/events/%4$s/%5$s", getEntityPointBaseUri(),
                 getEntityIdParameter(true),
                 getEntityTypeIdParameter(true),
                 getIndexFromParameter(true),

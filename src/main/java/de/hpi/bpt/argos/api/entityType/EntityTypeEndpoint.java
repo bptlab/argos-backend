@@ -12,7 +12,6 @@ import java.util.Objects;
  * This interface represents the endpoint to receive entity types.
  */
 public interface EntityTypeEndpoint extends RestEndpoint {
-    String ENTITY_TYPE_BASE_URI = String.format("%1$s/api/entitytype", Argos.getRoutePrefix());
 
     /**
      * This method returns the hierarchy overview of all entityTypes.
@@ -39,11 +38,19 @@ public interface EntityTypeEndpoint extends RestEndpoint {
     String getEntityTypeEntityMappings(Request request, Response response);
 
     /**
+     * This method returns the base uri for the entityTypeEndpoint.
+     * @return - the base uri for the entityTypeEndpoint
+     */
+    static String getEntityTypeEndpointBaseUri() {
+        return String.format("%1$s/api/entitytype", Argos.getRoutePrefix());
+    }
+
+    /**
      * This method returns the basic URI to retrieve the hierarchy.
      * @return - the URI to retrieve the hierarchy from
      */
     static String getEntityTypeHierarchyBaseUri() {
-        return  String.format("%1$s/hierarchy", ENTITY_TYPE_BASE_URI);
+        return  String.format("%1$s/hierarchy", getEntityTypeEndpointBaseUri());
     }
 
     /**
@@ -51,7 +58,7 @@ public interface EntityTypeEndpoint extends RestEndpoint {
      * @return - the URI to retrieve attributes from
      */
     static String getEntityTypeAttributesBaseUri() {
-        return  String.format("%1$s/%2$s/attributes", ENTITY_TYPE_BASE_URI, getEntityTypeIdParameter(true));
+        return  String.format("%1$s/%2$s/attributes", getEntityTypeEndpointBaseUri(), getEntityTypeIdParameter(true));
     }
 
     /**
@@ -59,7 +66,7 @@ public interface EntityTypeEndpoint extends RestEndpoint {
      * @return - the URI to retrieve entity mappings from
      */
     static String getEntityTypeEntityMappingsBaseUri() {
-        return  String.format("%1$s/%2$s/entitymappings", ENTITY_TYPE_BASE_URI, getEntityTypeIdParameter(true));
+        return  String.format("%1$s/%2$s/entitymappings", getEntityTypeEndpointBaseUri(), getEntityTypeIdParameter(true));
     }
 
     /**

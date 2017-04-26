@@ -37,8 +37,8 @@ public class ArgosImpl implements Argos {
 		// TODO: parse default event types and entity data
 
 		// keep this order, since web sockets should be registered before any web routes get registered
-		EventProcessingPlatformUpdaterImpl.getInstance().setup();
 		(new ClientUpdateServiceImpl()).setup(sparkService);
+		EventProcessingPlatformUpdaterImpl.getInstance().setup();
 
 		Set<RestEndpoint> restEndpoints = new HashSet<>();
 		restEndpoints.add(new EventReceiverImpl());
@@ -48,6 +48,7 @@ public class ArgosImpl implements Argos {
 			restEndpoint.setup(sparkService);
 		}
 
+		enableCORS(sparkService);
 		sparkService.awaitInitialization();
 	}
 
