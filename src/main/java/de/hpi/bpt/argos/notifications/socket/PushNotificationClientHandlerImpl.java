@@ -163,7 +163,7 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 	 * @param exception - the thrown exception
 	 */
 	private void logErrorWhileTryingToAcquireClientsLock(Throwable exception) {
-		LoggerUtilImpl.getInstance().error(logger,"cannot acquire client list lock", exception);
+		LoggerUtilImpl.getInstance().error(logger, "cannot acquire client list lock", exception);
 	}
 
 	/**

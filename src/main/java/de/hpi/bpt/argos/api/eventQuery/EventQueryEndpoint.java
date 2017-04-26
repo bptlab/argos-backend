@@ -37,7 +37,11 @@ public interface EventQueryEndpoint extends RestEndpoint {
      */
     String editEventQuery(Request request, Response response);
 
-    static String getEventQueryEndpointBaseUri() {
+	/**
+	 * This method returns the base uri for the eventQueryEndpoint.
+	 * @return - the base uri for the eventQueryEndpoint
+	 */
+	static String getEventQueryEndpointBaseUri() {
         return String.format("%1$s/api/eventquery", Argos.getRoutePrefix());
     }
 
