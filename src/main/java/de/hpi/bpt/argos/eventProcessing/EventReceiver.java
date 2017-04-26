@@ -1,8 +1,11 @@
 package de.hpi.bpt.argos.eventProcessing;
 
 import de.hpi.bpt.argos.core.Argos;
+import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
 import spark.Request;
 import spark.Response;
+
+import java.util.Objects;
 
 /**
  * This class offers an interface for the eventProcessingPlatform to send events to.
@@ -26,8 +29,7 @@ public interface EventReceiver {
 	 * @return - the base uri to send events to
 	 */
 	static String getReceiveEventBaseUri() {
-		// TODO
-		return "";
+		return String.format("%1$s/%2$s", EVENT_RECEIVER_BASE_URI, getEventTypeIdParameter(true));
 	}
 
 	/**
@@ -36,7 +38,15 @@ public interface EventReceiver {
 	 * @return - the uri to send events from a specific eventType to
 	 */
 	static String getReceiveEventUri(long eventTypeId) {
-		// TODO
-		return "";
+		return getReceiveEventBaseUri().replaceAll(getEventTypeIdParameter(true), Objects.toString(eventTypeId, "0"));
+	}
+
+	/**
+	 * This method returns the event type id path parameter.
+	 * @param includePrefix - if a prefix should be included
+	 * @return - event type id path parameter as a string
+	 */
+	static String getEventTypeIdParameter(boolean includePrefix) {
+		return RestEndpointUtilImpl.getInstance().getParameter("eventTypeId", includePrefix);
 	}
 }

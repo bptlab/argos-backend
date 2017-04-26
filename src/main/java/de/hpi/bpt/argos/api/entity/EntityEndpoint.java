@@ -1,7 +1,7 @@
 package de.hpi.bpt.argos.api.entity;
 
 import de.hpi.bpt.argos.core.Argos;
-import de.hpi.bpt.argos.util.RestUriUtil;
+import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
 import spark.Request;
 import spark.Response;
 
@@ -146,7 +146,7 @@ public interface EntityEndpoint {
      * @return - entity id path parameter as a string
      */
     static String getEntityIdParameter(boolean includePrefix) {
-        return RestUriUtil.getParameter("entityId", includePrefix);
+        return RestEndpointUtilImpl.getInstance().getParameter("entityId", includePrefix);
     }
 
     /**
@@ -155,7 +155,7 @@ public interface EntityEndpoint {
      * @return - entity type id path parameter as a string
      */
     static String getEntityTypeIdParameter(boolean includePrefix) {
-        return RestUriUtil.getParameter("typeId", includePrefix);
+        return RestEndpointUtilImpl.getInstance().getParameter("typeId", includePrefix);
     }
 
     /**
@@ -164,7 +164,7 @@ public interface EntityEndpoint {
      * @return - entity attribute names path parameter as a string
      */
     static String getAttributeNamesParameter(boolean includePrefix) {
-        return RestUriUtil.getParameter("attributeNames", includePrefix);
+        return RestEndpointUtilImpl.getInstance().getParameter("attributeNames", includePrefix);
     }
 
     /**
@@ -173,7 +173,7 @@ public interface EntityEndpoint {
      * @return - from index path parameter as a string
      */
     static String getIndexFromParameter(boolean includePrefix) {
-        return RestUriUtil.getParameter("startIndex", includePrefix);
+        return RestEndpointUtilImpl.getInstance().getParameter("startIndex", includePrefix);
     }
 
     /**
@@ -182,6 +182,6 @@ public interface EntityEndpoint {
      * @return - to index path parameter as a string
      */
     static String getIndexToParameter(boolean includePrefix) {
-        return RestUriUtil.getParameter("endIndex", includePrefix);
+        return RestEndpointUtilImpl.getInstance().getParameter("endIndex", includePrefix);
     }
 }

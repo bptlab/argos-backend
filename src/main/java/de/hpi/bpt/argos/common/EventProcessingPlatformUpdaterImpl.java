@@ -2,6 +2,7 @@ package de.hpi.bpt.argos.common;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
 import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.eventProcessing.EventReceiver;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
@@ -145,7 +146,7 @@ public final class EventProcessingPlatformUpdaterImpl implements EventProcessing
 
 		if (request.isSuccessful()) {
 			eventQuery.setUuid(request.getResponse());
-			// TODO: update query in database
+			PersistenceAdapterImpl.getInstance().updateArtifact(eventQuery, EventTypeEndpoint.getEventTypeQueriesUri(eventTypeId));
 		}
 
 		return new EventPlatformFeedbackImpl(request);

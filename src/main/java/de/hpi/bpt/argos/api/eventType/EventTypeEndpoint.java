@@ -1,7 +1,7 @@
 package de.hpi.bpt.argos.api.eventType;
 
 import de.hpi.bpt.argos.core.Argos;
-import de.hpi.bpt.argos.util.RestUriUtil;
+import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
 import spark.Request;
 import spark.Response;
 
@@ -167,6 +167,6 @@ public interface EventTypeEndpoint {
      * @return - event type id path parameter as a string
      */
     static String getEventTypeIdParameter(boolean includePrefix) {
-        return RestUriUtil.getParameter("eventTypeId", includePrefix);
+        return RestEndpointUtilImpl.getInstance().getParameter("eventTypeId", includePrefix);
     }
 }
