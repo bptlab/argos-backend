@@ -2,14 +2,31 @@ package de.hpi.bpt.argos.util;
 
 import org.slf4j.Logger;
 import spark.Request;
-import spark.Response;
+
+import java.util.function.Function;
 
 /**
  * This interface helps to set parameters in URIs.
  */
 public interface RestEndpointUtil {
 
-    /**
+	/**
+	 * This method validates the input as an integer that is given as a string with a generic validation function.
+	 * @param inputValue - string to be tested
+	 * @param validateInputResult - function to be tested on the parsed integer as validation
+	 * @return - returns the integer representation of the input value
+	 */
+	int validateInteger(String inputValue, Function<Integer, Boolean> validateInputResult);
+
+	/**
+	 * This method validates the input as a long that is given as a string with a generic validation function.
+	 * @param inputValue - string to be tested
+	 * @param validateInputResult - function to be tested on the parsed long as validation
+	 * @return - returns the long representation of the input value
+	 */
+	long validateLong(String inputValue, Function<Long, Boolean> validateInputResult);
+
+	/**
      * This method returns a parameter included with a a prefix or not.
      * @param parameterName - the parameter to update
      * @param includePrefix - if the prefix should be included

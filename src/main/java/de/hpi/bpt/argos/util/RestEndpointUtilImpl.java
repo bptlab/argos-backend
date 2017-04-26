@@ -1,14 +1,19 @@
 package de.hpi.bpt.argos.util;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spark.Request;
-import spark.Response;
+
+import java.util.function.Function;
+
+import static spark.Spark.halt;
 
 /**
  * {@inheritDoc}
  * This is the implementation.
  */
 public final class RestEndpointUtilImpl implements RestEndpointUtil {
+	private static final Logger logger = LoggerFactory.getLogger(RestEndpointUtilImpl.class);
 
 	private static RestEndpointUtil instance;
 
@@ -29,6 +34,38 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 		}
 
 		return instance;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int validateInteger(String inputValue, Function<Integer, Boolean> validateInputResult) {
+		try {
+			if (!validateInputResult.apply(Integer.parseInt(inputValue))) {
+				throw new InputValidationException(inputValue, "Integer");
+			}
+		} catch (InputValidationException | NumberFormatException e) {
+			LoggerUtilImpl.getInstance().error(logger, e.getMessage(), e);
+			halt(HttpStatusCodes.BAD_REQUEST, e.getMessage());
+		}
+		return Integer.parseInt(inputValue);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public long validateLong(String inputValue, Function<Long, Boolean> validateInputResult) {
+		try {
+			if (!validateInputResult.apply(Long.parseLong(inputValue))) {
+				throw new InputValidationException(inputValue, "Long");
+			}
+		} catch (InputValidationException | NumberFormatException e) {
+			LoggerUtilImpl.getInstance().error(logger, e.getMessage(), e);
+			halt(HttpStatusCodes.BAD_REQUEST, e.getMessage());
+		}
+		return Long.parseLong(inputValue);
 	}
 
 	/**

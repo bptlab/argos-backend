@@ -41,7 +41,13 @@ public final class XSDParserImpl implements XSDParser {
 		String schema = "";
 
 		for (TypeAttribute typeAttribute : typeAttributes) {
-			schema = appendElement(typeAttribute.getName(), schema);
+			String elementType = "xs:string";
+
+			if (typeAttribute.getId() == eventType.getTimeStampAttributeId()) {
+				elementType = "xs:date";
+			}
+
+			schema = appendElement(typeAttribute.getName(), elementType,schema);
 		}
 
 		schema = extendWithSequence(schema);
@@ -96,10 +102,11 @@ public final class XSDParserImpl implements XSDParser {
 	/**
 	 * This method appends the current content with a new element.
 	 * @param elementName - the name of the new element
+	 * @param elementType - the data type of this element
 	 * @param innerContent - the current content
 	 * @return - the new content
 	 */
-	private String appendElement(String elementName, String innerContent) {
-		return String.format("%1$s<xs:element name='%2$s' type='xs:string'/>", innerContent, elementName);
+	private String appendElement(String elementName, String elementType, String innerContent) {
+		return String.format("%1$s<xs:element name='%2$s' type='%3$s'/>", innerContent, elementName, elementType);
 	}
 }
