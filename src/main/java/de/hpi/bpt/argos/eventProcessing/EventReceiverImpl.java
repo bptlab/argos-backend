@@ -2,7 +2,10 @@ package de.hpi.bpt.argos.eventProcessing;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import de.hpi.bpt.argos.api.entity.EntityEndpoint;
 import de.hpi.bpt.argos.common.ObservableImpl;
+import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMappingStatus;
+import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMappingStatusImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.AttributeImpl;
@@ -103,6 +106,25 @@ public class EventReceiverImpl extends ObservableImpl<EventCreationObserver> imp
 			halt(HttpStatusCodes.ERROR, "cannot create event attributes in database");
 		}
 
-		notifyObservers((EventCreationObserver observer) -> observer.onEventCreated(eventType, eventTypeAttributes, event, eventAttributes));
+		EventEntityMappingStatus mappingStatus = new EventEntityMappingStatusImpl();
+
+		notifyObservers((EventCreationObserver observer) ->
+				observer.onEventCreated(mappingStatus, eventType, eventTypeAttributes, event, eventAttributes));
+
+		if (!mappingStatus.isMapped() || event.getEntityId() == 0) {
+			PersistenceAdapterImpl.getInstance().deleteArtifacts(eventAttributes.toArray(new Attribute[eventAttributes.size()]));
+			PersistenceAdapterImpl.getInstance().deleteArtifacts(event);
+			logger.info("cannot map event to entity");
+			logger.trace(String.format("event body: '%1$s'", requestBody));
+		} else {
+			int numberOfEvents = PersistenceAdapterImpl.getInstance().getEventCountOfEntity(mappingStatus.getEventOwner().getId(), eventType.getId());
+
+			// this event will now be stored with the corresponding owner id and therefore will be the next eventIndex in the list of all events
+			PersistenceAdapterImpl.getInstance().createArtifact(event,
+					EntityEndpoint.getEventsOfEntityUri(mappingStatus.getEventOwner().getId(),
+							eventType.getId(),
+							numberOfEvents + 1,
+							numberOfEvents + 1));
+		}
 	}
 }

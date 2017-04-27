@@ -1,6 +1,7 @@
 package de.hpi.bpt.argos.storage;
 
 import de.hpi.bpt.argos.common.ObservableImpl;
+import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMappingException;
 import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifact;
 import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
@@ -178,6 +179,25 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 	 * {@inheritDoc}
 	 */
 	@Override
+	public Entity getMappingEntity(String sqlQuery) throws EventEntityMappingException {
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		Query<Entity> query = session.createQuery(sqlQuery, Entity.class);
+
+		List<Entity> entities = databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
+
+		if (entities.size() != 1) {
+			throw new EventEntityMappingException("the number of matching entities was not 1");
+		}
+
+		return  entities.get(0);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public List<Entity> getEntities(long parentId, long entityTypeId) {
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
@@ -220,6 +240,23 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 				.setParameter("entityOwnerId", entityOwnerId);
 
 		return databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getEventCountOfEntity(long entityId, long eventTypeId) {
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		Query<Integer> query = session.createQuery("SELECT COUNT(*) FROM EventImpl event "
+				+ "WHERE event.entityId = :entityId AND event.typeId = :eventTypeId",
+				Integer.class)
+				.setParameter("entityId", entityId)
+				.setParameter("eventTypeId", eventTypeId);
+
+		return databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, 0);
 	}
 
 	/**
@@ -334,14 +371,14 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<MappingCondition> getMappingConditionsForMapping(long entityMappingId) {
+	public List<MappingCondition> getMappingConditions(long eventEntityMappingId) {
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
 
 		Query<MappingCondition> query = session.createQuery("FROM MappingConditionImpl mappingCondition WHERE "
-						+ "mappingCondition.mappingId = :entityMappingId",
+						+ "mappingCondition.mappingId = :eventEntityMappingId",
 				MappingCondition.class)
-				.setParameter("entityMappingId", entityMappingId);
+				.setParameter("eventEntityMappingId", eventEntityMappingId);
 
 		return databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
 	}
