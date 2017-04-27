@@ -1,8 +1,9 @@
 package de.hpi.bpt.argos.eventProcessing.mapping;
 
 
+import de.hpi.bpt.argos.common.Observable;
 import de.hpi.bpt.argos.common.ObservableImpl;
-import de.hpi.bpt.argos.eventProcessing.EventReceiver;
+import de.hpi.bpt.argos.eventProcessing.EventCreationObserver;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
@@ -28,7 +29,7 @@ public class EventEntityMapperImpl extends ObservableImpl<EventMappingObserver> 
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setup(EventReceiver eventReceiver) {
+	public void setup(Observable<EventCreationObserver> eventReceiver) {
 		eventReceiver.subscribe(this);
 	}
 
@@ -40,7 +41,8 @@ public class EventEntityMapperImpl extends ObservableImpl<EventMappingObserver> 
 			EventType eventType, List<TypeAttribute> eventTypeAttributes, Event event, List<Attribute> eventAttributes) {
 
 		if (mappingStatus.isMapped()) {
-			notifyObservers((EventMappingObserver observer) -> observer.onEventMapped(event, mappingStatus.getEventOwner()));
+			notifyObservers((EventMappingObserver observer) ->
+					observer.onEventMapped(event, mappingStatus.getEventOwner(), mappingStatus.getUsedMapping()));
 			return;
 		}
 
@@ -71,9 +73,9 @@ public class EventEntityMapperImpl extends ObservableImpl<EventMappingObserver> 
 
 				Entity owner = PersistenceAdapterImpl.getInstance().getMappingEntity(sqlQuery.toString());
 				event.setEntityId(owner.getId());
-				mappingStatus.setEventOwner(owner);
+				mappingStatus.setEventOwner(owner, mapping);
 
-				notifyObservers((EventMappingObserver observer) -> observer.onEventMapped(event, owner));
+				notifyObservers((EventMappingObserver observer) -> observer.onEventMapped(event, owner, mapping));
 
 				return;
 

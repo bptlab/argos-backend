@@ -1,6 +1,7 @@
 package de.hpi.bpt.argos.eventProcessing.mapping;
 
 import de.hpi.bpt.argos.storage.dataModel.entity.Entity;
+import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 
 /**
  * {@inheritDoc}
@@ -10,6 +11,7 @@ public class EventEntityMappingStatusImpl implements EventEntityMappingStatus {
 
 	private boolean mapped;
 	private Entity eventOwner;
+	private EventEntityMapping mapping;
 
 	/**
 	 * This constructor initializes all members with their default values.
@@ -38,8 +40,17 @@ public class EventEntityMappingStatusImpl implements EventEntityMappingStatus {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setEventOwner(Entity eventOwner) {
+	public EventEntityMapping getUsedMapping() {
+		return mapping;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setEventOwner(Entity eventOwner, EventEntityMapping usedMapping) {
 		this.eventOwner = eventOwner;
+		mapping = usedMapping;
 		mapped = true;
 	}
 }
