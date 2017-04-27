@@ -53,16 +53,4 @@ public interface EventQuery extends PersistenceArtifact {
      * @param typeId type id of this eventType to be set.
      */
     void setTypeId(long typeId);
-
-    /**
-     * This method returns the target status in which the affected entity is supposed to appear.
-     * @return target status of affected entity
-     */
-    String getTargetStatus();
-
-    /**
-     * This method sets the target status in which the affected entity is supposed to appear.
-     * @param targetStatus target status to be set
-     */
-    void setTargetStatus(String targetStatus);
 }
