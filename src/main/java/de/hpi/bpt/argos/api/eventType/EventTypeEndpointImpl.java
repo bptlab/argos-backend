@@ -1,6 +1,10 @@
 package de.hpi.bpt.argos.api.eventType;
 
-import com.google.gson.*;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.Gson;
 import de.hpi.bpt.argos.common.EventPlatformFeedback;
 import de.hpi.bpt.argos.common.EventProcessingPlatformUpdaterImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
@@ -289,7 +293,8 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
             logTrace(e);
             halt(HttpStatusCodes.ERROR, e.getMessage());
         }
-        return serializer.toJson(jsonEntityMappings);    }
+        return serializer.toJson(jsonEntityMappings);
+    }
 
     /**
      * This method returns an event type as a JsonObject.
@@ -308,7 +313,7 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
 
             return jsonEventType;
         } catch (Exception e) {
-            logger.error("cannot parse event type");
+            logger.error("cannot parse event type", e);
             return new JsonObject();
         }
     }
@@ -381,12 +386,6 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         return attribute;
     }
 
-    private long getEventTypeId(Request request) {
-        return endpointUtil.validateLong(
-                request.params(EventTypeEndpoint.getEventTypeIdParameter(false)),
-                (Long input) -> input > 0);
-    }
-
     /**
      * This method returns all event types with queries that need the given event type.
      * @param eventType the event type blocking event types are searched for
@@ -413,6 +412,17 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         } else {
             return serializer.toJson(blockingEventTypeIds);
         }
+    }
+
+    /**
+     * This method returns the id given in request.
+     * @param request the request with event type id
+     * @return id of the event type in request
+     */
+    private long getEventTypeId(Request request) {
+        return endpointUtil.validateLong(
+                request.params(EventTypeEndpoint.getEventTypeIdParameter(false)),
+                (Long input) -> input > 0);
     }
 
     /**
