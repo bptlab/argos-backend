@@ -226,6 +226,22 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 	 * {@inheritDoc}
 	 */
 	@Override
+	public List<Event> getEventsOfEventType(long eventTypeId) {
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		Query<Event> query = session.createQuery("FROM EventImpl event "
+						+ "WHERE event.typeId = :eventTypeId",
+				Event.class)
+				.setParameter("eventTypeId", eventTypeId);
+
+		return databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public int getEventCountOfEventType(long eventTypeId) {
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
