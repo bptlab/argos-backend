@@ -6,8 +6,11 @@ import de.hpi.bpt.argos.common.EventProcessingPlatformUpdaterImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttributeImpl;
+import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventTypeImpl;
+import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
+import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
 import de.hpi.bpt.argos.util.RestEndpointUtil;
 import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
@@ -180,7 +183,19 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
                 jsonEntityMapping.addProperty("Id", entityMapping.getId());
                 jsonEntityMapping.addProperty("EventTypeId", entityMapping.getEventTypeId());
                 jsonEntityMapping.addProperty("EntityTypeId", entityMapping.getEntityTypeId());
-                // TODO get conditions
+                jsonEntityMapping.addProperty("TargetStatus", entityMapping.getTargetStatus());
+
+                // add mapping conditions as array
+                JsonArray jsonMappingConditions = new JsonArray();
+                List<MappingCondition> mappingConditions = PersistenceAdapterImpl.getInstance()
+                        .getMappingConditionsForMapping(entityMapping.getId());
+                for (MappingCondition condition : mappingConditions) {
+                    JsonObject jsonCondition = new JsonObject();
+                    jsonCondition.addProperty("EventTypeAttributeId", condition.getEventTypeAttributeId());
+                    jsonCondition.addProperty("EntityTypeAttributeId", condition.getEntityTypeAttributeId());
+                    jsonMappingConditions.add(jsonCondition);
+                }
+                jsonEntityMapping.add("EventEntityMappingConditions", jsonMappingConditions);
 
                 jsonEntityMappings.add(jsonEntityMapping);
             }
