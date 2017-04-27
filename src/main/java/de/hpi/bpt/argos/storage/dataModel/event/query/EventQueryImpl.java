@@ -25,9 +25,6 @@ public class EventQueryImpl extends PersistenceArtifactImpl implements EventQuer
     @Column(name = "TypeId")
     private long typeId;
 
-    @Column(name = "TargetStatus")
-    private String targetStatus;
-
     /**
      * {@inheritDoc}
      */
@@ -90,21 +87,5 @@ public class EventQueryImpl extends PersistenceArtifactImpl implements EventQuer
     @Override
     public void setTypeId(long typeId) {
         this.typeId = typeId;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getTargetStatus() {
-        return targetStatus;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setTargetStatus(String targetStatus) {
-        this.targetStatus = targetStatus;
     }
 }

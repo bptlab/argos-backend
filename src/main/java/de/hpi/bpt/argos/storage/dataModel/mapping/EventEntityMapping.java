@@ -29,4 +29,16 @@ public interface EventEntityMapping extends PersistenceArtifact {
      * @param entityTypeId the id of the entityType to be set
      */
     void setEntityTypeId(long entityTypeId);
+
+    /**
+     * This method returns the target status of this mapping.
+     * @return target status of this mapping
+     */
+    String getTargetStatus();
+
+    /**
+     * This method sets the target status of this mapping.
+     * @param targetStatus the target status of the mapping to be set
+     */
+    void setTargetStatus(String targetStatus);
 }
