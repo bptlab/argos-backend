@@ -101,17 +101,18 @@ public interface EntityEndpoint extends RestEndpoint {
      * @return - the URI to retrieve child entities from
      */
     static String getChildEntitiesUri(long entityId, long entityTypeId, List<String> attributeNames) {
-        String attributeNamesAsString = "";
+        StringBuilder attributeNamesAsString = new StringBuilder();
+
         for (int i = 0; i < attributeNames.size(); i++) {
-            attributeNamesAsString = attributeNamesAsString + attributeNames.get(i);
+			attributeNamesAsString.append(attributeNames.get(i));
             if (i != attributeNames.size() - 1) {
-                attributeNamesAsString = attributeNamesAsString + "+";
+            	attributeNamesAsString.append("+");
             }
         }
         return getChildEntitiesBaseUri()
                 .replaceAll(getEntityIdParameter(true), Objects.toString(entityId, "0"))
                 .replaceAll(getEntityTypeIdParameter(true), Objects.toString(entityTypeId, "0"))
-                .replaceAll(getAttributeNamesParameter(true), attributeNamesAsString);
+                .replaceAll(getAttributeNamesParameter(true), attributeNamesAsString.toString());
     }
 
     /**
