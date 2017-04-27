@@ -49,26 +49,27 @@ public class EventEntityMapperImpl extends ObservableImpl<EventMappingObserver> 
 		List<EventEntityMapping> mappings = PersistenceAdapterImpl.getInstance().getEventEntityMappingsForEventType(eventType.getId());
 
 		for (EventEntityMapping mapping : mappings) {
-			List<TypeAttribute> entityTypeAttributes = PersistenceAdapterImpl.getInstance().getTypeAttributes(mapping.getEntityTypeId());
 			List<MappingCondition> mappingConditions = PersistenceAdapterImpl.getInstance().getMappingConditions(mapping.getId());
 
-			StringBuilder sqlQuery = new StringBuilder();
-			sqlQuery.append("FROM EntityImpl entity WHERE ");
-			boolean firstCondition = true;
+			if (mappingConditions.isEmpty()) {
+				// no mapping condition, so we can not map this
+				continue;
+			}
+
+			List<TypeAttribute> entityTypeAttributes = PersistenceAdapterImpl.getInstance().getTypeAttributes(mapping.getEntityTypeId());
 
 			try {
-				for (MappingCondition mappingCondition : mappingConditions) {
-					String sqlCondition = String.format("entity.%1$s = %2$s ",
-							getAttributeName(mappingCondition.getEntityTypeAttributeId(), entityTypeAttributes),
-							getAttributeValue(mappingCondition.getEventTypeAttributeId(), eventAttributes));
+				StringBuilder sqlQuery = new StringBuilder();
+				sqlQuery.append("FROM EntityImpl entity WHERE");
 
-					if (!firstCondition) {
-						sqlQuery.append("AND ");
-					} else {
-						firstCondition = false;
-					}
+				sqlQuery.append(String.format(" entity.%1$s = %2$s",
+						getAttributeName(mappingConditions.get(0).getEntityTypeAttributeId(), entityTypeAttributes),
+						getAttributeValue(mappingConditions.get(0).getEventTypeAttributeId(), eventAttributes)));
 
-					sqlQuery.append(sqlCondition);
+				for (int i = 1; i < mappingConditions.size(); i++) {
+					sqlQuery.append(String.format(" AND entity.%1$s = %2$s",
+							getAttributeName(mappingConditions.get(i).getEntityTypeAttributeId(), entityTypeAttributes),
+							getAttributeValue(mappingConditions.get(i).getEventTypeAttributeId(), eventAttributes)));
 				}
 
 				Entity owner = PersistenceAdapterImpl.getInstance().getMappingEntity(sqlQuery.toString());
