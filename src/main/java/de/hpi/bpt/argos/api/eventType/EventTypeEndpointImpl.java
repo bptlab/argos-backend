@@ -41,7 +41,9 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
     private static final String JSON_ATTRIBUTES_ATTRIBUTE = "TypeAttributes";
     private static final String JSON_TIMESTAMP_ATTRIBUTE = "TimeStampAttributeName";
 
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setup(Service sparkService) {
         sparkService.get(EventTypeEndpoint.getEventTypesBaseUri(), this::getEventType);
@@ -53,6 +55,9 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         sparkService.get(EventTypeEndpoint.getEventTypeEntityMappingsBaseUri(), this::getEventTypeEntityMappings);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getEventTypes(Request request, Response response) {
         List<EventType> eventTypes = PersistenceAdapterImpl.getInstance().getEventTypes();
@@ -65,6 +70,9 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         return serializer.toJson(jsonEventTypes);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getEventType(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
@@ -76,6 +84,9 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         return serializer.toJson(jsonEventTypes);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String createEventType(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
@@ -113,6 +124,9 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         return "";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String deleteEventType(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
@@ -179,6 +193,9 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         return "";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getEventTypeAttributes(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
@@ -204,6 +221,9 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         return serializer.toJson(jsonTypeAttributes);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getEventTypeQueries(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
@@ -230,6 +250,9 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         return serializer.toJson(jsonTypeQueries);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getEventTypeEntityMappings(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
@@ -290,6 +313,11 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         }
     }
 
+    /**
+     * This method creates an event type out of a json.
+     * @param json the json the event type should be created from
+     * @return the resulting event type
+     */
     private EventType createEventTypeFromJson(JsonObject json) {
         JsonObject jsonEventType = json.get(JSON_EVENT_TYPE_ATTRIBUTE).getAsJsonObject();
         if (jsonEventType == null) {
@@ -359,17 +387,22 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
                 (Long input) -> input > 0);
     }
 
+    /**
+     * This method returns all event types with queries that need the given event type.
+     * @param eventType the event type blocking event types are searched for
+     * @return a json string of blocking event types, empty if none
+     */
     private String getBlockingEventTypes(EventType eventType) {
         List<EventType> eventTypes = PersistenceAdapterImpl.getInstance().getEventTypes();
-        List<EventQuery> eventQueries = PersistenceAdapterImpl.getInstance().getEventQueries(eventType.getId());
 
         JsonArray blockingEventTypeIds = new JsonArray();
-        for (EventQuery query : eventQueries) {
-            for (EventType type : eventTypes) {
-                if (type.getId() == eventType.getId()) {
-                    continue;
-                }
+        for (EventType type : eventTypes) {
+            if (type.getId() == eventType.getId()) {
+                continue;
+            }
 
+            List<EventQuery> eventQueries = PersistenceAdapterImpl.getInstance().getEventQueries(type.getId());
+            for (EventQuery query : eventQueries) {
                 if (query.getQuery().contains(eventType.getName())) {
                     blockingEventTypeIds.add(type.getId());
                 }
