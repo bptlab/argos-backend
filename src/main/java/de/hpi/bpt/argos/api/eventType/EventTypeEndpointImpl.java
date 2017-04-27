@@ -65,9 +65,7 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
     public String getEventType(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
 
-        long eventTypeId = endpointUtil.validateLong(
-                request.params(EventTypeEndpoint.getEventTypeIdParameter(false)),
-                (Long input) -> input > 0);
+        long eventTypeId = getEventTypeId(request);
         EventType eventType = PersistenceAdapterImpl.getInstance().getEventType(eventTypeId);
         JsonObject jsonEventTypes = getEventTypeJson(eventType);
 
@@ -122,9 +120,7 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         JsonArray jsonTypeAttributes = new JsonArray();
 
         try {
-            long eventTypeId = endpointUtil.validateLong(
-                    request.params(EventTypeEndpoint.getEventTypeIdParameter(false)),
-                    (Long input) -> input > 0);
+            long eventTypeId = getEventTypeId(request);
             List<TypeAttribute> attributes = PersistenceAdapterImpl.getInstance().getTypeAttributes(eventTypeId);
 
             for (TypeAttribute attribute : attributes) {
@@ -236,6 +232,12 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
             halt(HttpStatusCodes.ERROR, "event type attribute could not be saved: " + attribute);
         }
         return attribute;
+    }
+
+    private long getEventTypeId(Request request) {
+        return endpointUtil.validateLong(
+                request.params(EventTypeEndpoint.getEventTypeIdParameter(false)),
+                (Long input) -> input > 0);
     }
 
     /**
