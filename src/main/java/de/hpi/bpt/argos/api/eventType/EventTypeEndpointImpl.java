@@ -6,6 +6,7 @@ import de.hpi.bpt.argos.common.EventProcessingPlatformUpdaterImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttributeImpl;
+import de.hpi.bpt.argos.storage.dataModel.event.Event;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventTypeImpl;
@@ -109,12 +110,73 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
             logTrace(e);
             halt(HttpStatusCodes.ERROR, e.getMessage());
         }
-        return null;
+        return "";
     }
 
     @Override
     public String deleteEventType(Request request, Response response) {
-        return null;
+        endpointUtil.logReceivedRequest(logger, request);
+
+        long eventTypeId = getEventTypeId(request);
+
+        EventType eventType = PersistenceAdapterImpl.getInstance().getEventType(eventTypeId);
+        String blockingEventTypes;
+        if (eventType == null) {
+            halt(HttpStatusCodes.ERROR, "cannot find event type");
+        } else {
+            if (!eventType.isDeletable()) {
+                halt(HttpStatusCodes.FORBIDDEN, "you must not delete this event type");
+            }
+
+            blockingEventTypes = getBlockingEventTypes(eventType);
+            if (blockingEventTypes.isEmpty()) {
+                boolean feedback;
+                // delete queries
+                List<EventQuery> queries = PersistenceAdapterImpl.getInstance().getEventQueries(eventTypeId);
+                EventQuery[] queryArray = new EventQuery[queries.size()];
+                feedback = PersistenceAdapterImpl.getInstance().deleteArtifacts(queries.toArray(queryArray));
+                if (!feedback) {
+                    halt(HttpStatusCodes.ERROR, "could not delete corresponding queries of event type");
+                }
+
+                // delete attributes
+                List<TypeAttribute> attributes = PersistenceAdapterImpl.getInstance().getTypeAttributes(eventTypeId);
+                EventQuery[] attributeArray = new EventQuery[attributes.size()];
+                feedback = PersistenceAdapterImpl.getInstance().deleteArtifacts(attributes.toArray(attributeArray));
+                if (!feedback) {
+                    halt(HttpStatusCodes.ERROR, "could not delete corresponding attributes of event type");
+                }
+
+                // delete events
+                List<Event> events = PersistenceAdapterImpl.getInstance().getEventsOfEventType(eventTypeId);
+                EventQuery[] eventArray = new EventQuery[events.size()];
+                feedback = PersistenceAdapterImpl.getInstance().deleteArtifacts(events.toArray(eventArray));
+                if (!feedback) {
+                    halt(HttpStatusCodes.ERROR, "could not delete corresponding events of event type");
+                }
+
+                // delete mappings
+                List<EventEntityMapping> mappings = PersistenceAdapterImpl.getInstance().getEventEntityMappingsForEventType(eventTypeId);
+                EventQuery[] mappingArray = new EventQuery[mappings.size()];
+                feedback = PersistenceAdapterImpl.getInstance().deleteArtifacts(mappings.toArray(mappingArray));
+                if (!feedback) {
+                    halt(HttpStatusCodes.ERROR, "could not delete corresponding mappings of event type");
+                }
+
+                // delete event type
+                feedback = PersistenceAdapterImpl.getInstance().deleteArtifact(eventType,
+                        EventTypeEndpoint.getDeleteEventTypeUri(eventType.getId()));
+                if (!feedback) {
+                    halt(HttpStatusCodes.ERROR, "could not delete event type");
+                }
+
+                response.status(HttpStatusCodes.SUCCESS);
+            } else {
+                response.status(HttpStatusCodes.ERROR);
+                return blockingEventTypes;
+            }
+        }
+        return "";
     }
 
     @Override
@@ -295,6 +357,29 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         return endpointUtil.validateLong(
                 request.params(EventTypeEndpoint.getEventTypeIdParameter(false)),
                 (Long input) -> input > 0);
+    }
+
+    private String getBlockingEventTypes(EventType eventType) {
+        List<EventType> eventTypes = PersistenceAdapterImpl.getInstance().getEventTypes();
+        List<EventQuery> eventQueries = PersistenceAdapterImpl.getInstance().getEventQueries(eventType.getId());
+
+        JsonArray blockingEventTypeIds = new JsonArray();
+        for (EventQuery query : eventQueries) {
+            for (EventType type : eventTypes) {
+                if (type.getId() == eventType.getId()) {
+                    continue;
+                }
+
+                if (query.getQuery().contains(eventType.getName())) {
+                    blockingEventTypeIds.add(type.getId());
+                }
+            }
+        }
+        if (blockingEventTypeIds.size() == 0) {
+            return "";
+        } else {
+            return serializer.toJson(blockingEventTypeIds);
+        }
     }
 
     /**

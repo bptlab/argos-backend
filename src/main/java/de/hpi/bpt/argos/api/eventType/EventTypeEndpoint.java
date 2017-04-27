@@ -106,7 +106,7 @@ public interface EventTypeEndpoint extends RestEndpoint {
      * @return - the URI to delete a new event type
      */
     static String getDeleteEventTypeBaseUri() {
-        return String.format("%1$s/delete", getEventTypeEndpointBaseUri());
+        return String.format("%1$s/%2$s/delete", getEventTypeEndpointBaseUri(), getEventTypeIdParameter(true));
     }
 
     /**
@@ -140,6 +140,15 @@ public interface EventTypeEndpoint extends RestEndpoint {
      */
     static String getEventTypeUri(long eventTypeId) {
         return getEventTypeBaseUri().replaceAll(getEventTypeIdParameter(true), Objects.toString(eventTypeId, "0"));
+    }
+
+    /**
+     * This method returns the URI to delete an event type.
+     * @param eventTypeId - the id of the event type to be deleted
+     * @return - the URI to delete an event type
+     */
+    static String getDeleteEventTypeUri(long eventTypeId) {
+        return getDeleteEventTypeBaseUri().replaceAll(getEventTypeIdParameter(true), Objects.toString(eventTypeId, "0"));
     }
 
     /**
