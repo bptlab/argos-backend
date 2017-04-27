@@ -19,6 +19,7 @@ import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
 import de.hpi.bpt.argos.util.RestEndpointUtil;
 import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
+import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.HaltException;
@@ -64,6 +65,8 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
      */
     @Override
     public String getEventTypes(Request request, Response response) {
+        endpointUtil.logReceivedRequest(logger, request);
+
         List<EventType> eventTypes = PersistenceAdapterImpl.getInstance().getEventTypes();
         JsonArray jsonEventTypes = new JsonArray();
         // TODO where does the key for each event type come from? ("EventType{...}")
@@ -71,6 +74,7 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
             jsonEventTypes.add(getEventTypeJson(eventType));
         }
 
+        endpointUtil.logSendingResponse(logger, request, response.status(), "event types returned");
         return serializer.toJson(jsonEventTypes);
     }
 
@@ -83,9 +87,10 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
 
         long eventTypeId = getEventTypeId(request);
         EventType eventType = PersistenceAdapterImpl.getInstance().getEventType(eventTypeId);
-        JsonObject jsonEventTypes = getEventTypeJson(eventType);
+        JsonObject jsonEventType = getEventTypeJson(eventType);
 
-        return serializer.toJson(jsonEventTypes);
+        endpointUtil.logSendingResponse(logger, request, response.status(), "event type returned");
+        return serializer.toJson(jsonEventType);
     }
 
     /**
@@ -100,13 +105,13 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
             JsonObject jsonEventType = jsonBody.get(JSON_EVENT_TYPE_ATTRIBUTE).getAsJsonObject();
 
             if (jsonEventType == null) {
-                halt(HttpStatusCodes.ERROR, "no event type given in body");
+                halt(HttpStatusCodes.BAD_REQUEST, "no event type given in body");
             }
 
             EventType eventType = createEventTypeFromJson(jsonEventType);
 
             if (eventType == null) {
-                halt(HttpStatusCodes.ERROR, "event type name already in use, or failed to parse event type");
+                halt(HttpStatusCodes.BAD_REQUEST, "event type name already in use, or failed to parse event type");
             } else {
                 EventPlatformFeedback feedback = EventProcessingPlatformUpdaterImpl.getInstance().registerEventType(eventType);
 
@@ -121,10 +126,10 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
             logger.info(String.format("cannot create event type: %1$s -> %2$s", halt.statusCode(), halt.body()));
             throw halt;
         } catch (Exception e) {
-            logger.error("cannot parse request body to event type '" + request.body() + "'");
-            logTrace(e);
+            LoggerUtilImpl.getInstance().error(logger, "cannot parse request body to event type", e);
             halt(HttpStatusCodes.ERROR, e.getMessage());
         }
+        endpointUtil.logSendingResponse(logger, request, response.status(), "event type created");
         return "";
     }
 
@@ -140,7 +145,7 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         EventType eventType = PersistenceAdapterImpl.getInstance().getEventType(eventTypeId);
         String blockingEventTypes;
         if (eventType == null) {
-            halt(HttpStatusCodes.ERROR, "cannot find event type");
+            halt(HttpStatusCodes.BAD_REQUEST, "cannot find event type");
         } else {
             if (!eventType.isDeletable()) {
                 halt(HttpStatusCodes.FORBIDDEN, "you must not delete this event type");
@@ -148,43 +153,37 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
 
             blockingEventTypes = getBlockingEventTypes(eventType);
             if (blockingEventTypes.isEmpty()) {
-                boolean feedback;
                 // delete queries
                 List<EventQuery> queries = PersistenceAdapterImpl.getInstance().getEventQueries(eventTypeId);
                 EventQuery[] queryArray = new EventQuery[queries.size()];
-                feedback = PersistenceAdapterImpl.getInstance().deleteArtifacts(queries.toArray(queryArray));
-                if (!feedback) {
+                if (!PersistenceAdapterImpl.getInstance().deleteArtifacts(queries.toArray(queryArray))) {
                     halt(HttpStatusCodes.ERROR, "could not delete corresponding queries of event type");
                 }
 
                 // delete attributes
                 List<TypeAttribute> attributes = PersistenceAdapterImpl.getInstance().getTypeAttributes(eventTypeId);
-                EventQuery[] attributeArray = new EventQuery[attributes.size()];
-                feedback = PersistenceAdapterImpl.getInstance().deleteArtifacts(attributes.toArray(attributeArray));
-                if (!feedback) {
+                TypeAttribute[] attributeArray = new TypeAttribute[attributes.size()];
+                if (!PersistenceAdapterImpl.getInstance().deleteArtifacts(attributes.toArray(attributeArray))) {
                     halt(HttpStatusCodes.ERROR, "could not delete corresponding attributes of event type");
                 }
 
                 // delete events
                 List<Event> events = PersistenceAdapterImpl.getInstance().getEventsOfEventType(eventTypeId);
-                EventQuery[] eventArray = new EventQuery[events.size()];
-                feedback = PersistenceAdapterImpl.getInstance().deleteArtifacts(events.toArray(eventArray));
-                if (!feedback) {
+                Event[] eventArray = new Event[events.size()];
+                if (!PersistenceAdapterImpl.getInstance().deleteArtifacts(events.toArray(eventArray))) {
                     halt(HttpStatusCodes.ERROR, "could not delete corresponding events of event type");
                 }
 
                 // delete mappings
                 List<EventEntityMapping> mappings = PersistenceAdapterImpl.getInstance().getEventEntityMappingsForEventType(eventTypeId);
-                EventQuery[] mappingArray = new EventQuery[mappings.size()];
-                feedback = PersistenceAdapterImpl.getInstance().deleteArtifacts(mappings.toArray(mappingArray));
-                if (!feedback) {
+                EventEntityMapping[] mappingArray = new EventEntityMapping[mappings.size()];
+                if (!PersistenceAdapterImpl.getInstance().deleteArtifacts(mappings.toArray(mappingArray))) {
                     halt(HttpStatusCodes.ERROR, "could not delete corresponding mappings of event type");
                 }
 
                 // delete event type
-                feedback = PersistenceAdapterImpl.getInstance().deleteArtifact(eventType,
-                        EventTypeEndpoint.getDeleteEventTypeUri(eventType.getId()));
-                if (!feedback) {
+                if (!PersistenceAdapterImpl.getInstance().deleteArtifact(eventType,
+                        EventTypeEndpoint.getDeleteEventTypeUri(eventType.getId()))) {
                     halt(HttpStatusCodes.ERROR, "could not delete event type");
                 }
 
@@ -194,6 +193,7 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
                 return blockingEventTypes;
             }
         }
+        endpointUtil.logSendingResponse(logger, request, response.status(), "event type deleted");
         return "";
     }
 
@@ -218,10 +218,10 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
                 jsonTypeAttributes.add(jsonTypeAttribute);
             }
         } catch (Exception e) {
-            logger.error("cannot parse request body to type attributes '" + request.body() + "'");
-            logTrace(e);
-            halt(HttpStatusCodes.ERROR, e.getMessage());
+            LoggerUtilImpl.getInstance().error(logger, "cannot parse request body to type attributes", e);
+            halt(HttpStatusCodes.BAD_REQUEST, e.getMessage());
         }
+        endpointUtil.logSendingResponse(logger, request, response.status(), "event type attributes returned");
         return serializer.toJson(jsonTypeAttributes);
     }
 
@@ -247,10 +247,10 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
                 jsonTypeQueries.add(jsonTypeAttribute);
             }
         } catch (Exception e) {
-            logger.error("cannot parse request body to event queries '" + request.body() + "'");
-            logTrace(e);
+            LoggerUtilImpl.getInstance().error(logger, "cannot parse request body to event queries", e);
             halt(HttpStatusCodes.ERROR, e.getMessage());
         }
+        endpointUtil.logSendingResponse(logger, request, response.status(), "event type queries returned");
         return serializer.toJson(jsonTypeQueries);
     }
 
@@ -289,10 +289,10 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
                 jsonEntityMappings.add(jsonEntityMapping);
             }
         } catch (Exception e) {
-            logger.error("cannot parse request body to event entity mappings '" + request.body() + "'");
-            logTrace(e);
+            LoggerUtilImpl.getInstance().error(logger, "event type entity mappings returned", e);
             halt(HttpStatusCodes.ERROR, e.getMessage());
         }
+        endpointUtil.logSendingResponse(logger, request, response.status(), "event type entity mappings returned");
         return serializer.toJson(jsonEntityMappings);
     }
 
@@ -313,7 +313,7 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
 
             return jsonEventType;
         } catch (Exception e) {
-            logger.error("cannot parse event type", e);
+            LoggerUtilImpl.getInstance().error(logger, "cannot parse event type", e);
             return new JsonObject();
         }
     }
@@ -423,13 +423,5 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         return endpointUtil.validateLong(
                 request.params(EventTypeEndpoint.getEventTypeIdParameter(false)),
                 (Long input) -> input > 0);
-    }
-
-    /**
-     * Logs an exception on log level trace.
-     * @param e - exception to be logged.
-     */
-    private void logTrace(Exception e) {
-        logger.trace("Reason: ", e);
     }
 }
