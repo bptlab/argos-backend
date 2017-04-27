@@ -1,6 +1,7 @@
 package de.hpi.bpt.argos.storage;
 
 import de.hpi.bpt.argos.common.Observable;
+import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMappingException;
 import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifact;
 import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
@@ -10,6 +11,7 @@ import de.hpi.bpt.argos.storage.dataModel.event.Event;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
+import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 
 import java.util.List;
 
@@ -91,6 +93,14 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	Entity getEntity(long id);
 
 	/**
+	 * This method returns an entity, which is returned for a specific sqlQuery.
+	 * @param sqlQuery - the sqlQuery to execute to get the entity
+	 * @return - the entity, which is returned by the given query
+	 * @throws EventEntityMappingException - throw when not exactly one entity is returned
+	 */
+	Entity getMappingEntity(String sqlQuery) throws EventEntityMappingException;
+
+	/**
 	 * This method returns a list of all entities, which are children of a specific other entity and are from a specific entityType.
 	 * @param parentId - the unique identifier of the parent entity
 	 * @param entityTypeId - the unique identifier of the entityType
@@ -113,6 +123,14 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	 * @return - a list of events, which belong to a specific entity and are from a specific eventType
 	 */
 	List<Event> getEvents(long entityOwnerId, long eventTypeId, int listStartIndex, int listEndIndex);
+
+	/**
+	 * This method returns the number of events for a specific entity and a specific eventType.
+	 * @param entityId - the unique identifier of the entity
+	 * @param eventTypeId - the unique identifier of the eventType
+	 * @return - the number of events for a specific entity and a specific eventType
+	 */
+	int getEventCountOfEntity(long entityId, long eventTypeId);
 
 	/**
 	 * This method returns a specific eventType, identified by it's id.
@@ -147,4 +165,11 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	 * @return - a list of all eventEntityMappings, which belong to a specific eventType
 	 */
 	List<EventEntityMapping> getEventEntityMappingsForEventType(long eventTypeId);
+
+	/**
+	 * This method returns a list of all mappingConditions, which belong to a specific eventEntityMapping.
+	 * @param eventEntityMappingId - the unique identifier of the eventEntityMapping
+	 * @return - a list of all mappingConditions, which belong to a specific eventEntityMapping
+	 */
+	List<MappingCondition> getMappingConditions(long eventEntityMappingId);
 }

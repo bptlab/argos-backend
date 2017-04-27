@@ -1,5 +1,8 @@
 package de.hpi.bpt.argos.util;
 
+/**
+ * This exception is thrown whenever an inputValidation fails.
+ */
 public class InputValidationException extends Exception {
     private final String inputValue;
     private final String expectedInputType;
