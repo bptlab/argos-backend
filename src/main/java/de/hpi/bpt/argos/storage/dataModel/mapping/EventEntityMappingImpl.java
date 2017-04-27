@@ -20,6 +20,9 @@ public class EventEntityMappingImpl extends PersistenceArtifactImpl implements E
     @Column(name = "EntityTypeId")
     private long entityTypeId;
 
+    @Column(name = "TargetStatus")
+    private String targetStatus;
+
     /**
      * {@inheritDoc}
      */
@@ -50,5 +53,21 @@ public class EventEntityMappingImpl extends PersistenceArtifactImpl implements E
     @Override
     public void setEntityTypeId(long entityTypeId) {
         this.entityTypeId = entityTypeId;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getTargetStatus() {
+        return targetStatus;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setTargetStatus(String targetStatus) {
+        this.targetStatus = targetStatus;
     }
 }
