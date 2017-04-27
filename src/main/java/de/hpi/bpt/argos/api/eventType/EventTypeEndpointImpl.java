@@ -141,13 +141,55 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
 
     @Override
     public String getEventTypeQueries(Request request, Response response) {
-        return null;
+        endpointUtil.logReceivedRequest(logger, request);
+        JsonArray jsonTypeQueries = new JsonArray();
+
+        try {
+            long eventTypeId = getEventTypeId(request);
+            List<EventQuery> queries = PersistenceAdapterImpl.getInstance().getEventQueries(eventTypeId);
+
+            for (EventQuery query : queries) {
+                JsonObject jsonTypeAttribute = new JsonObject();
+
+                jsonTypeAttribute.addProperty("Id", query.getId());
+                jsonTypeAttribute.addProperty("Description", query.getDescription());
+                jsonTypeAttribute.addProperty("Query", query.getQuery());
+
+                jsonTypeQueries.add(jsonTypeAttribute);
+            }
+        } catch (Exception e) {
+            logger.error("cannot parse request body to event queries '" + request.body() + "'");
+            logTrace(e);
+            halt(HttpStatusCodes.ERROR, e.getMessage());
+        }
+        return serializer.toJson(jsonTypeQueries);
     }
 
     @Override
     public String getEventTypeEntityMappings(Request request, Response response) {
-        return null;
-    }
+        endpointUtil.logReceivedRequest(logger, request);
+        JsonArray jsonEntityMappings = new JsonArray();
+
+        try {
+            long eventTypeId = getEventTypeId(request);
+            List<EventEntityMapping> entityMappings = PersistenceAdapterImpl.getInstance().getEventEntityMappingsForEntityType(eventTypeId);
+
+            for (EventEntityMapping entityMapping : entityMappings) {
+                JsonObject jsonEntityMapping = new JsonObject();
+
+                jsonEntityMapping.addProperty("Id", entityMapping.getId());
+                jsonEntityMapping.addProperty("EventTypeId", entityMapping.getEventTypeId());
+                jsonEntityMapping.addProperty("EntityTypeId", entityMapping.getEntityTypeId());
+                // TODO get conditions
+
+                jsonEntityMappings.add(jsonEntityMapping);
+            }
+        } catch (Exception e) {
+            logger.error("cannot parse request body to event entity mappings '" + request.body() + "'");
+            logTrace(e);
+            halt(HttpStatusCodes.ERROR, e.getMessage());
+        }
+        return serializer.toJson(jsonEntityMappings);    }
 
     /**
      * This method returns an event type as a JsonObject.
