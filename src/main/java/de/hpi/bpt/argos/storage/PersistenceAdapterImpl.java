@@ -1,7 +1,6 @@
 package de.hpi.bpt.argos.storage;
 
 import de.hpi.bpt.argos.common.ObservableImpl;
-import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMappingException;
 import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifact;
 import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
@@ -179,19 +178,23 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Entity getMappingEntity(String sqlQuery) throws EventEntityMappingException {
+	public Entity getMappingEntity(String sqlQuery) {
+		if (sqlQuery == null || sqlQuery.length() == 0) {
+			return null;
+		}
+
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
 
-		Query<Entity> query = session.createQuery(sqlQuery, Entity.class);
+		Query<Long> query = session.createQuery(sqlQuery, Long.class);
 
-		List<Entity> entities = databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
+		List<Long> entityIds = databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
 
-		if (entities.size() != 1) {
-			throw new EventEntityMappingException("the number of matching entities was not 1");
+		if (entityIds.size() != 1) {
+			return null;
 		}
 
-		return  entities.get(0);
+		return getEntity(entityIds.get(0));
 	}
 
 	/**
