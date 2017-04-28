@@ -1,10 +1,10 @@
 package de.hpi.bpt.argos.api.eventType;
 
-import com.google.gson.JsonObject;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.Gson;
 import de.hpi.bpt.argos.common.EventPlatformFeedback;
 import de.hpi.bpt.argos.common.EventProcessingPlatformUpdaterImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
@@ -17,18 +17,19 @@ import de.hpi.bpt.argos.storage.dataModel.event.type.EventTypeImpl;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
+import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import de.hpi.bpt.argos.util.RestEndpointUtil;
 import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
-import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.HaltException;
 import spark.Request;
 import spark.Response;
 import spark.Service;
-import static spark.Spark.halt;
 
 import java.util.List;
+
+import static spark.Spark.halt;
 
 /**
  * {@inheritDoc}
@@ -286,8 +287,7 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
 
                 // add mapping conditions as array
                 JsonArray jsonMappingConditions = new JsonArray();
-                List<MappingCondition> mappingConditions = PersistenceAdapterImpl.getInstance()
-                        .getMappingConditionsForMapping(entityMapping.getId());
+                List<MappingCondition> mappingConditions = PersistenceAdapterImpl.getInstance().getMappingConditions(entityMapping.getId());
                 for (MappingCondition condition : mappingConditions) {
                     JsonObject jsonCondition = new JsonObject();
                     jsonCondition.addProperty("EventTypeAttributeId", condition.getEventTypeAttributeId());
