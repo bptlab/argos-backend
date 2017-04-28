@@ -95,9 +95,8 @@ public class EventEntityMapperImpl extends ObservableImpl<EventMappingObserver> 
 
 		try {
 			StringBuilder sqlWhere = new StringBuilder();
-			sqlWhere.append("WHERE");
 
-			sqlWhere.append(String.format(" (attribute.TypeAttributeId = %1$d AND attribute.Value = '%2$s')",
+			sqlWhere.append(String.format("(attribute.TypeAttributeId = %1$d AND attribute.Value = '%2$s')",
 					mappingConditions.get(0).getEntityTypeAttributeId(),
 					getAttributeValue(mappingConditions.get(0).getEventTypeAttributeId(), eventAttributes)));
 
@@ -111,7 +110,8 @@ public class EventEntityMapperImpl extends ObservableImpl<EventMappingObserver> 
 					"SELECT OwnerId "
 							+ "FROM ( "
 							+ "SELECT OwnerId, COUNT(*) AS AttributeCount "
-							+ "FROM AttributeImpl attribute " + "%1$s "
+							+ "FROM AttributeImpl attribute "
+							+ "WHERE %1$s "
 							+ "GROUP BY attribute.OwnerId "
 							+ "HAVING AttributeCount = %2$d ) AS MappingTable",
 					sqlWhere.toString(),
