@@ -143,6 +143,23 @@ public class ArgosTestUtil {
 		return newEvent;
 	}
 
+	public static List<Attribute> createEventAttributes(EventType type, Event owner, boolean saveInDatabase) {
+		List<Attribute> eventAttributes = createAttributes(type.getId(), owner.getId(), saveInDatabase);
+
+		for (Attribute eventAttribute : eventAttributes) {
+			if (eventAttribute.getTypeAttributeId() == type.getTimeStampAttributeId()) {
+				eventAttribute.setValue(getCurrentTimestamp());
+				break;
+			}
+		}
+
+		if (saveInDatabase) {
+			PersistenceAdapterImpl.getInstance().saveArtifacts(eventAttributes.toArray(new Attribute[eventAttributes.size()]));
+		}
+
+		return eventAttributes;
+	}
+
 	private static List<TypeAttribute> createTypeAttributes(long typeId, boolean saveInDatabase) {
 		List<TypeAttribute> typeAttributes = new ArrayList<>();
 
