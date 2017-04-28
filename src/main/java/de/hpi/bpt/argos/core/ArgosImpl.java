@@ -2,7 +2,11 @@ package de.hpi.bpt.argos.core;
 
 import de.hpi.bpt.argos.common.EventProcessingPlatformUpdaterImpl;
 import de.hpi.bpt.argos.common.RestEndpoint;
+import de.hpi.bpt.argos.eventProcessing.EventReceiver;
 import de.hpi.bpt.argos.eventProcessing.EventReceiverImpl;
+import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMapper;
+import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMapperImpl;
+import de.hpi.bpt.argos.eventProcessing.status.EntityStatusCalculatorImpl;
 import de.hpi.bpt.argos.notifications.ClientUpdateServiceImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import spark.Service;
@@ -38,13 +42,20 @@ public class ArgosImpl implements Argos {
 		(new ClientUpdateServiceImpl()).setup(sparkService);
 		EventProcessingPlatformUpdaterImpl.getInstance().setup();
 
+		EventReceiver eventReceiver = new EventReceiverImpl();
+
 		Set<RestEndpoint> restEndpoints = new HashSet<>();
-		restEndpoints.add(new EventReceiverImpl());
+		restEndpoints.add(eventReceiver);
 		// TODO: add more restEndpoints here
 
 		for (RestEndpoint restEndpoint : restEndpoints) {
 			restEndpoint.setup(sparkService);
 		}
+
+		EventEntityMapper eventEntityMapper = new EventEntityMapperImpl();
+
+		eventEntityMapper.setup(eventReceiver);
+		(new EntityStatusCalculatorImpl()).setup(eventEntityMapper);
 
 		enableCORS(sparkService);
 		sparkService.awaitInitialization();

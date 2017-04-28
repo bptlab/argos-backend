@@ -178,6 +178,29 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 	 * {@inheritDoc}
 	 */
 	@Override
+	public Entity getMappingEntity(String sqlQuery) {
+		if (sqlQuery == null || sqlQuery.length() == 0) {
+			return null;
+		}
+
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		Query<Long> query = session.createQuery(sqlQuery, Long.class);
+
+		List<Long> entityIds = databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
+
+		if (entityIds.size() != 1) {
+			return null;
+		}
+
+		return getEntity(entityIds.get(0));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public List<Entity> getEntities(long parentId, long entityTypeId) {
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
@@ -220,6 +243,23 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 				.setParameter("entityOwnerId", entityOwnerId);
 
 		return databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getEventCountOfEntity(long entityId, long eventTypeId) {
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		Query<Integer> query = session.createQuery("SELECT COUNT(*) FROM EventImpl event "
+				+ "WHERE event.entityId = :entityId AND event.typeId = :eventTypeId",
+				Integer.class)
+				.setParameter("entityId", entityId)
+				.setParameter("eventTypeId", eventTypeId);
+
+		return databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, 0);
 	}
 
 	/**
@@ -334,14 +374,14 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<MappingCondition> getMappingConditionsForMapping(long entityMappingId) {
+	public List<MappingCondition> getMappingConditions(long eventEntityMappingId) {
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
 
 		Query<MappingCondition> query = session.createQuery("FROM MappingConditionImpl mappingCondition WHERE "
-						+ "mappingCondition.mappingId = :entityMappingId",
+						+ "mappingCondition.mappingId = :eventEntityMappingId",
 				MappingCondition.class)
-				.setParameter("entityMappingId", entityMappingId);
+				.setParameter("eventEntityMappingId", eventEntityMappingId);
 
 		return databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
 	}

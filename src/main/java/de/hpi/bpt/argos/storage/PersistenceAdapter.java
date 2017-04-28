@@ -92,6 +92,13 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	Entity getEntity(long id);
 
 	/**
+	 * This method returns an entity, whose id is returned for a specific sqlQuery.
+	 * @param sqlQuery - the sqlQuery to execute to get the entity id
+	 * @return - the entity, whose id is returned by the given query or null, of there was no perfect match
+	 */
+	Entity getMappingEntity(String sqlQuery);
+
+	/**
 	 * This method returns a list of all entities, which are children of a specific other entity and are from a specific entityType.
 	 * @param parentId - the unique identifier of the parent entity
 	 * @param entityTypeId - the unique identifier of the entityType
@@ -114,6 +121,14 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	 * @return - a list of events, which belong to a specific entity and are from a specific eventType
 	 */
 	List<Event> getEvents(long entityOwnerId, long eventTypeId, int listStartIndex, int listEndIndex);
+
+	/**
+	 * This method returns the number of events for a specific entity and a specific eventType.
+	 * @param entityId - the unique identifier of the entity
+	 * @param eventTypeId - the unique identifier of the eventType
+	 * @return - the number of events for a specific entity and a specific eventType
+	 */
+	int getEventCountOfEntity(long entityId, long eventTypeId);
 
 	/**
 	 * This method returns a list of events, which belong to a specific eventType.
@@ -164,9 +179,9 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	List<EventEntityMapping> getEventEntityMappingsForEventType(long eventTypeId);
 
 	/**
-	 * This method returns a list of all event entity mapping conditions, which belong to a specific mapping.
-	 * @param entityMappingId - the unique identifier of the event entity mapping
-	 * @return - a list of all mapping conditions of an entity mapping
+	 * This method returns a list of all mappingConditions, which belong to a specific eventEntityMapping.
+	 * @param eventEntityMappingId - the unique identifier of the eventEntityMapping
+	 * @return - a list of all mappingConditions, which belong to a specific eventEntityMapping
 	 */
-	List<MappingCondition> getMappingConditionsForMapping(long entityMappingId);
+	List<MappingCondition> getMappingConditions(long eventEntityMappingId);
 }
