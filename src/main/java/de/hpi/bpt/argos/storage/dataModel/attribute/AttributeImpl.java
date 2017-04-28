@@ -11,7 +11,7 @@ import javax.persistence.Table;
  * This is the implementation.
  */
 @Entity
-@Table(name = "TypeAttribute")
+@Table(name = "Attribute")
 public class AttributeImpl extends PersistenceArtifactImpl implements Attribute {
 
     @Column(name = "Value")
