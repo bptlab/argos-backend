@@ -14,6 +14,7 @@ import de.hpi.bpt.argos.util.HttpStatusCodes;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import de.hpi.bpt.argos.util.RestEndpointUtil;
 import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.HaltException;
@@ -35,6 +36,7 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
     private static final JsonParser jsonParser = new JsonParser();
 
     private static final String JSON_EVENT_QUERY_ATTRIBUTE = "EventQuery";
+    private static final String JSON_PARSE_ERROR_MESSAGE = "cannot parse request body to event query";
 
     /**
      * {@inheritDoc}
@@ -61,14 +63,9 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
                 halt(HttpStatusCodes.BAD_REQUEST, "no event query given in body");
             }
 
-            EventQuery eventQuery = null;
-            try {
-                eventQuery = new EventQueryImpl();
-                eventQuery.setTypeId(jsonEventQuery.get("EventTypeId").getAsLong());
-                eventQuery.setDescription(jsonEventQuery.get("Description").getAsString());
-                eventQuery.setQuery(jsonEventQuery.get("Query").getAsString());
-            } catch (Exception e) {
-                halt(HttpStatusCodes.BAD_REQUEST, "failed to parse event query");
+            EventQuery eventQuery = getEventQueryFromJson(jsonEventQuery);
+            if (eventQuery == null) {
+                halt(HttpStatusCodes.BAD_REQUEST, "cannot parse event query");
             }
 
             EventPlatformFeedback feedback = EventProcessingPlatformUpdaterImpl.getInstance().registerEventQuery(eventQuery.getTypeId(), eventQuery);
@@ -80,10 +77,11 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
             PersistenceAdapterImpl.getInstance().createArtifact(eventQuery, EventTypeEndpoint.getEventTypeQueriesUri(eventQuery.getId()));
 
         } catch (HaltException halt) {
-            logger.info(String.format("cannot create event query: %1$s -> %2$s", halt.statusCode(), halt.body()));
+            LoggerUtilImpl.getInstance().error(logger,
+                    String.format("cannot create event query: %1$s -> %2$s", halt.statusCode(), halt.body()), halt);
             throw halt;
         } catch (Exception e) {
-            LoggerUtilImpl.getInstance().error(logger, "cannot parse request body to event query", e);
+            LoggerUtilImpl.getInstance().error(logger, JSON_PARSE_ERROR_MESSAGE, e);
             halt(HttpStatusCodes.ERROR, e.getMessage());
         }
         endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
@@ -128,7 +126,7 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
         try {
             jsonBody = jsonParser.parse(request.body()).getAsJsonObject();
         } catch (JsonSyntaxException e) {
-            LoggerUtilImpl.getInstance().error(logger, "cannot parse request body to event query", e);
+            LoggerUtilImpl.getInstance().error(logger, JSON_PARSE_ERROR_MESSAGE, e);
             halt(HttpStatusCodes.BAD_REQUEST, "not a valid json");
         }
 
@@ -153,12 +151,13 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
             halt(HttpStatusCodes.ERROR, "Given query could not be unregistered");
         }
 
-        EventPlatformFeedback createFeedback = EventProcessingPlatformUpdaterImpl.getInstance().registerEventQuery(newEventQuery.getTypeId(), newEventQuery);
+        EventPlatformFeedback createFeedback = EventProcessingPlatformUpdaterImpl.getInstance()
+                .registerEventQuery(newEventQuery.getTypeId(), newEventQuery);
         if (!createFeedback.isSuccessful()) {
             halt(HttpStatusCodes.ERROR, "Given query could not be newly registered");
         }
 
-        if (!PersistenceAdapterImpl.getInstance().updateArtifact(newEventQuery,EventTypeEndpoint.getEventTypeQueriesUri(newEventQuery.getId()))) {
+        if (!PersistenceAdapterImpl.getInstance().updateArtifact(newEventQuery, EventTypeEndpoint.getEventTypeQueriesUri(newEventQuery.getId()))) {
             halt(HttpStatusCodes.ERROR, "Failed to save new query into database");
         }
 
@@ -167,7 +166,7 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
     }
 
     /**
-     * This method returns an event query derived from a json
+     * This method returns an event query derived from a json.
      * @param jsonEventQuery json describing the event query
      * @return event query from json
      */
@@ -179,7 +178,7 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
             newEventQuery.setDescription(jsonEventQuery.get("Description").getAsString());
             newEventQuery.setQuery(jsonEventQuery.get("Query").getAsString());
         } catch (Exception e) {
-            LoggerUtilImpl.getInstance().error(logger, "cannot parse request body to event query", e);
+            LoggerUtilImpl.getInstance().error(logger, JSON_PARSE_ERROR_MESSAGE, e);
             return null;
         }
         return newEventQuery;
