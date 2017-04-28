@@ -50,57 +50,19 @@ public class EventEntityMapperImpl extends ObservableImpl<EventMappingObserver> 
 
 		for (EventEntityMapping mapping : mappings) {
 			List<MappingCondition> mappingConditions = PersistenceAdapterImpl.getInstance().getMappingConditions(mapping.getId());
+			String sqlQuery = buildMappingQuery(mappingConditions, eventAttributes);
+			Entity owner = PersistenceAdapterImpl.getInstance().getMappingEntity(sqlQuery);
 
-			if (mappingConditions.isEmpty()) {
-				// no mapping condition, so we can not map this
+			if (owner == null) {
 				continue;
 			}
 
-			List<TypeAttribute> entityTypeAttributes = PersistenceAdapterImpl.getInstance().getTypeAttributes(mapping.getEntityTypeId());
+			event.setEntityId(owner.getId());
+			mappingStatus.setEventOwner(owner, mapping);
 
-			try {
-				StringBuilder sqlQuery = new StringBuilder();
-				sqlQuery.append("FROM EntityImpl entity WHERE");
-
-				sqlQuery.append(String.format(" entity.%1$s = %2$s",
-						getAttributeName(mappingConditions.get(0).getEntityTypeAttributeId(), entityTypeAttributes),
-						getAttributeValue(mappingConditions.get(0).getEventTypeAttributeId(), eventAttributes)));
-
-				for (int i = 1; i < mappingConditions.size(); i++) {
-					sqlQuery.append(String.format(" AND entity.%1$s = %2$s",
-							getAttributeName(mappingConditions.get(i).getEntityTypeAttributeId(), entityTypeAttributes),
-							getAttributeValue(mappingConditions.get(i).getEventTypeAttributeId(), eventAttributes)));
-				}
-
-				Entity owner = PersistenceAdapterImpl.getInstance().getMappingEntity(sqlQuery.toString());
-				event.setEntityId(owner.getId());
-				mappingStatus.setEventOwner(owner, mapping);
-
-				notifyObservers((EventMappingObserver observer) -> observer.onEventMapped(event, owner, mapping));
-
-				return;
-
-			} catch (EventEntityMappingException e) {
-				LoggerUtilImpl.getInstance().error(logger, e.getMessage(), e);
-			}
+			notifyObservers((EventMappingObserver observer) -> observer.onEventMapped(event, owner, mapping));
+			return;
 		}
-	}
-
-	/**
-	 * This method returns the name of a specific typeAttribute.
-	 * @param attributeId - the unique identifier of the typeAttribute
-	 * @param typeAttributes - a list of all typeAttributes
-	 * @return - the name of the typeAttribute
-	 * @throws EventEntityMappingException - thrown when the typeAttribute could not be found
-	 */
-	private String getAttributeName(long attributeId, List<TypeAttribute> typeAttributes) throws EventEntityMappingException {
-		for (TypeAttribute typeAttribute : typeAttributes) {
-			if (typeAttribute.getId() == attributeId) {
-				return typeAttribute.getName();
-			}
-		}
-
-		throw new EventEntityMappingException("type attribute not found");
 	}
 
 	/**
@@ -118,5 +80,47 @@ public class EventEntityMapperImpl extends ObservableImpl<EventMappingObserver> 
 		}
 
 		throw new EventEntityMappingException("attribute not found");
+	}
+
+	/**
+	 * This method builds a mapping sql query.
+	 * @param mappingConditions - the list of all mapping conditions to consider in the query
+	 * @param eventAttributes - the list of all attribute of the received event
+	 * @return - the mapping sql query, or an empty string if something went wrong
+	 */
+	private String buildMappingQuery(List<MappingCondition> mappingConditions, List<Attribute> eventAttributes) {
+		if (mappingConditions.isEmpty()) {
+			return "";
+		}
+
+		try {
+			StringBuilder sqlWhere = new StringBuilder();
+			sqlWhere.append("WHERE");
+
+			sqlWhere.append(String.format(" (attribute.TypeAttributeId = %1$d AND attribute.Value = '%2$s')",
+					mappingConditions.get(0).getEntityTypeAttributeId(),
+					getAttributeValue(mappingConditions.get(0).getEventTypeAttributeId(), eventAttributes)));
+
+			for (int i = 1; i < mappingConditions.size(); i++) {
+				sqlWhere.append(String.format(" OR (attribute.TypeAttributeId = %1$d AND attribute.Value = '%2$s')",
+						mappingConditions.get(i).getEntityTypeAttributeId(),
+						getAttributeValue(mappingConditions.get(i).getEventTypeAttributeId(), eventAttributes)));
+			}
+
+			return String.format(
+					"SELECT OwnerId "
+							+ "FROM ( "
+							+ "SELECT OwnerId, COUNT(*) AS AttributeCount "
+							+ "FROM AttributeImpl attribute " + "%1$s "
+							+ "GROUP BY attribute.OwnerId "
+							+ "HAVING AttributeCount = %2$d ) AS MappingTable",
+					sqlWhere.toString(),
+					mappingConditions.size()
+			);
+
+		} catch (EventEntityMappingException e) {
+			LoggerUtilImpl.getInstance().error(logger, e.getMessage(), e);
+			return "";
+		}
 	}
 }

@@ -1,7 +1,6 @@
 package de.hpi.bpt.argos.storage;
 
 import de.hpi.bpt.argos.common.Observable;
-import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMappingException;
 import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifact;
 import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
@@ -93,12 +92,11 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	Entity getEntity(long id);
 
 	/**
-	 * This method returns an entity, which is returned for a specific sqlQuery.
-	 * @param sqlQuery - the sqlQuery to execute to get the entity
-	 * @return - the entity, which is returned by the given query
-	 * @throws EventEntityMappingException - throw when not exactly one entity is returned
+	 * This method returns an entity, whose id is returned for a specific sqlQuery.
+	 * @param sqlQuery - the sqlQuery to execute to get the entity id
+	 * @return - the entity, whose id is returned by the given query or null, of there was no perfect match
 	 */
-	Entity getMappingEntity(String sqlQuery) throws EventEntityMappingException;
+	Entity getMappingEntity(String sqlQuery);
 
 	/**
 	 * This method returns a list of all entities, which are children of a specific other entity and are from a specific entityType.
