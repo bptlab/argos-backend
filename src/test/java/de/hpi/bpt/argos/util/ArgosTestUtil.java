@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.util;
 
+import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMapper;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.AttributeImpl;
@@ -13,6 +14,11 @@ import de.hpi.bpt.argos.storage.dataModel.event.Event;
 import de.hpi.bpt.argos.storage.dataModel.event.EventImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventTypeImpl;
+import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
+import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMappingImpl;
+import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
+import de.hpi.bpt.argos.storage.dataModel.mapping.MappingConditionImpl;
+import javafx.util.Pair;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -158,6 +164,42 @@ public class ArgosTestUtil {
 		}
 
 		return eventAttributes;
+	}
+
+	public static EventEntityMapping createEventEntityMapping(EventType eventType, EntityType entityType, String targetStatus,
+															  boolean saveInDatabase) {
+		EventEntityMapping newMapping = new EventEntityMappingImpl();
+
+		newMapping.setEventTypeId(eventType.getId());
+		newMapping.setEntityTypeId(entityType.getId());
+		newMapping.setTargetStatus(targetStatus);
+
+		if (saveInDatabase) {
+			PersistenceAdapterImpl.getInstance().saveArtifacts(newMapping);
+		}
+
+		return newMapping;
+	}
+
+	public static List<MappingCondition> createMappingConditions(EventEntityMapping mapping, boolean saveInDatabase,
+																 Pair<Long, Long>... eventEntityTypeAttributeIds) {
+		List<MappingCondition> mappingConditions = new ArrayList<>();
+
+		for (Pair<Long, Long> eventEntityTypeAttributeId : eventEntityTypeAttributeIds) {
+			MappingCondition newMappingCondition = new MappingConditionImpl();
+
+			newMappingCondition.setEventTypeAttributeId(eventEntityTypeAttributeId.getKey());
+			newMappingCondition.setEntityTypeAttributeId(eventEntityTypeAttributeId.getValue());
+			newMappingCondition.setMappingId(mapping.getId());
+
+			mappingConditions.add(newMappingCondition);
+		}
+
+		if (saveInDatabase) {
+			PersistenceAdapterImpl.getInstance().saveArtifacts(mappingConditions.toArray(new MappingCondition[mappingConditions.size()]));
+		}
+
+		return mappingConditions;
 	}
 
 	private static List<TypeAttribute> createTypeAttributes(long typeId, boolean saveInDatabase) {
