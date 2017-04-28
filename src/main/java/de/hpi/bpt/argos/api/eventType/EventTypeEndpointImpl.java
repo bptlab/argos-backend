@@ -74,8 +74,9 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
             jsonEventTypes.add(getEventTypeJson(eventType));
         }
 
-        endpointUtil.logSendingResponse(logger, request, response.status(), serializer.toJson(jsonEventTypes));
-        return serializer.toJson(jsonEventTypes);
+        response.body(serializer.toJson(jsonEventTypes));
+        endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
+        return response.body();
     }
 
     /**
@@ -89,8 +90,9 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         EventType eventType = PersistenceAdapterImpl.getInstance().getEventType(eventTypeId);
         JsonObject jsonEventType = getEventTypeJson(eventType);
 
-        endpointUtil.logSendingResponse(logger, request, response.status(), serializer.toJson(jsonEventType));
-        return serializer.toJson(jsonEventType);
+        response.body(serializer.toJson(jsonEventType));
+        endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
+        return response.body();
     }
 
     /**
@@ -129,8 +131,10 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
             LoggerUtilImpl.getInstance().error(logger, "cannot parse request body to event type", e);
             halt(HttpStatusCodes.ERROR, e.getMessage());
         }
-        endpointUtil.logSendingResponse(logger, request, response.status(), "");
-        return "";
+
+        response.body(serializer.toJson(""));
+        endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
+        return response.body();
     }
 
     /**
@@ -193,8 +197,10 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
                 return blockingEventTypes;
             }
         }
-        endpointUtil.logSendingResponse(logger, request, response.status(), "");
-        return "";
+
+        response.body("");
+        endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
+        return response.body();
     }
 
     /**
@@ -221,8 +227,10 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
             LoggerUtilImpl.getInstance().error(logger, "cannot parse request body to type attributes", e);
             halt(HttpStatusCodes.BAD_REQUEST, e.getMessage());
         }
-        endpointUtil.logSendingResponse(logger, request, response.status(), serializer.toJson(jsonTypeAttributes));
-        return serializer.toJson(jsonTypeAttributes);
+
+        response.body(serializer.toJson(jsonTypeAttributes));
+        endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
+        return response.body();
     }
 
     /**
@@ -250,8 +258,10 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
             LoggerUtilImpl.getInstance().error(logger, "cannot parse request body to event queries", e);
             halt(HttpStatusCodes.ERROR, e.getMessage());
         }
-        endpointUtil.logSendingResponse(logger, request, response.status(), serializer.toJson(jsonTypeQueries));
-        return serializer.toJson(jsonTypeQueries);
+
+        response.body(serializer.toJson(jsonTypeQueries));
+        endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
+        return response.body();
     }
 
     /**
@@ -292,8 +302,10 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
             LoggerUtilImpl.getInstance().error(logger, "event type entity mappings returned", e);
             halt(HttpStatusCodes.ERROR, e.getMessage());
         }
-        endpointUtil.logSendingResponse(logger, request, response.status(), serializer.toJson(jsonEntityMappings));
-        return serializer.toJson(jsonEntityMappings);
+
+        response.body(serializer.toJson(jsonEntityMappings));
+        endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
+        return response.body();
     }
 
     /**
