@@ -67,7 +67,6 @@ public class ArgosImpl implements Argos {
 	@Override
 	public void stop() {
 		sparkService.stop();
-		System.exit(1);
 	}
 
 	/**
