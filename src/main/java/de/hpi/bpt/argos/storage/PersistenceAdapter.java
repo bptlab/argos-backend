@@ -10,6 +10,7 @@ import de.hpi.bpt.argos.storage.dataModel.event.Event;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
+import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 
 import java.util.List;
 
@@ -115,6 +116,20 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	List<Event> getEvents(long entityOwnerId, long eventTypeId, int listStartIndex, int listEndIndex);
 
 	/**
+	 * This method returns a list of events, which belong to a specific eventType.
+	 * @param eventTypeId - the unique identifier of the eventType
+	 * @return - a list of events, which belong to a specific eventType
+	 */
+	List<Event> getEventsOfEventType(long eventTypeId);
+
+	/**
+	 * This method returns the number of events, for the given eventType.
+	 * @param eventTypeId - the unique identifier of the eventType
+	 * @return - number of events, for the given eventType
+	 */
+	int getEventCountOfEventType(long eventTypeId);
+
+	/**
 	 * This method returns a specific eventType, identified by it's id.
 	 * @param id - the unique identifier of the eventType
 	 * @return - the eventType or null
@@ -147,4 +162,11 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	 * @return - a list of all eventEntityMappings, which belong to a specific eventType
 	 */
 	List<EventEntityMapping> getEventEntityMappingsForEventType(long eventTypeId);
+
+	/**
+	 * This method returns a list of all event entity mapping conditions, which belong to a specific mapping.
+	 * @param entityMappingId - the unique identifier of the event entity mapping
+	 * @return - a list of all mapping conditions of an entity mapping
+	 */
+	List<MappingCondition> getMappingConditionsForMapping(long entityMappingId);
 }

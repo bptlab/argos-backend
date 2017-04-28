@@ -10,6 +10,7 @@ import de.hpi.bpt.argos.storage.dataModel.event.Event;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
+import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
@@ -225,6 +226,38 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 	 * {@inheritDoc}
 	 */
 	@Override
+	public List<Event> getEventsOfEventType(long eventTypeId) {
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		Query<Event> query = session.createQuery("FROM EventImpl event "
+						+ "WHERE event.typeId = :eventTypeId",
+				Event.class)
+				.setParameter("eventTypeId", eventTypeId);
+
+		return databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getEventCountOfEventType(long eventTypeId) {
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		Query<Integer> query = session.createQuery("SELECT count(*) FROM EventImpl event "
+						+ "WHERE event.typeId = :eventTypeId",
+				Integer.class)
+				.setParameter("eventTypeId", eventTypeId);
+
+		return databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, 0);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public EventType getEventType(long id) {
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
@@ -293,6 +326,22 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 						+ "eventEntityMapping.eventTypeId = :eventTypeId",
 				EventEntityMapping.class)
 				.setParameter("eventTypeId", eventTypeId);
+
+		return databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<MappingCondition> getMappingConditionsForMapping(long entityMappingId) {
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		Query<MappingCondition> query = session.createQuery("FROM MappingConditionImpl mappingCondition WHERE "
+						+ "mappingCondition.mappingId = :entityMappingId",
+				MappingCondition.class)
+				.setParameter("entityMappingId", entityMappingId);
 
 		return databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
 	}
