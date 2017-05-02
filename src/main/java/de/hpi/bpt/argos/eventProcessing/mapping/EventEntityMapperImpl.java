@@ -6,6 +6,7 @@ import de.hpi.bpt.argos.common.ObservableImpl;
 import de.hpi.bpt.argos.eventProcessing.EventCreationObserver;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
+import de.hpi.bpt.argos.storage.dataModel.attribute.AttributeImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.Entity;
 import de.hpi.bpt.argos.storage.dataModel.event.Event;
@@ -16,6 +17,7 @@ import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.Table;
 import java.util.List;
 
 /**
@@ -106,14 +108,22 @@ public class EventEntityMapperImpl extends ObservableImpl<EventMappingObserver> 
 						getAttributeValue(mappingConditions.get(i).getEventTypeAttributeId(), eventAttributes)));
 			}
 
+			Table attributeTable = AttributeImpl.class.getAnnotation(Table.class);
+			String attributeTableName = "Attribute";
+
+			if (attributeTable != null) {
+				attributeTableName = attributeTable.name();
+			}
+
 			return String.format(
 					"SELECT OwnerId "
 							+ "FROM ( "
 							+ "SELECT OwnerId, COUNT(*) AS AttributeCount "
-							+ "FROM AttributeImpl attribute "
-							+ "WHERE %1$s "
+							+ "FROM %1$s AS attribute "
+							+ "WHERE %2$s "
 							+ "GROUP BY attribute.OwnerId "
-							+ "HAVING AttributeCount = %2$d ) AS MappingTable",
+							+ "HAVING AttributeCount = %3$d ) AS MappingTable",
+					attributeTableName,
 					sqlWhere.toString(),
 					mappingConditions.size()
 			);
