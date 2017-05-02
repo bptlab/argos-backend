@@ -35,7 +35,6 @@ public class EntityEndpointImpl implements EntityEndpoint {
     private static final Logger logger = LoggerFactory.getLogger(EventTypeEndpointImpl.class);
     private static final Gson serializer = new Gson();
     private static final RestEndpointUtil endpointUtil = RestEndpointUtilImpl.getInstance();
-    private static final JsonParser jsonParser = new JsonParser();
 
     /**
      * {@inheritDoc}
@@ -91,7 +90,6 @@ public class EntityEndpointImpl implements EntityEndpoint {
         endpointUtil.logReceivedRequest(logger, request);
 
         long entityId = getEntityId(request);
-        Entity entity = PersistenceAdapterImpl.getInstance().getEntity(entityId);
         List<Event> events = PersistenceAdapterImpl.getInstance().getEvents(entityId);
         List<EventType> eventTypes = new ArrayList<>();
         for (Event event : events) {
