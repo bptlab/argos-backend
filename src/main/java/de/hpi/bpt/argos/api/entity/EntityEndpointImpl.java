@@ -9,6 +9,7 @@ import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.Entity;
 import de.hpi.bpt.argos.storage.dataModel.event.Event;
+import de.hpi.bpt.argos.storage.dataModel.event.EventImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
@@ -20,6 +21,7 @@ import spark.Request;
 import spark.Response;
 import spark.Service;
 
+import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -242,7 +244,12 @@ public class EntityEndpointImpl implements EntityEndpoint {
      * @return query string to find out if event query exists
      */
     private String getExistsEventQuery(long entityId, long eventTypeId) {
-        String eventTableName = "Events";
+        Table attributeTable = EventImpl.class.getAnnotation(Table.class);
+        String eventTableName = "Event";
+
+        if (attributeTable != null) {
+            eventTableName = attributeTable.name();
+        }
         return String.format(
                 "SELECT CASE WHEN EXISTS ("
                         + "SELECT *"
