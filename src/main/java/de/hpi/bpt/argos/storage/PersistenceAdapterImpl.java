@@ -188,7 +188,7 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 
 		Query query = session.createNativeQuery(sqlQuery);
 
-		List<?> entityIds = databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
+		List< ? > entityIds = databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
 
 		if (entityIds.size() != 1) {
 			return null;
