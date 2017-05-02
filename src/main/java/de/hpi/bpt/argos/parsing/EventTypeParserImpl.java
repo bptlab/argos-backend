@@ -42,6 +42,20 @@ public class EventTypeParserImpl implements EventTypeParser {
 	 */
 	private EventTypeParserImpl() {
 
+		/**
+		 * File format from unicorn
+		 * Please note, that the given data-types are ignored.
+		 *
+		 * {
+		 *     "name":"EventTypeName",
+		 *     "timestamp":"EventTypeTimestamp",
+		 *     "attributes":{
+		 *			"eventTypeAttribute1":"STRING",
+		 *			"eventTypeAttribute2":"STRING",
+		 *			"eventTypeAttribute3":"INTEGER",
+		 *     }
+		 * }
+		 */
 	}
 
 	/**
