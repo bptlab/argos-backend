@@ -9,7 +9,7 @@ public class ArgosTestParent {
 	public static final int ARGOS_PORT = 9001;
 	public static final String ARGOS_HOST_ADDRESS = "http://localhost";
 	public static final String ARGOS_HOST = ARGOS_HOST_ADDRESS + ":" + ARGOS_PORT;
-	public static final int ARGOS_THREADS = 8;
+	public static final int ARGOS_THREADS = 9;
 
 	private static Argos argos;
 
