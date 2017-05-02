@@ -186,15 +186,15 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
 
-		Query<Long> query = session.createQuery(sqlQuery, Long.class);
+		Query query = session.createNativeQuery(sqlQuery);
 
-		List<Long> entityIds = databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
+		List<?> entityIds = databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
 
 		if (entityIds.size() != 1) {
 			return null;
 		}
 
-		return getEntity(entityIds.get(0));
+		return getEntity(Long.parseLong(entityIds.get(0).toString()));
 	}
 
 	/**
@@ -253,13 +253,13 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
 
-		Query<Integer> query = session.createQuery("SELECT COUNT(*) FROM EventImpl event "
+		Query<Number> query = session.createQuery("SELECT COUNT(*) FROM EventImpl event "
 				+ "WHERE event.entityId = :entityId AND event.typeId = :eventTypeId",
-				Integer.class)
+				Number.class)
 				.setParameter("entityId", entityId)
 				.setParameter("eventTypeId", eventTypeId);
 
-		return databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, 0);
+		return databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, 0).intValue();
 	}
 
 	/**

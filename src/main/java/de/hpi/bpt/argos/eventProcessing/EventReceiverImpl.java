@@ -64,7 +64,7 @@ public class EventReceiverImpl extends ObservableImpl<EventCreationObserver> imp
 			}
 
 		} catch (HaltException e) {
-			RestEndpointUtilImpl.getInstance().logSendingResponse(logger, request, e.statusCode(), e.getMessage());
+			RestEndpointUtilImpl.getInstance().logSendingResponse(logger, request, e.statusCode(), e.body());
 			throw e;
 		}
 
@@ -116,6 +116,7 @@ public class EventReceiverImpl extends ObservableImpl<EventCreationObserver> imp
 			PersistenceAdapterImpl.getInstance().deleteArtifacts(event);
 			logger.info("cannot map event to entity");
 			logger.trace(String.format("event body: '%1$s'", requestBody));
+			halt(HttpStatusCodes.BAD_REQUEST, "cannot map event to entity");
 		} else {
 			int numberOfEvents = PersistenceAdapterImpl.getInstance().getEventCountOfEntity(mappingStatus.getEventOwner().getId(), eventType.getId());
 
