@@ -77,7 +77,7 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 	public List<String> validateListOfString(String inputValue, Function<String, Boolean> validateInputResult) {
 		try {
 			if (!validateInputResult.apply(inputValue)) {
-				throw new InputValidationException(inputValue, "Long");
+				throw new InputValidationException(inputValue, "String");
 			}
 		} catch (InputValidationException | NumberFormatException e) {
 			LoggerUtilImpl.getInstance().error(logger, e.getMessage(), e);

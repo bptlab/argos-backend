@@ -265,6 +265,25 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 	 * {@inheritDoc}
 	 */
 	@Override
+	public boolean getExistsEvent(String sqlQuery) {
+		if (sqlQuery == null || sqlQuery.length() == 0) {
+			return false;
+		}
+
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		Query query = session.createNativeQuery(sqlQuery);
+
+		String result = databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, "").toString();
+
+		return result.equals("True");
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public int getEventCountOfEntity(long entityId, long eventTypeId) {
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();

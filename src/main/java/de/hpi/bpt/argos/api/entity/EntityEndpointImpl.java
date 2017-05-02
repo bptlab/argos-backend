@@ -21,7 +21,9 @@ import spark.Response;
 import spark.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static spark.Spark.halt;
 
@@ -89,13 +91,17 @@ public class EntityEndpointImpl implements EntityEndpoint {
         endpointUtil.logReceivedRequest(logger, request);
 
         long entityId = getEntityId(request);
-        List<Event> events = PersistenceAdapterImpl.getInstance().getEvents(entityId);
-        List<EventType> eventTypes = new ArrayList<>();
-        for (Event event : events) {
-            eventTypes.add(PersistenceAdapterImpl.getInstance().getEventType(event.getTypeId()));
+        List<EventType> allEventTypes = PersistenceAdapterImpl.getInstance().getEventTypes();
+
+        Set<EventType> eventTypes = new HashSet<>();
+        for (EventType eventType : allEventTypes) {
+            String sql = getExistsEventQuery(entityId, eventType.getId());
+            if (PersistenceAdapterImpl.getInstance().getExistsEvent(sql)){
+                eventTypes.add(eventType);
+            }
         }
 
-        JsonObject eventTypesJson = getEventTypesJson(eventTypes);
+        JsonObject eventTypesJson = getEventTypesJson(new ArrayList<>(eventTypes));
 
         response.body(serializer.toJson(eventTypesJson));
         endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
@@ -230,6 +236,25 @@ public class EntityEndpointImpl implements EntityEndpoint {
     }
 
     /**
+     * This method returns a query to query if there exists an event query for the given entity and event type.
+     * @param entityId id of the entity
+     * @param eventTypeId id of the vent type
+     * @return query string to find out if event query exists
+     */
+    private String getExistsEventQuery(long entityId, long eventTypeId) {
+        String eventTableName = "Events";
+        return String.format(
+                "SELECT CASE WHEN EXISTS (" +
+                        "SELECT *" +
+                        "FROM %1$s" +
+                        "WHERE TypeId = %2$d" +
+                        "AND EntityId = %3$d" +
+                        ")" +
+                        "THEN \"True\"" +
+                        "ELSE \"False\" END", eventTableName, eventTypeId, entityId);
+    }
+
+    /**
      * This method returns the id given in request.
      * @param request the request with entity id
      * @return id of the entity in request
@@ -237,7 +262,7 @@ public class EntityEndpointImpl implements EntityEndpoint {
     private long getEntityId(Request request) {
         return endpointUtil.validateLong(
                 request.params(EntityEndpoint.getEntityIdParameter(false)),
-                (Long input) -> input > 0);
+                (Long input) -> input != 0);
     }
 
     /**
@@ -248,7 +273,7 @@ public class EntityEndpointImpl implements EntityEndpoint {
     private long getEntityTypeId(Request request) {
         return endpointUtil.validateLong(
                 request.params(EntityEndpoint.getEntityTypeIdParameter(false)),
-                (Long input) -> input > 0);
+                (Long input) -> input != 0);
     }
 
     /**
@@ -259,7 +284,7 @@ public class EntityEndpointImpl implements EntityEndpoint {
     private int getStartIndex(Request request) {
         return endpointUtil.validateInteger(
                 request.params(EntityEndpoint.getIndexFromParameter(false)),
-                (Integer input) -> input > 0);
+                (Integer input) -> input >= 0);
     }
 
     /**
@@ -270,7 +295,7 @@ public class EntityEndpointImpl implements EntityEndpoint {
     private int getEndIndex(Request request) {
         return endpointUtil.validateInteger(
                 request.params(EntityEndpoint.getIndexToParameter(false)),
-                (Integer input) -> input > 0);
+                (Integer input) -> input >= 0);
     }
 
     /**
