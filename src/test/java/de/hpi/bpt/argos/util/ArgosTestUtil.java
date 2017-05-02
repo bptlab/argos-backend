@@ -1,6 +1,5 @@
 package de.hpi.bpt.argos.util;
 
-import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMapper;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.AttributeImpl;

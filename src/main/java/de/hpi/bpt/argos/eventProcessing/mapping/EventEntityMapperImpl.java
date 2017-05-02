@@ -110,7 +110,7 @@ public class EventEntityMapperImpl extends ObservableImpl<EventMappingObserver> 
 					"SELECT OwnerId "
 							+ "FROM ( "
 							+ "SELECT OwnerId, COUNT(*) AS AttributeCount "
-							+ "FROM AttributeImpl attribute "
+							+ "FROM attribute "
 							+ "WHERE %1$s "
 							+ "GROUP BY attribute.OwnerId "
 							+ "HAVING AttributeCount = %2$d ) AS MappingTable",
