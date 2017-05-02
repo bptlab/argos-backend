@@ -165,6 +165,13 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	List<EventQuery> getEventQueries(long eventTypeId);
 
 	/**
+	 * This method returns a eventQuery with given id.
+	 * @param eventQueryId - the unique identifier of the eventQuery
+	 * @return - the eventQuery with matching id
+	 */
+	EventQuery getEventQuery(long eventQueryId);
+
+	/**
 	 * This method returns a list of all eventEntityMappings, which belong to a specific entityType.
 	 * @param entityTypeId - the unique identifier of the entityType
 	 * @return - a list of all eventEntityMappings, which belong to a specific entityType
