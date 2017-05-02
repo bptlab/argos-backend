@@ -85,7 +85,7 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
             halt(HttpStatusCodes.ERROR, e.getMessage());
         }
         endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
-        return "";
+        return response.body();
     }
 
     /**
@@ -98,7 +98,7 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
         long eventQueryId = getEventQueryId(request);
         EventQuery eventQuery = PersistenceAdapterImpl.getInstance().getEventQuery(eventQueryId);
         if (eventQuery == null) {
-            halt(HttpStatusCodes.ERROR, "Given query was not found");
+            halt(HttpStatusCodes.BAD_REQUEST, "given query was not found");
         }
 
         EventPlatformFeedback feedback = EventProcessingPlatformUpdaterImpl.getInstance().deleteEventQuery(eventQuery);
@@ -108,11 +108,11 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
 
         if (!PersistenceAdapterImpl.getInstance().deleteArtifact(eventQuery,
                 EventTypeEndpoint.getEventTypeQueriesUri(eventQuery.getId()))) {
-            halt(HttpStatusCodes.ERROR, "Could not delete query");
+            halt(HttpStatusCodes.ERROR, "could not delete query");
         }
 
         endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
-        return "";
+        return response.body();
     }
 
     /**
@@ -143,26 +143,26 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
         long oldEventQueryId = getEventQueryId(request);
         EventQuery oldEventQuery = PersistenceAdapterImpl.getInstance().getEventQuery(oldEventQueryId);
         if (oldEventQuery == null) {
-            halt(HttpStatusCodes.ERROR, "Given query was not found");
+            halt(HttpStatusCodes.BAD_REQUEST, "given query was not found");
         }
 
         EventPlatformFeedback deleteFeedback = EventProcessingPlatformUpdaterImpl.getInstance().deleteEventQuery(oldEventQuery);
         if (!deleteFeedback.isSuccessful()) {
-            halt(HttpStatusCodes.ERROR, "Given query could not be unregistered");
+            halt(HttpStatusCodes.ERROR, "given query could not be unregistered");
         }
 
         EventPlatformFeedback createFeedback = EventProcessingPlatformUpdaterImpl.getInstance()
                 .registerEventQuery(newEventQuery.getTypeId(), newEventQuery);
         if (!createFeedback.isSuccessful()) {
-            halt(HttpStatusCodes.ERROR, "Given query could not be newly registered");
+            halt(HttpStatusCodes.ERROR, "given query could not be newly registered");
         }
 
         if (!PersistenceAdapterImpl.getInstance().updateArtifact(newEventQuery, EventTypeEndpoint.getEventTypeQueriesUri(newEventQuery.getId()))) {
-            halt(HttpStatusCodes.ERROR, "Failed to save new query into database");
+            halt(HttpStatusCodes.ERROR, "failed to save new query into database");
         }
 
         endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
-        return "";
+        return response.body();
     }
 
     /**
