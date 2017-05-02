@@ -11,7 +11,7 @@ import javax.persistence.Table;
  * This is the implementation.
  */
 @Entity
-@Table(name = "Event")
+@Table(name = "EventQuery")
 public class EventQueryImpl extends PersistenceArtifactImpl implements EventQuery {
     @Column(name = "Uuid")
     private String uuid;
