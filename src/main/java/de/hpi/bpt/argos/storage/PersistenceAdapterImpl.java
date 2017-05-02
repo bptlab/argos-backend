@@ -277,7 +277,7 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 
 		String result = databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, "").toString();
 
-		return result.equals("True");
+		return "True".equals(result);
 	}
 
 	/**

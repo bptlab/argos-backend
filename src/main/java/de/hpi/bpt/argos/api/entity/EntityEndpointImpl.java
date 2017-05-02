@@ -96,7 +96,7 @@ public class EntityEndpointImpl implements EntityEndpoint {
         Set<EventType> eventTypes = new HashSet<>();
         for (EventType eventType : allEventTypes) {
             String sql = getExistsEventQuery(entityId, eventType.getId());
-            if (PersistenceAdapterImpl.getInstance().getExistsEvent(sql)){
+            if (PersistenceAdapterImpl.getInstance().getExistsEvent(sql)) {
                 eventTypes.add(eventType);
             }
         }
@@ -244,14 +244,14 @@ public class EntityEndpointImpl implements EntityEndpoint {
     private String getExistsEventQuery(long entityId, long eventTypeId) {
         String eventTableName = "Events";
         return String.format(
-                "SELECT CASE WHEN EXISTS (" +
-                        "SELECT *" +
-                        "FROM %1$s" +
-                        "WHERE TypeId = %2$d" +
-                        "AND EntityId = %3$d" +
-                        ")" +
-                        "THEN \"True\"" +
-                        "ELSE \"False\" END", eventTableName, eventTypeId, entityId);
+                "SELECT CASE WHEN EXISTS ("
+                        + "SELECT *" 
+                        + "FROM %1$s"
+                        + "WHERE TypeId = %2$d"
+                        + "AND EntityId = %3$d"
+                        + ")"
+                        + "THEN \"True\""
+                        + "ELSE \"False\" END", eventTableName, eventTypeId, entityId);
     }
 
     /**
