@@ -15,6 +15,9 @@ public interface Argos {
 	String ARGOS_BACKEND_TEST_MODE_PROPERTY_KEY = "argosBackendTestMode";
 	String ARGOS_BACKEND_ALLOWED_ORIGIN_PROPERTY_KEY = "argosBackendAllowedOrigin";
 	String ARGOS_BACKEND_ALLOWED_REQUEST_METHOD_PROPERTY_KEY = "argosBackendAllowedRequestMethod";
+	String ARGOS_BACKEND_EVENT_TYPES_DIRECTORY_PROPERTY_KEY = "argosBackendEventTypesDirectory";
+	String ARGOS_BACKEND_STATIC_DATA_DIRECTORY_PROPERTY_KEY = "argosBackendStaticDataDirectory";
+	String ARGOS_BACKEND_LOAD_STATIC_DATA_PROPERTY_KEY = "argosBackendLoadStaticData";
 
 	/**
 	 * This method starts the argos backend.
@@ -88,5 +91,29 @@ public interface Argos {
 	 */
 	static String getAllowedRequestMethod() {
 		return PropertyEditorImpl.getInstance().getProperty(ARGOS_BACKEND_ALLOWED_REQUEST_METHOD_PROPERTY_KEY);
+	}
+
+	/**
+	 * This method reads the eventTypeDirectory property from the properties-file and returns it's value.
+	 * @return - the eventTypeDirectory, specified in the properties-file
+	 */
+	static String getEventTypesDirectory() {
+		return PropertyEditorImpl.getInstance().getProperty(ARGOS_BACKEND_EVENT_TYPES_DIRECTORY_PROPERTY_KEY);
+	}
+
+	/**
+	 * This method reads the staticDataDirectory property from the properties-file and returns it's value.
+	 * @return - the staticDataDirectory, specified in the properties-file
+	 */
+	static String getStaticDataDirectory() {
+		return PropertyEditorImpl.getInstance().getProperty(ARGOS_BACKEND_STATIC_DATA_DIRECTORY_PROPERTY_KEY);
+	}
+
+	/**
+	 * This method reads the loadStaticData property from the properties-file and returns it's value.
+	 * @return - the loadStaticData, specified in the properties-file
+	 */
+	static boolean getLoadStaticData() {
+		return PropertyEditorImpl.getInstance().getPropertyAsBoolean(ARGOS_BACKEND_LOAD_STATIC_DATA_PROPERTY_KEY);
 	}
 }

@@ -8,6 +8,7 @@ import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMapper;
 import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMapperImpl;
 import de.hpi.bpt.argos.eventProcessing.status.EntityStatusCalculatorImpl;
 import de.hpi.bpt.argos.notifications.ClientUpdateServiceImpl;
+import de.hpi.bpt.argos.parsing.EventTypeParserImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import spark.Service;
 
@@ -36,7 +37,8 @@ public class ArgosImpl implements Argos {
 			return;
 		}
 
-		// TODO: parse default event types and entity data
+		// TODO: parse static data
+		EventTypeParserImpl.getInstance().loadEventTypes();
 
 		// keep this order, since web sockets should be registered before any web routes get registered
 		(new ClientUpdateServiceImpl()).setup(sparkService);

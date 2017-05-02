@@ -28,6 +28,7 @@
         <mapping class="de.hpi.bpt.argos.storage.dataModel.event.type.EventTypeImpl"/>
         <mapping class="de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMappingImpl"/>
         <mapping class="de.hpi.bpt.argos.storage.dataModel.mapping.MappingConditionImpl"/>
+        <mapping class="de.hpi.bpt.argos.storage.util.DataFileImpl"/>
 
     </session-factory>
 </hibernate-configuration>

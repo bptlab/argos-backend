@@ -11,6 +11,7 @@ import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
+import de.hpi.bpt.argos.storage.util.DataFile;
 
 import java.util.List;
 
@@ -191,4 +192,11 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	 * @return - a list of all mappingConditions, which belong to a specific eventEntityMapping
 	 */
 	List<MappingCondition> getMappingConditions(long eventEntityMappingId);
+
+	/**
+	 * This method returns a dataFile for the given path, or null if no dataFile exists in the database.
+	 * @param path - the path of the requested dataFile
+	 * @return - the requested dataFile or null, if no such file exists
+	 */
+	DataFile getDataFile(String path);
 }

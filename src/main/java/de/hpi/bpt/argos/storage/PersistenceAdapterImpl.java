@@ -11,6 +11,7 @@ import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
+import de.hpi.bpt.argos.storage.util.DataFile;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
@@ -399,5 +400,21 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 				.setParameter("eventEntityMappingId", eventEntityMappingId);
 
 		return databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public DataFile getDataFile(String path) {
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		Query<DataFile> query = session.createQuery("FROM DataFileImpl dataFile WHERE "
+						+ "dataFile.path = :path",
+				DataFile.class)
+				.setParameter("path", path);
+
+		return databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, null);
 	}
 }

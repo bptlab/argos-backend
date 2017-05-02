@@ -21,6 +21,7 @@ public class ArgosTestParent {
 		PropertyEditorImpl.getInstance().setProperty(Argos.ARGOS_BACKEND_PORT_PROPERTY_KEY, Integer.toString(ARGOS_PORT));
 		PropertyEditorImpl.getInstance().setProperty(Argos.ARGOS_BACKEND_THREADS_PROPERTY_KEY, Integer.toString(ARGOS_THREADS));
 		PropertyEditorImpl.getInstance().setProperty(Argos.ARGOS_BACKEND_TEST_MODE_PROPERTY_KEY, Boolean.TRUE.toString());
+		PropertyEditorImpl.getInstance().setProperty(Argos.ARGOS_BACKEND_LOAD_STATIC_DATA_PROPERTY_KEY, Boolean.FALSE.toString());
 		PropertyEditorImpl.getInstance().setProperty(EventProcessingPlatformUpdater.EVENT_PROCESSING_PLATFORM_HOST_PROPERTY_KEY,
 				"http://localhost:0"); // make event processing platform unreachable
 
