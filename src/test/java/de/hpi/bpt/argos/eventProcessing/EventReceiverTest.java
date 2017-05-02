@@ -6,7 +6,6 @@ import de.hpi.bpt.argos.common.RestRequest;
 import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
 import de.hpi.bpt.argos.core.ArgosTestParent;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
-import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifactImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.Entity;
