@@ -16,10 +16,10 @@ public class EventQueryImpl extends PersistenceArtifactImpl implements EventQuer
     @Column(name = "Uuid")
     private String uuid;
 
-    @Column(name = "Query")
+    @Column(name = "Query", columnDefinition = "LONGTEXT")
     private String query;
 
-    @Column(name = "Description")
+    @Column(name = "Description", columnDefinition = "LONGTEXT")
     private String description;
 
     @Column(name = "TypeId")

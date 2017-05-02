@@ -14,7 +14,7 @@ import javax.persistence.Table;
 @Table(name = "Attribute")
 public class AttributeImpl extends PersistenceArtifactImpl implements Attribute {
 
-    @Column(name = "Value")
+    @Column(name = "Value", columnDefinition = "LONGTEXT")
     private String value;
 
     @Column(name = "TypeAttributeId")
