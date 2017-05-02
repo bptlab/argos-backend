@@ -27,6 +27,7 @@ import spark.Request;
 import spark.Response;
 import spark.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static spark.Spark.halt;
@@ -365,6 +366,17 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         if (jsonAttributes == null) {
             return null;
         }
+
+        // check that there are no doubled names
+        List<String> usedNames = new ArrayList<>();
+        for (JsonElement jsonAttribute : jsonAttributes) {
+            String attributeName = jsonAttribute.getAsJsonObject().get(JSON_NAME_ATTRIBUTE).getAsString();
+            if (usedNames.contains(attributeName)) {
+                return null;
+            }
+            usedNames.add(attributeName);
+        }
+
         for (JsonElement jsonAttribute : jsonAttributes) {
             String attributeName = jsonAttribute.getAsJsonObject().get(JSON_NAME_ATTRIBUTE).getAsString();
             createEventTypeAttribute(eventType, attributeName);
