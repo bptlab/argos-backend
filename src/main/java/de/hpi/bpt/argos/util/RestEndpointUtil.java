@@ -3,6 +3,7 @@ package de.hpi.bpt.argos.util;
 import org.slf4j.Logger;
 import spark.Request;
 
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -25,6 +26,14 @@ public interface RestEndpointUtil {
 	 * @return - returns the long representation of the input value
 	 */
 	long validateLong(String inputValue, Function<Long, Boolean> validateInputResult);
+
+	/**
+	 * This method validates the input as a plus-separated string with a generic validation function.
+	 * @param inputValue - string to be tested
+	 * @param validateInputResult - function to be tested on the parsed string list as validation
+	 * @return - returns the lone strings of the input value
+	 */
+	List<String> validateListOfString(String inputValue, Function<String, Boolean> validateInputResult);
 
 	/**
      * This method returns a parameter included with a a prefix or not.

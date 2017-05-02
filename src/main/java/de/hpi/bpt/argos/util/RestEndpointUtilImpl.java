@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
 
 import static spark.Spark.halt;
@@ -66,6 +68,23 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 			halt(HttpStatusCodes.BAD_REQUEST, e.getMessage());
 		}
 		return Long.parseLong(inputValue);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<String> validateListOfString(String inputValue, Function<String, Boolean> validateInputResult) {
+		try {
+			if (!validateInputResult.apply(inputValue)) {
+				throw new InputValidationException(inputValue, "String");
+			}
+		} catch (InputValidationException | NumberFormatException e) {
+			LoggerUtilImpl.getInstance().error(logger, e.getMessage(), e);
+			halt(HttpStatusCodes.BAD_REQUEST, e.getMessage());
+		}
+		String[] splits = inputValue.split("\\+");
+		return Arrays.asList(splits);
 	}
 
 	/**

@@ -123,6 +123,20 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	List<Event> getEvents(long entityOwnerId, long eventTypeId, int listStartIndex, int listEndIndex);
 
 	/**
+	 * This method returns a list of events, which belong to a specific entity.
+	 * @param entityOwnerId - the unique identifier of the entity the events belong to
+	 * @return - a list of events, which belong to a specific entity
+	 */
+	List<Event> getEvents(long entityOwnerId);
+
+	/**
+	 * This method returns if there exists an event query with corresponding entity and event type.
+	 * @param sqlQuery the query that queries the requested
+	 * @return if there exists a query that corresponds to the given sql query
+	 */
+	boolean getExistsEvent(String sqlQuery);
+
+	/**
 	 * This method returns the number of events for a specific entity and a specific eventType.
 	 * @param entityId - the unique identifier of the entity
 	 * @param eventTypeId - the unique identifier of the eventType
