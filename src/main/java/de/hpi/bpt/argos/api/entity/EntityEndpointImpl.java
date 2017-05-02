@@ -245,7 +245,7 @@ public class EntityEndpointImpl implements EntityEndpoint {
         String eventTableName = "Events";
         return String.format(
                 "SELECT CASE WHEN EXISTS ("
-                        + "SELECT *" 
+                        + "SELECT *"
                         + "FROM %1$s"
                         + "WHERE TypeId = %2$d"
                         + "AND EntityId = %3$d"
