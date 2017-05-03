@@ -49,7 +49,7 @@ public interface EntityMappingEndpoint extends RestEndpoint {
      * This method returns the basic URI to create an entity mapping.
      * @return - the URI to create an entity mapping
      */
-    static String getCreateEventQueryBaseUri() {
+    static String getCreateEntityMappingBaseUri() {
         return  String.format("%1$s/create", getEntityMappingEndpointBaseUri());
     }
 
@@ -57,7 +57,7 @@ public interface EntityMappingEndpoint extends RestEndpoint {
      * This method returns the basic URI to delete an entity mapping.
      * @return - the URI to delete an entity mapping
      */
-    static String getDeleteEventQueryBaseUri() {
+    static String getDeleteEntityMappingBaseUri() {
         return  String.format("%1$s/%2$s/delete", getEntityMappingEndpointBaseUri(), getEntityMappingIdParameter(true));
     }
 
@@ -65,7 +65,7 @@ public interface EntityMappingEndpoint extends RestEndpoint {
      * This method returns the basic URI to edit an entity mapping.
      * @return - the URI to edit an entity mapping
      */
-    static String getEditEventQueryBaseUri() {
+    static String getEditEntityMappingBaseUri() {
         return  String.format("%1$s/%2$s/edit", getEntityMappingEndpointBaseUri(), getEntityMappingIdParameter(true));
     }
 
@@ -74,8 +74,8 @@ public interface EntityMappingEndpoint extends RestEndpoint {
      * @param entityMappingId - the id of the entity mapping to be searched for
      * @return - the URI to delete an entity mapping
      */
-    static String getDeleteEventQueryUri(long entityMappingId) {
-        return  getDeleteEventQueryBaseUri().replaceAll(getEntityMappingIdParameter(true), Objects.toString(entityMappingId, "0"));
+    static String getDeleteEntityMappingUri(long entityMappingId) {
+        return  getDeleteEntityMappingBaseUri().replaceAll(getEntityMappingIdParameter(true), Objects.toString(entityMappingId, "0"));
     }
 
     /**
@@ -83,8 +83,8 @@ public interface EntityMappingEndpoint extends RestEndpoint {
      * @param entityMappingId - the id of the entity mapping to be searched for
      * @return - the URI to edit an entity mapping
      */
-    static String getEditEventQueryUri(long entityMappingId) {
-        return  getEditEventQueryBaseUri().replaceAll(getEntityMappingIdParameter(true), Objects.toString(entityMappingId, "0"));
+    static String getEditEntityMappingUri(long entityMappingId) {
+        return  getEditEntityMappingBaseUri().replaceAll(getEntityMappingIdParameter(true), Objects.toString(entityMappingId, "0"));
     }
 
     /**
