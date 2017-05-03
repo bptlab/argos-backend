@@ -63,18 +63,6 @@ public class WebSocket {
 		}
 	}
 
-	public void closeConnection() {
-		try {
-			client.stop();
-		} catch (Exception e) {
-			logger.error("cannot close web socket connection", e);
-		}
-	}
-
-	public void clearMessages() {
-		receivedMessages.clear();
-	}
-
 	public List<String> awaitMessages(int expectedMessages, long timeoutInMs) throws Exception {
 		long startMs = System.currentTimeMillis();
 
@@ -88,6 +76,10 @@ public class WebSocket {
 			if (System.currentTimeMillis() >= startMs + timeoutInMs) {
 				throw new Exception("timeout passed");
 			}
+		}
+
+		if (receivedMessages.size() > expectedMessages) {
+			throw new Exception("more than expected messages received");
 		}
 
 		return receivedMessages;
