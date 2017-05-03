@@ -107,7 +107,8 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
             halt(HttpStatusCodes.ERROR, "could not delete mapping conditions");
         }
 
-        if (!PersistenceAdapterImpl.getInstance().deleteArtifacts(mapping)) {
+        String mappingsUri =  EventTypeEndpoint.getEventTypeEntityMappingsUri(mapping.getEventTypeId());
+        if (!PersistenceAdapterImpl.getInstance().deleteArtifact(mapping, mappingsUri)) {
             halt(HttpStatusCodes.ERROR, "could not delete mapping");
         }
 
@@ -171,8 +172,8 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
      */
     private EventEntityMapping getEventMappingFromJson(JsonObject jsonMapping) {
         EventEntityMapping mapping = new EventEntityMappingImpl();
-        mapping.setEventTypeId(jsonMapping.get(EVENT_TYPE_ID_ATTRIBUTE).getAsInt());
-        mapping.setEntityTypeId(jsonMapping.get(ENTITY_TYPE_ID_ATTRIBUTE).getAsInt());
+        mapping.setEventTypeId(jsonMapping.get(EVENT_TYPE_ID_ATTRIBUTE).getAsLong());
+        mapping.setEntityTypeId(jsonMapping.get(ENTITY_TYPE_ID_ATTRIBUTE).getAsLong());
         mapping.setTargetStatus(jsonMapping.get(TARGET_STATUS_ATTRIBUTE).getAsString());
         return mapping;
     }
