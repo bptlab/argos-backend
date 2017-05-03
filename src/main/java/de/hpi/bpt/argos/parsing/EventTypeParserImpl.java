@@ -19,9 +19,10 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * {@inheritDoc}
@@ -124,6 +125,7 @@ public final class EventTypeParserImpl implements EventTypeParser {
 
 			for (EventType eventType : eventTypes) {
 				if (eventType.getName().equalsIgnoreCase(jsonEventType.get(JSON_NAME).getAsString())) {
+					// event type name is already in use ==> do not continue creating this event type
 					return;
 				}
 			}
@@ -164,7 +166,7 @@ public final class EventTypeParserImpl implements EventTypeParser {
 	}
 
 	/**
-	 * This method create a new eventType from it's Json representation.
+	 * This method creates a new eventType from its Json representation.
 	 * @param jsonEventType - the Json representation of the new eventType
 	 */
 	private void createEventType(JsonObject jsonEventType) {
@@ -179,25 +181,22 @@ public final class EventTypeParserImpl implements EventTypeParser {
 		newEventType.setDeletable(false);
 		newEventType.setShouldBeRegistered(true);
 		newEventType.setName(jsonEventType.get(JSON_NAME).getAsString());
-
 		PersistenceAdapterImpl.getInstance().saveArtifacts(newEventType);
 
-		List<String> usedNames = new ArrayList<>();
-		List<TypeAttribute> eventTypeAttributes = new ArrayList<>();
 		TypeAttribute timestampAttribute = createTypeAttribute(newEventType.getId(), jsonEventType.get(JSON_TIMESTAMP).getAsString());
-
 		PersistenceAdapterImpl.getInstance().saveArtifacts(timestampAttribute);
 
 		newEventType.setTimeStampAttributeId(timestampAttribute.getId());
 		PersistenceAdapterImpl.getInstance().saveArtifacts(newEventType);
 
+		Set<String> usedNames = new HashSet<>();
+		Set<TypeAttribute> eventTypeAttributes = new HashSet<>();
 		for (Map.Entry<String, JsonElement> typeAttribute : jsonEventType.get(JSON_ATTRIBUTES).getAsJsonObject().entrySet()) {
 			if (usedNames.contains(typeAttribute.getKey())) {
 				continue;
-			} else {
-				usedNames.add(typeAttribute.getKey());
 			}
 
+			usedNames.add(typeAttribute.getKey());
 			eventTypeAttributes.add(createTypeAttribute(newEventType.getId(), typeAttribute.getKey()));
 		}
 
