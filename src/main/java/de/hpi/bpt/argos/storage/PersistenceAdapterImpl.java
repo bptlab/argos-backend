@@ -392,6 +392,21 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 	 * {@inheritDoc}
 	 */
 	@Override
+	public EventEntityMapping getEventEntityMapping(long mappingId) {
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		Query<EventEntityMapping> query = session.createQuery("FROM EventEntityMappingImpl mapping WHERE mapping.id = :id",
+				EventEntityMapping.class)
+				.setParameter("id", mappingId);
+
+		return databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public List<EventEntityMapping> getEventEntityMappingsForEntityType(long entityTypeId) {
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
