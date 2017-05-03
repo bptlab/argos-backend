@@ -65,8 +65,9 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
             if (entityType.getParentId() == -1) {
                 root = entityType;
             } else {
-                if (!tree.containsKey(entityType.getParentId()))
+                if (!tree.containsKey(entityType.getParentId())) {
                     tree.put(entityType.getParentId(), new ArrayList<>());
+                }
                 tree.get(entityType.getParentId()).add(entityType);
             }
         }
@@ -153,7 +154,8 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
      * @param layerId the hierarchy level of the entities to be processed
      * @param tree the tree containing all entity types of this hierarchy
      */
-    private void getChildJsons(List<EntityType> entityTypesOfLayer, Map<Integer, List<JsonObject>> layerMap, int layerId, Map<Long, List<EntityType>> tree) {
+    private void getChildJsons(List<EntityType> entityTypesOfLayer,
+                               Map<Integer, List<JsonObject>> layerMap, int layerId, Map<Long, List<EntityType>> tree) {
         if (entityTypesOfLayer.isEmpty()) {
             return;
         }
@@ -223,12 +225,12 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
             jsonCondition.addProperty("EntityTypeAttributeId", condition.getEntityTypeAttributeId());
             jsonConditions.add(jsonCondition);
         }
-        
+
         return jsonConditions;
     }
 
     /**
-     * This method returns the id of the event type given in request
+     * This method returns the id of the event type given in request.
      * @param request the request
      * @return entity id from request
      */
