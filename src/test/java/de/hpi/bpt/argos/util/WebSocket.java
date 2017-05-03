@@ -56,7 +56,7 @@ public class WebSocket {
 			Future<Session> fut = client.connect(webSocketAdapter, uri);
 			Session session = fut.get();
 
-			return true;
+			return session.isOpen();
 		} catch (Exception e) {
 			logger.error("cannot establish web socket connection", e);
 			return false;
