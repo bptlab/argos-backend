@@ -143,7 +143,8 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
             halt(HttpStatusCodes.ERROR, "could not delete conditions");
         }
 
-        List<MappingCondition> newConditions = getConditionsFromJson(jsonMapping.get(MAPPING_CONDITIONS_ATTRIBUTE).getAsJsonArray(), oldMapping.getId());
+        JsonArray jsonConditions = jsonMapping.get(MAPPING_CONDITIONS_ATTRIBUTE).getAsJsonArray();
+        List<MappingCondition> newConditions = getConditionsFromJson(jsonConditions, oldMapping.getId());
         if (!PersistenceAdapterImpl.getInstance().saveArtifacts(newConditions.toArray(new MappingCondition[newConditions.size()]))) {
             halt(HttpStatusCodes.ERROR, "could not create new conditions");
         }
@@ -154,7 +155,8 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
         oldMapping.setEntityTypeId(newMapping.getEntityTypeId());
         oldMapping.setTargetStatus(newMapping.getTargetStatus());
 
-        if (!PersistenceAdapterImpl.getInstance().updateArtifact(oldMapping, EventTypeEndpoint.getEventTypeEntityMappingsUri(oldMapping.getEventTypeId()))) {
+        String mappingsUri =  EventTypeEndpoint.getEventTypeEntityMappingsUri(oldMapping.getEventTypeId());
+        if (!PersistenceAdapterImpl.getInstance().updateArtifact(oldMapping, mappingsUri)) {
             halt(HttpStatusCodes.ERROR, "could not update mapping");
         }
 
@@ -185,7 +187,8 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
 
         try {
             newMapping = getEventMappingFromJson(jsonMapping);
-            if (!PersistenceAdapterImpl.getInstance().saveArtifacts(newMapping)) {
+            String mappingsUri =  EventTypeEndpoint.getEventTypeEntityMappingsUri(newMapping.getEventTypeId());
+            if (!PersistenceAdapterImpl.getInstance().createArtifact(newMapping, mappingsUri)) {
                 halt(HttpStatusCodes.ERROR, "could not save mapping into database");
             }
 
