@@ -27,7 +27,7 @@ import java.util.Map;
  * {@inheritDoc}
  * This is the implementation.
  */
-public class EventTypeParserImpl implements EventTypeParser {
+public final class EventTypeParserImpl implements EventTypeParser {
 	private static final Logger logger = LoggerFactory.getLogger(EventTypeParserImpl.class);
 	private static final JsonParser jsonParser = new JsonParser();
 
