@@ -7,6 +7,8 @@ import de.hpi.bpt.argos.api.eventType.EventTypeEndpointImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityType;
+import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
+import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
 import de.hpi.bpt.argos.util.RestEndpointUtil;
 import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
@@ -74,26 +76,34 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
     public String getEntityTypeAttributes(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
 
-        List<TypeAttribute> attributes = PersistenceAdapterImpl.getInstance().getTypeAttributes(getEntityTypeId(request));
-        if (attributes == null) {
+        List<TypeAttribute> typeAttributes = PersistenceAdapterImpl.getInstance().getTypeAttributes(getEntityTypeId(request));
+        if (typeAttributes == null) {
             halt(HttpStatusCodes.ERROR, "could not read attributes.");
         }
-        JsonArray typeAttributes = new JsonArray();
-        for (TypeAttribute att : attributes) {
+        JsonArray jsonTypeAttributes = new JsonArray();
+        for (TypeAttribute att : typeAttributes) {
             JsonObject jsonAttribute = new JsonObject();
             jsonAttribute.addProperty("Id", att.getId());
             jsonAttribute.addProperty("Name", att.getName());
-            typeAttributes.add(jsonAttribute);
+            jsonTypeAttributes.add(jsonAttribute);
         }
 
-        response.body(serializer.toJson(typeAttributes));
+        response.body(serializer.toJson(jsonTypeAttributes));
         endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
         return response.body();
     }
 
     @Override
     public String getEntityTypeEntityMappings(Request request, Response response) {
-        return null;
+        endpointUtil.logReceivedRequest(logger, request);
+
+        long entityTypeId = getEntityTypeId(request);
+        List<EventEntityMapping> mappings = PersistenceAdapterImpl.getInstance().getEventEntityMappingsForEntityType(entityTypeId);
+        JsonArray jsonMappings = getMappingsJson(mappings);
+
+        response.body(serializer.toJson(jsonMappings));
+        endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
+        return response.body();
     }
 
     private JsonObject createHierarchyJson(Map<Long, List<EntityType>> tree, EntityType root) {
@@ -152,6 +162,34 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
         jsonEntityType.addProperty("ParentId", entityType.getParentId());
         jsonEntityType.addProperty("Name", entityType.getName());
         return jsonEntityType;
+    }
+
+    private JsonArray getMappingsJson(List<EventEntityMapping> mappings) {
+        JsonArray mappingsJson = new JsonArray();
+
+        for (EventEntityMapping mapping : mappings) {
+            JsonObject jsonMapping = new JsonObject();
+            jsonMapping.addProperty("Id", mapping.getId());
+            jsonMapping.addProperty("EventTypeId", mapping.getEventTypeId());
+            jsonMapping.addProperty("EntityTypeId", mapping.getEntityTypeId());
+            List<MappingCondition> conditions = PersistenceAdapterImpl.getInstance().getMappingConditions(mapping.getId());
+            jsonMapping.add("EventEntityMappingConditions", getMappingConditionsJson(conditions));
+        }
+
+        return mappingsJson;
+    }
+
+    private JsonArray getMappingConditionsJson(List<MappingCondition> conditions) {
+        JsonArray jsonConditions = new JsonArray();
+
+        for (MappingCondition condition : conditions) {
+            JsonObject jsonCondition = new JsonObject();
+            jsonCondition.addProperty("EventTypeAttributeId", condition.getEventTypeAttributeId());
+            jsonCondition.addProperty("EntityTypeAttributeId", condition.getEntityTypeAttributeId());
+            jsonConditions.add(jsonCondition);
+        }
+        
+        return jsonConditions;
     }
 
     private long getEntityTypeId(Request request) {
