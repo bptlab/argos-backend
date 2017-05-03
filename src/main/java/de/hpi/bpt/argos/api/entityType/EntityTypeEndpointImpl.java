@@ -35,6 +35,9 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
     private static final RestEndpointUtil endpointUtil = RestEndpointUtilImpl.getInstance();
     private static final Gson serializer = new Gson();
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setup(Service sparkService) {
         sparkService.get(EntityTypeEndpoint.getEntityTypeHierarchyBaseUri(), this::getEntityTypeHierarchy);
@@ -43,6 +46,9 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getEntityTypeHierarchy(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
@@ -65,13 +71,16 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
             }
         }
 
-        JsonObject jsonHierarchy = createHierarchyJson(tree, root);
+        JsonObject jsonHierarchy = getHierarchyJson(tree, root);
 
         response.body(serializer.toJson(jsonHierarchy));
         endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
         return response.body();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getEntityTypeAttributes(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
@@ -93,6 +102,9 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
         return response.body();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getEntityTypeEntityMappings(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
@@ -106,57 +118,70 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
         return response.body();
     }
 
-    private JsonObject createHierarchyJson(Map<Long, List<EntityType>> tree, EntityType root) {
+    /**
+     * This method returns a json containing all hierarchy objects of the given tree.
+     * @param tree map containing all hierarchy layers
+     * @param root root of the tree
+     * @return json containing all hierarchy objects
+     */
+    private JsonObject getHierarchyJson(Map<Long, List<EntityType>> tree, EntityType root) {
         JsonArray hierarchyJson = new JsonArray();
 
-        JsonObject jsonRoot = createEntityTypeJson(root);
+        JsonObject jsonRoot = getEntityTypeJson(root);
         List<JsonObject> rootList = new ArrayList<>();
         rootList.add(jsonRoot);
 
         Map<Integer, List<JsonObject>> layerMap = new HashMap<>();
         layerMap.put(0, rootList);
 
-        createChildJsons(tree.get(root.getId()), layerMap, 1, tree);
+        getChildJsons(tree.get(root.getId()), layerMap, 1, tree);
         for (int layerId = 0; layerId <= layerMap.size(); layerId++) {
-            JsonArray jsonLayer = createHierarchyLayerJson(layerMap.get(layerId));
-            hierarchyJson.add(jsonLayer);
+            JsonArray jsonHierarchyLayer = new JsonArray();
+            for (JsonObject jsonEntityType : layerMap.get(layerId)) {
+                jsonHierarchyLayer.add(jsonEntityType);
+            }
+            hierarchyJson.add(jsonHierarchyLayer);
         }
 
         return hierarchyJson.getAsJsonObject();
     }
 
-    private JsonArray createHierarchyLayerJson(List<JsonObject> entityTypesOfLayer) {
-        JsonArray hierarchyLayer = new JsonArray();
-        for (JsonObject jsonEntityType : entityTypesOfLayer) {
-            hierarchyLayer.add(jsonEntityType);
-        }
-        return hierarchyLayer;
-    }
-
-    private void createChildJsons(List<EntityType> entityTypesOfLayer, Map<Integer, List<JsonObject>> map, int layerId, Map<Long, List<EntityType>> tree) {
+    /**
+     * This method computes the jsons for all entity types given by entityTypesOfLayer and saves them into the given map.
+     * @param entityTypesOfLayer entity types of the processed layer
+     * @param layerMap the map the entity type jsons are saved in
+     * @param layerId the hierarchy level of the entities to be processed
+     * @param tree the tree containing all entity types of this hierarchy
+     */
+    private void getChildJsons(List<EntityType> entityTypesOfLayer, Map<Integer, List<JsonObject>> layerMap, int layerId, Map<Long, List<EntityType>> tree) {
         if (entityTypesOfLayer.isEmpty()) {
             return;
         }
 
         List<JsonObject> jsonEntityTypesOfLayer = new ArrayList<>();
         for (EntityType entityType : entityTypesOfLayer) {
-            JsonObject jsonEntityType = createEntityTypeJson(entityType);
+            JsonObject jsonEntityType = getEntityTypeJson(entityType);
 
             jsonEntityTypesOfLayer.add(jsonEntityType);
-            createChildJsons(tree.get(entityType.getId()), map, layerId + 1, tree);
+            getChildJsons(tree.get(entityType.getId()), layerMap, layerId + 1, tree);
         }
 
-        if (map.containsKey(layerId)) {
-            List<JsonObject> otherTypesOfLayer = map.get(layerId);
-            map.remove(layerId, otherTypesOfLayer);
+        if (layerMap.containsKey(layerId)) {
+            List<JsonObject> otherTypesOfLayer = layerMap.get(layerId);
+            layerMap.remove(layerId, otherTypesOfLayer);
             jsonEntityTypesOfLayer.addAll(otherTypesOfLayer);
-            map.put(layerId, jsonEntityTypesOfLayer);
+            layerMap.put(layerId, jsonEntityTypesOfLayer);
         } else {
-            map.put(layerId, jsonEntityTypesOfLayer);
+            layerMap.put(layerId, jsonEntityTypesOfLayer);
         }
     }
 
-    private JsonObject createEntityTypeJson(EntityType entityType) {
+    /**
+     * This method returns the given entity type as json object.
+     * @param entityType the entity type to be processed
+     * @return json representation of the given entity type
+     */
+    private JsonObject getEntityTypeJson(EntityType entityType) {
         JsonObject jsonEntityType = new JsonObject();
         jsonEntityType.addProperty("Id", entityType.getId());
         jsonEntityType.addProperty("ParentId", entityType.getParentId());
@@ -164,6 +189,11 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
         return jsonEntityType;
     }
 
+    /**
+     * This method returns the given mappings as json array.
+     * @param mappings all mappings to be processed
+     * @return json representation of the given mappings
+     */
     private JsonArray getMappingsJson(List<EventEntityMapping> mappings) {
         JsonArray mappingsJson = new JsonArray();
 
@@ -179,6 +209,11 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
         return mappingsJson;
     }
 
+    /**
+     * This method returns the given conditions as json array.
+     * @param conditions the conditions to be processed
+     * @return json representation of the given mapping conditions
+     */
     private JsonArray getMappingConditionsJson(List<MappingCondition> conditions) {
         JsonArray jsonConditions = new JsonArray();
 
@@ -192,6 +227,11 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
         return jsonConditions;
     }
 
+    /**
+     * This method returns the id of the event type given in request
+     * @param request the request
+     * @return entity id from request
+     */
     private long getEntityTypeId(Request request) {
         return endpointUtil.validateLong(
                 request.params(EntityTypeEndpoint.getEntityTypeIdParameter(false)),
