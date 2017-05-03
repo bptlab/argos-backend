@@ -1,6 +1,10 @@
 package de.hpi.bpt.argos.util;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
+import de.hpi.bpt.argos.storage.PersistenceArtifactUpdateType;
 import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.AttributeImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
@@ -28,6 +32,7 @@ import java.util.UUID;
 
 public class ArgosTestUtil {
 	private static final Random random = new Random();
+	private static final JsonParser jsonParser = new JsonParser();
 
 	public static String getCurrentTimestamp() {
 		return new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
@@ -199,6 +204,25 @@ public class ArgosTestUtil {
 		}
 
 		return mappingConditions;
+	}
+
+	public static void assertWebSocketMessage(String message, PersistenceArtifactUpdateType updateReason, String artifactType) throws Exception {
+
+		JsonArray jsonMessages = jsonParser.parse(message).getAsJsonArray();
+
+		if (jsonMessages.size() != 1) {
+			throw new Exception("too many messages included");
+		}
+
+		JsonObject jsonMessage = jsonMessages.get(0).getAsJsonObject();
+
+		if (!jsonMessage.get("UpdateReason").getAsString().equalsIgnoreCase(updateReason.toString())) {
+			throw new Exception("update reason did not match");
+		}
+
+		if (!jsonMessage.get("ArtifactType").getAsString().equalsIgnoreCase(artifactType)) {
+			throw new Exception("artifact type did not match");
+		}
 	}
 
 	private static List<TypeAttribute> createTypeAttributes(long typeId, boolean saveInDatabase) {

@@ -1,11 +1,11 @@
 package de.hpi.bpt.argos.eventProcessing;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.common.RestRequest;
 import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
 import de.hpi.bpt.argos.core.ArgosTestParent;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
+import de.hpi.bpt.argos.storage.PersistenceArtifactUpdateType;
 import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.Entity;
@@ -16,6 +16,7 @@ import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.util.ArgosTestUtil;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
+import de.hpi.bpt.argos.util.WebSocket;
 import javafx.util.Pair;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -25,8 +26,6 @@ import java.util.List;
 import static junit.framework.TestCase.assertEquals;
 
 public class EventReceiverTest extends ArgosTestParent {
-	private static final Gson serializer = new Gson();
-
 
 	private static EntityType testEntityType;
 	private static List<TypeAttribute> testEntityTypeAttributes;
@@ -52,9 +51,15 @@ public class EventReceiverTest extends ArgosTestParent {
 	}
 
 	@Test
-	public void testReceiveEvent() {
+	public void testReceiveEvent() throws Exception {
+		String oldStatus = getEntityStatus();
+		testMapping.setTargetStatus("");
+		PersistenceAdapterImpl.getInstance().saveArtifacts(testMapping);
+
+		WebSocket webSocket = WebSocket.buildWebSocket();
+
 		RestRequest request = RestRequestFactoryImpl.getInstance()
-				.createPostRequest(ARGOS_HOST, getReceiveEventUri(testEventType.getId()));
+				.createPostRequest(ARGOS_REST_HOST, getReceiveEventUri(testEventType.getId()));
 
 		JsonObject event = new JsonObject();
 
@@ -73,14 +78,23 @@ public class EventReceiverTest extends ArgosTestParent {
 		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
 		List<Event> events = PersistenceAdapterImpl.getInstance().getEventsOfEventType(testEventType.getId());
+		assertEquals(true, events.size() >= 1);
 
-		assertEquals(1, events.size());
+		assertEquals(oldStatus, getEntityStatus());
+
+		List<String> webSocketMessages = webSocket.awaitMessages(1, 1000);
+		ArgosTestUtil.assertWebSocketMessage(webSocketMessages.get(0), PersistenceArtifactUpdateType.CREATE, "Event");
 	}
 
 	@Test
 	public void testReceiveEvent_InvalidEventTypeId_NotFound() {
+		String targetStatus = "UnreachableStatus_" + ArgosTestUtil.getCurrentTimestamp();
+		String oldStatus = getEntityStatus();
+		testMapping.setTargetStatus(targetStatus);
+		PersistenceAdapterImpl.getInstance().saveArtifacts(testMapping);
+
 		RestRequest request = RestRequestFactoryImpl.getInstance()
-				.createPostRequest(ARGOS_HOST, getReceiveEventUri(testEventType.getId() - 1));
+				.createPostRequest(ARGOS_REST_HOST, getReceiveEventUri(testEventType.getId() - 1));
 
 		JsonObject event = new JsonObject();
 
@@ -95,14 +109,21 @@ public class EventReceiverTest extends ArgosTestParent {
 
 		setValidMapping(event);
 		request.setContent(serializer.toJson(event));
-
 		assertEquals(HttpStatusCodes.NOT_FOUND, request.getResponseCode());
+
+		// the entity status was not updated, although the mapping has a target status
+		assertEquals(oldStatus, getEntityStatus());
 	}
 
 	@Test
 	public void testReceiveEvent_InvalidMapping_BadRequest() {
+		String targetStatus = "UnreachableStatus_" + ArgosTestUtil.getCurrentTimestamp();
+		String oldStatus = getEntityStatus();
+		testMapping.setTargetStatus(targetStatus);
+		PersistenceAdapterImpl.getInstance().saveArtifacts(testMapping);
+
 		RestRequest request = RestRequestFactoryImpl.getInstance()
-				.createPostRequest(ARGOS_HOST, getReceiveEventUri(testEventType.getId()));
+				.createPostRequest(ARGOS_REST_HOST, getReceiveEventUri(testEventType.getId()));
 
 		JsonObject event = new JsonObject();
 
@@ -117,8 +138,55 @@ public class EventReceiverTest extends ArgosTestParent {
 
 		setInvalidMapping(event);
 		request.setContent(serializer.toJson(event));
-
 		assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
+
+		// the entity status was not updated, although the mapping has a target status
+		assertEquals(oldStatus, getEntityStatus());
+	}
+
+	@Test
+	public void testReceiveEvent_ChangeStatus_Success() throws Exception {
+		String newStatus = "NewStatus_" + ArgosTestUtil.getCurrentTimestamp();
+		testMapping.setTargetStatus(newStatus);
+		PersistenceAdapterImpl.getInstance().saveArtifacts(testMapping);
+
+		WebSocket webSocket = WebSocket.buildWebSocket();
+
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createPostRequest(ARGOS_REST_HOST, getReceiveEventUri(testEventType.getId()));
+
+		JsonObject event = new JsonObject();
+
+		for (TypeAttribute eventTypeAttribute : testEventTypeAttributes) {
+			if (testEventType.getTimeStampAttributeId() == eventTypeAttribute.getId()) {
+				event.addProperty(eventTypeAttribute.getName(), ArgosTestUtil.getCurrentTimestamp());
+				continue;
+			}
+
+			event.addProperty(eventTypeAttribute.getName(), ArgosTestUtil.getRandomString());
+		}
+
+		setValidMapping(event);
+		request.setContent(serializer.toJson(event));
+		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+
+		List<Event> events = PersistenceAdapterImpl.getInstance().getEventsOfEventType(testEventType.getId());
+		assertEquals(true, events.size() >= 1);
+		assertEquals(newStatus, getEntityStatus());
+
+		List<String> webSocketMessages = webSocket.awaitMessages(2, 1000);
+
+		for (String message : webSocketMessages) {
+			if (message.contains("Event")) {
+				ArgosTestUtil.assertWebSocketMessage(message, PersistenceArtifactUpdateType.CREATE, "Event");
+				continue;
+			} else if (message.contains("Entity")) {
+				ArgosTestUtil.assertWebSocketMessage(message, PersistenceArtifactUpdateType.MODIFY, "Entity");
+				continue;
+			}
+
+			throw new Exception("message was not expected");
+		}
 	}
 
 	private void setValidMapping(JsonObject event) {
@@ -155,6 +223,15 @@ public class EventReceiverTest extends ArgosTestParent {
 		}
 
 		return "";
+	}
+
+	private void updateEntity() {
+		testEntity = PersistenceAdapterImpl.getInstance().getEntity(testEntity.getId());
+	}
+
+	private String getEntityStatus() {
+		updateEntity();
+		return testEntity.getStatus();
 	}
 
 	private String getReceiveEventUri(Object eventTypeId) {

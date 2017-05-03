@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.core;
 
+import com.google.gson.Gson;
 import de.hpi.bpt.argos.common.EventProcessingPlatformUpdater;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import org.junit.AfterClass;
@@ -7,9 +8,11 @@ import org.junit.BeforeClass;
 
 public class ArgosTestParent {
 	public static final int ARGOS_PORT = 9001;
-	public static final String ARGOS_HOST_ADDRESS = "http://localhost";
-	public static final String ARGOS_HOST = ARGOS_HOST_ADDRESS + ":" + ARGOS_PORT;
+	public static final String ARGOS_HOST_ADDRESS = "localhost";
+	public static final String ARGOS_REST_HOST = "http://" + ARGOS_HOST_ADDRESS + ":" + ARGOS_PORT;
 	public static final int ARGOS_THREADS = 9;
+
+	protected static final Gson serializer = new Gson();
 
 	private static Argos argos;
 
