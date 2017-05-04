@@ -9,7 +9,6 @@ import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityType;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
-import de.hpi.bpt.argos.util.HttpStatusCodes;
 import de.hpi.bpt.argos.util.RestEndpointUtil;
 import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
 import org.slf4j.Logger;
@@ -22,8 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static spark.Spark.halt;
 
 /**
  * {@inheritDoc}
@@ -106,7 +103,7 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
      */
     private JsonObject getEntityTypeHierarchy() {
         List<EntityType> allEntityTypes = PersistenceAdapterImpl.getInstance().getEntityTypes();
-        
+
         Map<Long, List<EntityType>> tree = new HashMap<>();
 
         // Convert list to tree
