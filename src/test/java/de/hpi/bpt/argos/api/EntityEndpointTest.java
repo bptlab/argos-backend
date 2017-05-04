@@ -180,7 +180,8 @@ public class EntityEndpointTest extends ArgosTestParent {
 		JsonArray events = jsonParser.parse(request.getResponse()).getAsJsonArray();
 		assertEquals(1, events.size());
 
-		JsonArray eventAttributes = events.get(0).getAsJsonArray();
+		JsonObject event = events.get(0).getAsJsonObject();
+		JsonArray eventAttributes = event.get("Attributes").getAsJsonArray();
 		assertEquals(testEventAttributes.size(), eventAttributes.size());
 	}
 
@@ -194,7 +195,8 @@ public class EntityEndpointTest extends ArgosTestParent {
 		JsonArray events = jsonParser.parse(request.getResponse()).getAsJsonArray();
 		assertEquals(1, events.size());
 
-		JsonArray eventAttributes = events.get(0).getAsJsonArray();
+		JsonObject event = events.get(0).getAsJsonObject();
+		JsonArray eventAttributes = event.get("Attributes").getAsJsonArray();
 		assertEquals(testEventAttributes.size(), eventAttributes.size());
 	}
 
