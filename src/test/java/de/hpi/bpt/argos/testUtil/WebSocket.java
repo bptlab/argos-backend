@@ -1,4 +1,4 @@
-package de.hpi.bpt.argos.util;
+package de.hpi.bpt.argos.testUtil;
 
 import de.hpi.bpt.argos.core.ArgosTestParent;
 import de.hpi.bpt.argos.notifications.socket.PushNotificationClientHandler;

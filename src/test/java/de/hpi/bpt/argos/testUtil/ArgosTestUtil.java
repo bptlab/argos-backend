@@ -1,4 +1,4 @@
-package de.hpi.bpt.argos.util;
+package de.hpi.bpt.argos.testUtil;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
