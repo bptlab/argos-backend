@@ -1,7 +1,7 @@
 package de.hpi.bpt.argos.notifications;
 
 import de.hpi.bpt.argos.core.ArgosTestParent;
-import de.hpi.bpt.argos.util.WebSocket;
+import de.hpi.bpt.argos.testUtil.WebSocket;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;

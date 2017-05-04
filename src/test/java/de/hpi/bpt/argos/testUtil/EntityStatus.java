@@ -1,4 +1,4 @@
-package de.hpi.bpt.argos.util;
+package de.hpi.bpt.argos.testUtil;
 
 public class EntityStatus {
 

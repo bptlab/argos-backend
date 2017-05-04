@@ -1,6 +1,7 @@
 package de.hpi.bpt.argos.core;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.common.EventProcessingPlatformUpdater;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import org.junit.AfterClass;
@@ -13,6 +14,7 @@ public class ArgosTestParent {
 	public static final int ARGOS_THREADS = 9;
 
 	protected static final Gson serializer = new Gson();
+	protected static final JsonParser jsonParser = new JsonParser();
 
 	private static Argos argos;
 

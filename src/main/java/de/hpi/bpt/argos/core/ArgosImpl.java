@@ -15,6 +15,9 @@ import de.hpi.bpt.argos.eventProcessing.status.EntityStatusCalculatorImpl;
 import de.hpi.bpt.argos.notifications.ClientUpdateServiceImpl;
 import de.hpi.bpt.argos.parsing.EventTypeParserImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
+import de.hpi.bpt.argos.util.LoggerUtilImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spark.Service;
 
 import java.util.HashSet;
@@ -25,6 +28,7 @@ import java.util.Set;
  * This is the implementation.
  */
 public class ArgosImpl implements Argos {
+	private static final Logger logger = LoggerFactory.getLogger(ArgosImpl.class);
 	private Service sparkService;
 
 	/**
@@ -32,44 +36,46 @@ public class ArgosImpl implements Argos {
 	 */
 	@Override
 	public void start() {
-		sparkService = Service.ignite()
-				.port(Argos.getPort())
-				.threadPool(Argos.getThreads())
-				.staticFileLocation(Argos.getPublicFiles());
+		try {
+			sparkService = Service.ignite().port(Argos.getPort()).threadPool(Argos.getThreads()).staticFileLocation(Argos.getPublicFiles());
 
-		if (!PersistenceAdapterImpl.getInstance().establishConnection()) {
+			if (!PersistenceAdapterImpl.getInstance().establishConnection()) {
+				stop();
+				return;
+			}
+
+			// TODO: parse static data
+			EventTypeParserImpl.getInstance().loadEventTypes();
+
+			// keep this order, since web sockets should be registered before any web routes get registered
+			(new ClientUpdateServiceImpl()).setup(sparkService);
+			EventProcessingPlatformUpdaterImpl.getInstance().setup();
+
+			EventReceiver eventReceiver = new EventReceiverImpl();
+
+			Set<RestEndpoint> restEndpoints = new HashSet<>();
+			restEndpoints.add(eventReceiver);
+			restEndpoints.add(new EntityEndpointImpl());
+			restEndpoints.add(new EntityMappingEndpointImpl());
+			restEndpoints.add(new EntityTypeEndpointImpl());
+			restEndpoints.add(new EventQueryEndpointImpl());
+			restEndpoints.add(new EventTypeEndpointImpl());
+
+			for (RestEndpoint restEndpoint : restEndpoints) {
+				setupRestEndpoint(restEndpoint);
+			}
+
+			EventEntityMapper eventEntityMapper = new EventEntityMapperImpl();
+
+			eventEntityMapper.setup(eventReceiver);
+			(new EntityStatusCalculatorImpl()).setup(eventEntityMapper);
+
+			enableCORS(sparkService);
+			sparkService.awaitInitialization();
+		} catch (Exception e) {
+			LoggerUtilImpl.getInstance().error(logger, "cannot start argos backend", e);
 			stop();
-			return;
 		}
-
-		// TODO: parse static data
-		EventTypeParserImpl.getInstance().loadEventTypes();
-
-		// keep this order, since web sockets should be registered before any web routes get registered
-		(new ClientUpdateServiceImpl()).setup(sparkService);
-		EventProcessingPlatformUpdaterImpl.getInstance().setup();
-
-		EventReceiver eventReceiver = new EventReceiverImpl();
-
-		Set<RestEndpoint> restEndpoints = new HashSet<>();
-		restEndpoints.add(eventReceiver);
-		restEndpoints.add(new EntityEndpointImpl());
-		restEndpoints.add(new EntityMappingEndpointImpl());
-		restEndpoints.add(new EntityTypeEndpointImpl());
-		restEndpoints.add(new EventQueryEndpointImpl());
-		restEndpoints.add(new EventTypeEndpointImpl());
-
-		for (RestEndpoint restEndpoint : restEndpoints) {
-			restEndpoint.setup(sparkService);
-		}
-
-		EventEntityMapper eventEntityMapper = new EventEntityMapperImpl();
-
-		eventEntityMapper.setup(eventReceiver);
-		(new EntityStatusCalculatorImpl()).setup(eventEntityMapper);
-
-		enableCORS(sparkService);
-		sparkService.awaitInitialization();
 	}
 
 	/**
@@ -105,5 +111,17 @@ public class ArgosImpl implements Argos {
 			response.header("Access-Control-Request-Method", Argos.getAllowedRequestMethod());
 			response.type("application/json");
 		});
+	}
+
+	/**
+	 * This method tries to setup a given restEndpoint.
+	 * @param restEndpoint - the restEndpoint to set up
+	 */
+	private void setupRestEndpoint(RestEndpoint restEndpoint) {
+		try {
+			restEndpoint.setup(sparkService);
+		} catch (Exception e) {
+			LoggerUtilImpl.getInstance().error(logger, String.format("cannot setup endpoint: '%1$s'", restEndpoint.getClass().getName()), e);
+		}
 	}
 }
