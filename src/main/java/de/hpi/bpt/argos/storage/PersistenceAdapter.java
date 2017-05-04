@@ -72,7 +72,7 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	List<Attribute> getAttributes(long ownerId);
 
 	/**
-	 * This method returns the typeAttribute, identified by it's id.
+	 * This method returns the typeAttribute, identified by its id.
 	 * @param id - the unique identifier of the typeAttribute
 	 * @return - the typeAttribute or null
 	 */
@@ -106,6 +106,13 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	 * @return - a list of all entities, which are children of a specific other entity and are from a specific entityType
 	 */
 	List<Entity> getEntities(long parentId, long entityTypeId);
+
+	/**
+	 * This method returns a specific entityType, or null.
+	 * @param id - the unique identifier of the requested entityType
+	 * @return - the requested entityType, or null
+	 */
+	EntityType getEntityType(long id);
 
 	/**
 	 * This method returns a list of all entityTypes.
