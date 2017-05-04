@@ -245,7 +245,11 @@ public class EntityEndpointImpl implements EntityEndpoint {
         for (Event event : events) {
             List<Attribute> attributes = PersistenceAdapterImpl.getInstance().getAttributes(event.getId());
             JsonArray jsonAttributes = getAttributesJson(attributes);
-            eventsJson.add(jsonAttributes);
+
+            JsonObject eventJson = new JsonObject();
+            eventJson.add("Attributes", jsonAttributes);
+
+            eventsJson.add(eventJson);
         }
         return eventsJson;
     }
