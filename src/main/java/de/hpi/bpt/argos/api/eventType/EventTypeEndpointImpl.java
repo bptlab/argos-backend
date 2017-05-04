@@ -290,8 +290,13 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         JsonObject jsonEntityMappings = new JsonObject();
         JsonArray jsonEntityMappingsArray = new JsonArray();
 
+        long eventTypeId = 0;
         try {
-            long eventTypeId = getEventTypeId(request);
+            eventTypeId = getEventTypeId(request);
+        } catch (Exception e) {
+            LoggerUtilImpl.getInstance().error(logger, "given id is invalid", e);
+            halt(HttpStatusCodes.BAD_REQUEST, e.getMessage());
+        }
             List<EventEntityMapping> entityMappings = PersistenceAdapterImpl.getInstance().getEventEntityMappingsForEventType(eventTypeId);
 
             for (EventEntityMapping entityMapping : entityMappings) {
@@ -315,10 +320,7 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
 
                 jsonEntityMappingsArray.add(jsonEntityMapping);
             }
-        } catch (Exception e) {
-            LoggerUtilImpl.getInstance().error(logger, "event type entity mappings returned", e);
-            halt(HttpStatusCodes.ERROR, e.getMessage());
-        }
+
 
         jsonEntityMappings.add("EventEntityMappings", jsonEntityMappingsArray);
         response.body(serializer.toJson(jsonEntityMappings));
@@ -350,7 +352,7 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
 
     /**
      * This method creates an event type out of a json.
-     * @param json the json the event type should be created from
+     * @param jsonEventType the json the event type should be created from
      * @return the resulting event type
      */
     private EventType createEventTypeFromJson(JsonObject jsonEventType) {

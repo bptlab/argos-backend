@@ -15,7 +15,7 @@ import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
-import de.hpi.bpt.argos.util.ArgosTestUtil;
+import de.hpi.bpt.argos.testUtil.ArgosTestUtil;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
 import javafx.util.Pair;
 import org.junit.BeforeClass;
