@@ -15,6 +15,8 @@ import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityType;
 import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityTypeImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.Event;
 import de.hpi.bpt.argos.storage.dataModel.event.EventImpl;
+import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
+import de.hpi.bpt.argos.storage.dataModel.event.query.EventQueryImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventTypeImpl;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
@@ -35,7 +37,7 @@ public class ArgosTestUtil {
 	private static final JsonParser jsonParser = new JsonParser();
 
 	public static String getCurrentTimestamp() {
-		return new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
+		return new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss_SSS").format(new Date());
 	}
 
 	public static int getRandomInteger(int min, int max) {
@@ -138,6 +140,49 @@ public class ArgosTestUtil {
 		}
 
 		return eventTypeAttributes;
+	}
+
+	public static EventQuery createEventQuery(EventType type, boolean saveInDatabase) {
+		EventQuery newQuery = new EventQueryImpl();
+		newQuery.setTypeId(type.getId());
+		newQuery.setQuery(String.format("SELECT * FROM %1$s", type.getName()));
+		newQuery.setDescription("Description");
+
+		if (saveInDatabase) {
+			PersistenceAdapterImpl.getInstance().saveArtifacts(newQuery);
+		}
+
+		return newQuery;
+	}
+
+	public static List<EventQuery> createEventQueries(EventType type, boolean saveInDatabase) {
+		List<EventQuery> queries = new ArrayList<>();
+
+		for (int i = 0; i < getRandomInteger(2, 10); i++) {
+			EventQuery newQuery = new EventQueryImpl();
+			newQuery.setTypeId(type.getId());
+			newQuery.setQuery(String.format("SELECT * FROM %1$s", type.getName()));
+			newQuery.setDescription("Description");
+
+			queries.add(newQuery);
+		}
+
+		if (saveInDatabase) {
+			PersistenceAdapterImpl.getInstance().saveArtifacts(queries.toArray(new EventQuery[queries.size()]));
+		}
+
+		return queries;
+	}
+
+	public static EventQuery createBlockingEventQuery(EventType blockingEventType, boolean saveInDatabase, EventType blockedEventType) {
+		EventQuery query = createEventQuery(blockingEventType, false);
+		query.setQuery(String.format("this query blocks %1$s", blockedEventType.getName()));
+
+		if (saveInDatabase) {
+			PersistenceAdapterImpl.getInstance().saveArtifacts(query);
+		}
+
+		return query;
 	}
 
 	public static Event createEvent(EventType type, Entity entity, boolean saveInDatabase) {
