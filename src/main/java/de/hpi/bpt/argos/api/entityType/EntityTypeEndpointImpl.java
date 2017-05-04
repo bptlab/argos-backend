@@ -35,6 +35,8 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
     private static final RestEndpointUtil endpointUtil = RestEndpointUtilImpl.getInstance();
     private static final Gson serializer = new Gson();
 
+    private JsonObject jsonHierarchy;
+
     /**
      * {@inheritDoc}
      */
@@ -44,6 +46,7 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
         sparkService.get(EntityTypeEndpoint.getEntityTypeAttributesBaseUri(), this::getEntityTypeAttributes);
         sparkService.get(EntityTypeEndpoint.getEntityTypeEntityMappingsBaseUri(), this::getEntityTypeEntityMappings);
 
+        jsonHierarchy = getEntityTypeHierarchy();
     }
 
     /**
@@ -53,28 +56,8 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
     public String getEntityTypeHierarchy(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
 
-        List<EntityType> allEntityTypes = PersistenceAdapterImpl.getInstance().getEntityTypes();
-        if (allEntityTypes == null) {
-            halt(HttpStatusCodes.ERROR, "could not read entity types.");
-        }
-        EntityType root = null;
-        Map<Long, List<EntityType>> tree = new HashMap<>();
-
-        // Convert list to tree
-        for (EntityType entityType : allEntityTypes) {
-            if (entityType.getParentId() == -1) {
-                root = entityType;
-            } else {
-                if (!tree.containsKey(entityType.getParentId())) {
-                    tree.put(entityType.getParentId(), new ArrayList<>());
-                }
-                tree.get(entityType.getParentId()).add(entityType);
-            }
-        }
-
-        JsonObject jsonHierarchy = getHierarchyJson(tree, root);
-
         response.body(serializer.toJson(jsonHierarchy));
+
         endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
         return response.body();
     }
@@ -120,22 +103,50 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
     }
 
     /**
+     * This method returns the hierarchy of stored entity types as json.
+     * @return json containing all entity types as hierarchy
+     */
+    private JsonObject getEntityTypeHierarchy() {
+        List<EntityType> allEntityTypes = PersistenceAdapterImpl.getInstance().getEntityTypes();
+        if (allEntityTypes == null) {
+            halt(HttpStatusCodes.ERROR, "could not read entity types.");
+        }
+        Map<Long, List<EntityType>> tree = new HashMap<>();
+
+        // Convert list to tree
+        List<EntityType> roots = new ArrayList<>();
+        for (EntityType entityType : allEntityTypes) {
+            if (entityType.getParentId() < 0) {
+                entityType.setParentId(-1);
+                roots.add(entityType);
+            } else {
+                if (!tree.containsKey(entityType.getParentId())) {
+                    tree.put(entityType.getParentId(), new ArrayList<>());
+                }
+                tree.get(entityType.getParentId()).add(entityType);
+            }
+        }
+
+        return getHierarchyJson(tree, roots);
+    }
+
+    /**
      * This method returns a json containing all hierarchy objects of the given tree.
      * @param tree map containing all hierarchy layers
-     * @param root root of the tree
+     * @param roots first level of tree
      * @return json containing all hierarchy objects
      */
-    private JsonObject getHierarchyJson(Map<Long, List<EntityType>> tree, EntityType root) {
+    private JsonObject getHierarchyJson(Map<Long, List<EntityType>> tree, List<EntityType> roots) {
         JsonArray hierarchyJson = new JsonArray();
 
-        JsonObject jsonRoot = getEntityTypeJson(root);
-        List<JsonObject> rootList = new ArrayList<>();
-        rootList.add(jsonRoot);
+        JsonArray jsonVirtualRootLayer = new JsonArray();
+        JsonObject virtualRoot = getVirtualRootJson();
+        jsonVirtualRootLayer.add(virtualRoot);
+        hierarchyJson.add(jsonVirtualRootLayer);
 
         Map<Integer, List<JsonObject>> layerMap = new HashMap<>();
-        layerMap.put(0, rootList);
 
-        getChildJsons(tree.get(root.getId()), layerMap, 1, tree);
+        getChildJsons(roots, layerMap, 1, tree);
         for (int layerId = 0; layerId <= layerMap.size(); layerId++) {
             JsonArray jsonHierarchyLayer = new JsonArray();
             for (JsonObject jsonEntityType : layerMap.get(layerId)) {
@@ -189,6 +200,19 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
         jsonEntityType.addProperty("ParentId", entityType.getParentId());
         jsonEntityType.addProperty("Name", entityType.getName());
         return jsonEntityType;
+    }
+
+    /**
+     * This method returns a json containing a virtual root entity type
+     * that is the parent of all entity types of highest level.
+     * @return json representing a virtual root entity type
+     */
+    private JsonObject getVirtualRootJson() {
+        JsonObject virtualRoot = new JsonObject();
+        virtualRoot.addProperty("Id", -1);
+        virtualRoot.addProperty("ParentId", 0);
+        virtualRoot.addProperty("Name", "virtual root");
+        return virtualRoot;
     }
 
     /**
