@@ -1,5 +1,10 @@
 package de.hpi.bpt.argos.core;
 
+import de.hpi.bpt.argos.api.entity.EntityEndpointImpl;
+import de.hpi.bpt.argos.api.entityMapping.EntityMappingEndpointImpl;
+import de.hpi.bpt.argos.api.entityType.EntityTypeEndpointImpl;
+import de.hpi.bpt.argos.api.eventQuery.EventQueryEndpointImpl;
+import de.hpi.bpt.argos.api.eventType.EventTypeEndpointImpl;
 import de.hpi.bpt.argos.common.EventProcessingPlatformUpdaterImpl;
 import de.hpi.bpt.argos.common.RestEndpoint;
 import de.hpi.bpt.argos.eventProcessing.EventReceiver;
@@ -48,7 +53,11 @@ public class ArgosImpl implements Argos {
 
 		Set<RestEndpoint> restEndpoints = new HashSet<>();
 		restEndpoints.add(eventReceiver);
-		// TODO: add more restEndpoints here
+		restEndpoints.add(new EntityEndpointImpl());
+		restEndpoints.add(new EntityMappingEndpointImpl());
+		restEndpoints.add(new EntityTypeEndpointImpl());
+		restEndpoints.add(new EventQueryEndpointImpl());
+		restEndpoints.add(new EventTypeEndpointImpl());
 
 		for (RestEndpoint restEndpoint : restEndpoints) {
 			restEndpoint.setup(sparkService);
