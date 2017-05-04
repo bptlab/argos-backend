@@ -55,7 +55,7 @@ public class ArgosImpl implements Argos {
 		restEndpoints.add(eventReceiver);
 		restEndpoints.add(new EntityEndpointImpl());
 		restEndpoints.add(new EntityMappingEndpointImpl());
-		restEndpoints.add(new EntityTypeEndpointImpl());
+		//restEndpoints.add(new EntityTypeEndpointImpl());
 		restEndpoints.add(new EventQueryEndpointImpl());
 		restEndpoints.add(new EventTypeEndpointImpl());
 
