@@ -35,7 +35,7 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
     private static final RestEndpointUtil endpointUtil = RestEndpointUtilImpl.getInstance();
     private static final Gson serializer = new Gson();
 
-    private JsonObject jsonHierarchy;
+    private String jsonHierarchy;
 
     /**
      * {@inheritDoc}
@@ -46,7 +46,7 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
         sparkService.get(EntityTypeEndpoint.getEntityTypeAttributesBaseUri(), this::getEntityTypeAttributes);
         sparkService.get(EntityTypeEndpoint.getEntityTypeEntityMappingsBaseUri(), this::getEntityTypeEntityMappings);
 
-        jsonHierarchy = getEntityTypeHierarchy();
+        jsonHierarchy = serializer.toJson(getEntityTypeHierarchy());
     }
 
     /**
@@ -56,7 +56,7 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
     public String getEntityTypeHierarchy(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
 
-        response.body(serializer.toJson(jsonHierarchy));
+        response.body(jsonHierarchy);
 
         endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
         return response.body();
@@ -70,9 +70,7 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
         endpointUtil.logReceivedRequest(logger, request);
 
         List<TypeAttribute> typeAttributes = PersistenceAdapterImpl.getInstance().getTypeAttributes(getEntityTypeId(request));
-        if (typeAttributes == null) {
-            halt(HttpStatusCodes.ERROR, "could not read attributes.");
-        }
+
         JsonArray jsonTypeAttributes = new JsonArray();
         for (TypeAttribute att : typeAttributes) {
             JsonObject jsonAttribute = new JsonObject();
@@ -108,9 +106,7 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
      */
     private JsonObject getEntityTypeHierarchy() {
         List<EntityType> allEntityTypes = PersistenceAdapterImpl.getInstance().getEntityTypes();
-        if (allEntityTypes == null) {
-            halt(HttpStatusCodes.ERROR, "could not read entity types.");
-        }
+        
         Map<Long, List<EntityType>> tree = new HashMap<>();
 
         // Convert list to tree
