@@ -7,6 +7,7 @@ import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.Entity;
 import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityType;
 import de.hpi.bpt.argos.storage.dataModel.event.Event;
+import de.hpi.bpt.argos.storage.dataModel.event.EventImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
@@ -16,6 +17,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
+import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -289,13 +291,19 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
 
-		Query<Number> query = session.createQuery("SELECT COUNT(*) FROM EventImpl event "
-				+ "WHERE event.entityId = :entityId AND event.typeId = :eventTypeId",
-				Number.class)
-				.setParameter("entityId", entityId)
-				.setParameter("eventTypeId", eventTypeId);
+		Table eventTable = EventImpl.class.getAnnotation(Table.class);
+		String eventTableName = "Event";
 
-		return databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, 0).intValue();
+		if (eventTable != null) {
+			eventTableName = eventTable.name();
+		}
+
+		String sqlQuery = String.format("SELECT count(*) FROM %1$s WHERE %1$s.typeId = %2$d and %1$s.entityId = %3$d",
+				eventTableName, eventTypeId, entityId);
+		Query query = session.createNativeQuery(sqlQuery);
+
+		String stringResult = databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, 0).toString();
+		return Integer.parseInt(stringResult);
 	}
 
 	/**
@@ -322,12 +330,18 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
 
-		Query<Integer> query = session.createQuery("SELECT count(*) FROM EventImpl event "
-						+ "WHERE event.typeId = :eventTypeId",
-				Integer.class)
-				.setParameter("eventTypeId", eventTypeId);
+		Table eventTable = EventImpl.class.getAnnotation(Table.class);
+		String eventTableName = "Event";
 
-		return databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, 0);
+		if (eventTable != null) {
+			eventTableName = eventTable.name();
+		}
+
+		String sqlQuery = String.format("SELECT count(*) FROM %1$s WHERE %1$s.typeId = %2$d", eventTableName, eventTypeId);
+		Query query = session.createNativeQuery(sqlQuery);
+
+		String stringResult = databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, 0).toString();
+		return Integer.parseInt(stringResult);
 	}
 
 	/**
