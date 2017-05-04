@@ -58,9 +58,14 @@ public class EntityEndpointImpl implements EntityEndpoint {
         endpointUtil.logReceivedRequest(logger, request);
 
         long entityId = getEntityId(request);
-        Entity eventType = PersistenceAdapterImpl.getInstance().getEntity(entityId);
+        Entity entity = PersistenceAdapterImpl.getInstance().getEntity(entityId);
+
+        if (entity == null) {
+        	halt(HttpStatusCodes.NOT_FOUND, "cannot find entity");
+		}
+
         List<Attribute> attributes = PersistenceAdapterImpl.getInstance().getAttributes(entityId);
-        JsonObject jsonEventType = getEntityJson(eventType, attributes);
+        JsonObject jsonEventType = getEntityJson(entity, attributes);
 
         response.body(serializer.toJson(jsonEventType));
         endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
@@ -77,8 +82,8 @@ public class EntityEndpointImpl implements EntityEndpoint {
         long entityId = getEntityId(request);
         long entityTypeId = getEntityTypeId(request);
         List<Entity> childEntities = PersistenceAdapterImpl.getInstance().getEntities(entityId, entityTypeId);
-        List<Attribute> attributesToInclude = getAttributesToInclude(request);
-        JsonObject jsonEntities = getEntitiesJson(childEntities, attributesToInclude);
+        List<Long> attributesTypeIdsToInclude = getAttributesTypeIdsToInclude(request);
+        JsonArray jsonEntities = getEntitiesJson(childEntities, attributesTypeIdsToInclude);
 
         response.body(serializer.toJson(jsonEntities));
         endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
@@ -95,7 +100,7 @@ public class EntityEndpointImpl implements EntityEndpoint {
         long entityId = getEntityId(request);
         List<EventType> allEventTypes = PersistenceAdapterImpl.getInstance().getEventTypes();
 
-        Set<EventType> eventTypes = new HashSet<>();
+        List<EventType> eventTypes = new ArrayList<>();
         for (EventType eventType : allEventTypes) {
             String sql = getExistsEventQuery(entityId, eventType.getId());
             if (PersistenceAdapterImpl.getInstance().getExistsEvent(sql)) {
@@ -103,7 +108,7 @@ public class EntityEndpointImpl implements EntityEndpoint {
             }
         }
 
-        JsonObject eventTypesJson = getEventTypesJson(new ArrayList<>(eventTypes));
+        JsonArray eventTypesJson = getEventTypesJson(eventTypes);
 
         response.body(serializer.toJson(eventTypesJson));
         endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
@@ -131,43 +136,64 @@ public class EntityEndpointImpl implements EntityEndpoint {
         return response.body();
     }
 
-    /**
-     * This method returns an entity as a json object including the given attributes.
-     * @param entity the entity to be returned as json
-     * @param attributes the attributes to be returned in json
-     * @return json object that represents the given entity
-     */
-    private JsonObject getEntityJson(Entity entity, List<Attribute> attributes) {
-        try {
-            JsonObject jsonEntity = new JsonObject();
+	/**
+	 * This method returns an entity as a json object including the given attributes.
+	 * @param entity the entity to be returned as json
+	 * @param attributes the attributes to be returned in json
+	 * @return json object that represents the given entity
+	 */
+	private JsonObject getEntityJson(Entity entity, List<Attribute> attributes) {
+		try {
+			JsonObject jsonEntity = new JsonObject();
 
-            jsonEntity.addProperty("Id", entity.getId());
-            jsonEntity.addProperty("TypeId", entity.getTypeId());
-            jsonEntity.addProperty("ParentId", entity.getParentId());
-            jsonEntity.addProperty("Name", entity.getName());
+			jsonEntity.addProperty("Id", entity.getId());
+			jsonEntity.addProperty("TypeId", entity.getTypeId());
+			jsonEntity.addProperty("ParentId", entity.getParentId());
+			jsonEntity.addProperty("Name", entity.getName());
+			jsonEntity.addProperty("Status", entity.getStatus());
 
-            JsonArray attributesJson = getAttributesJson(attributes);
-            jsonEntity.add("Attributes", attributesJson);
+			JsonArray attributesJson = getAttributesJson(attributes);
+			jsonEntity.add("Attributes", attributesJson);
 
-            return jsonEntity;
-        } catch (Exception e) {
-            LoggerUtilImpl.getInstance().error(logger, "cannot parse event type", e);
-            return new JsonObject();
-        }
+			return jsonEntity;
+		} catch (Exception e) {
+			LoggerUtilImpl.getInstance().error(logger, "cannot parse event type", e);
+			return new JsonObject();
+		}
+	}
+
+
+	/**
+	 * This method returns a list of attributes, which belong to a specific entity.
+	 * @param entity the owner entity of the attributes
+	 * @param attributeTypeIds - a list of unique identifiers of typeAttributes, which are the attributes to include in the returned list
+	 * @return a list of attributes, which belong to a specific entity
+	 */
+    private List<Attribute> getIncludedAttributes(Entity entity, List<Long> attributeTypeIds) {
+		List<Attribute> entityAttributes = PersistenceAdapterImpl.getInstance().getAttributes(entity.getId());
+		List<Attribute> attributesToInclude = new ArrayList<>();
+
+		for (Attribute entityAttribute : entityAttributes) {
+			if (attributeTypeIds.contains(entityAttribute.getTypeAttributeId())) {
+				attributesToInclude.add(entityAttribute);
+			}
+		}
+
+		return attributesToInclude;
     }
 
     /**
-     * This method returns a list of entities as a json object including the given attributes.
+     * This method returns a list of entities as a json array including the given attributes.
      * @param entities the entities to be returned as json
-     * @param attributesToInclude the attributes to be returned in json
-     * @return json object that represents the given entities
+     * @param attributesTypeIdsToInclude the unique identifiers of the typeAttributes to be returned in json
+     * @return json array that represents the given entities
      */
-    private JsonObject getEntitiesJson(List<Entity> entities, List<Attribute> attributesToInclude) {
+    private JsonArray getEntitiesJson(List<Entity> entities, List<Long> attributesTypeIdsToInclude) {
         JsonArray entitiesJson = new JsonArray();
         for (Entity entity : entities) {
-            entitiesJson.add(getEntityJson(entity, attributesToInclude));
+            entitiesJson.add(getEntityJson(entity, getIncludedAttributes(entity, attributesTypeIdsToInclude)));
         }
-        return entitiesJson.getAsJsonObject();
+        return entitiesJson;
     }
 
     /**
@@ -193,16 +219,16 @@ public class EntityEndpointImpl implements EntityEndpoint {
     }
 
     /**
-     * This method returns event types as a JsonObject.
+     * This method returns event types as a JsonArray.
      * @param eventTypes - the event types
      * @return - a json representation of the event types
      */
-    private JsonObject getEventTypesJson(List<EventType> eventTypes) {
+    private JsonArray getEventTypesJson(List<EventType> eventTypes) {
         JsonArray eventTypesJson = new JsonArray();
         for (EventType eventType : eventTypes) {
             eventTypesJson.add(getEventTypeJson(eventType));
         }
-        return eventTypesJson.getAsJsonObject();
+        return eventTypesJson;
     }
 
     /**
@@ -251,13 +277,13 @@ public class EntityEndpointImpl implements EntityEndpoint {
             eventTableName = attributeTable.name();
         }
         return String.format(
-                "SELECT CASE WHEN EXISTS ("
-                        + "SELECT *"
-                        + "FROM %1$s"
-                        + "WHERE TypeId = %2$d"
-                        + "AND EntityId = %3$d"
-                        + ")"
-                        + "THEN \"True\""
+                "SELECT CASE WHEN EXISTS ( "
+                        + "SELECT * "
+                        + "FROM %1$s "
+                        + "WHERE TypeId = %2$d "
+                        + "AND EntityId = %3$d "
+                        + ") "
+                        + "THEN \"True\" "
                         + "ELSE \"False\" END", eventTableName, eventTypeId, entityId);
     }
 
@@ -310,30 +336,25 @@ public class EntityEndpointImpl implements EntityEndpoint {
      * @param request the request with attributes
      * @return requested attributes
      */
-    private List<Attribute> getAttributesToInclude(Request request) {
+    private List<Long> getAttributesTypeIdsToInclude(Request request) {
         List<String> attributeNames =  endpointUtil.validateListOfString(
-                request.params(EntityEndpoint.getEntityIdParameter(false)),
-                (String input) -> input.matches("\\w\\+(?:\\+\\w+)*"));
+                request.params(EntityEndpoint.getAttributeNamesParameter(false)),
+                (String input) -> input.matches("(\\w|-)+(\\s(\\w|-)+)*"));
 
         // check if entity type has all given attributes defined
         List<TypeAttribute> attributesOfEntityType = PersistenceAdapterImpl.getInstance().getTypeAttributes(getEntityTypeId(request));
         List<String> entityTypeAttributeNames = new ArrayList<>();
+        List<Long> entityTypeAttributeIds = new ArrayList<>();
         for (TypeAttribute att : attributesOfEntityType) {
             entityTypeAttributeNames.add(att.getName());
+
+            if (attributeNames.contains(att.getName())) {
+				entityTypeAttributeIds.add(att.getId());
+			}
         }
         if (!entityTypeAttributeNames.containsAll(attributeNames)) {
             halt(HttpStatusCodes.BAD_REQUEST, "invalid attribute name given");
         }
-
-        List<Attribute> attributesToInclude = new ArrayList<>();
-        List<Attribute> attributesOfEntity = PersistenceAdapterImpl.getInstance().getAttributes(getEntityId(request));
-        for (Attribute att : attributesOfEntity) {
-            TypeAttribute typeAttributeOfAtt = PersistenceAdapterImpl.getInstance().getTypeAttribute(att.getTypeAttributeId());
-            if (attributeNames.contains(typeAttributeOfAtt.getName())) {
-                attributesToInclude.add(att);
-            }
-        }
-
-        return attributesToInclude;
+        return entityTypeAttributeIds;
     }
 }

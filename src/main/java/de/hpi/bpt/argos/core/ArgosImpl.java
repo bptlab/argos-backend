@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.core;
 
+import de.hpi.bpt.argos.api.entity.EntityEndpointImpl;
 import de.hpi.bpt.argos.common.EventProcessingPlatformUpdaterImpl;
 import de.hpi.bpt.argos.common.RestEndpoint;
 import de.hpi.bpt.argos.eventProcessing.EventReceiver;
@@ -48,6 +49,7 @@ public class ArgosImpl implements Argos {
 
 		Set<RestEndpoint> restEndpoints = new HashSet<>();
 		restEndpoints.add(eventReceiver);
+		restEndpoints.add(new EntityEndpointImpl());
 		// TODO: add more restEndpoints here
 
 		for (RestEndpoint restEndpoint : restEndpoints) {

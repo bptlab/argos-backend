@@ -83,7 +83,7 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 			LoggerUtilImpl.getInstance().error(logger, e.getMessage(), e);
 			halt(HttpStatusCodes.BAD_REQUEST, e.getMessage());
 		}
-		String[] splits = inputValue.split("\\+");
+		String[] splits = inputValue.split("\\s");
 		return Arrays.asList(splits);
 	}
 
