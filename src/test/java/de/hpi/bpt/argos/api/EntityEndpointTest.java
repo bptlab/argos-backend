@@ -170,74 +170,6 @@ public class EntityEndpointTest extends ArgosTestParent {
 		assertEquals(0, eventTypes.size());
 	}
 
-	@Test
-	public void testGetEventsOfEntity() {
-		RestRequest request = RestRequestFactoryImpl.getInstance()
-				.createGetRequest(ARGOS_REST_HOST, getEventsOfEntityUri(testEntity.getId(), testEventType.getId(), 0, 999));
-
-		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
-
-		JsonArray events = jsonParser.parse(request.getResponse()).getAsJsonArray();
-		assertEquals(1, events.size());
-
-		JsonObject event = events.get(0).getAsJsonObject();
-		JsonArray eventAttributes = event.get("Attributes").getAsJsonArray();
-		assertEquals(testEventAttributes.size(), eventAttributes.size());
-	}
-
-	@Test
-	public void testGetEventsOfEntity_SwappedIndices_Success() {
-		RestRequest request = RestRequestFactoryImpl.getInstance()
-				.createGetRequest(ARGOS_REST_HOST, getEventsOfEntityUri(testEntity.getId(), testEventType.getId(), 999, 0));
-
-		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
-
-		JsonArray events = jsonParser.parse(request.getResponse()).getAsJsonArray();
-		assertEquals(1, events.size());
-
-		JsonObject event = events.get(0).getAsJsonObject();
-		JsonArray eventAttributes = event.get("Attributes").getAsJsonArray();
-		assertEquals(testEventAttributes.size(), eventAttributes.size());
-	}
-
-	@Test
-	public void testGetEventsOfEntity_InvalidEntityId_Success() {
-		RestRequest request = RestRequestFactoryImpl.getInstance()
-				.createGetRequest(ARGOS_REST_HOST, getEventsOfEntityUri(testEntity.getId() + 1, testEventType.getId(), 0, 999));
-
-		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
-
-		JsonArray events = jsonParser.parse(request.getResponse()).getAsJsonArray();
-		assertEquals(0, events.size());
-	}
-
-	@Test
-	public void testGetEventsOfEntity_InvalidEventTypeId_Success() {
-		RestRequest request = RestRequestFactoryImpl.getInstance()
-				.createGetRequest(ARGOS_REST_HOST, getEventsOfEntityUri(testEntity.getId(), testEventType.getId() + 1, 0, 999));
-
-		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
-
-		JsonArray events = jsonParser.parse(request.getResponse()).getAsJsonArray();
-		assertEquals(0, events.size());
-	}
-
-	@Test
-	public void testGetEventsOfEntity_InvalidStartIndex_BadRequest() {
-		RestRequest request = RestRequestFactoryImpl.getInstance()
-				.createGetRequest(ARGOS_REST_HOST, getEventsOfEntityUri(testEntity.getId(), testEventType.getId(), -1, 999));
-
-		assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
-	}
-
-	@Test
-	public void testGetEventsOfEntity_InvalidEndIndex_BadRequest() {
-		RestRequest request = RestRequestFactoryImpl.getInstance()
-				.createGetRequest(ARGOS_REST_HOST, getEventsOfEntityUri(testEntity.getId(), testEventType.getId(), 0, -1));
-
-		assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
-	}
-
 	private String getEntityUri(Object entityId) {
 		return EntityEndpoint.getEntityBaseUri().replaceAll(EntityEndpoint.getEntityIdParameter(true), entityId.toString());
 	}
@@ -254,20 +186,12 @@ public class EntityEndpointTest extends ArgosTestParent {
 
 		return EntityEndpoint.getChildEntitiesBaseUri()
 				.replaceAll(EntityEndpoint.getEntityIdParameter(true), parentEntityId.toString())
-				.replaceAll(EntityEndpoint.getTypeIdParameter(true), entityTypeId.toString())
+				.replaceAll(EntityEndpoint.getEntityTypeIdParameter(true), entityTypeId.toString())
 				.replaceAll(EntityEndpoint.getAttributeNamesParameter(true), attributeNames.toString());
 	}
 
 	private String getEventTypesOfEntityUri(Object entityId) {
 		return EntityEndpoint.getEventTypesOfEntityBaseUri()
 				.replaceAll(EntityEndpoint.getEntityIdParameter(true), entityId.toString());
-	}
-
-	private String getEventsOfEntityUri(Object entityId, Object eventTypeId, Object startIndex, Object endIndex) {
-		return EntityEndpoint.getEventsOfEntityBaseUri()
-				.replaceAll(EntityEndpoint.getEntityIdParameter(true), entityId.toString())
-				.replaceAll(EntityEndpoint.getTypeIdParameter(true), eventTypeId.toString())
-				.replaceAll(EntityEndpoint.getIndexFromParameter(true), startIndex.toString())
-				.replaceAll(EntityEndpoint.getIndexToParameter(true), endIndex.toString());
 	}
 }
