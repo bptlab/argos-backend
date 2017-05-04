@@ -23,9 +23,7 @@ import spark.Service;
 
 import javax.persistence.Table;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static spark.Spark.halt;
 
@@ -127,9 +125,15 @@ public class EntityEndpointImpl implements EntityEndpoint {
         int startIndex = getStartIndex(request);
         int endIndex = getEndIndex(request);
 
+        if (endIndex < startIndex) {
+        	int temp = endIndex;
+        	endIndex = startIndex;
+        	startIndex = temp;
+		}
+
         List<Event> events = PersistenceAdapterImpl.getInstance().getEvents(entityId, eventTypeId, startIndex, endIndex);
 
-        JsonObject eventTypesJson = getEventsJson(events);
+        JsonArray eventTypesJson = getEventsJson(events);
 
         response.body(serializer.toJson(eventTypesJson));
         endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
@@ -232,18 +236,18 @@ public class EntityEndpointImpl implements EntityEndpoint {
     }
 
     /**
-     * This method returns events as a JsonObject.
+     * This method returns events as a JsonArray.
      * @param events - the events
      * @return - a json representation of the events
      */
-    private JsonObject getEventsJson(List<Event> events) {
+    private JsonArray getEventsJson(List<Event> events) {
         JsonArray eventsJson = new JsonArray();
         for (Event event : events) {
             List<Attribute> attributes = PersistenceAdapterImpl.getInstance().getAttributes(event.getId());
             JsonArray jsonAttributes = getAttributesJson(attributes);
             eventsJson.add(jsonAttributes);
         }
-        return eventsJson.getAsJsonObject();
+        return eventsJson;
     }
 
     /**
@@ -305,7 +309,7 @@ public class EntityEndpointImpl implements EntityEndpoint {
      */
     private long getEntityTypeId(Request request) {
         return endpointUtil.validateLong(
-                request.params(EntityEndpoint.getEntityTypeIdParameter(false)),
+                request.params(EntityEndpoint.getTypeIdParameter(false)),
                 (Long input) -> input != 0);
     }
 
