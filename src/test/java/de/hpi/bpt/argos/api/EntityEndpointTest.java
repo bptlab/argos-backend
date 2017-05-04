@@ -1,0 +1,197 @@
+package de.hpi.bpt.argos.api;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import de.hpi.bpt.argos.api.entity.EntityEndpoint;
+import de.hpi.bpt.argos.common.RestRequest;
+import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
+import de.hpi.bpt.argos.core.ArgosTestParent;
+import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
+import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
+import de.hpi.bpt.argos.storage.dataModel.entity.Entity;
+import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityType;
+import de.hpi.bpt.argos.storage.dataModel.event.Event;
+import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
+import de.hpi.bpt.argos.util.ArgosTestUtil;
+import de.hpi.bpt.argos.util.HttpStatusCodes;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static junit.framework.TestCase.assertEquals;
+
+public class EntityEndpointTest extends ArgosTestParent {
+
+	private static EntityType testEntityType;
+	private static List<TypeAttribute> testEntityTypeAttributes;
+	private static Entity testEntity;
+	private static List<Attribute> testEntityAttributes;
+	private static EventType testEventType;
+	private static List<TypeAttribute> testEventTypeAttributes;
+	private static Event testEvent;
+	private static List<Attribute> testEventAttributes;
+
+	@BeforeClass
+	public static void initialize() {
+		testEntityType = ArgosTestUtil.createEntityType(true);
+		testEntityTypeAttributes = ArgosTestUtil.createEntityTypeAttributes(testEntityType, true);
+		testEntity = ArgosTestUtil.createEntity(testEntityType, true);
+		testEntityAttributes = ArgosTestUtil.createEntityAttributes(testEntityType, testEntity, true);
+		testEventType = ArgosTestUtil.createEventType(false, true);
+		testEventTypeAttributes = ArgosTestUtil.createEventTypeAttributes(testEventType, true);
+		testEvent = ArgosTestUtil.createEvent(testEventType, testEntity, true);
+		testEventAttributes = ArgosTestUtil.createEventAttributes(testEventType, testEvent, true);
+	}
+
+	@Test
+	public void testGetEntity() {
+		RestRequest request = RestRequestFactoryImpl.getInstance().createGetRequest(ARGOS_REST_HOST, getEntityUri(testEntity.getId()));
+
+		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+
+		JsonObject entity = jsonParser.parse(request.getResponse()).getAsJsonObject();
+		JsonArray entityAttributes = entity.get("Attributes").getAsJsonArray();
+
+		assertEquals(testEntity.getId(), entity.get("Id").getAsLong());
+		assertEquals(testEntity.getTypeId(), entity.get("TypeId").getAsLong());
+		assertEquals(testEntity.getParentId(), entity.get("ParentId").getAsLong());
+		assertEquals(testEntity.getName(), entity.get("Name").getAsString());
+		assertEquals(testEntity.getStatus(), entity.get("Status").getAsString());
+		assertEquals(testEntityAttributes.size(), entityAttributes.size());
+	}
+
+	@Test
+	public void testGetEntity_InvalidId_NotFound() {
+		RestRequest request = RestRequestFactoryImpl.getInstance().createGetRequest(ARGOS_REST_HOST, getEntityUri(testEntity.getId() - 1));
+
+		assertEquals(HttpStatusCodes.NOT_FOUND, request.getResponseCode());
+	}
+
+	@Test
+	public void testGetChildEntities() {
+		List<Object> attributeNames = new ArrayList<>();
+
+		for (int i = 0; i < 2; i++) {
+			attributeNames.add(testEntityTypeAttributes.get(i).getName());
+		}
+
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createGetRequest(ARGOS_REST_HOST, getChildEntitiesUri(testEntity.getParentId(), testEntity.getTypeId(), attributeNames));
+
+		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+
+		JsonArray childEntities = jsonParser.parse(request.getResponse()).getAsJsonArray();
+		assertEquals(1, childEntities.size());
+
+		JsonObject entity = childEntities.get(0).getAsJsonObject();
+		JsonArray entityAttributes = entity.get("Attributes").getAsJsonArray();
+
+		assertEquals(testEntity.getId(), entity.get("Id").getAsLong());
+		assertEquals(testEntity.getTypeId(), entity.get("TypeId").getAsLong());
+		assertEquals(testEntity.getParentId(), entity.get("ParentId").getAsLong());
+		assertEquals(testEntity.getName(), entity.get("Name").getAsString());
+		assertEquals(testEntity.getStatus(), entity.get("Status").getAsString());
+		assertEquals(attributeNames.size(), entityAttributes.size());
+	}
+
+	@Test
+	public void testGetChildEntities_InvalidParentId_Success() {
+		List<Object> attributeNames = new ArrayList<>();
+
+		for (int i = 0; i < 2; i++) {
+			attributeNames.add(testEntityTypeAttributes.get(i).getName());
+		}
+
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createGetRequest(ARGOS_REST_HOST, getChildEntitiesUri(testEntity.getParentId() - 1, testEntity.getTypeId(), attributeNames));
+
+		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+
+		JsonArray childEntities = jsonParser.parse(request.getResponse()).getAsJsonArray();
+		assertEquals(0, childEntities.size());
+	}
+
+	@Test
+	public void testGetChildEntities_InvalidEntityTypeId_BadRequest() {
+		List<Object> attributeNames = new ArrayList<>();
+
+		for (int i = 0; i < 2; i++) {
+			attributeNames.add(testEntityTypeAttributes.get(i).getName());
+		}
+
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createGetRequest(ARGOS_REST_HOST, getChildEntitiesUri(testEntity.getParentId(), testEntity.getTypeId() + 1, attributeNames));
+
+		assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
+	}
+
+	@Test
+	public void testGetChildEntities_InvalidAttributeName_BadRequest() {
+		List<Object> attributeNames = new ArrayList<>();
+
+		for (int i = 0; i < 2; i++) {
+			attributeNames.add(testEntityTypeAttributes.get(i).getName() + "_invalid");
+		}
+
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createGetRequest(ARGOS_REST_HOST, getChildEntitiesUri(testEntity.getParentId(), testEntity.getTypeId(), attributeNames));
+
+		assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
+	}
+
+	@Test
+	public void testGetEventTypesOfEntity() {
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createGetRequest(ARGOS_REST_HOST, getEventTypesOfEntityUri(testEntity.getId()));
+
+		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+
+		JsonArray eventTypes = jsonParser.parse(request.getResponse()).getAsJsonArray();
+		assertEquals(1, eventTypes.size());
+
+		JsonObject eventType = eventTypes.get(0).getAsJsonObject();
+		assertEquals(testEventType.getId(), eventType.get("Id").getAsLong());
+		assertEquals(testEventType.getName(), eventType.get("Name").getAsString());
+		assertEquals(1, eventType.get("NumberOfEvents").getAsLong());
+		assertEquals(testEventType.getTimeStampAttributeId(), eventType.get("TimestampAttributeId").getAsLong());
+
+	}
+
+	@Test
+	public void testGetEventTypesOfEntity_InvalidId_Success() {
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createGetRequest(ARGOS_REST_HOST, getEventTypesOfEntityUri(testEntity.getId() + 1));
+
+		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+
+		JsonArray eventTypes = jsonParser.parse(request.getResponse()).getAsJsonArray();
+		assertEquals(0, eventTypes.size());
+	}
+
+	private String getEntityUri(Object entityId) {
+		return EntityEndpoint.getEntityBaseUri().replaceAll(EntityEndpoint.getEntityIdParameter(true), entityId.toString());
+	}
+
+	private String getChildEntitiesUri(Object parentEntityId, Object entityTypeId, List<Object> attributesToInclude) {
+		StringBuilder attributeNames = new StringBuilder();
+
+		for (int i = 0; i < attributesToInclude.size(); i++) {
+			if (i > 0) {
+				attributeNames.append("+");
+			}
+			attributeNames.append(attributesToInclude.get(i).toString());
+		}
+
+		return EntityEndpoint.getChildEntitiesBaseUri()
+				.replaceAll(EntityEndpoint.getEntityIdParameter(true), parentEntityId.toString())
+				.replaceAll(EntityEndpoint.getEntityTypeIdParameter(true), entityTypeId.toString())
+				.replaceAll(EntityEndpoint.getAttributeNamesParameter(true), attributeNames.toString());
+	}
+
+	private String getEventTypesOfEntityUri(Object entityId) {
+		return EntityEndpoint.getEventTypesOfEntityBaseUri()
+				.replaceAll(EntityEndpoint.getEntityIdParameter(true), entityId.toString());
+	}
+}
