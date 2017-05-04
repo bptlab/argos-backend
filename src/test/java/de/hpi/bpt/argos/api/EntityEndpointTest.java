@@ -12,7 +12,7 @@ import de.hpi.bpt.argos.storage.dataModel.entity.Entity;
 import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityType;
 import de.hpi.bpt.argos.storage.dataModel.event.Event;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
-import de.hpi.bpt.argos.util.ArgosTestUtil;
+import de.hpi.bpt.argos.testUtil.ArgosTestUtil;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
 import org.junit.BeforeClass;
 import org.junit.Test;
