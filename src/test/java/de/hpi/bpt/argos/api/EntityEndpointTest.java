@@ -71,11 +71,7 @@ public class EntityEndpointTest extends ArgosTestParent {
 
 	@Test
 	public void testGetChildEntities() {
-		List<Object> attributeNames = new ArrayList<>();
-
-		for (int i = 0; i < 2; i++) {
-			attributeNames.add(testEntityTypeAttributes.get(i).getName());
-		}
+		List<Object> attributeNames = getEntityAttributeNamesToInclude(true);
 
 		RestRequest request = RestRequestFactoryImpl.getInstance()
 				.createGetRequest(ARGOS_REST_HOST, getChildEntitiesUri(testEntity.getParentId(), testEntity.getTypeId(), attributeNames));
@@ -98,11 +94,7 @@ public class EntityEndpointTest extends ArgosTestParent {
 
 	@Test
 	public void testGetChildEntities_InvalidParentId_Success() {
-		List<Object> attributeNames = new ArrayList<>();
-
-		for (int i = 0; i < 2; i++) {
-			attributeNames.add(testEntityTypeAttributes.get(i).getName());
-		}
+		List<Object> attributeNames = getEntityAttributeNamesToInclude(true);
 
 		RestRequest request = RestRequestFactoryImpl.getInstance()
 				.createGetRequest(ARGOS_REST_HOST, getChildEntitiesUri(testEntity.getParentId() - 1, testEntity.getTypeId(), attributeNames));
@@ -115,11 +107,7 @@ public class EntityEndpointTest extends ArgosTestParent {
 
 	@Test
 	public void testGetChildEntities_InvalidEntityTypeId_BadRequest() {
-		List<Object> attributeNames = new ArrayList<>();
-
-		for (int i = 0; i < 2; i++) {
-			attributeNames.add(testEntityTypeAttributes.get(i).getName());
-		}
+		List<Object> attributeNames = getEntityAttributeNamesToInclude(true);
 
 		RestRequest request = RestRequestFactoryImpl.getInstance()
 				.createGetRequest(ARGOS_REST_HOST, getChildEntitiesUri(testEntity.getParentId(), testEntity.getTypeId() + 1, attributeNames));
@@ -129,11 +117,7 @@ public class EntityEndpointTest extends ArgosTestParent {
 
 	@Test
 	public void testGetChildEntities_InvalidAttributeName_BadRequest() {
-		List<Object> attributeNames = new ArrayList<>();
-
-		for (int i = 0; i < 2; i++) {
-			attributeNames.add(testEntityTypeAttributes.get(i).getName() + "_invalid");
-		}
+		List<Object> attributeNames = getEntityAttributeNamesToInclude(false);
 
 		RestRequest request = RestRequestFactoryImpl.getInstance()
 				.createGetRequest(ARGOS_REST_HOST, getChildEntitiesUri(testEntity.getParentId(), testEntity.getTypeId(), attributeNames));
@@ -236,6 +220,21 @@ public class EntityEndpointTest extends ArgosTestParent {
 				.createGetRequest(ARGOS_REST_HOST, getEventsOfEntityUri(testEntity.getId(), testEventType.getId(), 0, -1));
 
 		assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
+	}
+
+	private List<Object> getEntityAttributeNamesToInclude(boolean valid) {
+		List<Object> attributeNames = new ArrayList<>();
+		String prefix = "";
+
+		if (!valid) {
+			prefix = "invalid_";
+		}
+
+		for (int i = 0; i < 2; i++) {
+			attributeNames.add(prefix + testEntityTypeAttributes.get(i).getName());
+		}
+
+		return attributeNames;
 	}
 
 	private String getEntityUri(Object entityId) {
