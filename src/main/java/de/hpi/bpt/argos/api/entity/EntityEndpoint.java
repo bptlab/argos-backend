@@ -61,7 +61,7 @@ public interface EntityEndpoint extends RestEndpoint {
     static String getChildEntitiesBaseUri() {
         return  String.format("%1$s/%2$s/children/type/%3$s/%4$s", getEntityPointBaseUri(),
                 getEntityIdParameter(true),
-                getEntityTypeIdParameter(true),
+                getTypeIdParameter(true),
                 getAttributeNamesParameter(true));
     }
 
@@ -88,7 +88,7 @@ public interface EntityEndpoint extends RestEndpoint {
     static String getEventsOfEntityBaseUri() {
         return  String.format("%1$s/%2$s/eventtype/%3$s/events/%4$s/%5$s", getEntityPointBaseUri(),
                 getEntityIdParameter(true),
-                getEntityTypeIdParameter(true),
+                getTypeIdParameter(true),
                 getIndexFromParameter(true),
                 getIndexToParameter(true));
     }
@@ -111,7 +111,7 @@ public interface EntityEndpoint extends RestEndpoint {
         }
         return getChildEntitiesBaseUri()
                 .replaceAll(getEntityIdParameter(true), Objects.toString(entityId, "0"))
-                .replaceAll(getEntityTypeIdParameter(true), Objects.toString(entityTypeId, "0"))
+                .replaceAll(getTypeIdParameter(true), Objects.toString(entityTypeId, "0"))
                 .replaceAll(getAttributeNamesParameter(true), attributeNamesAsString.toString());
     }
 
@@ -144,7 +144,7 @@ public interface EntityEndpoint extends RestEndpoint {
     static String getEventsOfEntityUri(long entityId, long entityTypeId, int fromIndex, int toIndex) {
         return getEventsOfEntityBaseUri()
                 .replaceAll(getEntityIdParameter(true), Objects.toString(entityId, "0"))
-                .replaceAll(getEntityTypeIdParameter(true), Objects.toString(entityTypeId, "0"))
+                .replaceAll(getTypeIdParameter(true), Objects.toString(entityTypeId, "0"))
                 .replaceAll(getIndexFromParameter(true), Objects.toString(fromIndex, "0"))
                 .replaceAll(getIndexToParameter(true), Objects.toString(toIndex, "0"));
     }
@@ -163,7 +163,7 @@ public interface EntityEndpoint extends RestEndpoint {
      * @param includePrefix - if a prefix should be included
      * @return - entity type id path parameter as a string
      */
-    static String getEntityTypeIdParameter(boolean includePrefix) {
+    static String getTypeIdParameter(boolean includePrefix) {
         return RestEndpointUtilImpl.getInstance().getParameter("typeId", includePrefix);
     }
 
