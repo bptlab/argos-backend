@@ -356,7 +356,6 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
      * @return the resulting event type
      */
     private EventType createEventTypeFromJson(JsonObject jsonEventType) {
-        // TODO change null check to try/catch IllegalStateException
 
         EventType eventType = new EventTypeImpl();
         String eventTypeName = jsonEventType.get(JSON_NAME_ATTRIBUTE).getAsString();

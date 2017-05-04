@@ -9,6 +9,7 @@ import de.hpi.bpt.argos.common.RestRequest;
 import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
 import de.hpi.bpt.argos.core.ArgosTestParent;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
+import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifact;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityTypeImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
@@ -144,61 +145,20 @@ public class EventTypeEndpointTest extends ArgosTestParent {
         EventEntityMapping mapping = ArgosTestUtil.createEventEntityMapping(eventTypeToDelete, new EntityTypeImpl(), "", true);
         List<MappingCondition> conditions = ArgosTestUtil.createMappingConditions(mapping, true, new Pair<>((long) 1, (long) 2));
 
-
-
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createDeleteRequest(ARGOS_REST_HOST, EventTypeEndpoint.getDeleteEventTypeUri(eventTypeToDelete.getId()));
 
         assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
-        boolean eventTypeDeleted = true;
-        for (EventType existingType : PersistenceAdapterImpl.getInstance().getEventTypes()) {
-            if (existingType.getId() == (eventTypeToDelete.getId())) {
-                eventTypeDeleted = false;
-                break;
-            }
-        }
-        assertTrue(eventTypeDeleted);
-
-        boolean eventQueryDeleted = true;
-        for (EventQuery existingQuery : PersistenceAdapterImpl.getInstance().getEventQueries(eventTypeToDelete.getId())) {
-            if (existingQuery.getId() == (query.getId())) {
-                eventQueryDeleted = false;
-                break;
-            }
-        }
-        assertTrue(eventQueryDeleted);
-
-        boolean attributesDeleted = true;
+        assertTrue(checkIfDeleted(eventTypeToDelete, new ArrayList<>(PersistenceAdapterImpl.getInstance().getEventTypes())));
+        assertTrue(checkIfDeleted(query, new ArrayList<>(PersistenceAdapterImpl.getInstance().getEventQueries(eventTypeToDelete.getId()))));
         for (TypeAttribute existingAttribute : PersistenceAdapterImpl.getInstance().getTypeAttributes(eventTypeToDelete.getId())) {
-            for (TypeAttribute attribute : attributes) {
-                if (existingAttribute.getId() == (attribute.getId())) {
-                    attributesDeleted = false;
-                    break;
-                }
-            }
+            assertTrue(checkIfDeleted(existingAttribute, new ArrayList(attributes)));
         }
-        assertTrue(attributesDeleted);
-
-        boolean mappingsDeleted = true;
-        for (EventEntityMapping existingMapping : PersistenceAdapterImpl.getInstance().getEventEntityMappingsForEventType(eventTypeToDelete.getId())) {
-            if (existingMapping.getId() == (mapping.getId())) {
-                mappingsDeleted = false;
-                break;
-            }
-        }
-        assertTrue(mappingsDeleted);
-
-        boolean conditionsDeleted = true;
+        assertTrue(checkIfDeleted(mapping, new ArrayList<>(PersistenceAdapterImpl.getInstance().getEventEntityMappingsForEventType(eventTypeToDelete.getId()))));
         for (MappingCondition existingCondition : PersistenceAdapterImpl.getInstance().getMappingConditions(mapping.getId())) {
-            for (MappingCondition condition : conditions) {
-                if (existingCondition.getId() == (condition.getId())) {
-                    conditionsDeleted = false;
-                    break;
-                }
-            }
+            assertTrue(checkIfDeleted(existingCondition, new ArrayList<>(conditions)));
         }
-        assertTrue(conditionsDeleted);
     }
 
     @Test
@@ -434,5 +394,16 @@ public class EventTypeEndpointTest extends ArgosTestParent {
             }
         }
         assertFalse(newEventTypeStored);
+    }
+
+    private boolean checkIfDeleted(PersistenceArtifact existingArtifact, List<PersistenceArtifact> objectsToCheck) {
+        boolean artifactDeleted = true;
+        for (PersistenceArtifact artifact : objectsToCheck) {
+            if (existingArtifact.getId() == artifact.getId()) {
+                artifactDeleted = false;
+                break;
+            }
+        }
+        return artifactDeleted;
     }
 }
