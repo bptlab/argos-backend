@@ -36,46 +36,45 @@ public class ArgosImpl implements Argos {
 	 */
 	@Override
 	public void start() {
-		try {
-			sparkService = Service.ignite().port(Argos.getPort()).threadPool(Argos.getThreads()).staticFileLocation(Argos.getPublicFiles());
+		sparkService = Service.ignite()
+				.port(Argos.getPort())
+				.threadPool(Argos.getThreads())
+				.staticFileLocation(Argos.getPublicFiles());
 
-			if (!PersistenceAdapterImpl.getInstance().establishConnection()) {
-				stop();
-				return;
-			}
-
-			// TODO: parse static data
-			EventTypeParserImpl.getInstance().loadEventTypes();
-
-			// keep this order, since web sockets should be registered before any web routes get registered
-			(new ClientUpdateServiceImpl()).setup(sparkService);
-			EventProcessingPlatformUpdaterImpl.getInstance().setup();
-
-			EventReceiver eventReceiver = new EventReceiverImpl();
-
-			Set<RestEndpoint> restEndpoints = new HashSet<>();
-			restEndpoints.add(eventReceiver);
-			restEndpoints.add(new EntityEndpointImpl());
-			restEndpoints.add(new EntityMappingEndpointImpl());
-			restEndpoints.add(new EntityTypeEndpointImpl());
-			restEndpoints.add(new EventQueryEndpointImpl());
-			restEndpoints.add(new EventTypeEndpointImpl());
-
-			for (RestEndpoint restEndpoint : restEndpoints) {
-				setupRestEndpoint(restEndpoint);
-			}
-
-			EventEntityMapper eventEntityMapper = new EventEntityMapperImpl();
-
-			eventEntityMapper.setup(eventReceiver);
-			(new EntityStatusCalculatorImpl()).setup(eventEntityMapper);
-
-			enableCORS(sparkService);
-			sparkService.awaitInitialization();
-		} catch (Exception e) {
-			LoggerUtilImpl.getInstance().error(logger, "cannot start argos backend", e);
+		if (!PersistenceAdapterImpl.getInstance().establishConnection()) {
 			stop();
+			return;
 		}
+
+		// TODO: parse static data
+		EventTypeParserImpl.getInstance().loadEventTypes();
+
+		// keep this order, since web sockets should be registered before any web routes get registered
+		(new ClientUpdateServiceImpl()).setup(sparkService);
+		EventProcessingPlatformUpdaterImpl.getInstance().setup();
+
+		EventReceiver eventReceiver = new EventReceiverImpl();
+
+		Set<RestEndpoint> restEndpoints = new HashSet<>();
+		restEndpoints.add(eventReceiver);
+		restEndpoints.add(new EntityEndpointImpl());
+		restEndpoints.add(new EntityMappingEndpointImpl());
+		restEndpoints.add(new EntityTypeEndpointImpl());
+		restEndpoints.add(new EventQueryEndpointImpl());
+		restEndpoints.add(new EventTypeEndpointImpl());
+		// TODO: add more restEndpoints here
+
+		for (RestEndpoint restEndpoint : restEndpoints) {
+			setupRestEndpoint(restEndpoint);
+		}
+
+		EventEntityMapper eventEntityMapper = new EventEntityMapperImpl();
+
+		eventEntityMapper.setup(eventReceiver);
+		(new EntityStatusCalculatorImpl()).setup(eventEntityMapper);
+
+		enableCORS(sparkService);
+		sparkService.awaitInitialization();
 	}
 
 	/**
