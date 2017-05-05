@@ -34,6 +34,7 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
     private static final RestEndpointUtil endpointUtil = RestEndpointUtilImpl.getInstance();
     private static final JsonParser jsonParser = new JsonParser();
 
+    private static final String JSON_EVENT_QUERY_ATTRIBUTE = "EventQuery";
     private static final String JSON_PARSE_ERROR_MESSAGE = "cannot parse request body to event query";
 
     /**
@@ -53,21 +54,18 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
     public String createEventQuery(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
 
-        response.body("");
-
         try {
-            JsonObject jsonEventQuery = jsonParser.parse(request.body()).getAsJsonObject();
+            JsonObject jsonBody = jsonParser.parse(request.body()).getAsJsonObject();
+            JsonObject jsonEventQuery = jsonBody.get(JSON_EVENT_QUERY_ATTRIBUTE).getAsJsonObject();
 
             if (jsonEventQuery == null) {
                 halt(HttpStatusCodes.BAD_REQUEST, "no event query given in body");
             }
 
-            EventQuery eventQuery = getEventQueryFromJson(jsonEventQuery, true);
+            EventQuery eventQuery = getEventQueryFromJson(jsonEventQuery);
             if (eventQuery == null) {
                 halt(HttpStatusCodes.BAD_REQUEST, "cannot parse event query");
             }
-
-            checkEventTypeExists(eventQuery);
 
             EventPlatformFeedback feedback = EventProcessingPlatformUpdaterImpl.getInstance().registerEventQuery(eventQuery.getTypeId(), eventQuery);
 
@@ -96,8 +94,6 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
     public String deleteEventQuery(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
 
-		response.body("");
-
         long eventQueryId = getEventQueryId(request);
         EventQuery eventQuery = PersistenceAdapterImpl.getInstance().getEventQuery(eventQueryId);
         if (eventQuery == null) {
@@ -125,21 +121,20 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
     public String editEventQuery(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
 
-		response.body("");
-
-        JsonObject jsonEventQuery = new JsonObject();
+        JsonObject jsonBody = new JsonObject();
         try {
-            jsonEventQuery = jsonParser.parse(request.body()).getAsJsonObject();
+            jsonBody = jsonParser.parse(request.body()).getAsJsonObject();
         } catch (JsonSyntaxException e) {
             LoggerUtilImpl.getInstance().error(logger, JSON_PARSE_ERROR_MESSAGE, e);
             halt(HttpStatusCodes.BAD_REQUEST, "not a valid json");
         }
 
+        JsonObject jsonEventQuery = jsonBody.get(JSON_EVENT_QUERY_ATTRIBUTE).getAsJsonObject();
         if (jsonEventQuery == null) {
             halt(HttpStatusCodes.BAD_REQUEST, "no event query given in body");
         }
 
-        EventQuery newEventQuery = getEventQueryFromJson(jsonEventQuery, false);
+        EventQuery newEventQuery = getEventQueryFromJson(jsonEventQuery);
         if (newEventQuery == null) {
             halt(HttpStatusCodes.BAD_REQUEST, "failed to parse event query");
         }
@@ -155,16 +150,13 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
             halt(HttpStatusCodes.ERROR, "given query could not be unregistered");
         }
 
-        oldEventQuery.setDescription(newEventQuery.getDescription());
-        oldEventQuery.setQuery(newEventQuery.getQuery());
-
         EventPlatformFeedback createFeedback = EventProcessingPlatformUpdaterImpl.getInstance()
-                .registerEventQuery(oldEventQuery.getTypeId(), oldEventQuery);
+                .registerEventQuery(newEventQuery.getTypeId(), newEventQuery);
         if (!createFeedback.isSuccessful()) {
             halt(HttpStatusCodes.ERROR, "given query could not be newly registered");
         }
 
-        if (!PersistenceAdapterImpl.getInstance().updateArtifact(oldEventQuery, EventTypeEndpoint.getEventTypeQueriesUri(oldEventQuery.getId()))) {
+        if (!PersistenceAdapterImpl.getInstance().updateArtifact(newEventQuery, EventTypeEndpoint.getEventTypeQueriesUri(newEventQuery.getId()))) {
             halt(HttpStatusCodes.ERROR, "failed to save new query into database");
         }
 
@@ -175,18 +167,13 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
     /**
      * This method returns an event query derived from a json.
      * @param jsonEventQuery json describing the event query
-	 * @param includeEventTypeId true, if the eventTypeId attribute is included in the json
      * @return event query from json
      */
-    private EventQuery getEventQueryFromJson(JsonObject jsonEventQuery, boolean includeEventTypeId) {
+    private EventQuery getEventQueryFromJson(JsonObject jsonEventQuery) {
         EventQuery newEventQuery;
         try {
             newEventQuery = new EventQueryImpl();
-
-            if (includeEventTypeId) {
-				newEventQuery.setTypeId(jsonEventQuery.get("EventTypeId").getAsLong());
-			}
-
+            newEventQuery.setTypeId(jsonEventQuery.get("EventTypeId").getAsLong());
             newEventQuery.setDescription(jsonEventQuery.get("Description").getAsString());
             newEventQuery.setQuery(jsonEventQuery.get("Query").getAsString());
         } catch (Exception e) {
@@ -195,16 +182,6 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
         }
         return newEventQuery;
     }
-
-	/**
-	 * This method checks whether the eventType for a given eventQuery exists.
-	 * @param eventQuery - the query to check
-	 */
-	private void checkEventTypeExists(EventQuery eventQuery) {
-		if (PersistenceAdapterImpl.getInstance().getEventType(eventQuery.getTypeId()) == null) {
-			halt(HttpStatusCodes.BAD_REQUEST, "event type id invalid");
-		}
-	}
 
     /**
      * This method returns the query id given in request.

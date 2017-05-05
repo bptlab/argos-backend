@@ -147,7 +147,6 @@ public class ArgosTestUtil {
 		newQuery.setTypeId(type.getId());
 		newQuery.setQuery(String.format("SELECT * FROM %1$s", type.getName()));
 		newQuery.setDescription("Description");
-		newQuery.setUuid(getRandomString());
 
 		if (saveInDatabase) {
 			PersistenceAdapterImpl.getInstance().saveArtifacts(newQuery);
@@ -160,7 +159,12 @@ public class ArgosTestUtil {
 		List<EventQuery> queries = new ArrayList<>();
 
 		for (int i = 0; i < getRandomInteger(2, 10); i++) {
-			queries.add(createEventQuery(type, false));
+			EventQuery newQuery = new EventQueryImpl();
+			newQuery.setTypeId(type.getId());
+			newQuery.setQuery(String.format("SELECT * FROM %1$s", type.getName()));
+			newQuery.setDescription("Description");
+
+			queries.add(newQuery);
 		}
 
 		if (saveInDatabase) {
