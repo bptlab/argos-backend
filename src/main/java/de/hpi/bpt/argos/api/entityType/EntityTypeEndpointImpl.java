@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpointImpl;
+import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityType;
@@ -53,6 +54,9 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
     public String getEntityTypeHierarchy(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
 
+        if (PropertyEditorImpl.getInstance().getPropertyAsBoolean("argosBackendTestMode")) {
+            jsonHierarchy = serializer.toJson(getEntityTypeHierarchy());
+        }
         response.body(jsonHierarchy);
 
         endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
@@ -101,7 +105,7 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
      * This method returns the hierarchy of stored entity types as json.
      * @return json containing all entity types as hierarchy
      */
-    private JsonObject getEntityTypeHierarchy() {
+    private JsonArray getEntityTypeHierarchy() {
         List<EntityType> allEntityTypes = PersistenceAdapterImpl.getInstance().getEntityTypes();
 
         Map<Long, List<EntityType>> tree = new HashMap<>();
@@ -129,7 +133,7 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
      * @param roots first level of tree
      * @return json containing all hierarchy objects
      */
-    private JsonObject getHierarchyJson(Map<Long, List<EntityType>> tree, List<EntityType> roots) {
+    private JsonArray getHierarchyJson(Map<Long, List<EntityType>> tree, List<EntityType> roots) {
         JsonArray hierarchyJson = new JsonArray();
 
         JsonArray jsonVirtualRootLayer = new JsonArray();
@@ -140,7 +144,7 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
         Map<Integer, List<JsonObject>> layerMap = new HashMap<>();
 
         getChildJsons(roots, layerMap, 1, tree);
-        for (int layerId = 0; layerId <= layerMap.size(); layerId++) {
+        for (int layerId = 1; layerId <= layerMap.size(); layerId++) {
             JsonArray jsonHierarchyLayer = new JsonArray();
             for (JsonObject jsonEntityType : layerMap.get(layerId)) {
                 jsonHierarchyLayer.add(jsonEntityType);
@@ -148,7 +152,7 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
             hierarchyJson.add(jsonHierarchyLayer);
         }
 
-        return hierarchyJson.getAsJsonObject();
+        return hierarchyJson;
     }
 
     /**
@@ -160,7 +164,7 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
      */
     private void getChildJsons(List<EntityType> entityTypesOfLayer,
                                Map<Integer, List<JsonObject>> layerMap, int layerId, Map<Long, List<EntityType>> tree) {
-        if (entityTypesOfLayer.isEmpty()) {
+        if (entityTypesOfLayer == null || entityTypesOfLayer.isEmpty()) {
             return;
         }
 
