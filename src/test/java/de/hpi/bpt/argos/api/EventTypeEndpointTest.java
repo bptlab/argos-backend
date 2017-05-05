@@ -172,7 +172,7 @@ public class EventTypeEndpointTest extends ArgosTestParent {
     }
 
     @Test
-    public void testDeleteEventType_NotDeletable() {
+    public void testDeleteEventType_NotDeletable_Forbidden() {
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createDeleteRequest(ARGOS_REST_HOST, EventTypeEndpoint.getDeleteEventTypeUri(testEventType.getId()));
 
@@ -182,7 +182,7 @@ public class EventTypeEndpointTest extends ArgosTestParent {
     }
 
     @Test
-    public void testDeleteEventType_BlockedEventType() {
+    public void testDeleteEventType_BlockedEventType_Error() {
         EventType blockedEventType = ArgosTestUtil.createEventType(true, true);
         EventType blockingEventType = ArgosTestUtil.createEventType(true, true);
 
@@ -227,11 +227,11 @@ public class EventTypeEndpointTest extends ArgosTestParent {
             assertTrue(attributeFound);
             foundAttributeJsons.add(attribute);
         }
-        assertFalse(foundAttributeJsons.size() != attributeArray.size());
+        assertTrue(foundAttributeJsons.size() == attributeArray.size());
     }
 
     @Test
-    public void testGetEventTypesAttributes_InvalidId() {
+    public void testGetEventTypesAttributes_InvalidId_BadRequest() {
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createGetRequest(ARGOS_REST_HOST, EventTypeEndpoint.getEventTypeAttributesUri(testEventType.getId() - 1));
 
@@ -261,18 +261,14 @@ public class EventTypeEndpointTest extends ArgosTestParent {
                     break;
                 }
             }
-            if (!queryFound) {
-                fail("wrong attribute in json included");
-            }
+            assertTrue(queryFound);
             foundQueryJsons.add(jsonQuery);
         }
-        if (foundQueryJsons.size() != queriesArray.size()) {
-            fail("not all json attributes exist");
-        }
+        assertTrue(foundQueryJsons.size() == queriesArray.size());
     }
 
     @Test
-    public void testGetEventTypeQueries_InvalidId() {
+    public void testGetEventTypeQueries_InvalidId_BadRequest() {
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createGetRequest(ARGOS_REST_HOST, EventTypeEndpoint.getEventTypeQueriesUri(testEventType.getId() - 1));
 
@@ -319,7 +315,7 @@ public class EventTypeEndpointTest extends ArgosTestParent {
     }
 
     @Test
-    public void testGetEventTypeEntityMappings_InvalidId() {
+    public void testGetEventTypeEntityMappings_InvalidId_BadRequest() {
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createGetRequest(ARGOS_REST_HOST, EventTypeEndpoint.getEventTypeEntityMappingsUri(testEventType.getId() - 1));
 

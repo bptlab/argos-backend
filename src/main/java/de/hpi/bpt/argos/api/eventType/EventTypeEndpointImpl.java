@@ -442,6 +442,10 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
                 (Long input) -> input > 0);
     }
 
+    /**
+     * This method deletes all mapping conditions associated with the given mappings.
+     * @param mappings mappings to delete the conditions for
+     */
     private void deleteMappingConditions(List<EventEntityMapping> mappings) {
         for (EventEntityMapping mapping : mappings) {
             List<MappingCondition> conditions = PersistenceAdapterImpl.getInstance().getMappingConditions(mapping.getId());
