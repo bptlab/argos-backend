@@ -41,7 +41,7 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 	@Test
 	public void testCreateEntityMapping() throws Exception {
 		String targetStatus = "TargetStatus_" + ArgosTestUtil.getCurrentTimestamp();
-		int entityMappings = getMappingsCount();
+		int entityMappingsCount = getMappingsCount();
 
 		WebSocket webSocket = WebSocket.buildWebSocket();
 
@@ -54,14 +54,15 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 
 		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
-		List<EventEntityMapping> mappings = PersistenceAdapterImpl.getInstance().getEventEntityMappingsForEventType(testEventType.getId());
-		assertEquals(entityMappings + 1, mappings.size());
-
-		EventEntityMapping createdMapping = mappings.get(mappings.size() - 1);
-		assertMapping(createdMapping, targetStatus);
+		assertEquals(entityMappingsCount + 1, getMappingsCount());
 
 		List<String> webSocketMessages = webSocket.awaitMessages(1, 1000);
 		ArgosTestUtil.assertWebSocketMessage(webSocketMessages.get(0), PersistenceArtifactUpdateType.CREATE, "EventEntityMapping");
+
+		JsonObject notification = jsonParser.parse(webSocketMessages.get(0)).getAsJsonArray().get(0).getAsJsonObject();
+
+		EventEntityMapping createdMapping = PersistenceAdapterImpl.getInstance().getEventEntityMapping(notification.get("ArtifactId").getAsLong());
+		assertMapping(createdMapping, targetStatus);
 	}
 
 	@Test
@@ -118,8 +119,8 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 
 	@Test
 	public void testDeleteEntityMapping() throws Exception {
-		EventEntityMapping testMapping = createMapping();
-		int entityMappings = getMappingsCount();
+		EventEntityMapping testMapping = createMappingWithConditions();
+		int entityMappingsCount = getMappingsCount();
 
 		WebSocket webSocket = WebSocket.buildWebSocket();
 
@@ -128,7 +129,7 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 
 		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
-		assertEquals(entityMappings - 1, getMappingsCount());
+		assertEquals(entityMappingsCount - 1, getMappingsCount());
 		assertEquals(null, PersistenceAdapterImpl.getInstance().getEventEntityMapping(testMapping.getId()));
 		assertEquals(0, PersistenceAdapterImpl.getInstance().getMappingConditions(testMapping.getId()).size());
 
@@ -138,26 +139,26 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 
 	@Test
 	public void testDeleteEntityMapping_InvalidId_BadRequest() {
-		EventEntityMapping testMapping = createMapping();
-		int entityMappings = getMappingsCount();
+		EventEntityMapping testMapping = createMappingWithConditions();
+		int entityMappingsCount = getMappingsCount();
 
 		RestRequest request = RestRequestFactoryImpl.getInstance()
 				.createDeleteRequest(ARGOS_REST_HOST, getDeleteEntityMappingUri(0));
 
 		assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
-		assertEquals(entityMappings, getMappingsCount());
+		assertEquals(entityMappingsCount, getMappingsCount());
 	}
 
 	@Test
 	public void testEditEntityMapping() throws Exception {
-		EventEntityMapping testMapping = createMapping();
+		EventEntityMapping testMapping = createMappingWithConditions();
 		EntityType newTargetEntityType = ArgosTestUtil.createEntityType(true);
 		List<TypeAttribute> newTargetEntityTypeAttributes = ArgosTestUtil.createEntityTypeAttributes(newTargetEntityType, true);
 		EventType newTargetEventType = ArgosTestUtil.createEventType(true, true);
 		List<TypeAttribute> newTargetEventTypeAttributes = ArgosTestUtil.createEventTypeAttributes(newTargetEventType, true);
 
 		String targetStatus = "TargetStatus_" + ArgosTestUtil.getCurrentTimestamp();
-		int entityMappings = getMappingsCount(newTargetEventType);
+		int entityMappingsCount = getMappingsCount(newTargetEventType);
 
 		WebSocket webSocket = WebSocket.buildWebSocket();
 
@@ -184,7 +185,7 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 
 		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
-		assertEquals(entityMappings + 1, getMappingsCount(newTargetEventType));
+		assertEquals(entityMappingsCount + 1, getMappingsCount(newTargetEventType));
 
 		EventEntityMapping updatedMapping = PersistenceAdapterImpl.getInstance().getEventEntityMapping(testMapping.getId());
 		assertEquals(newTargetEventType.getId(), updatedMapping.getEventTypeId());
@@ -204,9 +205,9 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 
 	@Test
 	public void testEditEntityMapping_InvalidEntityTypeId_BadRequest() {
-		EventEntityMapping testMapping = createMapping();
+		EventEntityMapping testMapping = createMappingWithConditions();
 		String oldStatus = testMapping.getTargetStatus();
-		int entityMappings = getMappingsCount();
+		int entityMappingsCount = getMappingsCount();
 
 		RestRequest request = RestRequestFactoryImpl.getInstance()
 				.createPutRequest(ARGOS_REST_HOST, getEditEntityMappingUri(testMapping.getId()));
@@ -218,16 +219,16 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 
 		assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
 
-		assertEquals(entityMappings, getMappingsCount());
+		assertEquals(entityMappingsCount, getMappingsCount());
 
 		assertMapping(PersistenceAdapterImpl.getInstance().getEventEntityMapping(testMapping.getId()), oldStatus);
 	}
 
 	@Test
 	public void testEditEntityMapping_InvalidEventTypeId_BadRequest() {
-		EventEntityMapping testMapping = createMapping();
+		EventEntityMapping testMapping = createMappingWithConditions();
 		String oldStatus = testMapping.getTargetStatus();
-		int entityMappings = getMappingsCount();
+		int entityMappingsCount = getMappingsCount();
 
 		RestRequest request = RestRequestFactoryImpl.getInstance()
 				.createPutRequest(ARGOS_REST_HOST, getEditEntityMappingUri(testMapping.getId()));
@@ -239,16 +240,16 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 
 		assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
 
-		assertEquals(entityMappings, getMappingsCount());
+		assertEquals(entityMappingsCount, getMappingsCount());
 
 		assertMapping(PersistenceAdapterImpl.getInstance().getEventEntityMapping(testMapping.getId()), oldStatus);
 	}
 
 	@Test
 	public void testEditEntityMapping_InvalidEntityAttributeTypeId_BadRequest() {
-		EventEntityMapping testMapping = createMapping();
+		EventEntityMapping testMapping = createMappingWithConditions();
 		String oldStatus = testMapping.getTargetStatus();
-		int entityMappings = getMappingsCount();
+		int entityMappingsCount = getMappingsCount();
 
 		RestRequest request = RestRequestFactoryImpl.getInstance()
 				.createPutRequest(ARGOS_REST_HOST, getEditEntityMappingUri(testMapping.getId()));
@@ -262,16 +263,16 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 
 		assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
 
-		assertEquals(entityMappings, getMappingsCount());
+		assertEquals(entityMappingsCount, getMappingsCount());
 
 		assertMapping(PersistenceAdapterImpl.getInstance().getEventEntityMapping(testMapping.getId()), oldStatus);
 	}
 
 	@Test
 	public void testEditEntityMapping_InvalidEventAttributeTypeId_BadRequest() {
-		EventEntityMapping testMapping = createMapping();
+		EventEntityMapping testMapping = createMappingWithConditions();
 		String oldStatus = testMapping.getTargetStatus();
-		int entityMappings = getMappingsCount();
+		int entityMappingsCount = getMappingsCount();
 
 		RestRequest request = RestRequestFactoryImpl.getInstance()
 				.createPutRequest(ARGOS_REST_HOST, getEditEntityMappingUri(testMapping.getId()));
@@ -285,12 +286,12 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 
 		assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
 
-		assertEquals(entityMappings, getMappingsCount());
+		assertEquals(entityMappingsCount, getMappingsCount());
 
 		assertMapping(PersistenceAdapterImpl.getInstance().getEventEntityMapping(testMapping.getId()), oldStatus);
 	}
 
-	private EventEntityMapping createMapping() {
+	private EventEntityMapping createMappingWithConditions() {
 		EventEntityMapping testMapping = ArgosTestUtil.createEventEntityMapping(testEventType, testEntityType, "", true);
 		List<MappingCondition> testMappingConditions = ArgosTestUtil
 				.createMappingConditions(testMapping, testEventTypeAttributes, testEntityTypeAttributes, true);
