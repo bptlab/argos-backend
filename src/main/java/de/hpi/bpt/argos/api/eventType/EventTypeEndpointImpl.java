@@ -187,14 +187,7 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
                     halt(HttpStatusCodes.ERROR, "could not delete corresponding mappings of event type");
                 }
 
-                // delete mapping conditions
-                for (EventEntityMapping mapping : mappings) {
-                    List<MappingCondition> conditions = PersistenceAdapterImpl.getInstance().getMappingConditions(mapping.getId());
-                    MappingCondition[] conditionArray = new MappingCondition[mappings.size()];
-                    if (!PersistenceAdapterImpl.getInstance().deleteArtifacts(conditions.toArray(conditionArray))) {
-                        halt(HttpStatusCodes.ERROR, "could not delete corresponding mapping conditions of event type");
-                    }
-                }
+                deleteMappingConditions(mappings);
 
                 // delete event type
                 if (!PersistenceAdapterImpl.getInstance().deleteArtifact(eventType,
@@ -283,37 +276,30 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         endpointUtil.logReceivedRequest(logger, request);
         JsonArray jsonEntityMappingsArray = new JsonArray();
 
-        long eventTypeId = 0;
-        try {
-            eventTypeId = getEventTypeId(request);
-        } catch (Exception e) {
-            LoggerUtilImpl.getInstance().error(logger, "given id is invalid", e);
-            halt(HttpStatusCodes.BAD_REQUEST, e.getMessage());
-        }
-            List<EventEntityMapping> entityMappings = PersistenceAdapterImpl.getInstance().getEventEntityMappingsForEventType(eventTypeId);
+        long eventTypeId = getEventTypeId(request);
+        List<EventEntityMapping> entityMappings = PersistenceAdapterImpl.getInstance().getEventEntityMappingsForEventType(eventTypeId);
 
-            for (EventEntityMapping entityMapping : entityMappings) {
-                JsonObject jsonEntityMapping = new JsonObject();
+        for (EventEntityMapping entityMapping : entityMappings) {
+            JsonObject jsonEntityMapping = new JsonObject();
 
-                jsonEntityMapping.addProperty("Id", entityMapping.getId());
-                jsonEntityMapping.addProperty("EventTypeId", entityMapping.getEventTypeId());
-                jsonEntityMapping.addProperty("EntityTypeId", entityMapping.getEntityTypeId());
-                jsonEntityMapping.addProperty("TargetStatus", entityMapping.getTargetStatus());
+            jsonEntityMapping.addProperty("Id", entityMapping.getId());
+            jsonEntityMapping.addProperty("EventTypeId", entityMapping.getEventTypeId());
+            jsonEntityMapping.addProperty("EntityTypeId", entityMapping.getEntityTypeId());
+            jsonEntityMapping.addProperty("TargetStatus", entityMapping.getTargetStatus());
 
-                // add mapping conditions as array
-                JsonArray jsonMappingConditions = new JsonArray();
-                List<MappingCondition> mappingConditions = PersistenceAdapterImpl.getInstance().getMappingConditions(entityMapping.getId());
-                for (MappingCondition condition : mappingConditions) {
-                    JsonObject jsonCondition = new JsonObject();
-                    jsonCondition.addProperty("EventTypeAttributeId", condition.getEventTypeAttributeId());
-                    jsonCondition.addProperty("EntityTypeAttributeId", condition.getEntityTypeAttributeId());
-                    jsonMappingConditions.add(jsonCondition);
-                }
-                jsonEntityMapping.add("EventEntityMappingConditions", jsonMappingConditions);
-
-                jsonEntityMappingsArray.add(jsonEntityMapping);
+            // add mapping conditions as array
+            JsonArray jsonMappingConditions = new JsonArray();
+            List<MappingCondition> mappingConditions = PersistenceAdapterImpl.getInstance().getMappingConditions(entityMapping.getId());
+            for (MappingCondition condition : mappingConditions) {
+                JsonObject jsonCondition = new JsonObject();
+                jsonCondition.addProperty("EventTypeAttributeId", condition.getEventTypeAttributeId());
+                jsonCondition.addProperty("EntityTypeAttributeId", condition.getEntityTypeAttributeId());
+                jsonMappingConditions.add(jsonCondition);
             }
+            jsonEntityMapping.add("EventEntityMappingConditions", jsonMappingConditions);
 
+            jsonEntityMappingsArray.add(jsonEntityMapping);
+        }
 
         response.body(serializer.toJson(jsonEntityMappingsArray));
         endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
@@ -454,5 +440,15 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         return endpointUtil.validateLong(
                 request.params(EventTypeEndpoint.getEventTypeIdParameter(false)),
                 (Long input) -> input > 0);
+    }
+
+    private void deleteMappingConditions(List<EventEntityMapping> mappings) {
+        for (EventEntityMapping mapping : mappings) {
+            List<MappingCondition> conditions = PersistenceAdapterImpl.getInstance().getMappingConditions(mapping.getId());
+            MappingCondition[] conditionArray = new MappingCondition[mappings.size()];
+            if (!PersistenceAdapterImpl.getInstance().deleteArtifacts(conditions.toArray(conditionArray))) {
+                halt(HttpStatusCodes.ERROR, "could not delete corresponding mapping conditions of event type");
+            }
+        }
     }
 }
