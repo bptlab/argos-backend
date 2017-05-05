@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpointImpl;
+import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityType;
@@ -53,6 +54,9 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
     public String getEntityTypeHierarchy(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
 
+        if (Argos.getTestMode()) {
+            jsonHierarchy = serializer.toJson(getEntityTypeHierarchy());
+        }
         response.body(jsonHierarchy);
 
         endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
@@ -101,7 +105,7 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
      * This method returns the hierarchy of stored entity types as json.
      * @return json containing all entity types as hierarchy
      */
-    private JsonObject getEntityTypeHierarchy() {
+    private JsonArray getEntityTypeHierarchy() {
         List<EntityType> allEntityTypes = PersistenceAdapterImpl.getInstance().getEntityTypes();
 
         Map<Long, List<EntityType>> tree = new HashMap<>();
@@ -129,26 +133,21 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
      * @param roots first level of tree
      * @return json containing all hierarchy objects
      */
-    private JsonObject getHierarchyJson(Map<Long, List<EntityType>> tree, List<EntityType> roots) {
+    private JsonArray getHierarchyJson(Map<Long, List<EntityType>> tree, List<EntityType> roots) {
         JsonArray hierarchyJson = new JsonArray();
-
-        JsonArray jsonVirtualRootLayer = new JsonArray();
-        JsonObject virtualRoot = getVirtualRootJson();
-        jsonVirtualRootLayer.add(virtualRoot);
-        hierarchyJson.add(jsonVirtualRootLayer);
 
         Map<Integer, List<JsonObject>> layerMap = new HashMap<>();
 
-        getChildJsons(roots, layerMap, 1, tree);
-        for (int layerId = 0; layerId <= layerMap.size(); layerId++) {
+        getChildJsons(roots, layerMap, 0, tree);
+        for (List<JsonObject> layer : layerMap.values()) {
             JsonArray jsonHierarchyLayer = new JsonArray();
-            for (JsonObject jsonEntityType : layerMap.get(layerId)) {
+            for (JsonObject jsonEntityType : layer) {
                 jsonHierarchyLayer.add(jsonEntityType);
             }
             hierarchyJson.add(jsonHierarchyLayer);
         }
 
-        return hierarchyJson.getAsJsonObject();
+        return hierarchyJson;
     }
 
     /**
@@ -160,7 +159,7 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
      */
     private void getChildJsons(List<EntityType> entityTypesOfLayer,
                                Map<Integer, List<JsonObject>> layerMap, int layerId, Map<Long, List<EntityType>> tree) {
-        if (entityTypesOfLayer.isEmpty()) {
+        if (entityTypesOfLayer == null || entityTypesOfLayer.isEmpty()) {
             return;
         }
 
@@ -196,19 +195,6 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
     }
 
     /**
-     * This method returns a json containing a virtual root entity type
-     * that is the parent of all entity types of highest level.
-     * @return json representing a virtual root entity type
-     */
-    private JsonObject getVirtualRootJson() {
-        JsonObject virtualRoot = new JsonObject();
-        virtualRoot.addProperty("Id", -1);
-        virtualRoot.addProperty("ParentId", 0);
-        virtualRoot.addProperty("Name", "virtual root");
-        return virtualRoot;
-    }
-
-    /**
      * This method returns the given mappings as json array.
      * @param mappings all mappings to be processed
      * @return json representation of the given mappings
@@ -221,8 +207,10 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
             jsonMapping.addProperty("Id", mapping.getId());
             jsonMapping.addProperty("EventTypeId", mapping.getEventTypeId());
             jsonMapping.addProperty("EntityTypeId", mapping.getEntityTypeId());
+            jsonMapping.addProperty("TargetStatus", mapping.getTargetStatus());
             List<MappingCondition> conditions = PersistenceAdapterImpl.getInstance().getMappingConditions(mapping.getId());
             jsonMapping.add("EventEntityMappingConditions", getMappingConditionsJson(conditions));
+            mappingsJson.add(jsonMapping);
         }
 
         return mappingsJson;
