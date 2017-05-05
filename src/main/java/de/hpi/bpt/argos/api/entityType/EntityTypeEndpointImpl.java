@@ -195,19 +195,6 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
     }
 
     /**
-     * This method returns a json containing a virtual root entity type
-     * that is the parent of all entity types of highest level.
-     * @return json representing a virtual root entity type
-     */
-    private JsonObject getVirtualRootJson() {
-        JsonObject virtualRoot = new JsonObject();
-        virtualRoot.addProperty("Id", -1);
-        virtualRoot.addProperty("ParentId", 0);
-        virtualRoot.addProperty("Name", "virtual root");
-        return virtualRoot;
-    }
-
-    /**
      * This method returns the given mappings as json array.
      * @param mappings all mappings to be processed
      * @return json representation of the given mappings
