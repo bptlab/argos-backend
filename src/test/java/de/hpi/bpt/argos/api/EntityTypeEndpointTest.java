@@ -7,11 +7,18 @@ import de.hpi.bpt.argos.api.entityType.EntityTypeEndpoint;
 import de.hpi.bpt.argos.common.RestRequest;
 import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
 import de.hpi.bpt.argos.core.ArgosTestParent;
+import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityType;
+import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
+import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.testUtil.ArgosTestUtil;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
+import javafx.util.Pair;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -64,6 +71,82 @@ public class EntityTypeEndpointTest extends ArgosTestParent {
         JsonArray layerArray3 = hierarchyArray.get(3).getAsJsonArray();
         assertEquals(1, layerArray3.size());
         assertEntityTypeIncluded(childSecondLayer111, layerArray3);
+    }
+
+    @Test
+    public void testGetAttributes() {
+        List<TypeAttribute> attributes = ArgosTestUtil.createEntityTypeAttributes(root1, true);
+        RestRequest request = RestRequestFactoryImpl.getInstance()
+                .createGetRequest(ARGOS_REST_HOST, EntityTypeEndpoint.getEntityTypeAttributesUri(root1.getId()));
+
+        assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+
+        JsonArray attributesArray = jsonParser.parse(request.getResponse()).getAsJsonArray();
+        assertEquals(attributes.size(), attributesArray.size());
+
+        assertAllAttributesIncluded(attributes, attributesArray);
+    }
+
+    @Test
+    public void testGetAttributes_InvalidId_BadRequest() {
+        RestRequest request = RestRequestFactoryImpl.getInstance()
+                .createGetRequest(ARGOS_REST_HOST, EntityTypeEndpoint.getEntityTypeAttributesUri(root1.getId() - 1));
+
+        assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
+    }
+
+    @Test
+    public void testGetMappings() {
+        EventEntityMapping mapping = ArgosTestUtil.createEventEntityMapping(ArgosTestUtil.createEventType(true, true), root1, "", true);
+        List<MappingCondition> conditions = ArgosTestUtil.createMappingConditions(mapping, true, new Pair<>(1L, 2L));
+
+        RestRequest request = RestRequestFactoryImpl.getInstance()
+                .createGetRequest(ARGOS_REST_HOST, EntityTypeEndpoint.getEntityTypeEntityMappingsUri(root1.getId()));
+
+        assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+
+        JsonArray mappingsArray =  jsonParser.parse(request.getResponse()).getAsJsonArray();
+        assertEquals(1, mappingsArray.size());
+
+        List<JsonElement> foundMappingJsons = new ArrayList<>();
+        JsonObject jsonMapping = mappingsArray.get(0).getAsJsonObject();
+        assertEquals(jsonMapping.get("Id").getAsLong(), mapping.getId());
+        assertEquals(jsonMapping.get("EntityTypeId").getAsLong(), mapping.getEntityTypeId());
+        assertEquals(jsonMapping.get("EventTypeId").getAsLong(), mapping.getEventTypeId());
+        assertEquals(jsonMapping.get("TargetStatus").getAsString(), mapping.getTargetStatus());
+        JsonArray conditionsArray = jsonMapping.get("EventEntityMappingConditions").getAsJsonArray();
+        for (JsonElement jsonCondition : conditionsArray) {
+            boolean conditionFound = false;
+            for (MappingCondition condition : conditions) {
+                JsonObject jsonConditionObject = jsonCondition.getAsJsonObject();
+                if (jsonConditionObject.get("EventTypeAttributeId").getAsLong() == condition.getEventTypeAttributeId() &&
+                        jsonConditionObject.get("EntityTypeAttributeId").getAsLong() == condition.getEntityTypeAttributeId()) {
+                    conditionFound = true;
+                    break;
+                }
+            }
+            assertTrue(conditionFound);
+            foundMappingJsons.add(jsonMapping);
+        }
+        assertTrue(foundMappingJsons.size() == mappingsArray.size());
+    }
+
+    private void assertAllAttributesIncluded(List<TypeAttribute> attributes, JsonArray attributesArray) {
+        List<JsonElement> foundAttributeJsons = new ArrayList<>();
+        for (JsonElement jsonAttribute : attributesArray) {
+            boolean attributeFound = false;
+            for (TypeAttribute attribute : attributes) {
+                JsonObject jsonAttributeObject = jsonAttribute.getAsJsonObject();
+                if (jsonAttributeObject.get("Id").getAsLong() == attribute.getId() &&
+                        jsonAttributeObject.get("Name").getAsString().equals(attribute.getName())) {
+                    attributeFound = true;
+                    break;
+                }
+            }
+            assertTrue(attributeFound);
+            foundAttributeJsons.add(jsonAttribute);
+        }
+        assertTrue(foundAttributeJsons.size() == attributesArray.size());
     }
 
     private void assertEntityTypeIncluded(EntityType entityType, JsonArray jsonEntityTypeArray) {

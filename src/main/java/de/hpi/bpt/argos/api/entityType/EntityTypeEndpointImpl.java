@@ -225,8 +225,10 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
             jsonMapping.addProperty("Id", mapping.getId());
             jsonMapping.addProperty("EventTypeId", mapping.getEventTypeId());
             jsonMapping.addProperty("EntityTypeId", mapping.getEntityTypeId());
+            jsonMapping.addProperty("TargetStatus", mapping.getTargetStatus());
             List<MappingCondition> conditions = PersistenceAdapterImpl.getInstance().getMappingConditions(mapping.getId());
             jsonMapping.add("EventEntityMappingConditions", getMappingConditionsJson(conditions));
+            mappingsJson.add(jsonMapping);
         }
 
         return mappingsJson;
