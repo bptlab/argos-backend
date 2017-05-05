@@ -17,7 +17,6 @@ import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.testUtil.ArgosTestUtil;
 import de.hpi.bpt.argos.testUtil.WebSocket;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
-import javafx.util.Pair;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -46,8 +45,7 @@ public class EventReceiverTest extends ArgosTestParent {
 		testEventTypeAttributes = ArgosTestUtil.createEventTypeAttributes(testEventType, true);
 		testMapping = ArgosTestUtil.createEventEntityMapping(testEventType, testEntityType, "", true);
 
-		testMappingConditions = ArgosTestUtil.createMappingConditions(testMapping, true,
-				new Pair<>(testEventTypeAttributes.get(0).getId(), testEntityTypeAttributes.get(1).getId()));
+		testMappingConditions = ArgosTestUtil.createMappingConditions(testMapping, testEventTypeAttributes, testEntityTypeAttributes, true);
 	}
 
 	@Test

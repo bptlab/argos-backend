@@ -8,6 +8,7 @@ import com.google.gson.JsonSyntaxException;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpointImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
+import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMappingImpl;
 import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
@@ -37,11 +38,10 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
     private static final Logger logger = LoggerFactory.getLogger(EventTypeEndpointImpl.class);
     private static final RestEndpointUtil endpointUtil = RestEndpointUtilImpl.getInstance();
     private static final JsonParser jsonParser = new JsonParser();
-
-    private static final String JSON_ENTITY_MAPPING_ATTRIBUTE = "EventEntityMapping";
+	
     private static final String EVENT_TYPE_ID_ATTRIBUTE = "EventTypeId";
     private static final String ENTITY_TYPE_ID_ATTRIBUTE = "EntityTypeId";
-    private static final String MAPPING_CONDITIONS_ATTRIBUTE = "EventEntityMappingCondition";
+    private static final String MAPPING_CONDITIONS_ATTRIBUTE = "EventEntityMappingConditions";
     private static final String EVENT_TYPE_ATTRIBUTE_ID_ATTRIBUTE = "EventTypeAttributeId";
     private static final String ENTITY_TYPE_ATTRIBUTE_ID_ATTRIBUTE = "EntityTypeAttributeId";
     private static final String TARGET_STATUS_ATTRIBUTE = "TargetStatus";
@@ -65,9 +65,10 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
     public String createEntityMapping(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
 
+        response.body("");
+
         try {
-            JsonObject jsonBody = jsonParser.parse(request.body()).getAsJsonObject();
-            JsonObject jsonMapping = jsonBody.get(JSON_ENTITY_MAPPING_ATTRIBUTE).getAsJsonObject();
+            JsonObject jsonMapping = jsonParser.parse(request.body()).getAsJsonObject();
 
             if (jsonMapping == null) {
                 halt(HttpStatusCodes.BAD_REQUEST, "no event mapping given in body");
@@ -77,7 +78,7 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
 
         } catch (HaltException halt) {
             LoggerUtilImpl.getInstance().error(logger,
-                    String.format("cannot create event query: %1$s -> %2$s", halt.statusCode(), halt.body()), halt);
+                    String.format("cannot create event mapping: %1$s -> %2$s", halt.statusCode(), halt.body()), halt);
             throw halt;
         } catch (Exception e) {
             LoggerUtilImpl.getInstance().error(logger, JSON_PARSE_ERROR_MESSAGE, e);
@@ -94,6 +95,8 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
     @Override
     public String deleteEntityMapping(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
+
+		response.body("");
 
         long mappingId = getMappingId(request);
         EventEntityMapping mapping = PersistenceAdapterImpl.getInstance().getEventEntityMapping(mappingId);
@@ -123,18 +126,28 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
     public String editEntityMapping(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
 
-        JsonObject jsonBody = new JsonObject();
+		response.body("");
+
+        JsonObject jsonMapping = new JsonObject();
         try {
-            jsonBody = jsonParser.parse(request.body()).getAsJsonObject();
+			jsonMapping = jsonParser.parse(request.body()).getAsJsonObject();
         } catch (JsonSyntaxException e) {
             LoggerUtilImpl.getInstance().error(logger, JSON_PARSE_ERROR_MESSAGE, e);
             halt(HttpStatusCodes.BAD_REQUEST, "not a valid json");
         }
 
-        JsonObject jsonMapping = jsonBody.get(JSON_ENTITY_MAPPING_ATTRIBUTE).getAsJsonObject();
         if (jsonMapping == null) {
             halt(HttpStatusCodes.BAD_REQUEST, "no event mapping given in body");
         }
+
+		EventEntityMapping newMapping = getEventMappingFromJson(jsonMapping);
+		JsonArray jsonConditions = jsonMapping.get(MAPPING_CONDITIONS_ATTRIBUTE).getAsJsonArray();
+		List<MappingCondition> newConditions = getConditionsFromJson(jsonConditions, newMapping);
+
+		// set mappingIds for new conditions
+		for (MappingCondition newCondition : newConditions) {
+			newCondition.setMappingId(getMappingId(request));
+		}
 
         EventEntityMapping oldMapping = PersistenceAdapterImpl.getInstance().getEventEntityMapping(getMappingId(request));
 
@@ -144,14 +157,11 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
             halt(HttpStatusCodes.ERROR, "could not delete conditions");
         }
 
-        JsonArray jsonConditions = jsonMapping.get(MAPPING_CONDITIONS_ATTRIBUTE).getAsJsonArray();
-        List<MappingCondition> newConditions = getConditionsFromJson(jsonConditions, oldMapping.getId());
         if (!PersistenceAdapterImpl.getInstance().saveArtifacts(newConditions.toArray(new MappingCondition[newConditions.size()]))) {
             halt(HttpStatusCodes.ERROR, "could not create new conditions");
         }
 
         // update mapping
-        EventEntityMapping newMapping = getEventMappingFromJson(jsonMapping);
         oldMapping.setEventTypeId(newMapping.getEventTypeId());
         oldMapping.setEntityTypeId(newMapping.getEntityTypeId());
         oldMapping.setTargetStatus(newMapping.getTargetStatus());
@@ -175,8 +185,25 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
         mapping.setEventTypeId(jsonMapping.get(EVENT_TYPE_ID_ATTRIBUTE).getAsLong());
         mapping.setEntityTypeId(jsonMapping.get(ENTITY_TYPE_ID_ATTRIBUTE).getAsLong());
         mapping.setTargetStatus(jsonMapping.get(TARGET_STATUS_ATTRIBUTE).getAsString());
+
+		checkValidMapping(mapping);
+
         return mapping;
     }
+
+	/**
+	 * This method checks whether a eventEntityMapping is valid.
+	 * @param mapping - the eventEntityMapping to check
+	 */
+	private void checkValidMapping(EventEntityMapping mapping) {
+		if (PersistenceAdapterImpl.getInstance().getEntityType(mapping.getEntityTypeId()) == null) {
+			halt(HttpStatusCodes.BAD_REQUEST, "the given entityType does not exist");
+		}
+
+		if (PersistenceAdapterImpl.getInstance().getEventType(mapping.getEventTypeId()) == null) {
+			halt(HttpStatusCodes.BAD_REQUEST, "the given eventType does not exist");
+		}
+	}
 
     /**
      * This method creates a mapping, including saving it to the database, from a json.
@@ -188,19 +215,30 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
 
         try {
             newMapping = getEventMappingFromJson(jsonMapping);
-            String mappingsUri =  EventTypeEndpoint.getEventTypeEntityMappingsUri(newMapping.getEventTypeId());
-            if (!PersistenceAdapterImpl.getInstance().createArtifact(newMapping, mappingsUri)) {
-                halt(HttpStatusCodes.ERROR, "could not save mapping into database");
-            }
+            if (!PersistenceAdapterImpl.getInstance().saveArtifacts(newMapping)) {
+            	halt(HttpStatusCodes.ERROR, "could not save mapping into database");
+			}
 
             JsonArray jsonConditions = jsonMapping.get(MAPPING_CONDITIONS_ATTRIBUTE).getAsJsonArray();
-            List<MappingCondition> conditions = getConditionsFromJson(jsonConditions, newMapping.getId());
+            List<MappingCondition> conditions = getConditionsFromJson(jsonConditions, newMapping);
+
+            checkValidMappingConditions(newMapping, conditions);
+
             if (!PersistenceAdapterImpl.getInstance().saveArtifacts(conditions.toArray(new MappingCondition[conditions.size()]))) {
-                halt(HttpStatusCodes.ERROR, "could not save mapping into database");
+				PersistenceAdapterImpl.getInstance().deleteArtifacts(newMapping);
+                halt(HttpStatusCodes.ERROR, "could not save mapping conditions into database");
             }
 
-        } catch (ClassCastException | IllegalStateException e) {
+			String mappingsUri =  EventTypeEndpoint.getEventTypeEntityMappingsUri(newMapping.getEventTypeId());
+			PersistenceAdapterImpl.getInstance().createArtifact(newMapping, mappingsUri);
+
+        } catch (ClassCastException | IllegalStateException | HaltException e) {
             LoggerUtilImpl.getInstance().error(logger, JSON_PARSE_ERROR_MESSAGE, e);
+
+            if (newMapping.getId() != 0) {
+            	PersistenceAdapterImpl.getInstance().deleteArtifacts(newMapping);
+			}
+
             halt(HttpStatusCodes.BAD_REQUEST, e.getMessage());
         }
 
@@ -210,10 +248,10 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
     /**
      * This method returns conditions given as json in json array.
      * @param jsonConditions conditions as json array
-     * @param mappingId id of the mapping, the conditions belong to
+     * @param mapping the owner of the mappingConditions
      * @return the conditions given in json array
      */
-    private List<MappingCondition> getConditionsFromJson(JsonArray jsonConditions, long mappingId) {
+    private List<MappingCondition> getConditionsFromJson(JsonArray jsonConditions, EventEntityMapping mapping) {
         List<MappingCondition> conditions = new ArrayList<>();
         for (JsonElement jsonCondition : jsonConditions) {
             JsonObject jsonConditionObject = jsonCondition.getAsJsonObject();
@@ -221,13 +259,40 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
             MappingCondition newCondition = new MappingConditionImpl();
             newCondition.setEventTypeAttributeId(jsonConditionObject.get(EVENT_TYPE_ATTRIBUTE_ID_ATTRIBUTE).getAsLong());
             newCondition.setEntityTypeAttributeId(jsonConditionObject.get(ENTITY_TYPE_ATTRIBUTE_ID_ATTRIBUTE).getAsLong());
-            newCondition.setMappingId(mappingId);
+            newCondition.setMappingId(mapping.getId());
 
             conditions.add(newCondition);
         }
 
+		checkValidMappingConditions(mapping, conditions);
+
         return conditions;
     }
+
+	/**
+	 * This method checks whether a given list of mappingConditions is valid.
+	 * @param mapping - the owner of the mapping conditions
+	 * @param conditions - the list of mappingConditions to check
+	 */
+	private void checkValidMappingConditions(EventEntityMapping mapping, List<MappingCondition> conditions) {
+		List<Long> eventTypeAttributeIds = new ArrayList<>();
+		List<Long> entityTypeAttributeIds = new ArrayList<>();
+
+		for (TypeAttribute eventTypeAttribute : PersistenceAdapterImpl.getInstance().getTypeAttributes(mapping.getEventTypeId())) {
+			eventTypeAttributeIds.add(eventTypeAttribute.getId());
+		}
+
+		for (TypeAttribute entityTypeAttribute : PersistenceAdapterImpl.getInstance().getTypeAttributes(mapping.getEntityTypeId())) {
+			entityTypeAttributeIds.add(entityTypeAttribute.getId());
+		}
+
+		for (MappingCondition condition : conditions) {
+			if (!eventTypeAttributeIds.contains(condition.getEventTypeAttributeId())
+					|| !entityTypeAttributeIds.contains(condition.getEntityTypeAttributeId())) {
+				halt(HttpStatusCodes.BAD_REQUEST, "one of the conditions contained one or more non-existing attributes");
+			}
+		}
+	}
 
     /**
      * This method returns the id of the mapping given in request.

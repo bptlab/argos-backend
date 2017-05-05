@@ -251,6 +251,15 @@ public class ArgosTestUtil {
 		return mappingConditions;
 	}
 
+	public static List<MappingCondition> createMappingConditions(EventEntityMapping mapping,
+																 List<TypeAttribute> eventTypeAttributes,
+																 List<TypeAttribute> entityTypeAttributes,
+																 boolean saveInDatabase) {
+
+		return createMappingConditions(mapping, saveInDatabase, new Pair<>(eventTypeAttributes.get(0).getId(), entityTypeAttributes.get(0).getId()));
+
+	}
+
 	public static void assertWebSocketMessage(String message, PersistenceArtifactUpdateType updateReason, String artifactType) throws Exception {
 
 		JsonArray jsonMessages = jsonParser.parse(message).getAsJsonArray();
