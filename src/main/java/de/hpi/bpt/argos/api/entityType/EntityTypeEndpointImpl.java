@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpointImpl;
-import de.hpi.bpt.argos.properties.PropertyEditorImpl;
+import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityType;
@@ -54,7 +54,7 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
     public String getEntityTypeHierarchy(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
 
-        if (PropertyEditorImpl.getInstance().getPropertyAsBoolean("argosBackendTestMode")) {
+        if (Argos.getTestMode()) {
             jsonHierarchy = serializer.toJson(getEntityTypeHierarchy());
         }
         response.body(jsonHierarchy);
@@ -136,17 +136,12 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
     private JsonArray getHierarchyJson(Map<Long, List<EntityType>> tree, List<EntityType> roots) {
         JsonArray hierarchyJson = new JsonArray();
 
-        JsonArray jsonVirtualRootLayer = new JsonArray();
-        JsonObject virtualRoot = getVirtualRootJson();
-        jsonVirtualRootLayer.add(virtualRoot);
-        hierarchyJson.add(jsonVirtualRootLayer);
-
         Map<Integer, List<JsonObject>> layerMap = new HashMap<>();
 
-        getChildJsons(roots, layerMap, 1, tree);
-        for (int layerId = 1; layerId <= layerMap.size(); layerId++) {
+        getChildJsons(roots, layerMap, 0, tree);
+        for (List<JsonObject> layer : layerMap.values()) {
             JsonArray jsonHierarchyLayer = new JsonArray();
-            for (JsonObject jsonEntityType : layerMap.get(layerId)) {
+            for (JsonObject jsonEntityType : layer) {
                 jsonHierarchyLayer.add(jsonEntityType);
             }
             hierarchyJson.add(jsonHierarchyLayer);

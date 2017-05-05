@@ -49,28 +49,22 @@ public class EntityTypeEndpointTest extends ArgosTestParent {
         assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
         JsonArray hierarchyArray = jsonParser.parse(request.getResponse()).getAsJsonArray();
-        assertEquals(4, hierarchyArray.size());
+        assertEquals(3, hierarchyArray.size());
 
         JsonArray layerArray0 = hierarchyArray.get(0).getAsJsonArray();
-        assertEquals(1, layerArray0.size());
-        JsonObject jsonVirtualRoot = layerArray0.get(0).getAsJsonObject();
-        assertEquals(-1, jsonVirtualRoot.get("Id").getAsInt());
-        assertEquals(0, jsonVirtualRoot.get("ParentId").getAsInt());
+        assertEquals(2, layerArray0.size());
+        assertEntityTypeIncluded(root1, layerArray0);
+        assertEntityTypeIncluded(root2, layerArray0);
 
         JsonArray layerArray1 = hierarchyArray.get(1).getAsJsonArray();
-        assertEquals(2, layerArray1.size());
-        assertEntityTypeIncluded(root1, layerArray1);
-        assertEntityTypeIncluded(root2, layerArray1);
+        assertEquals(3, layerArray1.size());
+        assertEntityTypeIncluded(childFirstLayer11, layerArray1);
+        assertEntityTypeIncluded(childFirstLayer12, layerArray1);
+        assertEntityTypeIncluded(childFirstLayer21, layerArray1);
 
         JsonArray layerArray2 = hierarchyArray.get(2).getAsJsonArray();
-        assertEquals(3, layerArray2.size());
-        assertEntityTypeIncluded(childFirstLayer11, layerArray2);
-        assertEntityTypeIncluded(childFirstLayer12, layerArray2);
-        assertEntityTypeIncluded(childFirstLayer21, layerArray2);
-
-        JsonArray layerArray3 = hierarchyArray.get(3).getAsJsonArray();
-        assertEquals(1, layerArray3.size());
-        assertEntityTypeIncluded(childSecondLayer111, layerArray3);
+        assertEquals(1, layerArray2.size());
+        assertEntityTypeIncluded(childSecondLayer111, layerArray2);
     }
 
     @Test
