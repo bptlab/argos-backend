@@ -304,14 +304,10 @@ public class EventTypeEndpointTest extends ArgosTestParent {
                     break;
                 }
             }
-            if (!conditionFound) {
-                fail("wrong attribute in json included");
-            }
+            assertTrue(conditionFound);
             foundMappingJsons.add(jsonMapping);
         }
-        if (foundMappingJsons.size() != mappingsArray.size()) {
-            fail("not all json attributes exist");
-        }
+        assertTrue(foundMappingJsons.size() == mappingsArray.size());
     }
 
     @Test
