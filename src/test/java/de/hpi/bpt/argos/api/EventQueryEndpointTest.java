@@ -187,11 +187,11 @@ public class EventQueryEndpointTest extends ArgosTestParent {
 
 		int eventQueriesCount = getEventQueriesCount();
 
-		RestRequest request = RestRequestFactoryImpl.getInstance().createPutRequest(ARGOS_REST_HOST, getEditEventQueryUri(0));
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createPutRequest(ARGOS_REST_HOST, getEditEventQueryUri(testQuery.getId()));
 
 		JsonObject newQueryJson = new JsonObject();
-		// remove this attribute to make the json invalid
-		//newQueryJson.addProperty("Description", newDescription);
+		// remove the eventTypeId attribute to make the json invalid
 		newQueryJson.addProperty("Query", newQuery);
 
 		request.setContent(serializer.toJson(newQueryJson));
