@@ -8,6 +8,7 @@ import de.hpi.bpt.argos.common.RestRequest;
 import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
 import de.hpi.bpt.argos.core.ArgosTestParent;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
+import de.hpi.bpt.argos.storage.PersistenceArtifactUpdateType;
 import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifact;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityTypeImpl;
@@ -16,6 +17,7 @@ import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.testUtil.ArgosTestUtil;
+import de.hpi.bpt.argos.testUtil.WebSocket;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
 import javafx.util.Pair;
 import org.junit.BeforeClass;
@@ -78,7 +80,9 @@ public class EventTypeEndpointTest extends ArgosTestParent {
     }
 
     @Test
-    public void testCreateEventType() {
+    public void testCreateEventType() throws Exception {
+        WebSocket webSocket = WebSocket.buildWebSocket();
+
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createPostRequest(ARGOS_REST_HOST, EventTypeEndpoint.getCreateEventTypeBaseUri());
 
@@ -97,6 +101,9 @@ public class EventTypeEndpointTest extends ArgosTestParent {
             }
         }
         assertTrue(newEventTypeStored);
+
+        List<String> webSocketMessages = webSocket.awaitMessages(1, 1000);
+        ArgosTestUtil.assertWebSocketMessage(webSocketMessages.get(0), PersistenceArtifactUpdateType.CREATE, "EventType");
     }
 
     @Test
@@ -126,12 +133,14 @@ public class EventTypeEndpointTest extends ArgosTestParent {
     }
 
     @Test
-    public void testDeleteEventType() {
+    public void testDeleteEventType() throws Exception {
         EventType eventTypeToDelete = ArgosTestUtil.createEventType(true, true);
         EventQuery query = ArgosTestUtil.createEventQuery(eventTypeToDelete, true);
         List<TypeAttribute> attributes = ArgosTestUtil.createEventTypeAttributes(eventTypeToDelete, true);
         EventEntityMapping mapping = ArgosTestUtil.createEventEntityMapping(eventTypeToDelete, new EntityTypeImpl(), "", true);
         List<MappingCondition> conditions = ArgosTestUtil.createMappingConditions(mapping, true, new Pair<>( 1L, 2L));
+
+        WebSocket webSocket = WebSocket.buildWebSocket();
 
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createDeleteRequest(ARGOS_REST_HOST, EventTypeEndpoint.getDeleteEventTypeUri(eventTypeToDelete.getId()));
@@ -147,6 +156,9 @@ public class EventTypeEndpointTest extends ArgosTestParent {
         for (MappingCondition existingCondition : PersistenceAdapterImpl.getInstance().getMappingConditions(mapping.getId())) {
             assertTrue(checkIfDeleted(existingCondition, new ArrayList<>(conditions)));
         }
+
+        List<String> webSocketMessages = webSocket.awaitMessages(1, 1000);
+        ArgosTestUtil.assertWebSocketMessage(webSocketMessages.get(0), PersistenceArtifactUpdateType.DELETE, "EventType");
     }
 
     @Test
