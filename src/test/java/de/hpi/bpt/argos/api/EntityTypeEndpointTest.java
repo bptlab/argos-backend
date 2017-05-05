@@ -131,6 +131,14 @@ public class EntityTypeEndpointTest extends ArgosTestParent {
         assertTrue(foundMappingJsons.size() == mappingsArray.size());
     }
 
+    @Test
+    public void testGetMappings_InvalidId_BadRequest() {
+        RestRequest request = RestRequestFactoryImpl.getInstance()
+                .createGetRequest(ARGOS_REST_HOST, EntityTypeEndpoint.getEntityTypeEntityMappingsUri(root1.getId() - 1));
+
+        assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
+    }
+
     private void assertAllAttributesIncluded(List<TypeAttribute> attributes, JsonArray attributesArray) {
         List<JsonElement> foundAttributeJsons = new ArrayList<>();
         for (JsonElement jsonAttribute : attributesArray) {
