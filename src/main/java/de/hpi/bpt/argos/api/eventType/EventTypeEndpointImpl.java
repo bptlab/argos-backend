@@ -70,15 +70,13 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         endpointUtil.logReceivedRequest(logger, request);
 
         List<EventType> eventTypes = PersistenceAdapterImpl.getInstance().getEventTypes();
-        JsonObject jsonEventTypes = new JsonObject();
         JsonArray jsonEventTypesArray = new JsonArray();
 
         for (EventType eventType : eventTypes) {
             jsonEventTypesArray.add(getEventTypeJson(eventType));
         }
 
-        jsonEventTypes.add("EventTypes", jsonEventTypesArray);
-        response.body(serializer.toJson(jsonEventTypes));
+        response.body(serializer.toJson(jsonEventTypesArray));
         endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
         return response.body();
     }
@@ -222,7 +220,6 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
     @Override
     public String getEventTypeAttributes(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
-        JsonObject jsonTypeAttributes = new JsonObject();
         JsonArray jsonTypeAttributesArray = new JsonArray();
 
         try {
@@ -242,8 +239,7 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
             halt(HttpStatusCodes.BAD_REQUEST, e.getMessage());
         }
 
-        jsonTypeAttributes.add("TypeAttributes", jsonTypeAttributesArray);
-        response.body(serializer.toJson(jsonTypeAttributes));
+        response.body(serializer.toJson(jsonTypeAttributesArray));
         endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
         return response.body();
     }
@@ -254,7 +250,6 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
     @Override
     public String getEventTypeQueries(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
-        JsonObject jsonTypeQueries = new JsonObject();
         JsonArray jsonTypeQueriesArray = new JsonArray();
 
         try {
@@ -275,8 +270,7 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
             halt(HttpStatusCodes.BAD_REQUEST, e.getMessage());
         }
 
-        jsonTypeQueries.add("EventQueries", jsonTypeQueriesArray);
-        response.body(serializer.toJson(jsonTypeQueries));
+        response.body(serializer.toJson(jsonTypeQueriesArray));
         endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
         return response.body();
     }
@@ -287,7 +281,6 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
     @Override
     public String getEventTypeEntityMappings(Request request, Response response) {
         endpointUtil.logReceivedRequest(logger, request);
-        JsonObject jsonEntityMappings = new JsonObject();
         JsonArray jsonEntityMappingsArray = new JsonArray();
 
         long eventTypeId = 0;
@@ -322,8 +315,7 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
             }
 
 
-        jsonEntityMappings.add("EventEntityMappings", jsonEntityMappingsArray);
-        response.body(serializer.toJson(jsonEntityMappings));
+        response.body(serializer.toJson(jsonEntityMappingsArray));
         endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
         return response.body();
     }

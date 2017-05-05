@@ -3,7 +3,6 @@ package de.hpi.bpt.argos.api;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
 import de.hpi.bpt.argos.common.RestRequest;
 import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
@@ -45,20 +44,14 @@ public class EventTypeEndpointTest extends ArgosTestParent {
 
         assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
-        JsonParser parser = new JsonParser();
-        try {
-            JsonObject responseJson =  parser.parse(request.getResponse()).getAsJsonObject();
-            JsonArray eventTypesArray = responseJson.get("EventTypes").getAsJsonArray();
-            assertEquals(1, eventTypesArray.size());
+        JsonArray eventTypesArray = jsonParser.parse(request.getResponse()).getAsJsonArray();
+        assertEquals(1, eventTypesArray.size());
 
-            JsonObject jsonEventType = eventTypesArray.get(0).getAsJsonObject();
-            assertEquals(testEventType.getId(), jsonEventType.get("Id").getAsLong());
-            assertEquals(testEventType.getName(), jsonEventType.get("Name").getAsString());
-            assertEquals(testEventType.getTimeStampAttributeId(), jsonEventType.get("TimestampAttributeId").getAsLong());
-            assertEquals(0, jsonEventType.get("NumberOfEvents").getAsInt());
-        } catch (Exception e) {
-            fail(e.getMessage());
-        }
+        JsonObject jsonEventType = eventTypesArray.get(0).getAsJsonObject();
+        assertEquals(testEventType.getId(), jsonEventType.get("Id").getAsLong());
+        assertEquals(testEventType.getName(), jsonEventType.get("Name").getAsString());
+        assertEquals(testEventType.getTimeStampAttributeId(), jsonEventType.get("TimestampAttributeId").getAsLong());
+        assertEquals(0, jsonEventType.get("NumberOfEvents").getAsInt());
     }
 
     @Test
@@ -68,21 +61,16 @@ public class EventTypeEndpointTest extends ArgosTestParent {
 
         assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
-        JsonParser parser = new JsonParser();
-        try {
-            JsonObject responseJson =  parser.parse(request.getResponse()).getAsJsonObject();
+        JsonObject responseJson =  jsonParser.parse(request.getResponse()).getAsJsonObject();
 
-            assertEquals(testEventType.getId(), responseJson.get("Id").getAsLong());
-            assertEquals(testEventType.getName(), responseJson.get("Name").getAsString());
-            assertEquals(testEventType.getTimeStampAttributeId(), responseJson.get("TimestampAttributeId").getAsLong());
-            assertEquals(0, responseJson.get("NumberOfEvents").getAsInt());
-        } catch (Exception e) {
-            fail(e.getMessage());
-        }
+        assertEquals(testEventType.getId(), responseJson.get("Id").getAsLong());
+        assertEquals(testEventType.getName(), responseJson.get("Name").getAsString());
+        assertEquals(testEventType.getTimeStampAttributeId(), responseJson.get("TimestampAttributeId").getAsLong());
+        assertEquals(0, responseJson.get("NumberOfEvents").getAsInt());
     }
 
     @Test
-    public void testGetEventType_InvalidEventTypeId() {
+    public void testGetEventType_InvalidEventTypeId_BadRequest() {
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createGetRequest(ARGOS_REST_HOST, EventTypeEndpoint.getEventTypeUri(testEventType.getId() - 1));
 
@@ -112,7 +100,7 @@ public class EventTypeEndpointTest extends ArgosTestParent {
     }
 
     @Test
-    public void testCreateEventType_EmptyJson() {
+    public void testCreateEventType_EmptyJson_BadRequest() {
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createPostRequest(ARGOS_REST_HOST, EventTypeEndpoint.getCreateEventTypeBaseUri());
 
@@ -123,7 +111,7 @@ public class EventTypeEndpointTest extends ArgosTestParent {
     }
 
     @Test
-    public void testCreateEventType_InvalidJson() {
+    public void testCreateEventType_InvalidJson_BadRequest() {
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createPostRequest(ARGOS_REST_HOST, EventTypeEndpoint.getCreateEventTypeBaseUri());
 
@@ -143,7 +131,7 @@ public class EventTypeEndpointTest extends ArgosTestParent {
         EventQuery query = ArgosTestUtil.createEventQuery(eventTypeToDelete, true);
         List<TypeAttribute> attributes = ArgosTestUtil.createEventTypeAttributes(eventTypeToDelete, true);
         EventEntityMapping mapping = ArgosTestUtil.createEventEntityMapping(eventTypeToDelete, new EntityTypeImpl(), "", true);
-        List<MappingCondition> conditions = ArgosTestUtil.createMappingConditions(mapping, true, new Pair<>((long) 1, (long) 2));
+        List<MappingCondition> conditions = ArgosTestUtil.createMappingConditions(mapping, true, new Pair<>( 1L, 2L));
 
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createDeleteRequest(ARGOS_REST_HOST, EventTypeEndpoint.getDeleteEventTypeUri(eventTypeToDelete.getId()));
@@ -153,7 +141,7 @@ public class EventTypeEndpointTest extends ArgosTestParent {
         assertTrue(checkIfDeleted(eventTypeToDelete, new ArrayList<>(PersistenceAdapterImpl.getInstance().getEventTypes())));
         assertTrue(checkIfDeleted(query, new ArrayList<>(PersistenceAdapterImpl.getInstance().getEventQueries(eventTypeToDelete.getId()))));
         for (TypeAttribute existingAttribute : PersistenceAdapterImpl.getInstance().getTypeAttributes(eventTypeToDelete.getId())) {
-            assertTrue(checkIfDeleted(existingAttribute, new ArrayList(attributes)));
+            assertTrue(checkIfDeleted(existingAttribute, new ArrayList<>(attributes)));
         }
         assertTrue(checkIfDeleted(mapping, new ArrayList<>(PersistenceAdapterImpl.getInstance().getEventEntityMappingsForEventType(eventTypeToDelete.getId()))));
         for (MappingCondition existingCondition : PersistenceAdapterImpl.getInstance().getMappingConditions(mapping.getId())) {
@@ -162,20 +150,13 @@ public class EventTypeEndpointTest extends ArgosTestParent {
     }
 
     @Test
-    public void testDeleteEventType_InvalidId() {
+    public void testDeleteEventType_InvalidId_BadRequest() {
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createDeleteRequest(ARGOS_REST_HOST, EventTypeEndpoint.getDeleteEventTypeUri(testEventType.getId() - 1));
 
         assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
 
-        boolean eventTypeDeleted = true;
-        for (EventType existingType : PersistenceAdapterImpl.getInstance().getEventTypes()) {
-            if (existingType.getName().equals(testEventType.getName())) {
-                eventTypeDeleted = false;
-                break;
-            }
-        }
-        assertFalse(eventTypeDeleted);
+        assertFalse(checkIfDeleted(testEventType, new ArrayList<>(PersistenceAdapterImpl.getInstance().getEventTypes())));
     }
 
     @Test
@@ -185,14 +166,7 @@ public class EventTypeEndpointTest extends ArgosTestParent {
 
         assertEquals(HttpStatusCodes.FORBIDDEN, request.getResponseCode());
 
-        boolean eventTypeDeleted = true;
-        for (EventType existingType : PersistenceAdapterImpl.getInstance().getEventTypes()) {
-            if (existingType.getName().equals(testEventType.getName())) {
-                eventTypeDeleted = false;
-                break;
-            }
-        }
-        assertFalse(eventTypeDeleted);
+        assertFalse(checkIfDeleted(testEventType, new ArrayList<>(PersistenceAdapterImpl.getInstance().getEventTypes())));
     }
 
     @Test
@@ -207,11 +181,12 @@ public class EventTypeEndpointTest extends ArgosTestParent {
 
         assertEquals(HttpStatusCodes.ERROR, request.getResponseCode());
 
-        JsonParser parser = new JsonParser();
-        JsonArray jsonBlockingEventType = parser.parse(request.getResponse()).getAsJsonArray();
+        JsonArray jsonBlockingEventType = jsonParser.parse(request.getResponse()).getAsJsonArray();
         assertEquals(1, jsonBlockingEventType.size());
 
         assertEquals(blockingEventType.getId(), jsonBlockingEventType.get(0).getAsLong());
+
+        assertFalse(checkIfDeleted(blockedEventType, new ArrayList<>(PersistenceAdapterImpl.getInstance().getEventTypes())));
     }
 
 
@@ -224,33 +199,23 @@ public class EventTypeEndpointTest extends ArgosTestParent {
 
         assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
-        JsonParser parser = new JsonParser();
-        try {
-            JsonObject responseJson =  parser.parse(request.getResponse()).getAsJsonObject();
+        JsonArray attributeArray =  jsonParser.parse(request.getResponse()).getAsJsonArray();
 
-            JsonArray attributeArray = responseJson.get("TypeAttributes").getAsJsonArray();
-            List<JsonElement> foundAttributeJsons = new ArrayList<>();
-            for (JsonElement attribute : attributeArray) {
-                boolean attributeFound = false;
-                for (TypeAttribute att : attributes) {
-                    JsonObject attributeObject = attribute.getAsJsonObject();
-                    if (attributeObject.get("Id").getAsLong() == att.getId() &&
-                            attributeObject.get("Name").getAsString().equals(att.getName())) {
-                        attributeFound = true;
-                        break;
-                    }
+        List<JsonElement> foundAttributeJsons = new ArrayList<>();
+        for (JsonElement attribute : attributeArray) {
+            boolean attributeFound = false;
+            for (TypeAttribute att : attributes) {
+                JsonObject attributeObject = attribute.getAsJsonObject();
+                if (attributeObject.get("Id").getAsLong() == att.getId() &&
+                        attributeObject.get("Name").getAsString().equals(att.getName())) {
+                    attributeFound = true;
+                    break;
                 }
-                if (!attributeFound) {
-                    fail("wrong attribute in json included");
-                }
-                foundAttributeJsons.add(attribute);
             }
-            if (foundAttributeJsons.size() != attributeArray.size()) {
-                fail("not all json attributes exist");
-            }
-        } catch (Exception e) {
-            fail(e.getMessage());
+            assertTrue(attributeFound);
+            foundAttributeJsons.add(attribute);
         }
+        assertFalse(foundAttributeJsons.size() != attributeArray.size());
     }
 
     @Test
@@ -270,33 +235,27 @@ public class EventTypeEndpointTest extends ArgosTestParent {
 
         assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
-        JsonParser parser = new JsonParser();
-        try {
-            JsonObject responseJson =  parser.parse(request.getResponse()).getAsJsonObject();
+        JsonArray queriesArray =  jsonParser.parse(request.getResponse()).getAsJsonArray();
 
-            JsonArray queriesArray = responseJson.get("EventQueries").getAsJsonArray();
-            List<JsonElement> foundQueryJsons = new ArrayList<>();
-            for (JsonElement jsonQuery : queriesArray) {
-                boolean queryFound = false;
-                for (EventQuery query : queries) {
-                    JsonObject queryObject = jsonQuery.getAsJsonObject();
-                    if (queryObject.get("Id").getAsLong() == query.getId() &&
-                            queryObject.get("Description").getAsString().equals(query.getDescription()) &&
-                            queryObject.get("Query").getAsString().equals(query.getQuery())) {
-                        queryFound = true;
-                        break;
-                    }
+        List<JsonElement> foundQueryJsons = new ArrayList<>();
+        for (JsonElement jsonQuery : queriesArray) {
+            boolean queryFound = false;
+            for (EventQuery query : queries) {
+                JsonObject queryObject = jsonQuery.getAsJsonObject();
+                if (queryObject.get("Id").getAsLong() == query.getId() &&
+                        queryObject.get("Description").getAsString().equals(query.getDescription()) &&
+                        queryObject.get("Query").getAsString().equals(query.getQuery())) {
+                    queryFound = true;
+                    break;
                 }
-                if (!queryFound) {
-                    fail("wrong attribute in json included");
-                }
-                foundQueryJsons.add(jsonQuery);
             }
-            if (foundQueryJsons.size() != queriesArray.size()) {
-                fail("not all json attributes exist");
+            if (!queryFound) {
+                fail("wrong attribute in json included");
             }
-        } catch (Exception e) {
-            fail(e.getMessage());
+            foundQueryJsons.add(jsonQuery);
+        }
+        if (foundQueryJsons.size() != queriesArray.size()) {
+            fail("not all json attributes exist");
         }
     }
 
@@ -311,45 +270,39 @@ public class EventTypeEndpointTest extends ArgosTestParent {
     @Test
     public void testGetEventTypeEntityMappings() {
         EventEntityMapping mapping = ArgosTestUtil.createEventEntityMapping(testEventType, ArgosTestUtil.createEntityType(true), "", true);
-        List<MappingCondition> conditions = ArgosTestUtil.createMappingConditions(mapping, true, new Pair<>((long) 1, (long) 2));
+        List<MappingCondition> conditions = ArgosTestUtil.createMappingConditions(mapping, true, new Pair<>(1L, 2L));
 
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createGetRequest(ARGOS_REST_HOST, EventTypeEndpoint.getEventTypeEntityMappingsUri(testEventType.getId()));
 
         assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
-        JsonParser parser = new JsonParser();
-        try {
-            JsonObject responseJson =  parser.parse(request.getResponse()).getAsJsonObject();
+        JsonArray mappingsArray =  jsonParser.parse(request.getResponse()).getAsJsonArray();
 
-            JsonArray mappingsArray = responseJson.get("EventEntityMappings").getAsJsonArray();
-            List<JsonElement> foundMappingJsons = new ArrayList<>();
-            JsonObject jsonMapping = mappingsArray.get(0).getAsJsonObject();
-            assertEquals(jsonMapping.get("Id").getAsLong(), mapping.getId());
-            assertEquals(jsonMapping.get("EntityTypeId").getAsLong(), mapping.getEntityTypeId());
-            assertEquals(jsonMapping.get("EventTypeId").getAsLong(), mapping.getEventTypeId());
-            assertEquals(jsonMapping.get("TargetStatus").getAsString(), mapping.getTargetStatus());
-            JsonArray conditionsArray = jsonMapping.get("EventEntityMappingConditions").getAsJsonArray();
-            for (JsonElement jsonCondition : conditionsArray) {
-                boolean conditionFound = false;
-                for (MappingCondition condition : conditions) {
-                    JsonObject jsonConditionObject = jsonCondition.getAsJsonObject();
-                    if (jsonConditionObject.get("EventTypeAttributeId").getAsLong() == condition.getEventTypeAttributeId() &&
-                            jsonConditionObject.get("EntityTypeAttributeId").getAsLong() == condition.getEntityTypeAttributeId()) {
-                        conditionFound = true;
-                        break;
-                    }
+        List<JsonElement> foundMappingJsons = new ArrayList<>();
+        JsonObject jsonMapping = mappingsArray.get(0).getAsJsonObject();
+        assertEquals(jsonMapping.get("Id").getAsLong(), mapping.getId());
+        assertEquals(jsonMapping.get("EntityTypeId").getAsLong(), mapping.getEntityTypeId());
+        assertEquals(jsonMapping.get("EventTypeId").getAsLong(), mapping.getEventTypeId());
+        assertEquals(jsonMapping.get("TargetStatus").getAsString(), mapping.getTargetStatus());
+        JsonArray conditionsArray = jsonMapping.get("EventEntityMappingConditions").getAsJsonArray();
+        for (JsonElement jsonCondition : conditionsArray) {
+            boolean conditionFound = false;
+            for (MappingCondition condition : conditions) {
+                JsonObject jsonConditionObject = jsonCondition.getAsJsonObject();
+                if (jsonConditionObject.get("EventTypeAttributeId").getAsLong() == condition.getEventTypeAttributeId() &&
+                        jsonConditionObject.get("EntityTypeAttributeId").getAsLong() == condition.getEntityTypeAttributeId()) {
+                    conditionFound = true;
+                    break;
                 }
-                if (!conditionFound) {
-                    fail("wrong attribute in json included");
-                }
-                foundMappingJsons.add(jsonMapping);
             }
-            if (foundMappingJsons.size() != mappingsArray.size()) {
-                fail("not all json attributes exist");
+            if (!conditionFound) {
+                fail("wrong attribute in json included");
             }
-        } catch (Exception e) {
-            fail(e.getMessage());
+            foundMappingJsons.add(jsonMapping);
+        }
+        if (foundMappingJsons.size() != mappingsArray.size()) {
+            fail("not all json attributes exist");
         }
     }
 
