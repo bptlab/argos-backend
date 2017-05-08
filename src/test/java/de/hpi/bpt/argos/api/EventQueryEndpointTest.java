@@ -6,6 +6,7 @@ import de.hpi.bpt.argos.api.eventQuery.EventQueryEndpoint;
 import de.hpi.bpt.argos.common.RestRequest;
 import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
 import de.hpi.bpt.argos.core.ArgosTestParent;
+import de.hpi.bpt.argos.storage.PersistenceAdapter;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.PersistenceArtifactUpdateType;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
@@ -28,7 +29,7 @@ public class EventQueryEndpointTest extends ArgosTestParent {
 
 	@BeforeClass
 	public static void initialize() {
-		testEventType = ArgosTestUtil.createEventType(false, true);
+		testEventType = ArgosTestUtil.createEventType(true, true);
 	}
 
 	@Test
@@ -118,6 +119,39 @@ public class EventQueryEndpointTest extends ArgosTestParent {
 		assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
 		assertEquals(eventQueriesCount, getEventQueriesCount());
 		assertNotNull(PersistenceAdapterImpl.getInstance().getEventQuery(testEventQuery.getId()));
+	}
+
+	@Test
+	public void testDeleteEventQuery_LastQueryMustNotBeDeleted_Forbidden() {
+		EventType undeletableEventType = ArgosTestUtil.createEventType(false, true);
+		EventQuery testEventQuery = ArgosTestUtil.createEventQuery(undeletableEventType, true);
+
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createDeleteRequest(ARGOS_REST_HOST, getDeleteEventQueryUri(testEventQuery.getId()));
+
+		assertEquals(HttpStatusCodes.FORBIDDEN, request.getResponseCode());
+		assertEquals(1, getEventQueriesCount(undeletableEventType.getId()));
+	}
+
+	@Test
+	public void testDeleteEventQuery_UndeletableEventType_Success() {
+		EventType undeletableEventType = ArgosTestUtil.createEventType(false, true);
+		EventQuery testEventQuery1 = ArgosTestUtil.createEventQuery(undeletableEventType, true);
+		EventQuery testEventQuery2 = ArgosTestUtil.createEventQuery(undeletableEventType, true);
+
+		assertEquals(2, getEventQueriesCount(undeletableEventType.getId()));
+
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createDeleteRequest(ARGOS_REST_HOST, getDeleteEventQueryUri(testEventQuery1.getId()));
+
+		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+		assertEquals(1, getEventQueriesCount(undeletableEventType.getId()));
+
+		EventQuery eventQuery = PersistenceAdapterImpl.getInstance().getEventQuery(testEventQuery2.getId());
+		assertEquals(testEventQuery2.getDescription(), eventQuery.getDescription());
+		assertEquals(testEventQuery2.getQuery(), eventQuery.getQuery());
+		assertEquals(testEventQuery2.getTypeId(), eventQuery.getTypeId());
+		assertEquals(testEventQuery2.getUuid(), eventQuery.getUuid());
 	}
 
 	@Test

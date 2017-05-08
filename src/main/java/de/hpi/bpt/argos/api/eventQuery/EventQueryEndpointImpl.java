@@ -10,6 +10,7 @@ import de.hpi.bpt.argos.common.EventProcessingPlatformUpdaterImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQueryImpl;
+import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import de.hpi.bpt.argos.util.RestEndpointUtil;
@@ -20,6 +21,8 @@ import spark.HaltException;
 import spark.Request;
 import spark.Response;
 import spark.Service;
+
+import java.util.List;
 
 import static spark.Spark.halt;
 
@@ -103,6 +106,16 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
         if (eventQuery == null) {
             halt(HttpStatusCodes.BAD_REQUEST, "given query was not found");
         }
+
+		EventType queryOwner = PersistenceAdapterImpl.getInstance().getEventType(eventQuery.getTypeId());
+        if (queryOwner == null) {
+        	halt(HttpStatusCodes.ERROR, "cannot find query owner");
+		}
+
+		if (!queryOwner.isDeletable()
+				&& PersistenceAdapterImpl.getInstance().getEventQueries(queryOwner.getId()).size() == 1) {
+			halt(HttpStatusCodes.FORBIDDEN, "this query must not be deleted");
+		}
 
         EventPlatformFeedback feedback = EventProcessingPlatformUpdaterImpl.getInstance().deleteEventQuery(eventQuery);
         if (!feedback.isSuccessful()) {

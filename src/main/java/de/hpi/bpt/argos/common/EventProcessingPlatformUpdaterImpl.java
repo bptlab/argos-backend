@@ -59,7 +59,9 @@ public final class EventProcessingPlatformUpdaterImpl implements EventProcessing
 			List<EventQuery> eventQueries = PersistenceAdapterImpl.getInstance().getEventQueries(eventType.getId());
 
 			for (EventQuery eventQuery : eventQueries) {
-				registerEventQuery(eventType.getId(), eventQuery);
+				if (registerEventQuery(eventType.getId(), eventQuery).isSuccessful()) {
+					PersistenceAdapterImpl.getInstance().saveArtifacts(eventQuery);
+				}
 			}
 		}
 	}
@@ -131,7 +133,7 @@ public final class EventProcessingPlatformUpdaterImpl implements EventProcessing
 
 		String host = EventProcessingPlatformUpdater.getHost();
 		String uri = EventProcessingPlatformUpdater.getRegisterEventQueryUri();
-		String notificationPath = String.format("%1$s:%2$d/%3$s", Argos.getHost(), Argos.getPort(), EventReceiver.getReceiveEventUri(eventTypeId));
+		String notificationPath = String.format("%1$s:%2$d%3$s", Argos.getHost(), Argos.getPort(), EventReceiver.getReceiveEventUri(eventTypeId));
 
 		RestRequest request = RestRequestFactoryImpl.getInstance().createPostRequest(host, uri);
 
