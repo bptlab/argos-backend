@@ -3,7 +3,7 @@ package de.hpi.bpt.argos.storage.dataModel.entity;
 /**
  * This is the virtual root node for the entity hierarchy.
  */
-public class VirtualRoot extends EntityImpl {
+public final class VirtualRoot extends EntityImpl {
 
 	private static Entity instance;
 
