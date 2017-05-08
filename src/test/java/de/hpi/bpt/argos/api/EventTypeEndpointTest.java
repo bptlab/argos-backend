@@ -106,18 +106,18 @@ public class EventTypeEndpointTest extends ArgosTestParent {
     }
 
     @Test
-    public void testCreateEventType_EmptyJson_BadRequest() {
+    public void testCreateEventType_EmptyJson_Error() {
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createPostRequest(ARGOS_REST_HOST, EventTypeEndpoint.getCreateEventTypeBaseUri());
 
         JsonObject emptyJson = new JsonObject();
         request.setContent(serializer.toJson(emptyJson));
 
-        assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
+        assertEquals(HttpStatusCodes.ERROR, request.getResponseCode());
     }
 
     @Test
-    public void testCreateEventType_InvalidJson_BadRequest() {
+    public void testCreateEventType_InvalidJson_Error() {
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createPostRequest(ARGOS_REST_HOST, EventTypeEndpoint.getCreateEventTypeBaseUri());
 
@@ -126,7 +126,7 @@ public class EventTypeEndpointTest extends ArgosTestParent {
 
         request.setContent(serializer.toJson(newJsonEventType));
 
-        assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
+        assertEquals(HttpStatusCodes.ERROR, request.getResponseCode());
         // TODO not stored to unicorn
         assertNotStored(newEventType);
     }

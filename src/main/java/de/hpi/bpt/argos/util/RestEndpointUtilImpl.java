@@ -109,9 +109,6 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 	public String executeRequest(Logger logger, Request request, Response response, Route route) {
 		logReceivedRequest(logger, request);
 
-		// make response valid whatsoever
-		response.body("");
-
 		try {
 			response.body((String) route.handle(request, response));
 		} catch (HaltException e) {
@@ -124,7 +121,11 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 		}
 
 		logSendingResponse(logger, request, response.status(), response.body());
-		return response.body();
+		if (response.body() == null) {
+			return "";
+		} else {
+			return response.body();
+		}
 	}
 
 	/**
