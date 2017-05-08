@@ -6,7 +6,6 @@ import de.hpi.bpt.argos.api.eventQuery.EventQueryEndpoint;
 import de.hpi.bpt.argos.common.RestRequest;
 import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
 import de.hpi.bpt.argos.core.ArgosTestParent;
-import de.hpi.bpt.argos.storage.PersistenceAdapter;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.PersistenceArtifactUpdateType;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;

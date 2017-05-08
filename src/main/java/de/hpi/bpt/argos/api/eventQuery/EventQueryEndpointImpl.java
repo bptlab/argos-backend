@@ -22,8 +22,6 @@ import spark.Request;
 import spark.Response;
 import spark.Service;
 
-import java.util.List;
-
 import static spark.Spark.halt;
 
 /**
