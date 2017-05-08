@@ -112,20 +112,25 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 		try {
 			response.body((String) route.handle(request, response));
 		} catch (HaltException e) {
-			logSendingResponse(logger, request, e.statusCode(), e.body());
-			throw e;
+			LoggerUtilImpl.getInstance().error(logger, String.format("halt while executing request: '%1$s' -> '%2$s'", request.uri(), e.body()), e);
+			response.status(e.statusCode());
+			response.body(e.body());
 		} catch (Exception e) {
 			LoggerUtilImpl.getInstance().error(logger, String.format("error while executing request: '%1$s'", request.uri()), e);
 			response.status(HttpStatusCodes.ERROR);
 			response.body(e.getMessage());
 		}
 
-		logSendingResponse(logger, request, response.status(), response.body());
-		if (response.body() == null) {
-			return "";
-		} else {
-			return response.body();
+		if (response.status() != HttpStatusCodes.SUCCESS || response.body() == null) {
+			response.type("text/plain");
 		}
+
+		if (response.body() == null) {
+			response.body("");
+		}
+
+		logSendingResponse(logger, request, response.status(), response.body());
+		return response.body();
 	}
 
 	/**
