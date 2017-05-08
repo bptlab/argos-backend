@@ -1,8 +1,6 @@
 package de.hpi.bpt.argos.common;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -12,20 +10,13 @@ import java.util.function.Consumer;
  */
 public abstract class ObservableImpl<Observer> implements Observable<Observer> {
 
-	protected enum ObserverOrder {
-		FIRST_IN_FIRST_OUT,
-		FIRST_IN_LAST_OUT,
-	}
-
-	private List<Observer> observers;
-	protected ObserverOrder insertStrategy;
+	private Set<Observer> observers;
 
 	/**
 	 * This constructor initializes all members with their default value.
 	 */
 	protected ObservableImpl() {
-		observers = new ArrayList<>();
-		insertStrategy = ObserverOrder.FIRST_IN_FIRST_OUT;
+		observers = new HashSet<>();
 	}
 
 	/**
@@ -33,19 +24,7 @@ public abstract class ObservableImpl<Observer> implements Observable<Observer> {
 	 */
 	@Override
 	public void subscribe(Observer observer) {
-		switch (insertStrategy) {
-			case FIRST_IN_FIRST_OUT:
-				observers.add(observer);
-				break;
-
-			case FIRST_IN_LAST_OUT:
-				observers.add(0, observer);
-				break;
-
-			default:
-				observers.add(observer);
-				break;
-		}
+		observers.add(observer);
 	}
 
 	/**
