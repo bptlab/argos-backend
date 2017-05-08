@@ -6,6 +6,8 @@ package de.hpi.bpt.argos.common;
  */
 public interface RestRequest {
 
+	String ERROR_RESPONSE = "error while receiving response";
+
 	/**
 	 * This method sets the requests method.
 	 * @param method - the method to be set
@@ -50,10 +52,8 @@ public interface RestRequest {
 	boolean isSuccessful();
 
 	/**
-	 * This method returns a string for a response error.
-	 * @return - error response string
+	 * This method returns whether the target host is reachable.
+	 * @return - true, if the target host is reachable
 	 */
-	static String getErrorResponse() {
-		return "error while receiving response";
-	}
+	boolean isHostReachable();
 }

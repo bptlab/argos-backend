@@ -2,8 +2,8 @@ package de.hpi.bpt.argos.common;
 
 
 import de.hpi.bpt.argos.core.Argos;
-import de.hpi.bpt.argos.properties.PropertyEditor;
-import de.hpi.bpt.argos.properties.PropertyEditorImpl;
+import de.hpi.bpt.argos.util.HttpStatusCodes;
+import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,10 +16,31 @@ import java.net.URLConnection;
  * {@inheritDoc}
  * This is the implementation.
  */
-public class RestRequestFactoryImpl implements RestRequestFactory {
+public final class RestRequestFactoryImpl implements RestRequestFactory {
 	private static final Logger logger = LoggerFactory.getLogger(RestRequestFactoryImpl.class);
-	protected static final String DEFAULT_CONTENT_TYPE = "application/json";
-	protected static final String DEFAULT_ACCEPT_TYPE = "text/plain";
+	private static final String DEFAULT_CONTENT_TYPE = "application/json";
+	private static final String DEFAULT_ACCEPT_TYPE = "text/plain";
+
+	private static RestRequestFactory instance;
+
+	/**
+	 * This constructor hides the default public one to implement the singleton pattern.
+	 */
+	private RestRequestFactoryImpl() {
+
+	}
+
+	/**
+	 * This method returns the singleton instance of this class.
+	 * @return - the singleton instance of this class
+	 */
+	public static RestRequestFactory getInstance() {
+		if (instance == null) {
+			instance = new RestRequestFactoryImpl();
+		}
+
+		return instance;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -27,10 +48,6 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 	@Override
 	public RestRequest createRequest(String host, String uri, String requestMethod, String contentType, String acceptType) {
 		RestRequest request = createBasicRequest(host, uri);
-
-		if (request == null) {
-			return null;
-		}
 
 		request.setMethod(requestMethod);
 		request.setProperty("Content-Type", contentType);
@@ -109,32 +126,31 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 	 * @param uri - uri as a string to be set
 	 * @return - returns a RestRequest object to be worked with later on
 	 */
-	protected RestRequest createBasicRequest(String host, String uri) {
-
-		PropertyEditor propertyEditor = new PropertyEditorImpl();
-		boolean testMode = Boolean.parseBoolean(propertyEditor.getProperty(Argos.getArgosBackendTestModePropertyKey()));
-
+	private RestRequest createBasicRequest(String host, String uri) {
 		URL requestURL;
 		RestRequest request;
 
 		try {
 			requestURL = new URL(host + uri);
 		} catch (MalformedURLException e) {
-			logExceptionInRequestCreation(e);
-			return null;
+			LoggerUtilImpl.getInstance().error(logger, "cannot create rest request: url malformed", e);
+			return new NullRestRequestImpl(HttpStatusCodes.REQUEST_TIMEOUT);
 		}
 
-		if (!isReachable(requestURL) && testMode) {
-			return new NullRestRequestImpl();
-		} else if (!isReachable(requestURL)) {
-			return null;
+		if (!isReachable(requestURL)) {
+			if (Argos.getTestMode()) {
+				return new NullRestRequestImpl(HttpStatusCodes.SUCCESS);
+			}
+			else {
+				return new NullRestRequestImpl(HttpStatusCodes.REQUEST_TIMEOUT);
+			}
 		}
 
 		try {
 			request = new RestRequestImpl(requestURL);
 		} catch (IOException e) {
-			logExceptionInRequestCreation(e);
-			return null;
+			LoggerUtilImpl.getInstance().error(logger, "cannot create rest request", e);
+			return new NullRestRequestImpl(HttpStatusCodes.REQUEST_TIMEOUT);
 		}
 
 		return request;
@@ -143,9 +159,9 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 	/**
 	 * This connection checks whether a host is reachable.
 	 * @param host - the host URL to connect to
-	 * @return - true if host is reachable
+	 * @return - true, if host is reachable
 	 */
-	protected boolean isReachable(URL host) {
+	private boolean isReachable(URL host) {
 		URLConnection hostConnection;
 		try {
 			hostConnection = host.openConnection();
@@ -153,18 +169,8 @@ public class RestRequestFactoryImpl implements RestRequestFactory {
 
 			return true;
 		} catch (IOException e) {
-			logger.error("unable to reach host at '" + host.toString() + "'");
-			logger.trace("Reason: ", e);
+			LoggerUtilImpl.getInstance().error(logger, String.format("unable to reach host: '%1$s'", host.toString()), e);
 			return false;
 		}
-	}
-
-    /**
-     * This method logs an exception while creating the request.
-     * @param exception - throwable exception to be logged
-     */
-	private void logExceptionInRequestCreation(Throwable exception) {
-		logger.error("can't create RestRequest");
-		logger.trace(exception.toString());
 	}
 }

@@ -1,167 +1,119 @@
 package de.hpi.bpt.argos.core;
 
-import de.hpi.bpt.argos.persistence.database.PersistenceEntityManager;
-import de.hpi.bpt.argos.properties.PropertyEditor;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 
 /**
- * This interface is the Argos application and provides methods for Argos administration.
+ * This interface represents the argos backend application.
  */
 public interface Argos {
-    /**
-     * This method starts the Argos application on the given port with a given number of threads.
-     * @param port - port to be launched on as integer
-     * @param numberOfThreads - number of threads to use to run Argos application as integer
-     */
-	void run(int port, int numberOfThreads);
 
-    /**
-     * This method starts the Argos application on a default port with a default number of threads.
-     */
-	void run();
-
-    /**
-     * This method shuts the Argos application down and frees the used port again.
-     */
-	void shutdown();
+	String ARGOS_BACKEND_HOST_PROPERTY_KEY = "argosBackendHost";
+	String ARGOS_BACKEND_PORT_PROPERTY_KEY = "argosBackendPort";
+	String ARGOS_BACKEND_ROUTE_PREFIX_PROPERTY_KEY = "argosBackendRoutePrefix";
+	String ARGOS_BACKEND_THREADS_PROPERTY_KEY = "argosBackendThreads";
+	String ARGOS_BACKEND_PUBLIC_FILES_PROPERTY_KEY = "argosBackendPublicFiles";
+	String ARGOS_BACKEND_TEST_MODE_PROPERTY_KEY = "argosBackendTestMode";
+	String ARGOS_BACKEND_ALLOWED_ORIGIN_PROPERTY_KEY = "argosBackendAllowedOrigin";
+	String ARGOS_BACKEND_ALLOWED_REQUEST_METHOD_PROPERTY_KEY = "argosBackendAllowedRequestMethod";
+	String ARGOS_BACKEND_EVENT_TYPES_DIRECTORY_PROPERTY_KEY = "argosBackendEventTypesDirectory";
+	String ARGOS_BACKEND_STATIC_DATA_DIRECTORY_PROPERTY_KEY = "argosBackendStaticDataDirectory";
+	String ARGOS_BACKEND_LOAD_STATIC_DATA_PROPERTY_KEY = "argosBackendLoadStaticData";
 
 	/**
-	 * This method sets the argos backend into test mode, or disables test mode.
-	 * @param testMode - the test mode status to set
+	 * This method starts the argos backend.
 	 */
-	void setTestMode(boolean testMode);
+	void start();
 
 	/**
-	 * This method returns the persistence entity manager of argos.
-	 * @return - the persistence entity manager of argos
+	 * This method stops the argos backend.
 	 */
-	PersistenceEntityManager getPersistenceEntityManager();
+	void stop();
 
 	/**
-	 * This method returns the property key for the argosBackendHost property.
-	 * @return - the property key for the argosBackendHost property
-	 */
-	static String getArgosBackendHostPropertyKey() {
-		return "argosBackendHost";
-	}
-
-	/**
-	 * This method returns the property key for the argosBackendPort property.
-	 * @return - the property key for the argosBackendPort property
-	 */
-	static String getArgosBackendPortPropertyKey() {
-		return "argosBackendPort";
-	}
-
-	/**
-	 * This method returns the property key for the argosBackendThreads property.
-	 * @return - the property key for the argosBackendThreads property
-	 */
-	static String getArgosBackendThreadsPropertyKey() {
-		return "argosBackendThreads";
-	}
-
-	/**
-	 * This method returns the property key for the argosBackendPublicFiles property.
-	 * @return - the property key for the argosBackendPublicFiles property
-	 */
-	static String getArgosBackendPublicFilesPropertyKey() {
-		return "argosBackendPublicFiles";
-	}
-
-	/**
-	 * This method returns the property key for the argosBackendTestMode property.
-	 * @return - the property key for the argosBackendTestMode property
-	 */
-	static String getArgosBackendTestModePropertyKey() {
-		return "argosBackendTestMode";
-	}
-
-	/**
-	 * This method returns the property key for the argosBackendEventTypeDirectory property.
-	 * @return - the property key for the argosBackendEventTypeDirectory property
-	 */
-	static String getArgosBackendEventTypeDirectoryPropertyKey() {
-		return "argosBackendEventTypeDirectory";
-	}
-
-	/**
-	 * This method returns the property key for the argosBackendBackboneDataDirectory property.
-	 * @return - the property key for the argosBackendBackboneDataDirectory property
-	 */
-	static String getArgosBackendBackboneDataDirectoryPropertyKey() {
-		return "argosBackendBackboneDataDirectory";
-	}
-
-	/**
-	 * This method returns the property key for the argosBackendLoadBackboneData property.
-	 * @return - the property key for the argosBackendLoadBackboneData property
-	 */
-	static String getArgosBackendLoadBackboneDataPropertyKey() {
-		return "argosBackendLoadBackboneData";
-	}
-
-	/**
-	 * This method returns the port of the argos application as configured in the argos-backend.properties file.
-	 * @return - the port of the argos application as configured in the argos-backend.properties file
-	 */
-	static int getPort() {
-		PropertyEditor propertyReader = new PropertyEditorImpl();
-
-		String port = propertyReader.getProperty(getArgosBackendPortPropertyKey());
-
-		if (port.length() == 0) {
-			return 0;
-		} else {
-			return Integer.parseInt(port);
-		}
-	}
-
-	/**
-	 * This method returns the number of threads of the argos application as configured in the argos-backend.properties file.
-	 * @return - the number of threads of the argos application as configured in the argos-backend.properties file
-	 */
-	static int getThreads() {
-		PropertyEditor propertyReader = new PropertyEditorImpl();
-
-		String threads = propertyReader.getProperty(getArgosBackendThreadsPropertyKey());
-
-		if (threads.length() == 0) {
-			return 0;
-		} else {
-			return Integer.parseInt(threads);
-		}
-	}
-
-	/**
-	 * This method returns the host name of the argos application.
-	 * @return - the host name of the argos application
+	 * This method reads the host property from the properties-file and returns it's value.
+	 * @return - the host, specified in the properties-file
 	 */
 	static String getHost() {
-		PropertyEditor propertyReader = new PropertyEditorImpl();
-
-		String host = propertyReader.getProperty(getArgosBackendHostPropertyKey());
-
-		if (host.length() == 0) {
-			host = "http://localhost";
-		}
-
-		return String.format("%1$s:%2$s", host, getPort());
+		return PropertyEditorImpl.getInstance().getProperty(ARGOS_BACKEND_HOST_PROPERTY_KEY);
 	}
 
 	/**
-	 * This method returns the property key for the corsAllowedOrigin property.
-	 * @return - the property key for the corsAllowedOrigin property
+	 * This method reads the port property from the properties-file and returns it's value.
+	 * @return - the port, specified in the properties-file
 	 */
-	static String getCORSAllowedOriginPropertyKey() {
-		return "corsAllowedOrigin";
+	static int getPort() {
+		return PropertyEditorImpl.getInstance().getPropertyAsInt(ARGOS_BACKEND_PORT_PROPERTY_KEY);
 	}
 
 	/**
-	 * This method returns the property key for the corsAllowedRequestMethod property.
-	 * @return - the property key for the corsAllowedRequestMethod property
+	 * This method reads the routePrefix property from the properties-file and returns it's value.
+	 * @return - the routePrefix, specified in the properties-file
 	 */
-	static String getCORSAllowedRequestMethodPropertyKey() {
-		return "corsAllowedRequestMethod";
+	static String getRoutePrefix() {
+		return PropertyEditorImpl.getInstance().getProperty(ARGOS_BACKEND_ROUTE_PREFIX_PROPERTY_KEY);
+	}
+
+	/**
+	 * This method reads the threads property from the properties-file and returns it's value.
+	 * @return - the threads, specified in the properties-file
+	 */
+	static int getThreads() {
+		return PropertyEditorImpl.getInstance().getPropertyAsInt(ARGOS_BACKEND_THREADS_PROPERTY_KEY);
+	}
+
+	/**
+	 * This method reads the publicFiles property from the properties-file and returns it's value.
+	 * @return - the publicFiles, specified in the properties-file
+	 */
+	static String getPublicFiles() {
+		return PropertyEditorImpl.getInstance().getProperty(ARGOS_BACKEND_PUBLIC_FILES_PROPERTY_KEY);
+	}
+
+	/**
+	 * This method reads the testMode property from the properties-file and returns it's value.
+	 * @return - the testMode, specified in the properties-file
+	 */
+	static boolean getTestMode() {
+		return PropertyEditorImpl.getInstance().getPropertyAsBoolean(ARGOS_BACKEND_TEST_MODE_PROPERTY_KEY);
+	}
+
+	/**
+	 * This method reads the allowedOrigin property from the properties-file and returns it's value.
+	 * @return - the allowedOrigin, specified in the properties-file
+	 */
+	static String getAllowedOrigin() {
+		return PropertyEditorImpl.getInstance().getProperty(ARGOS_BACKEND_ALLOWED_ORIGIN_PROPERTY_KEY);
+	}
+
+	/**
+	 * This method reads the allowedRequestMethod property from the properties-file and returns it's value.
+	 * @return - the allowedRequestMethod, specified in the properties-file
+	 */
+	static String getAllowedRequestMethod() {
+		return PropertyEditorImpl.getInstance().getProperty(ARGOS_BACKEND_ALLOWED_REQUEST_METHOD_PROPERTY_KEY);
+	}
+
+	/**
+	 * This method reads the eventTypeDirectory property from the properties-file and returns it's value.
+	 * @return - the eventTypeDirectory, specified in the properties-file
+	 */
+	static String getEventTypesDirectory() {
+		return PropertyEditorImpl.getInstance().getProperty(ARGOS_BACKEND_EVENT_TYPES_DIRECTORY_PROPERTY_KEY);
+	}
+
+	/**
+	 * This method reads the staticDataDirectory property from the properties-file and returns it's value.
+	 * @return - the staticDataDirectory, specified in the properties-file
+	 */
+	static String getStaticDataDirectory() {
+		return PropertyEditorImpl.getInstance().getProperty(ARGOS_BACKEND_STATIC_DATA_DIRECTORY_PROPERTY_KEY);
+	}
+
+	/**
+	 * This method reads the loadStaticData property from the properties-file and returns it's value.
+	 * @return - the loadStaticData, specified in the properties-file
+	 */
+	static boolean getLoadStaticData() {
+		return PropertyEditorImpl.getInstance().getPropertyAsBoolean(ARGOS_BACKEND_LOAD_STATIC_DATA_PROPERTY_KEY);
 	}
 }

@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.notifications.socket;
 
+import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
@@ -23,11 +24,11 @@ import java.util.concurrent.locks.ReentrantLock;
 @WebSocket
 public class PushNotificationClientHandlerImpl implements PushNotificationClientHandler {
 	private static final Logger logger = LoggerFactory.getLogger(PushNotificationClientHandlerImpl.class);
-	protected static final long CLIENT_LOCK_TIME_OUT = 1000;
-	protected static final TimeUnit CLIENT_LOCK_TIME_UNIT = TimeUnit.MILLISECONDS;
+	private static final long CLIENT_LOCK_TIME_OUT = 1000;
+	private static final TimeUnit CLIENT_LOCK_TIME_UNIT = TimeUnit.MILLISECONDS;
 
-	protected List<Session> clients;
-	protected Lock clientsLock;
+	private List<Session> clients;
+	private Lock clientsLock;
 
 	/**
 	 * This constructor initializes all members with default values.
@@ -42,7 +43,7 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 	 */
 	@Override
 	public void setup(Service sparkService) {
-		sparkService.webSocket(PushNotificationClientHandler.getWebSocketUriBase(), this);
+		sparkService.webSocket(PushNotificationClientHandler.getWebSocketBaseUri(), this);
 	}
 
 	/**
@@ -54,11 +55,13 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 			clientsLock.tryLock(CLIENT_LOCK_TIME_OUT, CLIENT_LOCK_TIME_UNIT);
 
 			if (clients.isEmpty()) {
-				logger.debug(String.format("no web socket clients to send notification to '%1$s'", notification));
+				logger.debug("no web socket clients to send notification to");
+				logNotification(notification);
 				return;
 			}
 
-			logger.info(String.format("sending web socket notification (clients: %1$d) : '%2$s'", clients.size(), notification));
+			logger.info(String.format("sending web socket notification to %1$d client", clients.size()));
+			logNotification(notification);
 
 			for (Iterator<Session> it = clients.iterator(); it.hasNext();) {
 				Session client = it.next();
@@ -71,7 +74,6 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 
 		} finally {
 			clientsLock.unlock();
-
 		}
 	}
 
@@ -81,11 +83,11 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 	 * @param it - an iterator on the receiving client
 	 * @param notification - the notification that the client should receive
 	 */
-	protected void sendNotificationToClient(Session client, Iterator<Session> it, String notification) {
+	private void sendNotificationToClient(Session client, Iterator<Session> it, String notification) {
 		try {
 			if (!client.isOpen()) {
 				it.remove();
-				logger.debug(String.format("removed web socket connection from '%1$s' total: %2$d",
+				logger.debug(String.format("web socket client connection lost: '%1$s' -> %2$d clients left",
 						client.getRemoteAddress().getHostString(),
 						clients.size()));
 				return;
@@ -94,8 +96,7 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 			client.getRemote().sendString(notification);
 
 		} catch (Exception e) {
-			logger.error("Cannot send notification to client");
-            logger.trace("Reason: ", e);
+			LoggerUtilImpl.getInstance().error(logger, "cannot send notification to client", e);
 			client.close();
 			it.remove();
 		}
@@ -111,16 +112,15 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 			clientsLock.tryLock(CLIENT_LOCK_TIME_OUT, CLIENT_LOCK_TIME_UNIT);
 			clients.add(client);
 
-			logger.debug(String.format("new web socket client connected: '%1$s' total: %2$d",
-					client.getRemoteAddress().getHostString(), clients
-					.size()));
+			logger.debug(String.format("new web socket client connected: '%1$s' -> %2$d total clients",
+					client.getRemoteAddress().getHostString(),
+					clients.size()));
 
 		} catch (Exception e) {
 			logErrorWhileTryingToAcquireClientsLock(e);
 
 		} finally {
 			clientsLock.unlock();
-
 		}
 	}
 
@@ -134,7 +134,7 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 			clientsLock.tryLock(CLIENT_LOCK_TIME_OUT, CLIENT_LOCK_TIME_UNIT);
 			clients.remove(client);
 
-			logger.debug(String.format("web socket client '%1$s' disconnected -> '%2$s' : '%3$s' total: %4$d",
+			logger.debug(String.format("web socket client disconnected: '%1$s' -> '%2$s' : '%3$s' -> %4$d clients left",
 					client.getRemoteAddress().getHostString(),
 					statusCode,
 					reason,
@@ -155,15 +155,22 @@ public class PushNotificationClientHandlerImpl implements PushNotificationClient
 	@OnWebSocketMessage
 	@Override
 	public void onMessage(Session client, String message) {
-		//Is empty, since we don't react to the messages of the connected client.
+		//Is empty, since we don't react to the messages of the connected clients.
 	}
 
 	/**
 	 * This method logs an exception which occurs while trying to acquire a lock for the clients list.
 	 * @param exception - the thrown exception
 	 */
-	protected void logErrorWhileTryingToAcquireClientsLock(Throwable exception) {
-		logger.error("can't acquire client list lock");
-        logger.trace("Reason: ", exception);
+	private void logErrorWhileTryingToAcquireClientsLock(Throwable exception) {
+		LoggerUtilImpl.getInstance().error(logger, "cannot acquire client list lock", exception);
+	}
+
+	/**
+	 * This method logs a message, which was sent over the web socket at trace-level.
+	 * @param notification - the notification message to log
+	 */
+	private void logNotification(String notification) {
+		logger.trace(String.format("web socket notification: '%1$s'", notification));
 	}
 }
