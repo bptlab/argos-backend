@@ -2,7 +2,10 @@ package de.hpi.bpt.argos.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.HaltException;
 import spark.Request;
+import spark.Response;
+import spark.Route;
 
 import java.util.Arrays;
 import java.util.List;
@@ -97,6 +100,32 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 			updatedParameterName = ":" + updatedParameterName;
 		}
 		return updatedParameterName;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String executeRequest(Logger logger, Request request, Response response, Route route) {
+		logReceivedRequest(logger, request);
+
+		// make response valid whatsoever
+		response.body("");
+
+		try {
+			response.body((String) route.handle(request, response));
+		} catch (HaltException e) {
+			logger.debug("halt while executing request", e);
+			response.body(e.body());
+			response.status(e.statusCode());
+		} catch (Exception e) {
+			LoggerUtilImpl.getInstance().error(logger, String.format("error while executing request: '%1$s'", request.uri()), e);
+			response.status(HttpStatusCodes.ERROR);
+			response.body(e.getMessage());
+		}
+
+		logSendingResponse(logger, request, response.status(), response.body());
+		return response.body();
 	}
 
 	/**
