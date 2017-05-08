@@ -115,9 +115,8 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 		try {
 			response.body((String) route.handle(request, response));
 		} catch (HaltException e) {
-			logger.debug("halt while executing request", e);
-			response.body(e.body());
-			response.status(e.statusCode());
+			logSendingResponse(logger, request, e.statusCode(), e.body());
+			throw e;
 		} catch (Exception e) {
 			LoggerUtilImpl.getInstance().error(logger, String.format("error while executing request: '%1$s'", request.uri()), e);
 			response.status(HttpStatusCodes.ERROR);

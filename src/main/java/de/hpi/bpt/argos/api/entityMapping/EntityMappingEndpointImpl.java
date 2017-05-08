@@ -53,9 +53,17 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
      */
     @Override
     public void setup(Service sparkService) {
-        sparkService.post(EntityMappingEndpoint.getCreateEntityMappingBaseUri(), this::createEntityMapping);
-        sparkService.delete(EntityMappingEndpoint.getDeleteEntityMappingBaseUri(), this::deleteEntityMapping);
-        sparkService.put(EntityMappingEndpoint.getEditEntityMappingBaseUri(), this::editEntityMapping);
+        sparkService.post(EntityMappingEndpoint.getCreateEntityMappingBaseUri(),
+				(Request request, Response response) ->
+						endpointUtil.executeRequest(logger, request, response, this::createEntityMapping));
+
+        sparkService.delete(EntityMappingEndpoint.getDeleteEntityMappingBaseUri(),
+				(Request request, Response response) ->
+						endpointUtil.executeRequest(logger, request, response, this::deleteEntityMapping));
+
+        sparkService.put(EntityMappingEndpoint.getEditEntityMappingBaseUri(),
+				(Request request, Response response) ->
+						endpointUtil.executeRequest(logger, request, response, this::editEntityMapping));
     }
 
     /**
@@ -63,30 +71,14 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
      */
     @Override
     public String createEntityMapping(Request request, Response response) {
-        endpointUtil.logReceivedRequest(logger, request);
+		JsonObject jsonMapping = jsonParser.parse(request.body()).getAsJsonObject();
 
-        response.body("");
+		if (jsonMapping == null) {
+			halt(HttpStatusCodes.BAD_REQUEST, "no event mapping given in body");
+		}
 
-        try {
-            JsonObject jsonMapping = jsonParser.parse(request.body()).getAsJsonObject();
-
-            if (jsonMapping == null) {
-                halt(HttpStatusCodes.BAD_REQUEST, "no event mapping given in body");
-            }
-
-            createEventMappingFromJson(jsonMapping);
-
-        } catch (HaltException halt) {
-            LoggerUtilImpl.getInstance().error(logger,
-                    String.format("cannot create event mapping: %1$s -> %2$s", halt.statusCode(), halt.body()), halt);
-            throw halt;
-        } catch (Exception e) {
-            LoggerUtilImpl.getInstance().error(logger, JSON_PARSE_ERROR_MESSAGE, e);
-            halt(HttpStatusCodes.ERROR, e.getMessage());
-        }
-
-        endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
-        return response.body();
+		createEventMappingFromJson(jsonMapping);
+		return "";
     }
 
     /**
@@ -94,10 +86,6 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
      */
     @Override
     public String deleteEntityMapping(Request request, Response response) {
-        endpointUtil.logReceivedRequest(logger, request);
-
-		response.body("");
-
         long mappingId = getMappingId(request);
         EventEntityMapping mapping = PersistenceAdapterImpl.getInstance().getEventEntityMapping(mappingId);
         if (mapping == null) {
@@ -115,8 +103,7 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
             halt(HttpStatusCodes.ERROR, "could not delete mapping");
         }
 
-        endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
-        return response.body();
+        return "";
     }
 
     /**
@@ -124,10 +111,6 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
      */
     @Override
     public String editEntityMapping(Request request, Response response) {
-        endpointUtil.logReceivedRequest(logger, request);
-
-		response.body("");
-
         JsonObject jsonMapping = new JsonObject();
         try {
 			jsonMapping = jsonParser.parse(request.body()).getAsJsonObject();
@@ -171,8 +154,7 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
             halt(HttpStatusCodes.ERROR, "could not update mapping");
         }
 
-        endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
-        return response.body();
+        return "";
     }
 
     /**
