@@ -14,10 +14,10 @@ import de.hpi.bpt.argos.storage.dataModel.event.Event;
 import de.hpi.bpt.argos.storage.dataModel.event.EventImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
+import de.hpi.bpt.argos.util.RestEndpointUtil;
 import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.HaltException;
 import spark.Request;
 import spark.Response;
 import spark.Service;
@@ -33,6 +33,7 @@ import static spark.Spark.halt;
  */
 public class EventReceiverImpl extends ObservableImpl<EventCreationObserver> implements EventReceiver {
 	private static final Logger logger = LoggerFactory.getLogger(EventReceiverImpl.class);
+	private static final RestEndpointUtil endpointUtil = RestEndpointUtilImpl.getInstance();
 	private static final JsonParser jsonParser = new JsonParser();
 
 	/**
@@ -40,7 +41,9 @@ public class EventReceiverImpl extends ObservableImpl<EventCreationObserver> imp
 	 */
 	@Override
 	public void setup(Service sparkService) {
-		sparkService.post(EventReceiver.getReceiveEventBaseUri(), this::receiveEvent);
+		sparkService.post(EventReceiver.getReceiveEventBaseUri(),
+				(Request request, Response response) ->
+						endpointUtil.executeRequest(logger, request, response, this::receiveEvent));
 	}
 
 	/**
@@ -48,27 +51,17 @@ public class EventReceiverImpl extends ObservableImpl<EventCreationObserver> imp
 	 */
 	@Override
 	public String receiveEvent(Request request, Response response) {
-		RestEndpointUtilImpl.getInstance().logReceivedRequest(logger, request);
+		long eventTypeId = RestEndpointUtilImpl.getInstance().validateLong(
+				request.params(EventReceiver.getEventTypeIdParameter(false)),
+				(Long input) -> input > 0);
 
-		try {
-			long eventTypeId = RestEndpointUtilImpl.getInstance().validateLong(
-					request.params(EventReceiver.getEventTypeIdParameter(false)),
-					(Long input) -> input > 0);
+		EventType eventType = PersistenceAdapterImpl.getInstance().getEventType(eventTypeId);
 
-			EventType eventType = PersistenceAdapterImpl.getInstance().getEventType(eventTypeId);
-
-			if (eventType == null) {
-				halt(HttpStatusCodes.NOT_FOUND, "event type id was not found");
-			} else {
-				createEvent(request.body(), eventType);
-			}
-
-		} catch (HaltException e) {
-			RestEndpointUtilImpl.getInstance().logSendingResponse(logger, request, e.statusCode(), e.body());
-			throw e;
+		if (eventType == null) {
+			halt(HttpStatusCodes.NOT_FOUND, "event type id was not found");
+		} else {
+			createEvent(request.body(), eventType);
 		}
-
-		RestEndpointUtilImpl.getInstance().logSendingResponse(logger, request, HttpStatusCodes.SUCCESS, "");
 
 		return "";
 	}
