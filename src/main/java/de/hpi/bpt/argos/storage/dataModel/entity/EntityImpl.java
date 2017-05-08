@@ -14,16 +14,16 @@ import javax.persistence.Table;
 public class EntityImpl extends PersistenceArtifactImpl implements Entity {
 
     @Column(name = "ParentId")
-    private long parentId;
+    protected long parentId;
 
     @Column(name = "Name")
-    private String name;
+    protected String name;
 
     @Column(name = "TypeId")
-    private long typeId;
+    protected long typeId;
 
     @Column(name = "Status")
-    private String status;
+    protected String status;
 
     @Override
     public String getName() {

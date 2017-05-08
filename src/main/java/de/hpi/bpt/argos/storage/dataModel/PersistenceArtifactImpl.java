@@ -14,7 +14,7 @@ public abstract class PersistenceArtifactImpl implements PersistenceArtifact {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
+	protected long id;
 
 	/**
 	 * {@inheritDoc}

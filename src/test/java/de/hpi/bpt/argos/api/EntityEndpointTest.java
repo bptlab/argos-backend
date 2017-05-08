@@ -9,6 +9,7 @@ import de.hpi.bpt.argos.core.ArgosTestParent;
 import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.Entity;
+import de.hpi.bpt.argos.storage.dataModel.entity.VirtualRoot;
 import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityType;
 import de.hpi.bpt.argos.storage.dataModel.event.Event;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
@@ -60,6 +61,23 @@ public class EntityEndpointTest extends ArgosTestParent {
 		assertEquals(testEntity.getName(), entity.get("Name").getAsString());
 		assertEquals(testEntity.getStatus(), entity.get("Status").getAsString());
 		assertEquals(testEntityAttributes.size(), entityAttributes.size());
+	}
+
+	@Test
+	public void testGetEntity_VirtualRoot_Success() {
+		RestRequest request = RestRequestFactoryImpl.getInstance().createGetRequest(ARGOS_REST_HOST, getEntityUri(VirtualRoot.getInstance().getId()));
+
+		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+
+		JsonObject entity = jsonParser.parse(request.getResponse()).getAsJsonObject();
+		JsonArray entityAttributes = entity.get("Attributes").getAsJsonArray();
+
+		assertEquals(VirtualRoot.getInstance().getId(), entity.get("Id").getAsLong());
+		assertEquals(VirtualRoot.getInstance().getTypeId(), entity.get("TypeId").getAsLong());
+		assertEquals(VirtualRoot.getInstance().getParentId(), entity.get("ParentId").getAsLong());
+		assertEquals(VirtualRoot.getInstance().getName(), entity.get("Name").getAsString());
+		assertEquals(VirtualRoot.getInstance().getStatus(), entity.get("Status").getAsString());
+		assertEquals(0, entityAttributes.size());
 	}
 
 	@Test
