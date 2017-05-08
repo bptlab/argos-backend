@@ -36,6 +36,13 @@ public class EventReceiverImpl extends ObservableImpl<EventCreationObserver> imp
 	private static final JsonParser jsonParser = new JsonParser();
 
 	/**
+	 * This constructor initializes all members with their default values.
+	 */
+	public EventReceiverImpl() {
+		insertStrategy = ObserverOrder.FIRST_IN_LAST_OUT;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
