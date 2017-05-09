@@ -4,8 +4,6 @@ import de.hpi.bpt.argos.eventProcessing.EventCreationObserver;
 import de.hpi.bpt.argos.eventProcessing.mapping.EventMappingObserver;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 
-import java.util.concurrent.ExecutionException;
-
 /**
  * This interface represents the argos backend application.
  */
