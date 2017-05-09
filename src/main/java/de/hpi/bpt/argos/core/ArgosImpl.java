@@ -16,7 +16,6 @@ import de.hpi.bpt.argos.eventProcessing.status.EntityStatusCalculatorImpl;
 import de.hpi.bpt.argos.notifications.ClientUpdateServiceImpl;
 import de.hpi.bpt.argos.parsing.EventTypeParserImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
-import de.hpi.bpt.argos.storage.hierarchy.HierarchyBuilderImpl;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
