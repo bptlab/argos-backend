@@ -50,8 +50,6 @@ public class ArgosImpl implements Argos {
 			return;
 		}
 
-		HierarchyBuilderImpl.getInstance().getEntityHierarchy();
-
 		// TODO: parse static data
 		EventTypeParserImpl.getInstance().loadEventTypes();
 
