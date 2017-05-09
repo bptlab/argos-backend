@@ -7,10 +7,11 @@ import de.hpi.bpt.argos.api.eventQuery.EventQueryEndpointImpl;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpointImpl;
 import de.hpi.bpt.argos.common.EventProcessingPlatformUpdaterImpl;
 import de.hpi.bpt.argos.common.RestEndpoint;
+import de.hpi.bpt.argos.eventProcessing.EventCreationObserver;
 import de.hpi.bpt.argos.eventProcessing.EventReceiver;
 import de.hpi.bpt.argos.eventProcessing.EventReceiverImpl;
-import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMapper;
 import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMapperImpl;
+import de.hpi.bpt.argos.eventProcessing.mapping.EventMappingObserver;
 import de.hpi.bpt.argos.eventProcessing.status.EntityStatusCalculatorImpl;
 import de.hpi.bpt.argos.notifications.ClientUpdateServiceImpl;
 import de.hpi.bpt.argos.parsing.EventTypeParserImpl;
@@ -29,7 +30,9 @@ import java.util.Set;
  */
 public class ArgosImpl implements Argos {
 	private static final Logger logger = LoggerFactory.getLogger(ArgosImpl.class);
+
 	private Service sparkService;
+	private EventReceiver eventReceiver;
 
 	/**
 	 * {@inheritDoc}
@@ -53,7 +56,7 @@ public class ArgosImpl implements Argos {
 		(new ClientUpdateServiceImpl()).setup(sparkService);
 		EventProcessingPlatformUpdaterImpl.getInstance().setup();
 
-		EventReceiver eventReceiver = new EventReceiverImpl();
+		eventReceiver = new EventReceiverImpl();
 
 		Set<RestEndpoint> restEndpoints = new HashSet<>();
 		restEndpoints.add(eventReceiver);
@@ -67,10 +70,8 @@ public class ArgosImpl implements Argos {
 			setupRestEndpoint(restEndpoint);
 		}
 
-		EventEntityMapper eventEntityMapper = new EventEntityMapperImpl();
-
-		eventEntityMapper.setup(eventReceiver);
-		(new EntityStatusCalculatorImpl()).setup(eventEntityMapper);
+		(new EventEntityMapperImpl()).setup(eventReceiver);
+		(new EntityStatusCalculatorImpl()).setup(eventReceiver);
 
 		enableCORS(sparkService);
 		sparkService.awaitInitialization();
@@ -82,6 +83,54 @@ public class ArgosImpl implements Argos {
 	@Override
 	public void stop() {
 		sparkService.stop();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void addEventEntityMapper(EventCreationObserver mapper) throws ArgosNotRunningException {
+		if (eventReceiver == null) {
+			throw new ArgosNotRunningException("cannot add eventEntityMapper");
+		}
+
+		eventReceiver.getEventCreationObservable().subscribe(mapper);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeEventEntityMapper(EventCreationObserver mapper) throws ArgosNotRunningException {
+		if (eventReceiver == null) {
+			throw new ArgosNotRunningException("cannot remove eventEntityMapper");
+		}
+
+		eventReceiver.getEventCreationObservable().unsubscribe(mapper);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void addEntityStatusCalculator(EventMappingObserver statusCalculator) throws ArgosNotRunningException {
+		if (eventReceiver == null) {
+			throw new ArgosNotRunningException("cannot add entityStatusCalculator");
+		}
+
+		eventReceiver.getEventMappingObservable().subscribe(statusCalculator);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeEntityStatusCalculator(EventMappingObserver statusCalculator) throws ArgosNotRunningException {
+		if (eventReceiver == null) {
+			throw new ArgosNotRunningException("cannot remove entityStatusCalculator");
+		}
+
+		eventReceiver.getEventMappingObservable().unsubscribe(statusCalculator);
 	}
 
 	/**

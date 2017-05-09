@@ -3,6 +3,7 @@ package de.hpi.bpt.argos.eventProcessing;
 import de.hpi.bpt.argos.common.Observable;
 import de.hpi.bpt.argos.common.RestEndpoint;
 import de.hpi.bpt.argos.core.Argos;
+import de.hpi.bpt.argos.eventProcessing.mapping.EventMappingObserver;
 import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
 import spark.Request;
 import spark.Response;
@@ -12,7 +13,7 @@ import java.util.Objects;
 /**
  * This class offers an interface for the eventProcessingPlatform to send events to.
  */
-public interface EventReceiver extends Observable<EventCreationObserver>, RestEndpoint {
+public interface EventReceiver extends RestEndpoint {
 
 	/**
 	 * This method is responsible for receiving events by reacting to the spark request sent from the event
@@ -22,6 +23,18 @@ public interface EventReceiver extends Observable<EventCreationObserver>, RestEn
 	 * @return - returns a response for the event platform
 	 */
 	String receiveEvent(Request request, Response response);
+
+	/**
+	 * This method returns the eventCreation observable. Add your observers to this instance to implement custom eventEntityMappings.
+	 * @return - the eventCreation observable
+	 */
+	Observable<EventCreationObserver> getEventCreationObservable();
+
+	/**
+	 * This method returns the eventMapping observable. Add your observers to this instance to implement custom statusLogic.
+	 * @return - the eventMapping observable
+	 */
+	Observable<EventMappingObserver> getEventMappingObservable();
 
 	/**
 	 * This method returns the base uri for the eventReceiver.

@@ -1,22 +1,38 @@
 package de.hpi.bpt.argos.common;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
  * {@inheritDoc}
  * This is an abstract base implementation.
  */
-public abstract class ObservableImpl<Observer> implements Observable<Observer> {
+public class ObservableImpl<Observer> implements Observable<Observer> {
 
-	private Set<Observer> observers;
+	public enum ObserverCallOrder {
+		FIRST_IN_FIRST_OUT,
+		FIRST_IN_LAST_OUT,
+	}
+
+	private List<Observer> observers;
+	protected ObserverCallOrder insertStrategy;
 
 	/**
 	 * This constructor initializes all members with their default value.
 	 */
-	protected ObservableImpl() {
-		observers = new HashSet<>();
+	public ObservableImpl() {
+		observers = new ArrayList<>();
+		insertStrategy = ObserverCallOrder.FIRST_IN_FIRST_OUT;
+	}
+
+	/**
+	 * This constructor initializes the insertStrategy member with the given parameters.
+	 * @param insertStrategy - the insert strategy to use
+	 */
+	public ObservableImpl(ObserverCallOrder insertStrategy) {
+		this();
+		this.insertStrategy = insertStrategy;
 	}
 
 	/**
@@ -24,14 +40,26 @@ public abstract class ObservableImpl<Observer> implements Observable<Observer> {
 	 */
 	@Override
 	public void subscribe(Observer observer) {
-		observers.add(observer);
+		switch (insertStrategy) {
+			case FIRST_IN_FIRST_OUT:
+				observers.add(observer);
+				break;
+
+			case FIRST_IN_LAST_OUT:
+				observers.add(0, observer);
+				break;
+
+			default:
+				observers.add(observer);
+				break;
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void unscubscibe(Observer observer) {
+	public void unsubscribe(Observer observer) {
 		observers.remove(observer);
 	}
 
@@ -39,7 +67,7 @@ public abstract class ObservableImpl<Observer> implements Observable<Observer> {
 	 * This method invokes a method for each observer.
 	 * @param notifyMethod - the method to invoke for each observer
 	 */
-	protected void notifyObservers(Consumer<Observer> notifyMethod) {
+	public void notifyObservers(Consumer<Observer> notifyMethod) {
 		for (Observer observer : observers) {
 			notifyMethod.accept(observer);
 		}

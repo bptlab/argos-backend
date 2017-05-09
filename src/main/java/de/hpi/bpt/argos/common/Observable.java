@@ -16,5 +16,5 @@ public interface Observable<Observer> {
 	 * This method removes an observer.
 	 * @param observer - the observer, which does no longer want to be notified
 	 */
-	void unscubscibe(Observer observer);
+	void unsubscribe(Observer observer);
 }

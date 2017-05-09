@@ -1,5 +1,7 @@
 package de.hpi.bpt.argos.core;
 
+import de.hpi.bpt.argos.eventProcessing.EventCreationObserver;
+import de.hpi.bpt.argos.eventProcessing.mapping.EventMappingObserver;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 
 /**
@@ -28,6 +30,36 @@ public interface Argos {
 	 * This method stops the argos backend.
 	 */
 	void stop();
+
+	/**
+	 * This method adds a new eventEntityMapper to the argos system. This will NOT override the default implementation, however it will be executed
+	 * before the default behavior.
+	 * @param mapper - the mapper to add
+	 * @throws ArgosNotRunningException - thrown when the start method was not yet called
+	 */
+	void addEventEntityMapper(EventCreationObserver mapper) throws ArgosNotRunningException;
+
+	/**
+	 * This method removes a custom eventEntityMapper from the argos system.
+	 * @param mapper - the mapper to remove
+	 * @throws ArgosNotRunningException - thrown when the start method was not yet called
+	 */
+	void removeEventEntityMapper(EventCreationObserver mapper) throws ArgosNotRunningException;
+
+	/**
+	 * This method adds a new statusCalculator to the argos system. This will NOT override the default implementation, however it will be executed
+	 * before the default behavior.
+	 * @param statusCalculator - the statusCalculator to add
+	 * @throws ArgosNotRunningException - thrown when the start method was not yet called
+	 */
+	void addEntityStatusCalculator(EventMappingObserver statusCalculator) throws ArgosNotRunningException;
+
+	/**
+	 * This method removes a custom statusCalculator from the argos system.
+	 * @param statusCalculator - the statusCalculator to remove
+	 * @throws ArgosNotRunningException - thrown when the start method was not yet called
+	 */
+	void removeEntityStatusCalculator(EventMappingObserver statusCalculator) throws ArgosNotRunningException;
 
 	/**
 	 * This method reads the host property from the properties-file and returns it's value.
