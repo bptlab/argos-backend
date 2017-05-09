@@ -3,9 +3,11 @@ package de.hpi.bpt.argos.eventProcessing;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.entity.EntityEndpoint;
+import de.hpi.bpt.argos.common.Observable;
 import de.hpi.bpt.argos.common.ObservableImpl;
 import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMappingStatus;
 import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMappingStatusImpl;
+import de.hpi.bpt.argos.eventProcessing.mapping.EventMappingObserver;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.AttributeImpl;
@@ -31,16 +33,20 @@ import static spark.Spark.halt;
  * {@inheritDoc}
  * This is the implementation.
  */
-public class EventReceiverImpl extends ObservableImpl<EventCreationObserver> implements EventReceiver {
+public class EventReceiverImpl implements EventReceiver {
 	private static final Logger logger = LoggerFactory.getLogger(EventReceiverImpl.class);
 	private static final RestEndpointUtil endpointUtil = RestEndpointUtilImpl.getInstance();
 	private static final JsonParser jsonParser = new JsonParser();
+
+	private ObservableImpl<EventCreationObserver> eventCreationObservable;
+	private ObservableImpl<EventMappingObserver> eventMappingObservable;
 
 	/**
 	 * This constructor initializes all members with their default values.
 	 */
 	public EventReceiverImpl() {
-		insertStrategy = ObserverOrder.FIRST_IN_LAST_OUT;
+		eventCreationObservable = new ObservableImpl<>(ObservableImpl.ObserverOrder.FIRST_IN_LAST_OUT);
+		eventMappingObservable = new ObservableImpl<>(ObservableImpl.ObserverOrder.FIRST_IN_LAST_OUT);
 	}
 
 	/**
@@ -71,6 +77,22 @@ public class EventReceiverImpl extends ObservableImpl<EventCreationObserver> imp
 		}
 
 		return "";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Observable<EventCreationObserver> getEventCreationObservable() {
+		return eventCreationObservable;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Observable<EventMappingObserver> getEventMappingObservable() {
+		return eventMappingObservable;
 	}
 
 	/**
@@ -106,29 +128,33 @@ public class EventReceiverImpl extends ObservableImpl<EventCreationObserver> imp
 			halt(HttpStatusCodes.ERROR, "cannot create event attributes in database");
 		}
 
-		EventEntityMappingStatus mappingStatus = new EventEntityMappingStatusImpl(event);
+		EventEntityMappingStatus eventCreationStatus = new EventEntityMappingStatusImpl(event);
 
-		notifyObservers((EventCreationObserver observer) ->
-				observer.onEventCreated(mappingStatus, eventType, eventTypeAttributes, event, eventAttributes));
+		eventCreationObservable.notifyObservers((EventCreationObserver observer) ->
+				observer.onEventCreated(eventCreationStatus, eventType, eventTypeAttributes, event, eventAttributes));
 
-		if (!mappingStatus.isMapped() || event.getEntityId() == 0) {
+		if (eventCreationStatus.isMapped()) {
+			eventMappingObservable.notifyObservers((EventMappingObserver observer) -> observer.onEventMapped(eventCreationStatus));
+		}
+
+		if (!eventCreationStatus.isMapped() || event.getEntityId() == 0) {
 			PersistenceAdapterImpl.getInstance().deleteArtifacts(eventAttributes.toArray(new Attribute[eventAttributes.size()]));
 			PersistenceAdapterImpl.getInstance().deleteArtifacts(event);
 			logger.info("cannot map event to entity");
 			logger.trace(String.format("event body: '%1$s'", requestBody));
 			halt(HttpStatusCodes.BAD_REQUEST, "cannot map event to entity");
 		} else {
-			int numberOfEvents = PersistenceAdapterImpl.getInstance().getEventCountOfEntity(mappingStatus.getEventOwner().getId(), eventType.getId());
+			int numberOfEvents = PersistenceAdapterImpl.getInstance().getEventCountOfEntity(eventCreationStatus.getEventOwner().getId(), eventType.getId());
 
-			if (mappingStatus.getStatusUpdateStatus().isStatusUpdated()) {
-				mappingStatus.getEventOwner().setStatus(mappingStatus.getStatusUpdateStatus().getNewStatus());
+			if (eventCreationStatus.getStatusUpdateStatus().isStatusUpdated()) {
+				eventCreationStatus.getEventOwner().setStatus(eventCreationStatus.getStatusUpdateStatus().getNewStatus());
 				PersistenceAdapterImpl.getInstance()
-						.updateArtifact(mappingStatus.getEventOwner(), EntityEndpoint.getEntityUri(mappingStatus.getEventOwner().getId()));
+						.updateArtifact(eventCreationStatus.getEventOwner(), EntityEndpoint.getEntityUri(eventCreationStatus.getEventOwner().getId()));
 			}
 
 			// this event will now be stored with the corresponding owner id and therefore will be the next eventIndex in the list of all events
 			PersistenceAdapterImpl.getInstance().createArtifact(event,
-					EntityEndpoint.getEventsOfEntityUri(mappingStatus.getEventOwner().getId(),
+					EntityEndpoint.getEventsOfEntityUri(eventCreationStatus.getEventOwner().getId(),
 							eventType.getId(),
 							numberOfEvents + 1,
 							numberOfEvents + 1));

@@ -8,9 +8,9 @@ import java.util.function.Consumer;
  * {@inheritDoc}
  * This is an abstract base implementation.
  */
-public abstract class ObservableImpl<Observer> implements Observable<Observer> {
+public class ObservableImpl<Observer> implements Observable<Observer> {
 
-	protected enum ObserverOrder {
+	public enum ObserverOrder {
 		FIRST_IN_FIRST_OUT,
 		FIRST_IN_LAST_OUT,
 	}
@@ -21,9 +21,18 @@ public abstract class ObservableImpl<Observer> implements Observable<Observer> {
 	/**
 	 * This constructor initializes all members with their default value.
 	 */
-	protected ObservableImpl() {
+	public ObservableImpl() {
 		observers = new ArrayList<>();
 		insertStrategy = ObserverOrder.FIRST_IN_FIRST_OUT;
+	}
+
+	/**
+	 * This constructor initializes the insertStrategy member with the given parameters.
+	 * @param insertStrategy - the insert strategy to use
+	 */
+	public ObservableImpl(ObserverOrder insertStrategy) {
+		this();
+		this.insertStrategy = insertStrategy;
 	}
 
 	/**
@@ -58,7 +67,7 @@ public abstract class ObservableImpl<Observer> implements Observable<Observer> {
 	 * This method invokes a method for each observer.
 	 * @param notifyMethod - the method to invoke for each observer
 	 */
-	protected void notifyObservers(Consumer<Observer> notifyMethod) {
+	public void notifyObservers(Consumer<Observer> notifyMethod) {
 		for (Observer observer : observers) {
 			notifyMethod.accept(observer);
 		}

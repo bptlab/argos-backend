@@ -1,9 +1,8 @@
 package de.hpi.bpt.argos.eventProcessing.status;
 
 import de.hpi.bpt.argos.api.entity.EntityEndpoint;
-import de.hpi.bpt.argos.common.Observable;
+import de.hpi.bpt.argos.eventProcessing.EventReceiver;
 import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMappingStatus;
-import de.hpi.bpt.argos.eventProcessing.mapping.EventMappingObserver;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.entity.Entity;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
@@ -18,8 +17,8 @@ public class EntityStatusCalculatorImpl implements EntityStatusCalculator {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setup(Observable<EventMappingObserver> eventEntityMapper) {
-		eventEntityMapper.subscribe(this);
+	public void setup(EventReceiver eventReceiver) {
+		eventReceiver.getEventMappingObservable().subscribe(this);
 	}
 
 	/**
