@@ -1,6 +1,8 @@
 package de.hpi.bpt.argos.eventProcessing.mapping;
 
+import de.hpi.bpt.argos.eventProcessing.status.EntityStatusUpdateStatus;
 import de.hpi.bpt.argos.storage.dataModel.entity.Entity;
+import de.hpi.bpt.argos.storage.dataModel.event.Event;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 
 /**
@@ -21,6 +23,12 @@ public interface EventEntityMappingStatus {
 	Entity getEventOwner();
 
 	/**
+	 * This method returns the event, which is about to be mapped.
+	 * @return - returns the event, which is about to be mapped
+	 */
+	Event getEvent();
+
+	/**
 	 * This method returns the applied eventEntityMapping.
 	 * @return - the applied eventEntityMapping
 	 */
@@ -32,4 +40,10 @@ public interface EventEntityMappingStatus {
 	 * @param usedMapping - the applied eventEntityMapping
 	 */
 	void setEventOwner(Entity eventOwner, EventEntityMapping usedMapping);
+
+	/**
+	 * This method returns the entityStatusUpdateStatus, which holds the state of the entity status update process.
+	 * @return - the entityStatusUpdateStatus, which holds the state of the entity status update process
+	 */
+	EntityStatusUpdateStatus getStatusUpdateStatus();
 }

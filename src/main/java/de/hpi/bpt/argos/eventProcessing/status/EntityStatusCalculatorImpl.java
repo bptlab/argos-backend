@@ -2,10 +2,10 @@ package de.hpi.bpt.argos.eventProcessing.status;
 
 import de.hpi.bpt.argos.api.entity.EntityEndpoint;
 import de.hpi.bpt.argos.common.Observable;
+import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMappingStatus;
 import de.hpi.bpt.argos.eventProcessing.mapping.EventMappingObserver;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.entity.Entity;
-import de.hpi.bpt.argos.storage.dataModel.event.Event;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 
 /**
@@ -26,9 +26,13 @@ public class EntityStatusCalculatorImpl implements EntityStatusCalculator {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onEventMapped(Event event, Entity entity, EventEntityMapping usedMapping) {
-		// this is the default behavior, feel free to implement your own status-logic here
-		changeStatusBasedOnMapping(entity, usedMapping);
+	public void onEventMapped(EventEntityMappingStatus processStatus) {
+
+		if (processStatus.getStatusUpdateStatus().isStatusUpdated()) {
+			return;
+		}
+
+		changeStatusBasedOnMapping(processStatus.getEventOwner(), processStatus.getUsedMapping());
 	}
 
 	/**

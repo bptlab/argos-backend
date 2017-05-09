@@ -28,6 +28,13 @@ public class EventEntityMapperImpl extends ObservableImpl<EventMappingObserver> 
 	private static final Logger logger = LoggerFactory.getLogger(EventEntityMapperImpl.class);
 
 	/**
+	 * This constructor initializes all members with their default values.
+	 */
+	public EventEntityMapperImpl() {
+		insertStrategy = ObserverOrder.FIRST_IN_LAST_OUT;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -44,7 +51,7 @@ public class EventEntityMapperImpl extends ObservableImpl<EventMappingObserver> 
 
 		if (mappingStatus.isMapped()) {
 			notifyObservers((EventMappingObserver observer) ->
-					observer.onEventMapped(event, mappingStatus.getEventOwner(), mappingStatus.getUsedMapping()));
+					observer.onEventMapped(mappingStatus));
 			return;
 		}
 
@@ -62,7 +69,7 @@ public class EventEntityMapperImpl extends ObservableImpl<EventMappingObserver> 
 			event.setEntityId(owner.getId());
 			mappingStatus.setEventOwner(owner, mapping);
 
-			notifyObservers((EventMappingObserver observer) -> observer.onEventMapped(event, owner, mapping));
+			notifyObservers((EventMappingObserver observer) -> observer.onEventMapped(mappingStatus));
 			return;
 		}
 	}

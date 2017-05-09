@@ -37,6 +37,13 @@ public class EventReceiverImpl extends ObservableImpl<EventCreationObserver> imp
 	private static final JsonParser jsonParser = new JsonParser();
 
 	/**
+	 * This constructor initializes all members with their default values.
+	 */
+	public EventReceiverImpl() {
+		insertStrategy = ObserverOrder.FIRST_IN_LAST_OUT;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -99,7 +106,7 @@ public class EventReceiverImpl extends ObservableImpl<EventCreationObserver> imp
 			halt(HttpStatusCodes.ERROR, "cannot create event attributes in database");
 		}
 
-		EventEntityMappingStatus mappingStatus = new EventEntityMappingStatusImpl();
+		EventEntityMappingStatus mappingStatus = new EventEntityMappingStatusImpl(event);
 
 		notifyObservers((EventCreationObserver observer) ->
 				observer.onEventCreated(mappingStatus, eventType, eventTypeAttributes, event, eventAttributes));
@@ -112,6 +119,12 @@ public class EventReceiverImpl extends ObservableImpl<EventCreationObserver> imp
 			halt(HttpStatusCodes.BAD_REQUEST, "cannot map event to entity");
 		} else {
 			int numberOfEvents = PersistenceAdapterImpl.getInstance().getEventCountOfEntity(mappingStatus.getEventOwner().getId(), eventType.getId());
+
+			if (mappingStatus.getStatusUpdateStatus().isStatusUpdated()) {
+				mappingStatus.getEventOwner().setStatus(mappingStatus.getStatusUpdateStatus().getNewStatus());
+				PersistenceAdapterImpl.getInstance()
+						.updateArtifact(mappingStatus.getEventOwner(), EntityEndpoint.getEntityUri(mappingStatus.getEventOwner().getId()));
+			}
 
 			// this event will now be stored with the corresponding owner id and therefore will be the next eventIndex in the list of all events
 			PersistenceAdapterImpl.getInstance().createArtifact(event,
