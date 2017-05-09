@@ -13,7 +13,7 @@ import java.util.List;
  * {@inheritDoc}
  * This is the implementation.
  */
-public class HierarchyBuilderImpl implements HierarchyBuilder {
+public final class HierarchyBuilderImpl implements HierarchyBuilder {
 
 	private EntityHierarchyNode rootNode;
 
@@ -50,9 +50,7 @@ public class HierarchyBuilderImpl implements HierarchyBuilder {
 		List<Entity> entities = PersistenceAdapterImpl.getInstance().getEntities();
 		rootNode = new EntityHierarchyNodeImpl(VirtualRoot.getInstance().getId());
 
-		entities = addChildren(rootNode, entities);
-
-		assert entities.isEmpty();
+		addChildren(rootNode, entities);
 
 		return rootNode;
 	}
