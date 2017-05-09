@@ -27,7 +27,7 @@ public class EntityStatusCalculatorImpl implements EntityStatusCalculator {
 	@Override
 	public void onEventMapped(EventEntityMappingStatus processStatus) {
 
-		if (processStatus.getStatusUpdateStatus().isStatusUpdated()) {
+		if (processStatus.getUsedMapping() == null || processStatus.getStatusUpdateStatus().isStatusUpdated()) {
 			return;
 		}
 

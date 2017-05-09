@@ -42,6 +42,12 @@ public interface EventEntityMappingStatus {
 	void setEventOwner(Entity eventOwner, EventEntityMapping usedMapping);
 
 	/**
+	 * This method sets the owner of the event. Note: Since there is no eventEntityMapping involved, the custom status logic will not apply.
+	 * @param eventOwner - the event owner to be set
+	 */
+	void setEventOwner(Entity eventOwner);
+
+	/**
 	 * This method returns the entityStatusUpdateStatus, which holds the state of the entity status update process.
 	 * @return - the entityStatusUpdateStatus, which holds the state of the entity status update process
 	 */

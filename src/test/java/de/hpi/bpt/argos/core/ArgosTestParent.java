@@ -16,7 +16,7 @@ public class ArgosTestParent {
 	protected static final Gson serializer = new Gson();
 	protected static final JsonParser jsonParser = new JsonParser();
 
-	private static Argos argos;
+	protected static Argos argos;
 
 	@BeforeClass
 	public static void setup() {

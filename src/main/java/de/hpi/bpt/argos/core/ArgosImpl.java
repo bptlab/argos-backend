@@ -102,6 +102,19 @@ public class ArgosImpl implements Argos {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public void removeEntityMapper(EventCreationObserver mapper) {
+		if (eventReceiver == null) {
+			logger.error("cannot remove entityMapper. argos did not start yet!");
+			return;
+		}
+
+		eventReceiver.getEventCreationObservable().unsubscribe(mapper);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void addEntityStatusCalculator(EventMappingObserver statusCalculator) {
 		if (eventReceiver == null) {
 			logger.error("cannot add statusCalculator. argos did not start yet!");
@@ -109,6 +122,19 @@ public class ArgosImpl implements Argos {
 		}
 
 		eventReceiver.getEventMappingObservable().subscribe(statusCalculator);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeEntityStatusCalculator(EventMappingObserver statusCalculator) {
+		if (eventReceiver == null) {
+			logger.error("cannot remove statusCalculator. argos did not start yet!");
+			return;
+		}
+
+		eventReceiver.getEventMappingObservable().unsubscribe(statusCalculator);
 	}
 
 	/**

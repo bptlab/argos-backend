@@ -39,11 +39,23 @@ public interface Argos {
 	void addEventEntityMapper(EventCreationObserver mapper);
 
 	/**
+	 * This method removes a custom eventEntityMapper from the argos system.
+	 * @param mapper - the mapper to remove
+	 */
+	void removeEntityMapper(EventCreationObserver mapper);
+
+	/**
 	 * This method adds a new statusCalculator to the argos system. This will NOT override the default implementation, however it will be executed
 	 * before the default behavior.
 	 * @param statusCalculator - the statusCalculator to add
 	 */
 	void addEntityStatusCalculator(EventMappingObserver statusCalculator);
+
+	/**
+	 * This method removes a custom statusCalculator from the argos system.
+	 * @param statusCalculator - the statusCalculator to remove
+	 */
+	void removeEntityStatusCalculator(EventMappingObserver statusCalculator);
 
 	/**
 	 * This method reads the host property from the properties-file and returns it's value.

@@ -64,8 +64,17 @@ public class EventEntityMappingStatusImpl implements EventEntityMappingStatus {
 	 */
 	@Override
 	public void setEventOwner(Entity eventOwner, EventEntityMapping usedMapping) {
-		this.eventOwner = eventOwner;
+		setEventOwner(eventOwner);
 		mapping = usedMapping;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setEventOwner(Entity eventOwner) {
+		this.eventOwner = eventOwner;
+		event.setEntityId(eventOwner.getId());
 		mapped = true;
 
 		statusUpdateStatus = new EntityStatusUpdateStatusImpl(eventOwner.getStatus());

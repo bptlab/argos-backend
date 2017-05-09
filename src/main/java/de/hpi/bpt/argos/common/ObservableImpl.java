@@ -59,7 +59,7 @@ public class ObservableImpl<Observer> implements Observable<Observer> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void unscubscibe(Observer observer) {
+	public void unsubscribe(Observer observer) {
 		observers.remove(observer);
 	}
 
