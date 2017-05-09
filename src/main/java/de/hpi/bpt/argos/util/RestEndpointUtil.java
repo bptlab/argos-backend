@@ -2,6 +2,8 @@ package de.hpi.bpt.argos.util;
 
 import org.slf4j.Logger;
 import spark.Request;
+import spark.Response;
+import spark.Route;
 
 import java.util.List;
 import java.util.function.Function;
@@ -42,6 +44,16 @@ public interface RestEndpointUtil {
      * @return - the updated parameter
      */
     String getParameter(String parameterName, boolean includePrefix);
+
+	/**
+	 * This method executes a route and catching all exceptions for easier logging.
+	 * @param logger - the logger to use
+	 * @param request - the spark request
+	 * @param response - the spark response
+	 * @param route - the route to execute
+	 * @return - the response to the request
+	 */
+	String executeRequest(Logger logger, Request request, Response response, Route route);
 
 	/**
 	 * This method logs an info, whenever a request was received.

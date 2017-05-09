@@ -17,7 +17,6 @@ import de.hpi.bpt.argos.util.RestEndpointUtil;
 import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.HaltException;
 import spark.Request;
 import spark.Response;
 import spark.Service;
@@ -42,9 +41,17 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
      */
     @Override
     public void setup(Service sparkService) {
-        sparkService.post(EventQueryEndpoint.getCreateEventQueryBaseUri(), this::createEventQuery);
-        sparkService.delete(EventQueryEndpoint.getDeleteEventQueryBaseUri(), this::deleteEventQuery);
-        sparkService.put(EventQueryEndpoint.getEditEventQueryBaseUri(), this::editEventQuery);
+        sparkService.post(EventQueryEndpoint.getCreateEventQueryBaseUri(),
+				(Request request, Response response) ->
+						endpointUtil.executeRequest(logger, request, response, this::createEventQuery));
+
+        sparkService.delete(EventQueryEndpoint.getDeleteEventQueryBaseUri(),
+				(Request request, Response response) ->
+						endpointUtil.executeRequest(logger, request, response, this::deleteEventQuery));
+
+        sparkService.put(EventQueryEndpoint.getEditEventQueryBaseUri(),
+				(Request request, Response response) ->
+						endpointUtil.executeRequest(logger, request, response, this::editEventQuery));
     }
 
     /**
@@ -52,42 +59,28 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
      */
     @Override
     public String createEventQuery(Request request, Response response) {
-        endpointUtil.logReceivedRequest(logger, request);
+		JsonObject jsonEventQuery = jsonParser.parse(request.body()).getAsJsonObject();
 
-        response.body("");
+		if (jsonEventQuery == null) {
+			halt(HttpStatusCodes.BAD_REQUEST, "no event query given in body");
+		}
 
-        try {
-            JsonObject jsonEventQuery = jsonParser.parse(request.body()).getAsJsonObject();
+		EventQuery eventQuery = getEventQueryFromJson(jsonEventQuery, true);
+		if (eventQuery == null) {
+			halt(HttpStatusCodes.BAD_REQUEST, "cannot parse event query");
+		}
 
-            if (jsonEventQuery == null) {
-                halt(HttpStatusCodes.BAD_REQUEST, "no event query given in body");
-            }
+		checkEventTypeExists(eventQuery);
 
-            EventQuery eventQuery = getEventQueryFromJson(jsonEventQuery, true);
-            if (eventQuery == null) {
-                halt(HttpStatusCodes.BAD_REQUEST, "cannot parse event query");
-            }
+		EventPlatformFeedback feedback = EventProcessingPlatformUpdaterImpl.getInstance().registerEventQuery(eventQuery.getTypeId(), eventQuery);
 
-            checkEventTypeExists(eventQuery);
+		if (!feedback.isSuccessful()) {
+			halt(HttpStatusCodes.ERROR, String.format("cannot register event type: %1$s", feedback.getResponseText()));
+		}
 
-            EventPlatformFeedback feedback = EventProcessingPlatformUpdaterImpl.getInstance().registerEventQuery(eventQuery.getTypeId(), eventQuery);
+		PersistenceAdapterImpl.getInstance().createArtifact(eventQuery, EventTypeEndpoint.getEventTypeQueriesUri(eventQuery.getId()));
 
-            if (!feedback.isSuccessful()) {
-                halt(HttpStatusCodes.ERROR, String.format("cannot register event type: %1$s", feedback.getResponseText()));
-            }
-
-            PersistenceAdapterImpl.getInstance().createArtifact(eventQuery, EventTypeEndpoint.getEventTypeQueriesUri(eventQuery.getId()));
-
-        } catch (HaltException halt) {
-            LoggerUtilImpl.getInstance().error(logger,
-                    String.format("cannot create event query: %1$s -> %2$s", halt.statusCode(), halt.body()), halt);
-            throw halt;
-        } catch (Exception e) {
-            LoggerUtilImpl.getInstance().error(logger, JSON_PARSE_ERROR_MESSAGE, e);
-            halt(HttpStatusCodes.ERROR, e.getMessage());
-        }
-        endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
-        return response.body();
+		return "";
     }
 
     /**
@@ -95,10 +88,6 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
      */
     @Override
     public String deleteEventQuery(Request request, Response response) {
-        endpointUtil.logReceivedRequest(logger, request);
-
-		response.body("");
-
         long eventQueryId = getEventQueryId(request);
         EventQuery eventQuery = PersistenceAdapterImpl.getInstance().getEventQuery(eventQueryId);
         if (eventQuery == null) {
@@ -125,8 +114,7 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
             halt(HttpStatusCodes.ERROR, "could not delete query");
         }
 
-        endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
-        return response.body();
+        return "";
     }
 
     /**
@@ -134,10 +122,6 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
      */
     @Override
     public String editEventQuery(Request request, Response response) {
-        endpointUtil.logReceivedRequest(logger, request);
-
-		response.body("");
-
         JsonObject jsonEventQuery = new JsonObject();
         try {
             jsonEventQuery = jsonParser.parse(request.body()).getAsJsonObject();
@@ -179,8 +163,7 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
             halt(HttpStatusCodes.ERROR, "failed to save new query into database");
         }
 
-        endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
-        return response.body();
+        return "";
     }
 
     /**

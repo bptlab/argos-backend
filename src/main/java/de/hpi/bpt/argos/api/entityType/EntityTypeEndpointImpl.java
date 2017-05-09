@@ -40,9 +40,17 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
      */
     @Override
     public void setup(Service sparkService) {
-        sparkService.get(EntityTypeEndpoint.getEntityTypeHierarchyBaseUri(), this::getEntityTypeHierarchy);
-        sparkService.get(EntityTypeEndpoint.getEntityTypeAttributesBaseUri(), this::getEntityTypeAttributes);
-        sparkService.get(EntityTypeEndpoint.getEntityTypeEntityMappingsBaseUri(), this::getEntityTypeEntityMappings);
+        sparkService.get(EntityTypeEndpoint.getEntityTypeHierarchyBaseUri(),
+                (Request request, Response response) ->
+                        endpointUtil.executeRequest(logger, request, response, this::getEntityTypeHierarchy));
+
+        sparkService.get(EntityTypeEndpoint.getEntityTypeAttributesBaseUri(),
+				(Request request, Response response) ->
+						endpointUtil.executeRequest(logger, request, response, this::getEntityTypeAttributes));
+
+        sparkService.get(EntityTypeEndpoint.getEntityTypeEntityMappingsBaseUri(),
+				(Request request, Response response) ->
+						endpointUtil.executeRequest(logger, request, response, this::getEntityTypeEntityMappings));
 
         jsonHierarchy = serializer.toJson(getEntityTypeHierarchy());
     }
@@ -52,15 +60,10 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
      */
     @Override
     public String getEntityTypeHierarchy(Request request, Response response) {
-        endpointUtil.logReceivedRequest(logger, request);
-
         if (Argos.getTestMode()) {
             jsonHierarchy = serializer.toJson(getEntityTypeHierarchy());
         }
-        response.body(jsonHierarchy);
-
-        endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
-        return response.body();
+        return jsonHierarchy;
     }
 
     /**
@@ -68,8 +71,6 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
      */
     @Override
     public String getEntityTypeAttributes(Request request, Response response) {
-        endpointUtil.logReceivedRequest(logger, request);
-
         List<TypeAttribute> typeAttributes = PersistenceAdapterImpl.getInstance().getTypeAttributes(getEntityTypeId(request));
 
         JsonArray jsonTypeAttributes = new JsonArray();
@@ -80,9 +81,7 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
             jsonTypeAttributes.add(jsonAttribute);
         }
 
-        response.body(serializer.toJson(jsonTypeAttributes));
-        endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
-        return response.body();
+        return serializer.toJson(jsonTypeAttributes);
     }
 
     /**
@@ -90,15 +89,11 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
      */
     @Override
     public String getEntityTypeEntityMappings(Request request, Response response) {
-        endpointUtil.logReceivedRequest(logger, request);
-
         long entityTypeId = getEntityTypeId(request);
         List<EventEntityMapping> mappings = PersistenceAdapterImpl.getInstance().getEventEntityMappingsForEntityType(entityTypeId);
         JsonArray jsonMappings = getMappingsJson(mappings);
 
-        response.body(serializer.toJson(jsonMappings));
-        endpointUtil.logSendingResponse(logger, request, response.status(), response.body());
-        return response.body();
+        return serializer.toJson(jsonMappings);
     }
 
     /**
