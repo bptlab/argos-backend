@@ -179,7 +179,7 @@ public class EventReceiverTest extends ArgosTestParent {
 		request.setContent(serializer.toJson(event));
 		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
-		argos.removeEntityMapper(customEventMapper);
+		argos.removeEventEntityMapper(customEventMapper);
 
 		assertEquals(eventsCount + 1, getEventsCount());
 		assertEquals(targetStatus, getEntityStatus(newEntity.getId()));
@@ -220,7 +220,6 @@ public class EventReceiverTest extends ArgosTestParent {
 		argos.removeEntityStatusCalculator(customStatusLogic);
 
 		assertEquals(eventsCount + 1, getEventsCount());
-		assertEquals(targetStatus, getEntityStatus());
 		assertEquals(targetStatus, getEntityStatus());
 
 		assertWebSocketMessages(webSocket);

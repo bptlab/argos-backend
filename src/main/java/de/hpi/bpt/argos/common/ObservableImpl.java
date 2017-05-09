@@ -10,27 +10,27 @@ import java.util.function.Consumer;
  */
 public class ObservableImpl<Observer> implements Observable<Observer> {
 
-	public enum ObserverOrder {
+	public enum ObserverCallOrder {
 		FIRST_IN_FIRST_OUT,
 		FIRST_IN_LAST_OUT,
 	}
 
 	private List<Observer> observers;
-	protected ObserverOrder insertStrategy;
+	protected ObserverCallOrder insertStrategy;
 
 	/**
 	 * This constructor initializes all members with their default value.
 	 */
 	public ObservableImpl() {
 		observers = new ArrayList<>();
-		insertStrategy = ObserverOrder.FIRST_IN_FIRST_OUT;
+		insertStrategy = ObserverCallOrder.FIRST_IN_FIRST_OUT;
 	}
 
 	/**
 	 * This constructor initializes the insertStrategy member with the given parameters.
 	 * @param insertStrategy - the insert strategy to use
 	 */
-	public ObservableImpl(ObserverOrder insertStrategy) {
+	public ObservableImpl(ObserverCallOrder insertStrategy) {
 		this();
 		this.insertStrategy = insertStrategy;
 	}

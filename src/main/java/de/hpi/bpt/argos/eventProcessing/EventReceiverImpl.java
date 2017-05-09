@@ -45,8 +45,8 @@ public class EventReceiverImpl implements EventReceiver {
 	 * This constructor initializes all members with their default values.
 	 */
 	public EventReceiverImpl() {
-		eventCreationObservable = new ObservableImpl<>(ObservableImpl.ObserverOrder.FIRST_IN_LAST_OUT);
-		eventMappingObservable = new ObservableImpl<>(ObservableImpl.ObserverOrder.FIRST_IN_LAST_OUT);
+		eventCreationObservable = new ObservableImpl<>(ObservableImpl.ObserverCallOrder.FIRST_IN_LAST_OUT);
+		eventMappingObservable = new ObservableImpl<>(ObservableImpl.ObserverCallOrder.FIRST_IN_LAST_OUT);
 	}
 
 	/**

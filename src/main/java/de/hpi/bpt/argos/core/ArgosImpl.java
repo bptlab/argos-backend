@@ -89,10 +89,9 @@ public class ArgosImpl implements Argos {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addEventEntityMapper(EventCreationObserver mapper) {
+	public void addEventEntityMapper(EventCreationObserver mapper) throws ArgosNotRunningException {
 		if (eventReceiver == null) {
-			logger.error("cannot add entityMapper. argos did not start yet!");
-			return;
+			throw new ArgosNotRunningException("cannot add eventEntityMapper");
 		}
 
 		eventReceiver.getEventCreationObservable().subscribe(mapper);
@@ -102,10 +101,9 @@ public class ArgosImpl implements Argos {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void removeEntityMapper(EventCreationObserver mapper) {
+	public void removeEventEntityMapper(EventCreationObserver mapper) throws ArgosNotRunningException {
 		if (eventReceiver == null) {
-			logger.error("cannot remove entityMapper. argos did not start yet!");
-			return;
+			throw new ArgosNotRunningException("cannot remove eventEntityMapper");
 		}
 
 		eventReceiver.getEventCreationObservable().unsubscribe(mapper);
@@ -115,10 +113,9 @@ public class ArgosImpl implements Argos {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addEntityStatusCalculator(EventMappingObserver statusCalculator) {
+	public void addEntityStatusCalculator(EventMappingObserver statusCalculator) throws ArgosNotRunningException {
 		if (eventReceiver == null) {
-			logger.error("cannot add statusCalculator. argos did not start yet!");
-			return;
+			throw new ArgosNotRunningException("cannot add entityStatusCalculator");
 		}
 
 		eventReceiver.getEventMappingObservable().subscribe(statusCalculator);
@@ -128,10 +125,9 @@ public class ArgosImpl implements Argos {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void removeEntityStatusCalculator(EventMappingObserver statusCalculator) {
+	public void removeEntityStatusCalculator(EventMappingObserver statusCalculator) throws ArgosNotRunningException {
 		if (eventReceiver == null) {
-			logger.error("cannot remove statusCalculator. argos did not start yet!");
-			return;
+			throw new ArgosNotRunningException("cannot remove entityStatusCalculator");
 		}
 
 		eventReceiver.getEventMappingObservable().unsubscribe(statusCalculator);
