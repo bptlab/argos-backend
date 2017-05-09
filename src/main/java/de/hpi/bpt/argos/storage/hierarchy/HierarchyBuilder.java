@@ -1,0 +1,13 @@
+package de.hpi.bpt.argos.storage.hierarchy;
+
+/**
+ * This interface offers methods to build the entityHierarchy.
+ */
+public interface HierarchyBuilder {
+
+	/**
+	 * This method returns the root node of the entityHierarchy.
+	 * @return - the root node of the entityHierarchy
+	 */
+	EntityHierarchyNode getEntityHierarchy();
+}

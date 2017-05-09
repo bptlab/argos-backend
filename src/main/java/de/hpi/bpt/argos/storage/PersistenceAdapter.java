@@ -86,6 +86,12 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	List<TypeAttribute> getTypeAttributes(long typeId);
 
 	/**
+	 * This method returns all entities in the database.
+	 * @return - a list of all entities in the database
+	 */
+	List<Entity> getEntities();
+
+	/**
 	 * This method returns a specific entity, identified by it's id.
 	 * @param id - the unique identifier for the entity
 	 * @return - the entity or null

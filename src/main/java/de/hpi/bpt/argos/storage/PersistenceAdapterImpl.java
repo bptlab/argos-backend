@@ -166,6 +166,20 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 	 * {@inheritDoc}
 	 */
 	@Override
+	public List<Entity> getEntities() {
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		Query<Entity> query = session.createQuery("FROM EntityImpl entity",
+				Entity.class);
+
+		return databaseAccess.getArtifacts(session, query, transaction, query::getResultList, new ArrayList<>());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public Entity getEntity(long id) {
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
