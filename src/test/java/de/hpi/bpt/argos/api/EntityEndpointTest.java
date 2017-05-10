@@ -168,14 +168,43 @@ public class EntityEndpointTest extends ArgosTestParent {
 	}
 
 	@Test
-	public void testGetEventTypesOfEntity_InvalidId_Success() {
+	public void testGetEventTypesOfEntity_ChildEventTypes_Success() {
+		EventType newEventType = ArgosTestUtil.createEventType(false, true);
+		List<TypeAttribute> newEventTypeAttributes = ArgosTestUtil.createEventTypeAttributes(newEventType, true);
+		Entity newEntity = ArgosTestUtil.createEntity(testEntityType, testEntity, true);
+		Event newEvent = ArgosTestUtil.createEvent(newEventType, newEntity, true);
+
 		RestRequest request = RestRequestFactoryImpl.getInstance()
-				.createGetRequest(ARGOS_REST_HOST, getEventTypesOfEntityUri(testEntity.getId() + 1));
+				.createGetRequest(ARGOS_REST_HOST, getEventTypesOfEntityUri(testEntity.getId()));
 
 		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
+		// delete those artifacts, to not disturb other tests
+		PersistenceAdapterImpl.getInstance().deleteArtifacts(newEventType, newEntity, newEvent);
+		PersistenceAdapterImpl.getInstance().deleteArtifacts(newEventTypeAttributes.toArray(new TypeAttribute[newEventTypeAttributes.size()]));
+
 		JsonArray eventTypes = jsonParser.parse(request.getResponse()).getAsJsonArray();
-		assertEquals(0, eventTypes.size());
+		assertEquals(2, eventTypes.size());
+
+		JsonObject eventType = eventTypes.get(0).getAsJsonObject();
+		assertEquals(testEventType.getId(), eventType.get("Id").getAsLong());
+		assertEquals(testEventType.getName(), eventType.get("Name").getAsString());
+		assertEquals(1, eventType.get("NumberOfEvents").getAsLong());
+		assertEquals(testEventType.getTimeStampAttributeId(), eventType.get("TimestampAttributeId").getAsLong());
+
+		eventType = eventTypes.get(1).getAsJsonObject();
+		assertEquals(newEventType.getId(), eventType.get("Id").getAsLong());
+		assertEquals(newEventType.getName(), eventType.get("Name").getAsString());
+		assertEquals(1, eventType.get("NumberOfEvents").getAsLong());
+		assertEquals(newEventType.getTimeStampAttributeId(), eventType.get("TimestampAttributeId").getAsLong());
+	}
+
+	@Test
+	public void testGetEventTypesOfEntity_InvalidId_NotFound() {
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createGetRequest(ARGOS_REST_HOST, getEventTypesOfEntityUri(testEntity.getId() + 1));
+
+		assertEquals(HttpStatusCodes.NOT_FOUND, request.getResponseCode());
 	}
 
 	@Test
