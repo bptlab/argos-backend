@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import de.hpi.bpt.argos.api.RestEndpointCommon;
 import de.hpi.bpt.argos.common.EventPlatformFeedback;
 import de.hpi.bpt.argos.common.EventProcessingPlatformUpdaterImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
@@ -17,7 +18,6 @@ import de.hpi.bpt.argos.storage.dataModel.event.type.EventTypeImpl;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
-import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import de.hpi.bpt.argos.util.RestEndpointUtil;
 import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
 import org.slf4j.Logger;
@@ -90,7 +90,7 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         JsonArray jsonEventTypesArray = new JsonArray();
 
         for (EventType eventType : eventTypes) {
-            jsonEventTypesArray.add(getEventTypeJson(eventType));
+            jsonEventTypesArray.add(RestEndpointCommon.getEventTypeJson(eventType));
         }
 
         return serializer.toJson(jsonEventTypesArray);
@@ -103,7 +103,7 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
     public String getEventType(Request request, Response response) {
         long eventTypeId = getEventTypeId(request);
         EventType eventType = PersistenceAdapterImpl.getInstance().getEventType(eventTypeId);
-        JsonObject jsonEventType = getEventTypeJson(eventType);
+        JsonObject jsonEventType = RestEndpointCommon.getEventTypeJson(eventType);
 
         return serializer.toJson(jsonEventType);
     }
@@ -205,20 +205,10 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
      */
     @Override
     public String getEventTypeAttributes(Request request, Response response) {
-        JsonArray jsonTypeAttributesArray = new JsonArray();
 		long eventTypeId = getEventTypeId(request);
-		List<TypeAttribute> attributes = PersistenceAdapterImpl.getInstance().getTypeAttributes(eventTypeId);
+		List<TypeAttribute> typeAttributes = PersistenceAdapterImpl.getInstance().getTypeAttributes(eventTypeId);
 
-		for (TypeAttribute attribute : attributes) {
-			JsonObject jsonTypeAttribute = new JsonObject();
-
-			jsonTypeAttribute.addProperty("Id", attribute.getId());
-			jsonTypeAttribute.addProperty("Name", attribute.getName());
-
-			jsonTypeAttributesArray.add(jsonTypeAttribute);
-		}
-
-		return serializer.toJson(jsonTypeAttributesArray);
+		return serializer.toJson(RestEndpointCommon.getTypeAttributesJson(typeAttributes));
     }
 
     /**
@@ -249,56 +239,10 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
      */
     @Override
     public String getEventTypeEntityMappings(Request request, Response response) {
-        JsonArray jsonEntityMappingsArray = new JsonArray();
-
         long eventTypeId = getEventTypeId(request);
         List<EventEntityMapping> entityMappings = PersistenceAdapterImpl.getInstance().getEventEntityMappingsForEventType(eventTypeId);
 
-        for (EventEntityMapping entityMapping : entityMappings) {
-            JsonObject jsonEntityMapping = new JsonObject();
-
-            jsonEntityMapping.addProperty("Id", entityMapping.getId());
-            jsonEntityMapping.addProperty("EventTypeId", entityMapping.getEventTypeId());
-            jsonEntityMapping.addProperty("EntityTypeId", entityMapping.getEntityTypeId());
-            jsonEntityMapping.addProperty("TargetStatus", entityMapping.getTargetStatus());
-
-            // add mapping conditions as array
-            JsonArray jsonMappingConditions = new JsonArray();
-            List<MappingCondition> mappingConditions = PersistenceAdapterImpl.getInstance().getMappingConditions(entityMapping.getId());
-            for (MappingCondition condition : mappingConditions) {
-                JsonObject jsonCondition = new JsonObject();
-                jsonCondition.addProperty("EventTypeAttributeId", condition.getEventTypeAttributeId());
-                jsonCondition.addProperty("EntityTypeAttributeId", condition.getEntityTypeAttributeId());
-                jsonMappingConditions.add(jsonCondition);
-            }
-            jsonEntityMapping.add("EventEntityMappingConditions", jsonMappingConditions);
-
-            jsonEntityMappingsArray.add(jsonEntityMapping);
-        }
-
-        return serializer.toJson(jsonEntityMappingsArray);
-    }
-
-    /**
-     * This method returns an event type as a JsonObject.
-     * @param eventType - the event type
-     * @return - a json representation of the event type
-     */
-    private JsonObject getEventTypeJson(EventType eventType) {
-        try {
-            JsonObject jsonEventType = new JsonObject();
-
-            jsonEventType.addProperty("Id", eventType.getId());
-            jsonEventType.addProperty("Name", eventType.getName());
-            jsonEventType.addProperty("NumberOfEvents",
-                    PersistenceAdapterImpl.getInstance().getEventCountOfEventType(eventType.getId()));
-            jsonEventType.addProperty("TimestampAttributeId", eventType.getTimeStampAttributeId());
-
-            return jsonEventType;
-        } catch (Exception e) {
-            LoggerUtilImpl.getInstance().error(logger, "cannot parse event type", e);
-            return new JsonObject();
-        }
+        return serializer.toJson(RestEndpointCommon.getEventEntityMappingsJson(entityMappings));
     }
 
     /**

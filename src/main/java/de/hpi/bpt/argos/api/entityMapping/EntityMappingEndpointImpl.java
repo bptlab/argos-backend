@@ -38,7 +38,6 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
     private static final Logger logger = LoggerFactory.getLogger(EventTypeEndpointImpl.class);
     private static final RestEndpointUtil endpointUtil = RestEndpointUtilImpl.getInstance();
     private static final JsonParser jsonParser = new JsonParser();
-	
     private static final String EVENT_TYPE_ID_ATTRIBUTE = "EventTypeId";
     private static final String ENTITY_TYPE_ID_ATTRIBUTE = "EntityTypeId";
     private static final String MAPPING_CONDITIONS_ATTRIBUTE = "EventEntityMappingConditions";

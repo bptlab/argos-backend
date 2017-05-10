@@ -3,6 +3,7 @@ package de.hpi.bpt.argos.api.entity;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import de.hpi.bpt.argos.api.RestEndpointCommon;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpointImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
@@ -33,7 +34,6 @@ import static spark.Spark.halt;
  * This is the implementation.
  */
 public class EntityEndpointImpl implements EntityEndpoint {
-	
     private static final Logger logger = LoggerFactory.getLogger(EventTypeEndpointImpl.class);
     private static final Gson serializer = new Gson();
     private static final RestEndpointUtil endpointUtil = RestEndpointUtilImpl.getInstance();
@@ -206,28 +206,6 @@ public class EntityEndpointImpl implements EntityEndpoint {
     }
 
     /**
-     * This method returns an event type as a JsonObject.
-     * @param eventType - the event type
-     * @return - a json representation of the event type
-     */
-    private JsonObject getEventTypeJson(EventType eventType) {
-        try {
-            JsonObject jsonEventType = new JsonObject();
-
-            jsonEventType.addProperty("Id", eventType.getId());
-            jsonEventType.addProperty("Name", eventType.getName());
-            jsonEventType.addProperty("NumberOfEvents",
-                    PersistenceAdapterImpl.getInstance().getEventCountOfEventType(eventType.getId()));
-            jsonEventType.addProperty("TimestampAttributeId", eventType.getTimeStampAttributeId());
-
-            return jsonEventType;
-        } catch (Exception e) {
-            LoggerUtilImpl.getInstance().error(logger, "cannot parse event type", e);
-            return new JsonObject();
-        }
-    }
-
-    /**
      * This method returns event types as a JsonArray.
      * @param eventTypes - the event types
      * @return - a json representation of the event types
@@ -235,7 +213,7 @@ public class EntityEndpointImpl implements EntityEndpoint {
     private JsonArray getEventTypesJson(List<EventType> eventTypes) {
         JsonArray eventTypesJson = new JsonArray();
         for (EventType eventType : eventTypes) {
-            eventTypesJson.add(getEventTypeJson(eventType));
+            eventTypesJson.add(RestEndpointCommon.getEventTypeJson(eventType));
         }
         return eventTypesJson;
     }
