@@ -10,5 +10,5 @@ public interface HierarchyBuilder {
 	 * This method returns the root node of the entityHierarchy.
 	 * @return - the root node of the entityHierarchy
 	 */
-	EntityHierarchyNode getEntityHierarchy();
+	EntityHierarchyNode getEntityHierarchyRootNode();
 }

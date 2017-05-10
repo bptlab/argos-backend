@@ -28,5 +28,5 @@ public interface EntityHierarchyNode {
 	 * @param id - the id of the entity to find
 	 * @return - the entityHierarchyNode, which represents the entity or null
 	 */
-	EntityHierarchyNode findEntity(long id);
+	EntityHierarchyNode findChildEntity(long id);
 }

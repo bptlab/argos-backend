@@ -49,13 +49,13 @@ public class EntityHierarchyNodeImpl implements EntityHierarchyNode {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EntityHierarchyNode findEntity(long id) {
+	public EntityHierarchyNode findChildEntity(long id) {
 		if (id == this.id) {
 			return this;
 		}
 
 		for (EntityHierarchyNode child : children) {
-			EntityHierarchyNode entity = child.findEntity(id);
+			EntityHierarchyNode entity = child.findChildEntity(id);
 
 			if (entity != null) {
 				return entity;
