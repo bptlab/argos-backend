@@ -270,7 +270,7 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Event> getEvents(long eventTypeId, int listStartIndex, int listEndIndex, long... entityIds) {
+	public List<Event> getEvents(long eventTypeId, int listStartIndex, int listEndIndex, Long... entityIds) {
 		if (entityIds.length == 0) {
 			return new ArrayList<>();
 		}
@@ -319,9 +319,10 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 
 	/**
 	 * {@inheritDoc}
+	 * @param entityIds
 	 */
 	@Override
-	public List<EventType> getEventTypes(long... entityIds) {
+	public List<EventType> getEventTypes(Long... entityIds) {
 		if (entityIds.length == 0) {
 			return new ArrayList<>();
 		}
@@ -535,7 +536,7 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 	 * @param entityIds - a list of unique identifiers of entities
 	 * @return - a list of all eventTypeIds, where at least one event occurred for at least one of the given entities
 	 */
-	private List<Long> getEventTypeIds(long... entityIds) {
+	private List<Long> getEventTypeIds(Long... entityIds) {
 
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();

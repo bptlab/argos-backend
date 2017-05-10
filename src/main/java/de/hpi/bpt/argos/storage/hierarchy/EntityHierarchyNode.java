@@ -1,5 +1,7 @@
 package de.hpi.bpt.argos.storage.hierarchy;
 
+import java.util.List;
+
 /**
  * This interface represents nodes in the entityHierarchy.
  */
@@ -29,4 +31,10 @@ public interface EntityHierarchyNode {
 	 * @return - the entityHierarchyNode, which represents the entity or null
 	 */
 	EntityHierarchyNode findChildEntity(long id);
+
+	/**
+	 * This method returns all child ids, including this id.
+	 * @return - all child ids including this id
+	 */
+	List<Long> getChildIds();
 }

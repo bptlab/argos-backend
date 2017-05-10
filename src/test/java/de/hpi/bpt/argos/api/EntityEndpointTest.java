@@ -6,6 +6,7 @@ import de.hpi.bpt.argos.api.entity.EntityEndpoint;
 import de.hpi.bpt.argos.common.RestRequest;
 import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
 import de.hpi.bpt.argos.core.ArgosTestParent;
+import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.Entity;
@@ -207,6 +208,33 @@ public class EntityEndpointTest extends ArgosTestParent {
 	}
 
 	@Test
+	public void testGetEventsOfEntity_ChildEvents_Success() {
+		Entity newEntity = ArgosTestUtil.createEntity(testEntityType, testEntity, true);
+		Event newEvent = ArgosTestUtil.createEvent(testEventType, newEntity, true);
+		List<Attribute> newEventAttributes = ArgosTestUtil.createEventAttributes(testEventType, newEvent, true);
+
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createGetRequest(ARGOS_REST_HOST, getEventsOfEntityUri(testEntity.getId(), testEventType.getId(), 0, 999));
+
+		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+
+		// delete these again to not disturb other tests
+		PersistenceAdapterImpl.getInstance().deleteArtifacts(newEntity, newEvent);
+		PersistenceAdapterImpl.getInstance().deleteArtifacts(newEventAttributes.toArray(new Attribute[newEventAttributes.size()]));
+
+		JsonArray events = jsonParser.parse(request.getResponse()).getAsJsonArray();
+		assertEquals(2, events.size());
+
+		JsonObject event = events.get(0).getAsJsonObject();
+		JsonArray eventAttributes = event.get("Attributes").getAsJsonArray();
+		assertEquals(testEventAttributes.size(), eventAttributes.size());
+
+		event = events.get(1).getAsJsonObject();
+		eventAttributes = event.get("Attributes").getAsJsonArray();
+		assertEquals(newEventAttributes.size(), eventAttributes.size());
+	}
+
+	@Test
 	public void testGetEventsOfEntity_EmptyList_Success() {
 		RestRequest request = RestRequestFactoryImpl.getInstance()
 				.createGetRequest(ARGOS_REST_HOST, getEventsOfEntityUri(testEntity.getId(), testEventType.getId(), 0, 0));
@@ -219,14 +247,11 @@ public class EntityEndpointTest extends ArgosTestParent {
 	}
 
 	@Test
-	public void testGetEventsOfEntity_InvalidEntityId_Success() {
+	public void testGetEventsOfEntity_InvalidEntityId_NotFound() {
 		RestRequest request = RestRequestFactoryImpl.getInstance()
 				.createGetRequest(ARGOS_REST_HOST, getEventsOfEntityUri(testEntity.getId() + 1, testEventType.getId(), 0, 999));
 
-		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
-
-		JsonArray events = jsonParser.parse(request.getResponse()).getAsJsonArray();
-		assertEquals(0, events.size());
+		assertEquals(HttpStatusCodes.NOT_FOUND, request.getResponseCode());
 	}
 
 	@Test
