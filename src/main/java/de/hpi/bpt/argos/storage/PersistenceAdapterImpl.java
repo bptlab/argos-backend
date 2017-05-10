@@ -329,7 +329,7 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 
 		List<Long> eventTypeIds = getEventTypeIds(entityIds);
 		Session session = databaseAccess.getSessionFactory().openSession();
-		return databaseAccess.getArtifactsById(session, EventTypeImpl.class, eventTypeIds);
+		return databaseAccess.getArtifactsById(session, EventTypeImpl.class, eventTypeIds.toArray(new Long[eventTypeIds.size()]));
 	}
 
 	/**

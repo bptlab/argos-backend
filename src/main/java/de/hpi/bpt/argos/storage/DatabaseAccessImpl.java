@@ -170,7 +170,7 @@ public class DatabaseAccessImpl implements DatabaseAccess {
 	@Override
 	public <ResultType, ResultImplType extends ResultType> List<ResultType> getArtifactsById(Session session,
 																							 Class<ResultImplType> resultTypeClass,
-																							 List<Long> ids) {
+																							 Long... ids) {
 		try {
 			return new ArrayList<>(session.byMultipleIds(resultTypeClass).enableSessionCheck(true).multiLoad(ids));
 		} catch (NoResultException e) {

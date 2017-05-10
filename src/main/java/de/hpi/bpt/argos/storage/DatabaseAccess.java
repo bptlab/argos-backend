@@ -73,7 +73,7 @@ public interface DatabaseAccess {
 	 */
 	<ResultType, ResultImplType extends ResultType> List<ResultType> getArtifactsById(Session session,
 																					  Class<ResultImplType> resultTypeClass,
-																					  List<Long> ids);
+																					  Long... ids);
 
 	/**
 	 * This method reads the connectionHost property from the properties-file and returns it's value.
