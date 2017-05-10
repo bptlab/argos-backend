@@ -1,6 +1,7 @@
 package de.hpi.bpt.argos.api;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.api.entity.EntityEndpoint;
 import de.hpi.bpt.argos.common.RestRequest;
@@ -190,6 +191,7 @@ public class EntityEndpointTest extends ArgosTestParent {
 		JsonObject event = events.get(0).getAsJsonObject();
 		JsonArray eventAttributes = event.get("Attributes").getAsJsonArray();
 		assertEquals(testEventAttributes.size(), eventAttributes.size());
+		assertEventAttributes(eventAttributes, testEventAttributes);
 	}
 
 	@Test
@@ -205,6 +207,7 @@ public class EntityEndpointTest extends ArgosTestParent {
 		JsonObject event = events.get(0).getAsJsonObject();
 		JsonArray eventAttributes = event.get("Attributes").getAsJsonArray();
 		assertEquals(testEventAttributes.size(), eventAttributes.size());
+		assertEventAttributes(eventAttributes, testEventAttributes);
 	}
 
 	@Test
@@ -228,10 +231,12 @@ public class EntityEndpointTest extends ArgosTestParent {
 		JsonObject event = events.get(0).getAsJsonObject();
 		JsonArray eventAttributes = event.get("Attributes").getAsJsonArray();
 		assertEquals(testEventAttributes.size(), eventAttributes.size());
+		assertEventAttributes(eventAttributes, testEventAttributes);
 
 		event = events.get(1).getAsJsonObject();
 		eventAttributes = event.get("Attributes").getAsJsonArray();
 		assertEquals(newEventAttributes.size(), eventAttributes.size());
+		assertEventAttributes(eventAttributes, newEventAttributes);
 	}
 
 	@Test
@@ -294,6 +299,37 @@ public class EntityEndpointTest extends ArgosTestParent {
 		}
 
 		return attributeNames;
+	}
+
+	private long getTypeAttributeId(String typeAttributeName) {
+		for (TypeAttribute typeAttribute : testEventTypeAttributes) {
+			if (typeAttribute.getName().equals(typeAttributeName)) {
+				return typeAttribute.getId();
+			}
+		}
+
+		return 0;
+	}
+
+	private String getAttributeValue(long typeAttributeId, List<Attribute> attributes) {
+		for (Attribute attribute : attributes) {
+			if (attribute.getTypeAttributeId() == typeAttributeId) {
+				return attribute.getValue();
+			}
+		}
+
+		return "";
+	}
+
+	private void assertEventAttributes(JsonArray jsonEventAttributes, List<Attribute> eventAttributes) {
+		for (JsonElement element : jsonEventAttributes) {
+			JsonObject attribute = element.getAsJsonObject();
+
+			long typeAttributeId = getTypeAttributeId(attribute.get("Name").getAsString());
+			String attributeValue = getAttributeValue(typeAttributeId, eventAttributes);
+
+			assertEquals(attributeValue, attribute.get("Value").getAsString());
+		}
 	}
 
 	private String getEntityUri(Object entityId) {
