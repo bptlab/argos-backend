@@ -105,7 +105,15 @@ public class EntityEndpointImpl implements EntityEndpoint {
     public String getEventTypesOfEntity(Request request, Response response) {
         long entityId = getEntityId(request);
 
-		List<EventType> eventTypes = PersistenceAdapterImpl.getInstance().getEventTypes(entityId);
+        EntityHierarchyNode entityNode = HierarchyBuilderImpl.getInstance().getEntityHierarchyRootNode().findChildEntity(entityId);
+
+        if (entityNode == null) {
+        	halt(HttpStatusCodes.NOT_FOUND, "cannot find entity in hierarchy");
+		}
+
+		List<Long> entityIds = entityNode.getChildIds();
+		List<EventType> eventTypes = PersistenceAdapterImpl.getInstance()
+				.getEventTypes(entityIds.toArray(new Long[entityIds.size()]));
 
         JsonArray eventTypesJson = getEventTypesJson(eventTypes);
 
