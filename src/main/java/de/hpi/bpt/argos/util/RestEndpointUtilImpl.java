@@ -138,7 +138,11 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 	 */
 	@Override
 	public void logReceivedRequest(Logger logger, Request request) {
-		logger.info(String.format("received request: '%1$s' -> %2$d bytes of content", request.uri(), request.contentLength()));
+		logger.info(String.format("%1$s\t->\t[%2$s]\t'%3$s' -> %4$d bytes of content",
+				request.ip(),
+				request.requestMethod(),
+				request.uri(),
+				request.contentLength()));
 		logger.trace(String.format("request body: '%1$s'", request.body()));
 	}
 
@@ -153,7 +157,9 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 			message = responseMessage;
 		}
 
-		logger.info(String.format("sending response: '%1$s' -> %2$d -> %3$d bytes of response",
+		logger.info(String.format("%1$s\t<-\t[%2$s]\t'%3$s' -> %4$d -> %5$d bytes of response",
+				request.ip(),
+				request.requestMethod(),
 				request.uri(),
 				responseStatus,
 				message.length()));

@@ -127,14 +127,14 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	List<EntityType> getEntityTypes();
 
 	/**
-	 * This method returns a list of events, which belong to a specific entity and are from a specific eventType.
-	 * @param entityOwnerId - the unique identifier of the entity the events belong to
-	 * @param eventTypeId - the unique identifier of the eventType
-	 * @param listStartIndex - the startIndex for the events
-	 * @param listEndIndex - the endIndex for the events
-	 * @return - a list of events, which belong to a specific entity and are from a specific eventType
+	 * This method returns a list of events, which belong to at least one of the given entities.
+	 * @param eventTypeId - the eventType id of the events
+	 * @param listStartIndex - the start index for the event limitation
+	 * @param listEndIndex - the end index for the event limitation
+	 * @param entityIds - a list of event owner ids
+	 * @return - a list of events
 	 */
-	List<Event> getEvents(long entityOwnerId, long eventTypeId, int listStartIndex, int listEndIndex);
+	List<Event> getEvents(long eventTypeId, int listStartIndex, int listEndIndex, Long... entityIds);
 
 	/**
 	 * This method returns a list of events, which belong to a specific entity.
@@ -144,11 +144,11 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	List<Event> getEvents(long entityOwnerId);
 
 	/**
-	 * This method returns if there exists an event query with corresponding entity and event type.
-	 * @param sqlQuery the query that queries the requested
-	 * @return if there exists a query that corresponds to the given sql query
+	 * This method returns a list of all eventTypes for a list of entities.
+	 * @param entityIds - a list of unique identifiers of entities
+	 * @return - a list of all eventTypes, where events occurred for at least one of the given entities
 	 */
-	boolean getExistsEvent(String sqlQuery);
+	List<EventType> getEventTypes(Long... entityIds);
 
 	/**
 	 * This method returns the number of events for a specific entity and a specific eventType.

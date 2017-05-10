@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.NoResultException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 
@@ -157,6 +159,26 @@ public class DatabaseAccessImpl implements DatabaseAccess {
 			LoggerUtilImpl.getInstance().error(logger,
 					String.format("cannot retrieve artifacts from database. query: '%1$s'", query.getQueryString()), e);
 			return defaultValue;
+		} finally {
+			session.close();
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <ResultType, ResultImplType extends ResultType> List<ResultType> getArtifactsById(Session session,
+																							 Class<ResultImplType> resultTypeClass,
+																							 Long... ids) {
+		try {
+			return new ArrayList<>(session.byMultipleIds(resultTypeClass).enableSessionCheck(true).multiLoad(ids));
+		} catch (NoResultException e) {
+			LoggerUtilImpl.getInstance().info(logger, "no entities for given ids found", e);
+			return new ArrayList<>();
+		} catch (Exception e) {
+			LoggerUtilImpl.getInstance().error(logger, "cannot retrieve artifacts by id from database", e);
+			return new ArrayList<>();
 		} finally {
 			session.close();
 		}

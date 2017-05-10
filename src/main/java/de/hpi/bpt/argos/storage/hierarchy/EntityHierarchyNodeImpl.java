@@ -64,4 +64,20 @@ public class EntityHierarchyNodeImpl implements EntityHierarchyNode {
 
 		return null;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Long> getChildIds() {
+		List<Long> ids = new ArrayList<>();
+
+		ids.add(id);
+
+		for (EntityHierarchyNode child : children) {
+			ids.addAll(child.getChildIds());
+		}
+
+		return ids;
+	}
 }

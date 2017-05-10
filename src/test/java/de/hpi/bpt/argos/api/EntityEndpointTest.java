@@ -1,11 +1,13 @@
 package de.hpi.bpt.argos.api;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.api.entity.EntityEndpoint;
 import de.hpi.bpt.argos.common.RestRequest;
 import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
 import de.hpi.bpt.argos.core.ArgosTestParent;
+import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.Entity;
@@ -189,6 +191,7 @@ public class EntityEndpointTest extends ArgosTestParent {
 		JsonObject event = events.get(0).getAsJsonObject();
 		JsonArray eventAttributes = event.get("Attributes").getAsJsonArray();
 		assertEquals(testEventAttributes.size(), eventAttributes.size());
+		assertEventAttributes(eventAttributes, testEventAttributes);
 	}
 
 	@Test
@@ -204,17 +207,56 @@ public class EntityEndpointTest extends ArgosTestParent {
 		JsonObject event = events.get(0).getAsJsonObject();
 		JsonArray eventAttributes = event.get("Attributes").getAsJsonArray();
 		assertEquals(testEventAttributes.size(), eventAttributes.size());
+		assertEventAttributes(eventAttributes, testEventAttributes);
 	}
 
 	@Test
-	public void testGetEventsOfEntity_InvalidEntityId_Success() {
+	public void testGetEventsOfEntity_ChildEvents_Success() {
+		Entity newEntity = ArgosTestUtil.createEntity(testEntityType, testEntity, true);
+		Event newEvent = ArgosTestUtil.createEvent(testEventType, newEntity, true);
+		List<Attribute> newEventAttributes = ArgosTestUtil.createEventAttributes(testEventType, newEvent, true);
+
 		RestRequest request = RestRequestFactoryImpl.getInstance()
-				.createGetRequest(ARGOS_REST_HOST, getEventsOfEntityUri(testEntity.getId() + 1, testEventType.getId(), 0, 999));
+				.createGetRequest(ARGOS_REST_HOST, getEventsOfEntityUri(testEntity.getId(), testEventType.getId(), 0, 999));
+
+		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+
+		// delete these again to not disturb other tests
+		PersistenceAdapterImpl.getInstance().deleteArtifacts(newEntity, newEvent);
+		PersistenceAdapterImpl.getInstance().deleteArtifacts(newEventAttributes.toArray(new Attribute[newEventAttributes.size()]));
+
+		JsonArray events = jsonParser.parse(request.getResponse()).getAsJsonArray();
+		assertEquals(2, events.size());
+
+		JsonObject event = events.get(0).getAsJsonObject();
+		JsonArray eventAttributes = event.get("Attributes").getAsJsonArray();
+		assertEquals(testEventAttributes.size(), eventAttributes.size());
+		assertEventAttributes(eventAttributes, testEventAttributes);
+
+		event = events.get(1).getAsJsonObject();
+		eventAttributes = event.get("Attributes").getAsJsonArray();
+		assertEquals(newEventAttributes.size(), eventAttributes.size());
+		assertEventAttributes(eventAttributes, newEventAttributes);
+	}
+
+	@Test
+	public void testGetEventsOfEntity_EmptyList_Success() {
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createGetRequest(ARGOS_REST_HOST, getEventsOfEntityUri(testEntity.getId(), testEventType.getId(), 0, 0));
 
 		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
 		JsonArray events = jsonParser.parse(request.getResponse()).getAsJsonArray();
 		assertEquals(0, events.size());
+
+	}
+
+	@Test
+	public void testGetEventsOfEntity_InvalidEntityId_NotFound() {
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createGetRequest(ARGOS_REST_HOST, getEventsOfEntityUri(testEntity.getId() + 1, testEventType.getId(), 0, 999));
+
+		assertEquals(HttpStatusCodes.NOT_FOUND, request.getResponseCode());
 	}
 
 	@Test
@@ -257,6 +299,37 @@ public class EntityEndpointTest extends ArgosTestParent {
 		}
 
 		return attributeNames;
+	}
+
+	private long getTypeAttributeId(String typeAttributeName) {
+		for (TypeAttribute typeAttribute : testEventTypeAttributes) {
+			if (typeAttribute.getName().equals(typeAttributeName)) {
+				return typeAttribute.getId();
+			}
+		}
+
+		return 0;
+	}
+
+	private String getAttributeValue(long typeAttributeId, List<Attribute> attributes) {
+		for (Attribute attribute : attributes) {
+			if (attribute.getTypeAttributeId() == typeAttributeId) {
+				return attribute.getValue();
+			}
+		}
+
+		return "";
+	}
+
+	private void assertEventAttributes(JsonArray jsonEventAttributes, List<Attribute> eventAttributes) {
+		for (JsonElement element : jsonEventAttributes) {
+			JsonObject attribute = element.getAsJsonObject();
+
+			long typeAttributeId = getTypeAttributeId(attribute.get("Name").getAsString());
+			String attributeValue = getAttributeValue(typeAttributeId, eventAttributes);
+
+			assertEquals(attributeValue, attribute.get("Value").getAsString());
+		}
 	}
 
 	private String getEntityUri(Object entityId) {
