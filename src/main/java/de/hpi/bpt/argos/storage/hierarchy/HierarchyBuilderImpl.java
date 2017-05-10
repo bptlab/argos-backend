@@ -43,7 +43,7 @@ public final class HierarchyBuilderImpl implements HierarchyBuilder {
 	 */
 	@Override
 	public EntityHierarchyNode getEntityHierarchy() {
-		if (rootNode != null && !Argos.getTestMode()) {
+		if (rootNode != null && !Argos.isInTestMode()) {
 			return rootNode;
 		}
 
