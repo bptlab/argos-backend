@@ -7,6 +7,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -51,11 +52,26 @@ public interface DatabaseAccess {
 	 * @param transaction - the current transaction
 	 * @param getValue - the function to get the results from the query
 	 * @param defaultValue - a fall back default value in case anything went wrong or no entities were found
-	 * @param <R> - the result type
-	 * @param <Q> - the query type
+	 * @param <ResultType> - the result type
+	 * @param <QueryType> - the query type
 	 * @return - an object of the result value type
 	 */
-	<R, Q> R getArtifacts(Session session, Query<Q> query, Transaction transaction, Callable<R> getValue, R defaultValue);
+	<ResultType, QueryType> ResultType getArtifacts(Session session,
+													Query<QueryType> query,
+													Transaction transaction,
+													Callable<ResultType> getValue,
+													ResultType defaultValue);
+
+	/**
+	 * This method returns a list of entities, which will get fetched by their ids.
+	 * @param <ResultType> - the result type
+	 * @param <ResultImplType> - the implementation type of the result type
+	 * @param session - the database session, which must be open
+	 * @param resultTypeClass - the class of the result type
+	 * @param ids - the ids to fetch from the database
+	 * @return - a list of all entities, which were contained in the ids
+	 */
+	<ResultType, ResultImplType extends ResultType> List<ResultType> getArtifactsById(Session session, Class<ResultImplType> resultTypeClass, List<Long> ids);
 
 	/**
 	 * This method reads the connectionHost property from the properties-file and returns it's value.

@@ -10,12 +10,16 @@ import de.hpi.bpt.argos.storage.dataModel.event.Event;
 import de.hpi.bpt.argos.storage.dataModel.event.EventImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
+import de.hpi.bpt.argos.storage.dataModel.event.type.EventTypeImpl;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.storage.util.DataFile;
+import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.Table;
 import java.util.ArrayList;
@@ -26,6 +30,8 @@ import java.util.List;
  * This is the implementation.
  */
 public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArtifactUpdateObserver> implements PersistenceAdapter {
+	private static final Logger logger = LoggerFactory.getLogger(PersistenceAdapterImpl.class);
+
 	private static PersistenceAdapter instance;
 	private DatabaseAccess databaseAccess;
 
@@ -297,19 +303,14 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean getExistsEvent(String sqlQuery) {
-		if (sqlQuery == null || sqlQuery.length() == 0) {
-			return false;
+	public List<EventType> getEventTypes(long... entityIds) {
+		if (entityIds.length == 0) {
+			return new ArrayList<>();
 		}
 
+		List<Long> eventTypeIds = getEventTypeIds(entityIds);
 		Session session = databaseAccess.getSessionFactory().openSession();
-		Transaction transaction = session.beginTransaction();
-
-		Query query = session.createNativeQuery(sqlQuery);
-
-		String result = databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, "").toString();
-
-		return "True".equals(result);
+		return databaseAccess.getArtifactsById(session, EventTypeImpl.class, eventTypeIds);
 	}
 
 	/**
@@ -509,5 +510,57 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 				.setParameter("path", path);
 
 		return databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, null);
+	}
+
+	/**
+	 * This method returns a list of unique identifiers of eventTypes for a list of entities.
+	 * @param entityIds - a list of unique identifiers of entities
+	 * @return - a list of all eventTypeIds, where at least one event occurred for at least one of the given entities
+	 */
+	private List<Long> getEventTypeIds(long... entityIds) {
+
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		StringBuilder eventTypeIdsWhere = new StringBuilder();
+		eventTypeIdsWhere.append(String.format("(event.EntityId = %1$d)", entityIds[0]));
+
+		for (int i = 1; i < entityIds.length; i++) {
+			eventTypeIdsWhere.append(String.format(" OR (event.EntityId = %1$d)", entityIds[i]));
+		}
+
+		Table eventTable = EventImpl.class.getAnnotation(Table.class);
+		String eventTableName = "Event";
+
+		if (eventTable != null) {
+			eventTableName = eventTable.name();
+		}
+
+		String eventTypeIdsQuery = String.format(
+				"SELECT TypeId "
+						+ "FROM ( "
+						+ "SELECT TypeId "
+						+ "FROM %1$s "
+						+ "WHERE %2$s "
+						+ "GROUP BY TypeId ) AS EventTypeTable",
+				eventTableName,
+				eventTypeIdsWhere);
+
+		Query query = session.createNativeQuery(eventTypeIdsQuery);
+
+		List<Object> resultList = databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
+
+		List<Long> eventTypeIds = new ArrayList<>();
+
+		try {
+			for (Object result : resultList) {
+				eventTypeIds.add(Long.parseLong(result.toString()));
+			}
+		} catch (Exception e) {
+			LoggerUtilImpl.getInstance().error(logger, "cannot convert result to long", e);
+			return new ArrayList<>();
+		}
+
+		return eventTypeIds;
 	}
 }
