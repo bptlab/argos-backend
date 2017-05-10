@@ -559,7 +559,7 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 				"SELECT TypeId "
 						+ "FROM ( "
 						+ "SELECT TypeId "
-						+ "FROM %1$s "
+						+ "FROM %1$s AS event "
 						+ "WHERE %2$s "
 						+ "GROUP BY TypeId ) AS EventTypeTable",
 				eventTableName,
