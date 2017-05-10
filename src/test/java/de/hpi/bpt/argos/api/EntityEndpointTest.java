@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
 
 public class EntityEndpointTest extends ArgosTestParent {
 
@@ -60,6 +62,7 @@ public class EntityEndpointTest extends ArgosTestParent {
 		assertEquals(testEntity.getParentId(), entity.get("ParentId").getAsLong());
 		assertEquals(testEntity.getName(), entity.get("Name").getAsString());
 		assertEquals(testEntity.getStatus(), entity.get("Status").getAsString());
+		assertFalse(entity.get("HasChildren").getAsBoolean());
 		assertEquals(testEntityAttributes.size(), entityAttributes.size());
 	}
 
@@ -77,6 +80,7 @@ public class EntityEndpointTest extends ArgosTestParent {
 		assertEquals(VirtualRoot.getInstance().getParentId(), entity.get("ParentId").getAsLong());
 		assertEquals(VirtualRoot.getInstance().getName(), entity.get("Name").getAsString());
 		assertEquals(VirtualRoot.getInstance().getStatus(), entity.get("Status").getAsString());
+		assertTrue(entity.get("HasChildren").getAsBoolean());
 		assertEquals(0, entityAttributes.size());
 	}
 
@@ -107,6 +111,7 @@ public class EntityEndpointTest extends ArgosTestParent {
 		assertEquals(testEntity.getParentId(), entity.get("ParentId").getAsLong());
 		assertEquals(testEntity.getName(), entity.get("Name").getAsString());
 		assertEquals(testEntity.getStatus(), entity.get("Status").getAsString());
+		assertFalse(entity.get("HasChildren").getAsBoolean());
 		assertEquals(attributeNames.size(), entityAttributes.size());
 	}
 
@@ -158,7 +163,6 @@ public class EntityEndpointTest extends ArgosTestParent {
 		assertEquals(testEventType.getName(), eventType.get("Name").getAsString());
 		assertEquals(1, eventType.get("NumberOfEvents").getAsLong());
 		assertEquals(testEventType.getTimeStampAttributeId(), eventType.get("TimestampAttributeId").getAsLong());
-
 	}
 
 	@Test

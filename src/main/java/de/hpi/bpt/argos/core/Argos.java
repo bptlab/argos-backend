@@ -105,7 +105,7 @@ public interface Argos {
 	 * This method reads the testMode property from the properties-file and returns it's value.
 	 * @return - the testMode, specified in the properties-file
 	 */
-	static boolean getTestMode() {
+	static boolean isInTestMode() {
 		return PropertyEditorImpl.getInstance().getPropertyAsBoolean(ARGOS_BACKEND_TEST_MODE_PROPERTY_KEY);
 	}
 

@@ -138,7 +138,7 @@ public final class RestRequestFactoryImpl implements RestRequestFactory {
 		}
 
 		if (!isReachable(requestURL)) {
-			if (Argos.getTestMode()) {
+			if (Argos.isInTestMode()) {
 				return new NullRestRequestImpl(HttpStatusCodes.SUCCESS);
 			}
 			else {

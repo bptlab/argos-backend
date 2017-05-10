@@ -47,7 +47,7 @@ public class DatabaseAccessImpl implements DatabaseAccess {
 			configuration.setProperty("hibernate.connection.username", DatabaseAccess.getConnectionUsername());
 			configuration.setProperty("hibernate.connection.password", DatabaseAccess.getConnectionPassword());
 
-			if (Argos.getTestMode()) {
+			if (Argos.isInTestMode()) {
 				configuration.setProperty("hibernate.connection.url",
 						String.format("jdbc:mysql://%1$s/argosbackend_test?createDatabaseIfNotExist=true", DatabaseAccess.getConnectionHost()));
 

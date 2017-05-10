@@ -60,7 +60,7 @@ public class EntityTypeEndpointImpl implements EntityTypeEndpoint {
      */
     @Override
     public String getEntityTypeHierarchy(Request request, Response response) {
-        if (Argos.getTestMode()) {
+        if (Argos.isInTestMode()) {
             jsonHierarchy = serializer.toJson(getEntityTypeHierarchy());
         }
         return jsonHierarchy;
