@@ -270,17 +270,35 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<Event> getEvents(long entityOwnerId, long eventTypeId, int listStartIndex, int listEndIndex) {
+	public List<Event> getEvents(long eventTypeId, int listStartIndex, int listEndIndex, long... entityIds) {
+		if (entityIds.length == 0) {
+			return new ArrayList<>();
+		}
+
+		StringBuilder sqlWhere = new StringBuilder();
+		sqlWhere.append(String.format("(event.entityId = %1$d)", entityIds[0]));
+
+		for (int i = 1; i < entityIds.length; i++) {
+			sqlWhere.append(String.format(" OR (event.entityId = %1$d)", entityIds[i]));
+		}
+
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
 
-		Query<Event> query = session.createQuery("FROM EventImpl event "
-				+ "WHERE event.typeId = :eventTypeId AND event.entityId = :entityOwnerId",
-				Event.class)
-				.setParameter("eventTypeId", eventTypeId)
-				.setParameter("entityOwnerId", entityOwnerId);
+		String sqlQuery = String.format(
+				"FROM EventImpl event "
+						+ "WHERE event.typeId = %1$d"
+						+ "AND (%2$s)",
+				eventTypeId,
+				sqlWhere.toString()
+		);
 
-		return databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
+		Query<Event> query = session.createQuery(sqlQuery,
+				Event.class)
+				.setFirstResult(listStartIndex)
+				.setMaxResults(listEndIndex);
+
+		return databaseAccess.getArtifacts(session, query, transaction, query::getResultList, new ArrayList<>());
 	}
 
 	/**

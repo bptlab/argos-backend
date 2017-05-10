@@ -207,6 +207,18 @@ public class EntityEndpointTest extends ArgosTestParent {
 	}
 
 	@Test
+	public void testGetEventsOfEntity_EmptyList_Success() {
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createGetRequest(ARGOS_REST_HOST, getEventsOfEntityUri(testEntity.getId(), testEventType.getId(), 0, 0));
+
+		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+
+		JsonArray events = jsonParser.parse(request.getResponse()).getAsJsonArray();
+		assertEquals(0, events.size());
+
+	}
+
+	@Test
 	public void testGetEventsOfEntity_InvalidEntityId_Success() {
 		RestRequest request = RestRequestFactoryImpl.getInstance()
 				.createGetRequest(ARGOS_REST_HOST, getEventsOfEntityUri(testEntity.getId() + 1, testEventType.getId(), 0, 999));
