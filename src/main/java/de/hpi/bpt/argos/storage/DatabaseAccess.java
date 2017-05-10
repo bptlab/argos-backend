@@ -71,7 +71,9 @@ public interface DatabaseAccess {
 	 * @param ids - the ids to fetch from the database
 	 * @return - a list of all entities, which were contained in the ids
 	 */
-	<ResultType, ResultImplType extends ResultType> List<ResultType> getArtifactsById(Session session, Class<ResultImplType> resultTypeClass, List<Long> ids);
+	<ResultType, ResultImplType extends ResultType> List<ResultType> getArtifactsById(Session session,
+																					  Class<ResultImplType> resultTypeClass,
+																					  List<Long> ids);
 
 	/**
 	 * This method reads the connectionHost property from the properties-file and returns it's value.
