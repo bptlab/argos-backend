@@ -1,4 +1,4 @@
-package de.hpi.bpt.argos.parsing;
+package de.hpi.bpt.argos.parsing.eventType;
 
 /**
  * This interface offers methods to parse eventTypes from .json files.

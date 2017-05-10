@@ -1,4 +1,4 @@
-package de.hpi.bpt.argos.parsing;
+package de.hpi.bpt.argos.parsing.eventType;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -7,6 +7,8 @@ import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttributeImpl;
+import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
+import de.hpi.bpt.argos.storage.dataModel.event.query.EventQueryImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventTypeImpl;
 import de.hpi.bpt.argos.storage.util.DataFile;
@@ -19,6 +21,7 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +36,7 @@ public final class EventTypeParserImpl implements EventTypeParser {
 	private static final JsonParser jsonParser = new JsonParser();
 
 	private static final String JSON_NAME = "name";
+	private static final String JSON_QUERIES = "queries";
 	private static final String JSON_TIMESTAMP = "timestamp";
 	private static final String JSON_ATTRIBUTES = "attributes";
 
@@ -54,6 +58,10 @@ public final class EventTypeParserImpl implements EventTypeParser {
 		 *			"eventTypeAttribute1":"STRING",
 		 *			"eventTypeAttribute2":"STRING",
 		 *			"eventTypeAttribute3":"INTEGER",
+		 *     },
+		 *     "queries":{
+		 *     		"Query1Description":"Query1",
+		 *     		"Query2Description":"Query2",
 		 *     }
 		 * }
 		 */
@@ -173,7 +181,8 @@ public final class EventTypeParserImpl implements EventTypeParser {
 
 		if (jsonEventType.get(JSON_NAME).getAsString().isEmpty()
 				|| jsonEventType.get(JSON_TIMESTAMP).getAsString().isEmpty()
-				|| jsonEventType.get(JSON_ATTRIBUTES).getAsJsonObject().entrySet().isEmpty()) {
+				|| jsonEventType.get(JSON_ATTRIBUTES).getAsJsonObject().entrySet().isEmpty()
+				|| jsonEventType.get(JSON_QUERIES).getAsJsonObject().entrySet().isEmpty()) {
 			return;
 		}
 
@@ -200,7 +209,18 @@ public final class EventTypeParserImpl implements EventTypeParser {
 			eventTypeAttributes.add(createTypeAttribute(newEventType.getId(), typeAttribute.getKey()));
 		}
 
+		List<EventQuery> eventQueries = new ArrayList<>();
+		for (Map.Entry<String, JsonElement> query : jsonEventType.get(JSON_QUERIES).getAsJsonObject().entrySet()) {
+			EventQuery newQuery = new EventQueryImpl();
+
+			newQuery.setTypeId(newEventType.getId());
+			newQuery.setDescription(query.getKey());
+			newQuery.setQuery(query.getValue().getAsString());
+			eventQueries.add(newQuery);
+		}
+
 		PersistenceAdapterImpl.getInstance().saveArtifacts(eventTypeAttributes.toArray(new TypeAttribute[eventTypeAttributes.size()]));
+		PersistenceAdapterImpl.getInstance().saveArtifacts(eventQueries.toArray(new EventQuery[eventQueries.size()]));
 	}
 
 	/**
