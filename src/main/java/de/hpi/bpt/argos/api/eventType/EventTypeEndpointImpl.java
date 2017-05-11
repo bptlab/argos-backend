@@ -8,6 +8,7 @@ import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.RestEndpointCommon;
 import de.hpi.bpt.argos.common.EventPlatformFeedback;
 import de.hpi.bpt.argos.common.EventProcessingPlatformUpdaterImpl;
+import de.hpi.bpt.argos.storage.PersistenceAdapter;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttributeImpl;
@@ -122,15 +123,9 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
 
 		if (eventType == null) {
 			halt(HttpStatusCodes.BAD_REQUEST, "event type name already in use, or failed to parse event type");
-		} else {
-			EventPlatformFeedback feedback = EventProcessingPlatformUpdaterImpl.getInstance().registerEventType(eventType);
-
-			if (!feedback.isSuccessful()) {
-				halt(HttpStatusCodes.ERROR, String.format("cannot register event type: %1$s", feedback.getResponseText()));
-			}
-
-			PersistenceAdapterImpl.getInstance().createArtifact(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
 		}
+
+		PersistenceAdapterImpl.getInstance().createArtifact(eventType, EventTypeEndpoint.getEventTypeUri(eventType.getId()));
 
 		return "";
     }
@@ -270,6 +265,11 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
             }
         }
 
+		String timestampAttributeName = jsonEventType.get(JSON_TIMESTAMP_ATTRIBUTE).getAsString();
+		if (timestampAttributeName == null) {
+			return null;
+		}
+
         JsonArray jsonAttributes = jsonEventType.getAsJsonArray(JSON_ATTRIBUTES_ATTRIBUTE);
         if (jsonAttributes == null) {
             return null;
@@ -285,17 +285,22 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
             usedNames.add(attributeName);
         }
 
-        for (JsonElement jsonAttribute : jsonAttributes) {
+		PersistenceAdapterImpl.getInstance().saveArtifacts(eventType);
+        List<TypeAttribute> typeAttributes = new ArrayList<>();
+        TypeAttribute timestampAttribute = createEventTypeAttribute(eventType, timestampAttributeName);
+        typeAttributes.add(timestampAttribute);
+		for (JsonElement jsonAttribute : jsonAttributes) {
             String attributeName = jsonAttribute.getAsJsonObject().get(JSON_NAME_ATTRIBUTE).getAsString();
-            createEventTypeAttribute(eventType, attributeName);
+
+            if (attributeName.equals(timestampAttributeName)) {
+            	continue;
+			}
+
+            typeAttributes.add(createEventTypeAttribute(eventType, attributeName));
         }
 
-        String timestampAttributeName = jsonEventType.get(JSON_TIMESTAMP_ATTRIBUTE).getAsString();
-        if (timestampAttributeName == null) {
-            return null;
-        }
-        TypeAttribute timestampAttribute = createEventTypeAttribute(eventType, timestampAttributeName);
-        eventType.setTimeStampAttributeId(timestampAttribute.getId());
+        PersistenceAdapterImpl.getInstance().saveArtifacts(typeAttributes.toArray(new TypeAttribute[typeAttributes.size()]));
+		eventType.setTimeStampAttributeId(timestampAttribute.getId());
 
         return eventType;
     }
@@ -311,10 +316,6 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
         TypeAttribute attribute = new TypeAttributeImpl();
         attribute.setName(attributeName);
         attribute.setTypeId(eventType.getId());
-
-        if (!PersistenceAdapterImpl.getInstance().saveArtifacts(attribute)) {
-            halt(HttpStatusCodes.ERROR, "event type attribute could not be saved: " + attribute);
-        }
         return attribute;
     }
 
