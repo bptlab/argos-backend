@@ -42,7 +42,6 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
     private static final RestEndpointUtil endpointUtil = RestEndpointUtilImpl.getInstance();
     private static final JsonParser jsonParser = new JsonParser();
 
-    private static final String JSON_EVENT_TYPE_ATTRIBUTE = "EventType";
     private static final String JSON_NAME_ATTRIBUTE = "Name";
     private static final String JSON_ATTRIBUTES_ATTRIBUTE = "TypeAttributes";
     private static final String JSON_TIMESTAMP_ATTRIBUTE = "TimestampAttributeName";
@@ -113,8 +112,7 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
      */
     @Override
     public String createEventType(Request request, Response response) {
-		JsonObject jsonBody = jsonParser.parse(request.body()).getAsJsonObject();
-		JsonObject jsonEventType = jsonBody.get(JSON_EVENT_TYPE_ATTRIBUTE).getAsJsonObject();
+		JsonObject jsonEventType = jsonParser.parse(request.body()).getAsJsonObject();
 
 		if (jsonEventType == null) {
 			halt(HttpStatusCodes.BAD_REQUEST, "no event type given in body");

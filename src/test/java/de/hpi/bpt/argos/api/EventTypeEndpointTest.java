@@ -200,7 +200,6 @@ public class EventTypeEndpointTest extends ArgosTestParent {
         assertFalse(checkIfDeleted(blockedEventType, new ArrayList<>(PersistenceAdapterImpl.getInstance().getEventTypes())));
     }
 
-
     @Test
     public void testGetEventTypesAttributes() {
         List<TypeAttribute> attributes = ArgosTestUtil.createEventTypeAttributes(testEventType, true);
@@ -320,12 +319,10 @@ public class EventTypeEndpointTest extends ArgosTestParent {
     private JsonObject createEventTypeJson(EventType newEventType, boolean valid) {
         JsonObject newJsonEventType = new JsonObject();
 
-        JsonObject newProperties = new JsonObject();
-
         if(valid) {
-            newProperties.addProperty("Name", newEventType.getName());
+            newJsonEventType.addProperty("Name", newEventType.getName());
         }
-        newProperties.addProperty("TimestampAttributeName", newEventType.getTimeStampAttributeId());
+        newJsonEventType.addProperty("TimestampAttributeName", newEventType.getTimeStampAttributeId());
 
         JsonArray newJsonAttributes = new JsonArray();
         List<TypeAttribute> attributes = ArgosTestUtil.createEventTypeAttributes(newEventType, false);
@@ -335,8 +332,7 @@ public class EventTypeEndpointTest extends ArgosTestParent {
             newJsonAttributes.add(newJsonAttribute);
         }
 
-        newProperties.add("TypeAttributes", newJsonAttributes);
-        newJsonEventType.add("EventType", newProperties);
+        newJsonEventType.add("TypeAttributes", newJsonAttributes);
 
         return newJsonEventType;
     }
