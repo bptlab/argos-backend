@@ -22,6 +22,7 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 
 	private static RestEndpointUtil instance;
 
+
 	/**
 	 * This constructor hides the default public one to implement the singleton pattern.
 	 */
@@ -125,7 +126,9 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 			response.type("text/plain");
 		}
 
-		if (response.body() == null) {
+		if ("application/json".equalsIgnoreCase(response.type()) && (response.body() == null || response.body().isEmpty())) {
+			response.body("{}");
+		} else if (response.body() == null) {
 			response.body("");
 		}
 
