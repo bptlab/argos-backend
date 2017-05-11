@@ -38,6 +38,22 @@ public interface RestEndpointUtil {
 	List<String> validateListOfString(String inputValue, Function<String, Boolean> validateInputResult);
 
 	/**
+	 * This method validates the input as an enum that is given as a string.
+	 * @param clazz - the enum class, which should contain the value
+	 * @param inputValue - the input value to validate
+	 * @param <T> - the generic type for the enum class
+	 * @return - the enum value
+	 */
+	<T extends Enum<T>> T validateEnum(Class<T> clazz, String inputValue);
+
+	/**
+	 * This method validates the input as boolean that is given as a string.
+	 * @param inputValue - the input value to validate
+	 * @return - the boolean
+	 */
+	boolean validateBoolean(String inputValue);
+
+	/**
      * This method returns a parameter included with a a prefix or not.
      * @param parameterName - the parameter to update
      * @param includePrefix - if the prefix should be included

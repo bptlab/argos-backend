@@ -156,7 +156,8 @@ public class EventReceiverImpl implements EventReceiver {
 			PersistenceAdapterImpl.getInstance().createArtifact(event,
 					EntityEndpoint.getEventsOfEntityUri(eventCreationStatus.getEventOwner().getId(),
 							eventType.getId(),
-							numberOfEvents + 1,
+							false,
+							numberOfEvents,
 							numberOfEvents + 1));
 		}
 	}

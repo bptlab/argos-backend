@@ -78,7 +78,10 @@ public interface EntityEndpoint extends RestEndpoint {
      * @return - the URI to retrieve event types from
      */
     static String getEventTypesOfEntityBaseUri() {
-        return  String.format("%1$s/%2$s/eventtypes", getEntityPointBaseUri(), getEntityIdParameter(true));
+        return  String.format("%1$s/%2$s/eventtypes/%3$s",
+				getEntityPointBaseUri(),
+				getEntityIdParameter(true),
+				getIncludeChildEventsParameter(true));
     }
 
     /**
@@ -86,9 +89,11 @@ public interface EntityEndpoint extends RestEndpoint {
      * @return - the URI to retrieve events from
      */
     static String getEventsOfEntityBaseUri() {
-        return  String.format("%1$s/%2$s/eventtype/%3$s/events/%4$s/%5$s", getEntityPointBaseUri(),
+        return  String.format("%1$s/%2$s/eventtype/%3$s/events/%4$s/%5$s/%6$s",
+				getEntityPointBaseUri(),
                 getEntityIdParameter(true),
                 getTypeIdParameter(true),
+                getIncludeChildEventsParameter(true),
                 getIndexFromParameter(true),
                 getIndexToParameter(true));
     }
@@ -127,24 +132,29 @@ public interface EntityEndpoint extends RestEndpoint {
     /**
      * This method returns the basic URI to retrieve the event types of an entity.
      * @param entityId - the id of the entity to be searched for
+	 * @param includeChildEvents - indicates, whether child events should be considered
      * @return - the URI to retrieve event types from
      */
-    static String getEventTypesOfEntityUri(long entityId) {
-        return  getEventTypesOfEntityBaseUri().replaceAll(getEntityIdParameter(true), Objects.toString(entityId, "0"));
+    static String getEventTypesOfEntityUri(long entityId, boolean includeChildEvents) {
+        return  getEventTypesOfEntityBaseUri()
+				.replaceAll(getEntityIdParameter(true), Objects.toString(entityId, "0"))
+				.replaceAll(getIndexToParameter(true), Objects.toString(includeChildEvents, "false"));
     }
 
     /**
      * This method returns the basic URI to retrieve the events of an entity.
      * @param entityId - the id of the entity to be searched for
      * @param entityTypeId - the id of the entity type to be searched for
+	 * @param includeChildEvents - indicates whether the child events should be included
      * @param fromIndex - the index of the start of the entities to be searched for
      * @param toIndex - the index of the end of the entities to be searched for
      * @return - the URI to retrieve events from
      */
-    static String getEventsOfEntityUri(long entityId, long entityTypeId, int fromIndex, int toIndex) {
+    static String getEventsOfEntityUri(long entityId, long entityTypeId, boolean includeChildEvents, int fromIndex, int toIndex) {
         return getEventsOfEntityBaseUri()
                 .replaceAll(getEntityIdParameter(true), Objects.toString(entityId, "0"))
                 .replaceAll(getTypeIdParameter(true), Objects.toString(entityTypeId, "0"))
+				.replaceAll(getIndexToParameter(true), Objects.toString(includeChildEvents, "false"))
                 .replaceAll(getIndexFromParameter(true), Objects.toString(fromIndex, "0"))
                 .replaceAll(getIndexToParameter(true), Objects.toString(toIndex, "0"));
     }
@@ -175,6 +185,15 @@ public interface EntityEndpoint extends RestEndpoint {
     static String getAttributeNamesParameter(boolean includePrefix) {
         return RestEndpointUtilImpl.getInstance().getParameter("attributeNames", includePrefix);
     }
+
+	/**
+	 * This method returns the include child events path parameter.
+	 * @param includePrefix - if a prefix should be included
+	 * @return - include child events path parameter as a string
+	 */
+    static String getIncludeChildEventsParameter(boolean includePrefix) {
+    	return RestEndpointUtilImpl.getInstance().getParameter("includeChildEvents", includePrefix);
+	}
 
     /**
      * This method returns the from index path parameter.

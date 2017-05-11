@@ -104,6 +104,7 @@ public class EntityEndpointImpl implements EntityEndpoint {
     @Override
     public String getEventTypesOfEntity(Request request, Response response) {
         long entityId = getEntityId(request);
+        boolean includeChildEvents = getIncludeChildEvents(request);
 
         EntityHierarchyNode entityNode = HierarchyBuilderImpl.getInstance().getEntityHierarchyRootNode().findChildEntity(entityId);
 
@@ -111,7 +112,14 @@ public class EntityEndpointImpl implements EntityEndpoint {
         	halt(HttpStatusCodes.NOT_FOUND, "cannot find entity in hierarchy");
 		}
 
-		List<Long> entityIds = entityNode.getChildIds();
+		List<Long> entityIds = new ArrayList<>();
+
+        if (includeChildEvents) {
+		 entityIds.addAll(entityNode.getChildIds());
+		} else {
+        	entityIds.add(entityId);
+		}
+
 		List<EventType> eventTypes = PersistenceAdapterImpl.getInstance()
 				.getEventTypes(entityIds.toArray(new Long[entityIds.size()]));
 
@@ -127,6 +135,7 @@ public class EntityEndpointImpl implements EntityEndpoint {
     public String getEventsOfEntity(Request request, Response response) {
         long entityId = getEntityId(request);
         long eventTypeId = getEntityTypeId(request);
+        boolean includeChildEvents = getIncludeChildEvents(request);
         int startIndex = getStartIndex(request);
         int endIndex = getEndIndex(request);
 
@@ -142,7 +151,13 @@ public class EntityEndpointImpl implements EntityEndpoint {
         	halt(HttpStatusCodes.NOT_FOUND, "cannot find entity in hierarchy");
 		}
 
-		List<Long> entityIds = entityNode.getChildIds();
+		List<Long> entityIds = new ArrayList<>();
+
+		if (includeChildEvents) {
+			entityIds.addAll(entityNode.getChildIds());
+		} else {
+			entityIds.add(entityId);
+		}
 
         List<Event> events = PersistenceAdapterImpl.getInstance()
 				.getEvents(eventTypeId, startIndex, endIndex, entityIds.toArray(new Long[entityIds.size()]));
@@ -283,6 +298,15 @@ public class EntityEndpointImpl implements EntityEndpoint {
                 request.params(EntityEndpoint.getTypeIdParameter(false)),
                 (Long input) -> input != 0);
     }
+
+	/**
+	 * This method returns the include child events boolean given in the request.
+	 * @param request - the request with include child events parameter
+	 * @return - the boolean
+	 */
+	private Boolean getIncludeChildEvents(Request request) {
+    	return endpointUtil.validateBoolean(request.params(EntityEndpoint.getIncludeChildEventsParameter(false)));
+	}
 
     /**
      * This method returns the start index given in request.
