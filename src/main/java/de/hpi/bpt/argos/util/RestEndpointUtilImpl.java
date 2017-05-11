@@ -8,6 +8,7 @@ import spark.Response;
 import spark.Route;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Function;
 
@@ -89,6 +90,42 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 		}
 		String[] splits = inputValue.split("\\s");
 		return Arrays.asList(splits);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T extends Enum<T>> T validateEnum(Class<T> clazz, String inputValue) {
+		try {
+			for (T value : EnumSet.allOf(clazz)) {
+				if (value.name().equals(inputValue)) {
+					return value;
+				}
+			}
+			throw new InputValidationException(inputValue, "Enum<" + clazz.getName() + ">");
+
+		} catch (Exception e) {
+			LoggerUtilImpl.getInstance().error(logger, e.getMessage(), e);
+			halt(HttpStatusCodes.BAD_REQUEST, e.getMessage());
+		}
+
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean validateBoolean(String inputValue) {
+		try {
+			return Boolean.parseBoolean(inputValue);
+		} catch (Exception e) {
+			LoggerUtilImpl.getInstance().error(logger, e.getMessage(), e);
+			halt(HttpStatusCodes.BAD_REQUEST, e.getMessage());
+		}
+
+		return false;
 	}
 
 	/**
