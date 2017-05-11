@@ -138,7 +138,7 @@ public interface EntityEndpoint extends RestEndpoint {
     static String getEventTypesOfEntityUri(long entityId, boolean includeChildEvents) {
         return  getEventTypesOfEntityBaseUri()
 				.replaceAll(getEntityIdParameter(true), Objects.toString(entityId, "0"))
-				.replaceAll(getIndexToParameter(true), Objects.toString(includeChildEvents, "false"));
+				.replaceAll(getIncludeChildEventsParameter(true), Objects.toString(includeChildEvents, "false"));
     }
 
     /**
@@ -154,7 +154,7 @@ public interface EntityEndpoint extends RestEndpoint {
         return getEventsOfEntityBaseUri()
                 .replaceAll(getEntityIdParameter(true), Objects.toString(entityId, "0"))
                 .replaceAll(getTypeIdParameter(true), Objects.toString(entityTypeId, "0"))
-				.replaceAll(getIndexToParameter(true), Objects.toString(includeChildEvents, "false"))
+				.replaceAll(getIncludeChildEventsParameter(true), Objects.toString(includeChildEvents, "false"))
                 .replaceAll(getIndexFromParameter(true), Objects.toString(fromIndex, "0"))
                 .replaceAll(getIndexToParameter(true), Objects.toString(toIndex, "0"));
     }

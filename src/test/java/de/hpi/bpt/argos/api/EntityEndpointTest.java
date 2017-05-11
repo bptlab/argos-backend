@@ -392,6 +392,7 @@ public class EntityEndpointTest extends ArgosTestParent {
 				if (jsonEventType.get("Id").getAsLong() == eventType.getId()) {
 					eventTypeFound = true;
 					assertEventType(eventType, jsonEventType);
+					break;
 				}
 			}
 
