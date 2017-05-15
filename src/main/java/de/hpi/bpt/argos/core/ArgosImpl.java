@@ -156,6 +156,9 @@ public class ArgosImpl implements Argos {
 		sparkService.before((request, response) -> {
 			response.header("Access-Control-Allow-Origin", Argos.getAllowedOrigin());
 			response.header("Access-Control-Request-Method", Argos.getAllowedRequestMethod());
+			response.header("Cache-Control", "no-cache, no-store, must-revalidate");
+			response.header("Pragma", "no-cache");
+			response.header("Expires", "0");
 			response.type("application/json");
 		});
 	}
