@@ -77,6 +77,11 @@ public class EventReceiverTest extends ArgosTestParent {
 
 		List<String> webSocketMessages = webSocket.awaitMessages(1, 1000);
 		ArgosTestUtil.assertWebSocketMessage(webSocketMessages.get(0), PersistenceArtifactUpdateType.CREATE, "Event");
+
+		JsonObject message = jsonParser.parse(webSocketMessages.get(0)).getAsJsonArray().get(0).getAsJsonObject();
+		assertEquals(testEntity.getId(), message.get("EntityId").getAsLong());
+		assertEquals(testEventType.getId(), message.get("EventTypeId").getAsLong());
+		assertEquals("Event", message.get("ArtifactType").getAsString());
 	}
 
 	@Test
@@ -140,7 +145,7 @@ public class EventReceiverTest extends ArgosTestParent {
 		assertEquals(eventsCount + 1, getEventsCount());
 		assertEquals(newStatus, getEntityStatus());
 
-		assertWebSocketMessages(webSocket);
+		assertWebSocketMessages(webSocket, testEventType.getId(), testEntity.getId());
 	}
 
 	@Test
@@ -185,7 +190,7 @@ public class EventReceiverTest extends ArgosTestParent {
 		assertEquals(targetStatus, getEntityStatus(newEntity.getId()));
 		assertEquals(testEntityStatus, getEntityStatus());
 
-		assertWebSocketMessages(webSocket);
+		assertWebSocketMessages(webSocket, testEventType.getId(), newEntity.getId());
 	}
 
 	@Test
@@ -222,7 +227,7 @@ public class EventReceiverTest extends ArgosTestParent {
 		assertEquals(eventsCount + 1, getEventsCount());
 		assertEquals(targetStatus, getEntityStatus());
 
-		assertWebSocketMessages(webSocket);
+		assertWebSocketMessages(webSocket, testEventType.getId(), testEntity.getId());
 	}
 
 	private JsonObject getJsonEvent() {
@@ -289,12 +294,18 @@ public class EventReceiverTest extends ArgosTestParent {
 		return testEntity.getStatus();
 	}
 
-	private void assertWebSocketMessages(WebSocket webSocket) throws Exception {
+	private void assertWebSocketMessages(WebSocket webSocket, long eventTypeId, long entityId) throws Exception {
 		List<String> webSocketMessages = webSocket.awaitMessages(2, 1000);
 
 		for (String message : webSocketMessages) {
 			if (message.contains("Event")) {
 				ArgosTestUtil.assertWebSocketMessage(message, PersistenceArtifactUpdateType.CREATE, "Event");
+
+				JsonObject jsonMessage = jsonParser.parse(message).getAsJsonArray().get(0).getAsJsonObject();
+				assertEquals(eventTypeId, jsonMessage.get("EventTypeId").getAsLong());
+				assertEquals(entityId, jsonMessage.get("EntityId").getAsLong());
+				assertEquals("Event", jsonMessage.get("ArtifactType").getAsString());
+
 				continue;
 			} else if (message.contains("Entity")) {
 				ArgosTestUtil.assertWebSocketMessage(message, PersistenceArtifactUpdateType.MODIFY, "Entity");

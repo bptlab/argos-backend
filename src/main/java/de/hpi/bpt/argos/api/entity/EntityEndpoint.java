@@ -144,16 +144,16 @@ public interface EntityEndpoint extends RestEndpoint {
     /**
      * This method returns the basic URI to retrieve the events of an entity.
      * @param entityId - the id of the entity to be searched for
-     * @param entityTypeId - the id of the entity type to be searched for
+     * @param eventTypeId - the id of the event type to be searched for
 	 * @param includeChildEvents - indicates whether the child events should be included
      * @param fromIndex - the index of the start of the entities to be searched for
      * @param toIndex - the index of the end of the entities to be searched for
      * @return - the URI to retrieve events from
      */
-    static String getEventsOfEntityUri(long entityId, long entityTypeId, boolean includeChildEvents, int fromIndex, int toIndex) {
+    static String getEventsOfEntityUri(long entityId, long eventTypeId, boolean includeChildEvents, int fromIndex, int toIndex) {
         return getEventsOfEntityBaseUri()
                 .replaceAll(getEntityIdParameter(true), Objects.toString(entityId, "0"))
-                .replaceAll(getTypeIdParameter(true), Objects.toString(entityTypeId, "0"))
+                .replaceAll(getTypeIdParameter(true), Objects.toString(eventTypeId, "0"))
 				.replaceAll(getIncludeChildEventsParameter(true), Objects.toString(includeChildEvents, "false"))
                 .replaceAll(getIndexFromParameter(true), Objects.toString(fromIndex, "0"))
                 .replaceAll(getIndexToParameter(true), Objects.toString(toIndex, "0"));

@@ -8,6 +8,8 @@ import de.hpi.bpt.argos.notifications.socket.PushNotificationClientHandlerImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.PersistenceArtifactUpdateType;
 import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifact;
+import de.hpi.bpt.argos.storage.dataModel.entity.Entity;
+import de.hpi.bpt.argos.storage.dataModel.event.Event;
 import spark.Service;
 
 import java.util.HashMap;
@@ -46,20 +48,28 @@ public class ClientUpdateServiceImpl implements ClientUpdateService {
 	 */
 	@Override
 	public void onArtifactUpdated(PersistenceArtifactUpdateType updateType, PersistenceArtifact updatedArtifact, String fetchUri) {
-		JsonObject notification = new JsonObject();
-
 		String artifactTypeName = updatedArtifact.getClass().getSimpleName();
 
 		if (artifactTypeName.endsWith(IMPLEMENTATION_SUFFIX)) {
 			artifactTypeName = artifactTypeName.substring(0, artifactTypeName.length() - IMPLEMENTATION_SUFFIX.length());
 		}
 
-		notification.addProperty("UpdateReason", updateType.toString());
-		notification.addProperty("ArtifactType", artifactTypeName);
-		notification.addProperty("ArtifactId", updatedArtifact.getId());
-		notification.addProperty("FetchUri", fetchUri);
+		JsonObject notification = createBasicNotification(updateType, artifactTypeName, updatedArtifact.getId(), fetchUri);
 
 		artifactUpdates.put(updatedArtifact, notification);
+		sendArtifactUpdates();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onEventCreation(Entity eventOwner, Event event, String fetchUri) {
+		JsonObject notification = createBasicNotification(PersistenceArtifactUpdateType.CREATE, Event.class.getSimpleName(), event.getId(), fetchUri);
+		notification.addProperty("EventTypeId", event.getTypeId());
+		notification.addProperty("EntityId", event.getEntityId());
+
+		artifactUpdates.put(event, notification);
 		sendArtifactUpdates();
 	}
 
@@ -79,5 +89,23 @@ public class ClientUpdateServiceImpl implements ClientUpdateService {
 
 		String json = serializer.toJson(jsonNotifications);
 		clientHandler.sendNotification(json);
+	}
+
+	/**
+	 * This method creates a basic push notification.
+	 * @param updateType - the type of the notification
+	 * @param artifactTypeName - the name of the updated artifact type
+	 * @param artifactId - the id of the updated artifact
+	 * @param fetchUri - the uri where to get the updated artifact
+	 * @return - a basic push notification
+	 */
+	private JsonObject createBasicNotification(PersistenceArtifactUpdateType updateType, String artifactTypeName, long artifactId, String fetchUri) {
+		JsonObject notification = new JsonObject();
+		notification.addProperty("UpdateReason", updateType.toString());
+		notification.addProperty("ArtifactType", artifactTypeName);
+		notification.addProperty("ArtifactId", artifactId);
+		notification.addProperty("FetchUri", fetchUri);
+
+		return notification;
 	}
 }
