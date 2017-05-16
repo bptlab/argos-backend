@@ -153,12 +153,15 @@ public class EventReceiverImpl implements EventReceiver {
 			}
 
 			// this event will now be stored with the corresponding owner id and therefore will be the next eventIndex in the list of all events
-			PersistenceAdapterImpl.getInstance().createArtifact(event,
-					EntityEndpoint.getEventsOfEntityUri(eventCreationStatus.getEventOwner().getId(),
+			String fetchUri = EntityEndpoint
+					.getEventsOfEntityUri(
+							eventCreationStatus.getEventOwner().getId(),
 							eventType.getId(),
 							false,
 							numberOfEvents,
-							numberOfEvents + 1));
+							numberOfEvents + 1);
+
+			PersistenceAdapterImpl.getInstance().createEvent(event, eventCreationStatus.getEventOwner(), fetchUri);
 		}
 	}
 }

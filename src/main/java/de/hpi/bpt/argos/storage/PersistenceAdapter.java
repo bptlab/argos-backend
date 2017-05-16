@@ -49,6 +49,14 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	boolean createArtifact(PersistenceArtifact artifact, String fetchUri);
 
 	/**
+	 * This method saves a new event in the database and notifies connected web socket clients.
+	 * @param event
+	 * @param eventOwner
+	 * @return
+	 */
+	boolean createEvent(Event event, Entity eventOwner, String fetchUri);
+
+	/**
 	 * This method updates an existing artifact in the database and notifies connected web socket clients.
 	 * @param artifact - the artifact to update
 	 * @param fetchUri - the uri, where connected web socket clients can fetch the updated artifact from

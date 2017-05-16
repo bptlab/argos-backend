@@ -97,6 +97,21 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 	 * {@inheritDoc}
 	 */
 	@Override
+	public boolean createEvent(Event event, Entity eventOwner, String fetchUri) {
+		if (!saveArtifacts(event)) {
+			return false;
+		}
+
+		notifyObservers((PersistenceArtifactUpdateObserver observer) ->
+				observer.onEventCreation(eventOwner, event, fetchUri));
+
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public boolean updateArtifact(PersistenceArtifact artifact, String fetchUri) {
 		if (!saveArtifacts(artifact)) {
 			return false;
