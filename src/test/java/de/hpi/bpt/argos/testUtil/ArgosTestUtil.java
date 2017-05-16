@@ -23,7 +23,8 @@ import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMappingImpl;
 import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.storage.dataModel.mapping.MappingConditionImpl;
-import javafx.util.Pair;
+import de.hpi.bpt.argos.util.Pair;
+import de.hpi.bpt.argos.util.PairImpl;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -252,7 +253,8 @@ public class ArgosTestUtil {
 																 List<TypeAttribute> entityTypeAttributes,
 																 boolean saveInDatabase) {
 
-		return createMappingConditions(mapping, saveInDatabase, new Pair<>(eventTypeAttributes.get(0).getId(), entityTypeAttributes.get(0).getId()));
+		return createMappingConditions(mapping, saveInDatabase, new PairImpl<>(eventTypeAttributes.get(0).getId(), entityTypeAttributes.get(0).getId
+				()));
 
 	}
 

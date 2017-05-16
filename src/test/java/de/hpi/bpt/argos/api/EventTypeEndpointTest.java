@@ -19,7 +19,7 @@ import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.testUtil.ArgosTestUtil;
 import de.hpi.bpt.argos.testUtil.WebSocket;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
-import javafx.util.Pair;
+import de.hpi.bpt.argos.util.PairImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -137,7 +137,7 @@ public class EventTypeEndpointTest extends ArgosTestParent {
         EventQuery query = ArgosTestUtil.createEventQuery(eventTypeToDelete, true);
         List<TypeAttribute> attributes = ArgosTestUtil.createEventTypeAttributes(eventTypeToDelete, true);
         EventEntityMapping mapping = ArgosTestUtil.createEventEntityMapping(eventTypeToDelete, new EntityTypeImpl(), "", true);
-        List<MappingCondition> conditions = ArgosTestUtil.createMappingConditions(mapping, true, new Pair<>( 1L, 2L));
+        List<MappingCondition> conditions = ArgosTestUtil.createMappingConditions(mapping, true, new PairImpl<>( 1L, 2L));
 
         WebSocket webSocket = WebSocket.buildWebSocket();
 
@@ -276,7 +276,7 @@ public class EventTypeEndpointTest extends ArgosTestParent {
     @Test
     public void testGetEventTypeEntityMappings() {
         EventEntityMapping mapping = ArgosTestUtil.createEventEntityMapping(testEventType, ArgosTestUtil.createEntityType(true), "", true);
-        List<MappingCondition> conditions = ArgosTestUtil.createMappingConditions(mapping, true, new Pair<>(1L, 2L));
+        List<MappingCondition> conditions = ArgosTestUtil.createMappingConditions(mapping, true, new PairImpl<>(1L, 2L));
 
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createGetRequest(ARGOS_REST_HOST, EventTypeEndpoint.getEventTypeEntityMappingsUri(testEventType.getId()));

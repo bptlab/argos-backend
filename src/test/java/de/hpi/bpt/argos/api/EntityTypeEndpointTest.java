@@ -13,7 +13,7 @@ import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.testUtil.ArgosTestUtil;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
-import javafx.util.Pair;
+import de.hpi.bpt.argos.util.PairImpl;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -92,7 +92,7 @@ public class EntityTypeEndpointTest extends ArgosTestParent {
     @Test
     public void testGetMappings() {
         EventEntityMapping mapping = ArgosTestUtil.createEventEntityMapping(ArgosTestUtil.createEventType(true, true), root1, "", true);
-        List<MappingCondition> conditions = ArgosTestUtil.createMappingConditions(mapping, true, new Pair<>(1L, 2L));
+        List<MappingCondition> conditions = ArgosTestUtil.createMappingConditions(mapping, true, new PairImpl<>(1L, 2L));
 
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createGetRequest(ARGOS_REST_HOST, EntityTypeEndpoint.getEntityTypeEntityMappingsUri(root1.getId()));
