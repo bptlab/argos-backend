@@ -22,7 +22,7 @@ public class ArgosTestParent {
 	public static void setup() {
 		argos = new ArgosImpl();
 
-		PropertyEditorImpl.getInstance().setProperty(Argos.ARGOS_BACKEND_HOST_PROPERTY_KEY, ARGOS_HOST_ADDRESS);
+		PropertyEditorImpl.getInstance().setProperty(Argos.ARGOS_BACKEND_EXTERNAL_HOST_PROPERTY_KEY, ARGOS_REST_HOST);
 		PropertyEditorImpl.getInstance().setProperty(Argos.ARGOS_BACKEND_PORT_PROPERTY_KEY, Integer.toString(ARGOS_PORT));
 		PropertyEditorImpl.getInstance().setProperty(Argos.ARGOS_BACKEND_THREADS_PROPERTY_KEY, Integer.toString(ARGOS_THREADS));
 		PropertyEditorImpl.getInstance().setProperty(Argos.ARGOS_BACKEND_TEST_MODE_PROPERTY_KEY, Boolean.TRUE.toString());

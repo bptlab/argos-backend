@@ -9,7 +9,7 @@ import de.hpi.bpt.argos.properties.PropertyEditorImpl;
  */
 public interface Argos {
 
-	String ARGOS_BACKEND_HOST_PROPERTY_KEY = "argosBackendHost";
+	String ARGOS_BACKEND_EXTERNAL_HOST_PROPERTY_KEY = "argosBackendExternalHost";
 	String ARGOS_BACKEND_PORT_PROPERTY_KEY = "argosBackendPort";
 	String ARGOS_BACKEND_ROUTE_PREFIX_PROPERTY_KEY = "argosBackendRoutePrefix";
 	String ARGOS_BACKEND_THREADS_PROPERTY_KEY = "argosBackendThreads";
@@ -65,8 +65,8 @@ public interface Argos {
 	 * This method reads the host property from the properties-file and returns it's value.
 	 * @return - the host, specified in the properties-file
 	 */
-	static String getHost() {
-		return PropertyEditorImpl.getInstance().getProperty(ARGOS_BACKEND_HOST_PROPERTY_KEY);
+	static String getExternalHost() {
+		return PropertyEditorImpl.getInstance().getProperty(ARGOS_BACKEND_EXTERNAL_HOST_PROPERTY_KEY);
 	}
 
 	/**
