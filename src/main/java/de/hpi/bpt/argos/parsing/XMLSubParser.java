@@ -1,0 +1,26 @@
+package de.hpi.bpt.argos.parsing;
+
+/**
+ * This interface is meant to split the file parsing into smaller pieces.
+ */
+public interface XMLSubParser {
+
+	/**
+	 * This method gets called whenever a new xml element is started.
+	 * @param element - the name of the new xml element
+	 */
+	void startElement(String element);
+
+	/**
+	 * This method gets called whenever a xml element contains data
+	 * @param element - the name of the current xml element
+	 * @param value - the value of the current xml element
+	 */
+	void elementValue(String element, String value);
+
+	/**
+	 * This method gets called whenever a xml element is closed.
+	 * @param element - the name of the closed xml element
+	 */
+	void endElement(String element);
+}

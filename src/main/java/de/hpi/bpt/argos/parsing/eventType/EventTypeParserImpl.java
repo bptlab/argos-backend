@@ -49,8 +49,9 @@ public final class EventTypeParserImpl implements EventTypeParser {
 	private EventTypeParserImpl() {
 
 		/**
-		 * File format from unicorn
+		 * File format
 		 * Please note, that the given data-types are ignored.
+		 *
 		 *
 		 * {
 		 *     "name":"EventTypeName",
@@ -58,7 +59,7 @@ public final class EventTypeParserImpl implements EventTypeParser {
 		 *     "attributes":{
 		 *			"eventTypeAttribute1":"STRING",
 		 *			"eventTypeAttribute2":"STRING",
-		 *			"eventTypeAttribute3":"INTEGER",
+		 *			"eventTypeAttribute3":"STRING",
 		 *     },
 		 *     "queries":{
 		 *     		"Query1Description":"Query1",
