@@ -1,8 +1,5 @@
 #!/bin/bash
 
-envsubst \
-    < src/main/resources/argos-backend.properties \
-    > src/main/resources/argos-backend.properties
 mvn clean install -DskipTests
 java -jar target/argos-backend.jar \
     -DargosBackendExternalHost=${HOST} \
