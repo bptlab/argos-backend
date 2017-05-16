@@ -1,7 +1,14 @@
 package de.hpi.bpt.argos.parsing.staticData;
 
+import de.hpi.bpt.argos.parsing.XMLFileParser;
+
 /**
- * Created by Johannes Schneider on 16.05.2017.
+ * This interface extends the XMLFileParser interface and is responsible for parsing the static xml data.
  */
-public interface StaticDataParser {
+public interface StaticDataParser extends XMLFileParser {
+
+	/**
+	 * This method parses all static data files in the directory, which is configured.
+	 */
+	void loadStaticData();
 }
