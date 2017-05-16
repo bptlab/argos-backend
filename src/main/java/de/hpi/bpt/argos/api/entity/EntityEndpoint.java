@@ -144,7 +144,7 @@ public interface EntityEndpoint extends RestEndpoint {
     /**
      * This method returns the basic URI to retrieve the events of an entity.
      * @param entityId - the id of the entity to be searched for
-     * @param eventTypeId - the id of the entity type to be searched for
+     * @param eventTypeId - the id of the event type to be searched for
 	 * @param includeChildEvents - indicates whether the child events should be included
      * @param fromIndex - the index of the start of the entities to be searched for
      * @param toIndex - the index of the end of the entities to be searched for
