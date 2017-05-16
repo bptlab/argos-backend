@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.core.Argos;
+import de.hpi.bpt.argos.parsing.util.FileUtilImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttributeImpl;
@@ -114,11 +115,11 @@ public final class EventTypeParserImpl implements EventTypeParser {
 	 */
 	private void loadDefaultEventType(File eventTypeFile) {
 		try {
-			if (!wasModified(eventTypeFile)) {
+			if (!FileUtilImpl.getInstance().wasModified(eventTypeFile)) {
 				logger.info(String.format("file '%1$s' was loaded already and therefore skipped", eventTypeFile.getName()));
 				return;
 			} else {
-				modify(eventTypeFile);
+				FileUtilImpl.getInstance().modify(eventTypeFile);
 			}
 
 			String fileContent = new String(Files.readAllBytes(Paths.get(eventTypeFile.toURI())), StandardCharsets.UTF_8);
@@ -143,34 +144,6 @@ public final class EventTypeParserImpl implements EventTypeParser {
 		} catch (Exception e) {
 			LoggerUtilImpl.getInstance().error(logger, String.format("cannot load event type from file '%1$s'", eventTypeFile.getName()), e);
 		}
-	}
-
-	/**
-	 * This method checks whether a file was modified since the last time it was loaded.
-	 * @param file - the file to check for modification
-	 * @return - true, if the file was modified and therefore should be loaded again
-	 */
-	private boolean wasModified(File file) {
-		DataFile dataFile = PersistenceAdapterImpl.getInstance().getDataFile(file.getAbsolutePath());
-
-		return dataFile == null || dataFile.getModificationTimestamp() != file.lastModified();
-	}
-
-	/**
-	 * This method updated the modificationTimestamp for a given file.
-	 * @param file - the file to be updated
-	 */
-	private void modify(File file) {
-		DataFile dataFile = PersistenceAdapterImpl.getInstance().getDataFile(file.getAbsolutePath());
-
-		if (dataFile == null) {
-			dataFile = new DataFileImpl();
-			dataFile.setPath(file.getAbsolutePath());
-		}
-
-		dataFile.setModificationTimestamp(file.lastModified());
-
-		PersistenceAdapterImpl.getInstance().saveArtifacts(dataFile);
 	}
 
 	/**
