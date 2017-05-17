@@ -1,7 +1,6 @@
 package de.hpi.bpt.argos.parsing.staticData.subParser;
 
 import de.hpi.bpt.argos.parsing.XMLFileParser;
-import de.hpi.bpt.argos.parsing.XMLSubParser;
 import de.hpi.bpt.argos.parsing.XMLSubParserImpl;
 import de.hpi.bpt.argos.parsing.staticData.EntityTypeList;
 import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityType;
@@ -14,13 +13,13 @@ import java.util.Deque;
  * {@inheritDoc}
  * This subParser is responsible for parsing entityTypes.
  */
-public class EntityTypesParser extends XMLSubParserImpl implements XMLSubParser {
+public class EntityTypesParser extends XMLSubParserImpl {
 
 	private static final String ENTITY_TYPES_ROOT_ELEMENT = "types";
 	private static final String ENTITY_TYPE_ROOT_ELEMENT = "type";
 	private static final String ENTITY_TYPE_CHILD_TYPES_ELEMENT = "childTypes";
 
-	private Deque<EntityTypeParserImpl> parserStack;
+	private Deque<EntityTypeParser> parserStack;
 	private EntityTypeList entityTypes;
 
 	/**
@@ -41,17 +40,17 @@ public class EntityTypesParser extends XMLSubParserImpl implements XMLSubParser 
 		// new entityType?
 		if (element.equalsIgnoreCase(ENTITY_TYPE_ROOT_ELEMENT) &&
 				(
-						getParent().latestOpenedElement(1).equalsIgnoreCase(ENTITY_TYPES_ROOT_ELEMENT)
-							|| getParent().latestOpenedElement(1).equalsIgnoreCase(ENTITY_TYPE_CHILD_TYPES_ELEMENT)
+						getParentParser().latestOpenedElement(1).equalsIgnoreCase(ENTITY_TYPES_ROOT_ELEMENT)
+							|| getParentParser().latestOpenedElement(1).equalsIgnoreCase(ENTITY_TYPE_CHILD_TYPES_ELEMENT)
 				)) {
 
 			EntityType parentType = VirtualRootType.getInstance();
 
 			if (!parserStack.isEmpty()) {
-				parentType = parserStack.getFirst().getEntityType();
+				parentType = parserStack.getFirst().getArtifact();
 			}
 
-			parserStack.push(new EntityTypeParserImpl(getParent(), entityTypes, parentType));
+			parserStack.push(new EntityTypeParser(parentParser, entityTypes, parentType));
 			return;
 		}
 
@@ -83,8 +82,8 @@ public class EntityTypesParser extends XMLSubParserImpl implements XMLSubParser 
 		// close latest (child) entityType?
 		if (element.equalsIgnoreCase(ENTITY_TYPE_ROOT_ELEMENT) &&
 				(
-						getParent().latestOpenedElement(0).equalsIgnoreCase(ENTITY_TYPE_CHILD_TYPES_ELEMENT)
-								|| getParent().latestOpenedElement(0).equalsIgnoreCase(ENTITY_TYPES_ROOT_ELEMENT)
+						parentParser.latestOpenedElement(0).equalsIgnoreCase(ENTITY_TYPE_CHILD_TYPES_ELEMENT)
+								|| parentParser.latestOpenedElement(0).equalsIgnoreCase(ENTITY_TYPES_ROOT_ELEMENT)
 				)) {
 
 			if (!parserStack.isEmpty()) {

@@ -7,6 +7,7 @@ import de.hpi.bpt.argos.storage.dataModel.entity.type.VirtualRootType;
 import de.hpi.bpt.argos.util.Pair;
 import de.hpi.bpt.argos.util.PairImpl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import java.util.Map;
  */
 public class EntityTypeListImpl implements EntityTypeList {
 
+	List<String> existingEntityTypes;
 	Map<String, String> entityTypeParentNames;
 	Map<String, EntityType> entityTypes;
 	Map<String, List<TypeAttribute>> entityTypeAttributes;
@@ -25,6 +27,12 @@ public class EntityTypeListImpl implements EntityTypeList {
 		entityTypeParentNames = new HashMap<>();
 		entityTypes = new HashMap<>();
 		entityTypeAttributes = new HashMap<>();
+
+		existingEntityTypes = new ArrayList<>();
+
+		for (EntityType existingEntityType : PersistenceAdapterImpl.getInstance().getEntityTypes()) {
+			existingEntityTypes.add(existingEntityType.getName());
+		}
 	}
 
 	/**
@@ -40,6 +48,10 @@ public class EntityTypeListImpl implements EntityTypeList {
 	 */
 	@Override
 	public void add(EntityType newType, List<TypeAttribute> newTypeAttributes, EntityType parent) {
+		if (existingEntityTypes.contains(newType.getName())) {
+			return;
+		}
+
 		entityTypeParentNames.put(newType.getName(), parent.getName());
 		entityTypes.put(newType.getName(), newType);
 		entityTypeAttributes.put(newType.getName(), newTypeAttributes);

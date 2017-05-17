@@ -101,6 +101,12 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	List<Entity> getEntities();
 
 	/**
+	 * This method returns the number of all entities in the database.
+	 * @return - the number of all entities in the database
+	 */
+	int getEntitiesCount();
+
+	/**
 	 * This method returns a specific entity, identified by it's id.
 	 * @param id - the unique identifier for the entity
 	 * @return - the entity or null
@@ -134,6 +140,12 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	 * @return - a list of all entityTypes
 	 */
 	List<EntityType> getEntityTypes();
+
+	/**
+	 * This method returns the number of all entityTypes in the database.
+	 * @return - the number of all entityTypes in the database
+	 */
+	int getEntityTypesCount();
 
 	/**
 	 * This method returns a list of events, which belong to at least one of the given entities.

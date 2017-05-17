@@ -201,6 +201,28 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 	 * {@inheritDoc}
 	 */
 	@Override
+	public int getEntitiesCount() {
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		Table entityTable = Entity.class.getAnnotation(Table.class);
+		String eventTableName = "Entity";
+
+		if (entityTable != null) {
+			eventTableName = entityTable.name();
+		}
+
+		String sqlQuery = String.format("SELECT count(*) FROM %1$s", eventTableName);
+		Query query = session.createNativeQuery(sqlQuery);
+
+		String stringResult = databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, 0).toString();
+		return Integer.parseInt(stringResult);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public Entity getEntity(long id) {
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
@@ -279,6 +301,28 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 				EntityType.class);
 
 		return databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getEntityTypesCount() {
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		Table entityTypeTable = Entity.class.getAnnotation(Table.class);
+		String entityTypeTableName = "EntityType";
+
+		if (entityTypeTable != null) {
+			entityTypeTableName = entityTypeTable.name();
+		}
+
+		String sqlQuery = String.format("SELECT count(*) FROM %1$s", entityTypeTableName);
+		Query query = session.createNativeQuery(sqlQuery);
+
+		String stringResult = databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, 0).toString();
+		return Integer.parseInt(stringResult);
 	}
 
 	/**

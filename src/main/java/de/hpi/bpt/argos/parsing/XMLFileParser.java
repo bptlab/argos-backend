@@ -19,11 +19,4 @@ public interface XMLFileParser {
 	 * @return - the element name
 	 */
 	String latestOpenedElement(int topOffset);
-
-	/**
-	 * This method returns the latest closed element name.
-	 * @param topOffset - the element offset (0 -> latest, 1 -> one before latest, ...)
-	 * @return - the element name
-	 */
-	String latestClosedElement(int topOffset);
 }

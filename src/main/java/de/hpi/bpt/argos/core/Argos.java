@@ -145,7 +145,7 @@ public interface Argos {
 	 * This method reads the loadStaticData property from the properties-file and returns it's value.
 	 * @return - the loadStaticData, specified in the properties-file
 	 */
-	static boolean getLoadStaticData() {
+	static boolean shouldLoadStaticData() {
 		return PropertyEditorImpl.getInstance().getPropertyAsBoolean(ARGOS_BACKEND_LOAD_STATIC_DATA_PROPERTY_KEY);
 	}
 }

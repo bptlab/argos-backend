@@ -1,26 +1,30 @@
 package de.hpi.bpt.argos.parsing;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * {@inheritDoc}
  * This is an abstract base class.
  */
 public abstract class XMLSubParserImpl implements XMLSubParser {
+	protected static final Logger logger = LoggerFactory.getLogger(XMLSubParserImpl.class);
 
-	private XMLFileParser parent;
+	protected XMLFileParser parentParser;
 
 	/**
-	 * This constructor sets the parent parser for this subParser.
-	 * @param parentParser - the parent parser to be set
+	 * This constructor sets the parentParser of this subParser.
+	 * @param parentParser - the parentParser to be set
 	 */
 	public XMLSubParserImpl(XMLFileParser parentParser) {
-		parent = parentParser;
+		this.parentParser = parentParser;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public XMLFileParser getParent() {
-		return parent;
+	public XMLFileParser getParentParser() {
+		return parentParser;
 	}
 }

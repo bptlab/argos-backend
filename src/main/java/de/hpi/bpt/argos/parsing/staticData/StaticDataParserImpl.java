@@ -5,6 +5,8 @@ import de.hpi.bpt.argos.parsing.XMLFileParserImpl;
 import de.hpi.bpt.argos.parsing.XMLSubParser;
 import de.hpi.bpt.argos.parsing.staticData.subParser.EntityInstancesParser;
 import de.hpi.bpt.argos.parsing.staticData.subParser.EntityTypesParser;
+import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
+import de.hpi.bpt.argos.util.LoggerUtilImpl;
 
 import java.io.File;
 
@@ -120,6 +122,10 @@ public class StaticDataParserImpl extends XMLFileParserImpl implements StaticDat
 	 */
 	@Override
 	public void loadStaticData() {
+		if (!Argos.shouldLoadStaticData()) {
+			return;
+		}
+
 		String staticDataDirectory = Argos.getStaticDataDirectory();
 		if (staticDataDirectory.length() == 0) {
 			logger.info("static data directory not defined in properties");
@@ -146,7 +152,24 @@ public class StaticDataParserImpl extends XMLFileParserImpl implements StaticDat
 				continue;
 			}
 
-			parse(staticDataFile);
+			try {
+				int oldEntityTypesCount = PersistenceAdapterImpl.getInstance().getEntityTypesCount();
+				int oldEntitiesCount = PersistenceAdapterImpl.getInstance().getEntitiesCount();
+
+				parse(staticDataFile);
+
+				int newEntityTypesCount = PersistenceAdapterImpl.getInstance().getEntityTypesCount();
+				int newEntitiesCount = PersistenceAdapterImpl.getInstance().getEntitiesCount();
+
+				logger.info(String.format("'%1$s' contained [%2$d entityTypes] and [%3$d entities]",
+						staticDataFile.getName(),
+						newEntityTypesCount - oldEntityTypesCount,
+						newEntitiesCount - oldEntitiesCount));
+
+			} catch (Exception e) {
+				LoggerUtilImpl.getInstance().error(logger, String.format("cannot parse '%1$s'", staticDataFile.getName()), e);
+
+			}
 		}
 	}
 
@@ -161,7 +184,7 @@ public class StaticDataParserImpl extends XMLFileParserImpl implements StaticDat
 				return;
 
 			case ENTITY_INSTANCES_ROOT_ELEMENT:
-				activeSubParser = new EntityInstancesParser(this);
+				activeSubParser = new EntityInstancesParser(this, entityTypes);
 				return;
 
 			default:
@@ -178,6 +201,10 @@ public class StaticDataParserImpl extends XMLFileParserImpl implements StaticDat
 	 */
 	@Override
 	protected void element(String elementData) {
+		if (elementData.matches("^\\s*$")) {
+			return;
+		}
+
 		if (activeSubParser == null) {
 			return;
 		}

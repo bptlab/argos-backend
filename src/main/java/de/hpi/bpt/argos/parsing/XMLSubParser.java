@@ -1,7 +1,7 @@
 package de.hpi.bpt.argos.parsing;
 
 /**
- * This interface is meant to split the file parsing into smaller pieces.
+ * This interface is meant to split the parsing process into little pieces.
  */
 public interface XMLSubParser {
 
@@ -9,7 +9,7 @@ public interface XMLSubParser {
 	 * This method returns the parent parser for this subParser.
 	 * @return - the parent parser for this subParser
 	 */
-	XMLFileParser getParent();
+	XMLFileParser getParentParser();
 
 	/**
 	 * This method gets called whenever a new xml element is started.

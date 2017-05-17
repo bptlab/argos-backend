@@ -1,20 +1,20 @@
 package de.hpi.bpt.argos.parsing.staticData.subParser;
 
 import de.hpi.bpt.argos.parsing.XMLFileParser;
-import de.hpi.bpt.argos.parsing.XMLSubParser;
-import de.hpi.bpt.argos.parsing.XMLSubParserImpl;
+import de.hpi.bpt.argos.parsing.staticData.ArtifactParser;
+import de.hpi.bpt.argos.parsing.staticData.ArtifactParserImpl;
 
 /**
  * {@inheritDoc}
  * This subParser is responsible for parsing entityInstances.
  */
-public class EntityInstanceParser extends XMLSubParserImpl implements XMLSubParser {
+public class EntityInstanceParserImpl extends ArtifactParserImpl implements ArtifactParser {
 
 	/**
 	 * This constructor sets the parent parser.
 	 * @param parent - the parent parser to be set
 	 */
-	public EntityInstanceParser(XMLFileParser parent) {
+	public EntityInstanceParserImpl(XMLFileParser parent) {
 		super(parent);
 	}
 

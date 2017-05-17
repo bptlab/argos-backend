@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.parsing;
 
+import de.hpi.bpt.argos.parsing.util.FileUtilImpl;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,14 +29,12 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 	private static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 	private SAXParser parser;
 	private List<String> openedElements;
-	private List<String> closedElements;
 
 	/**
 	 * This constructor initializes all members with default value.
 	 */
 	public XMLFileParserImpl() {
 		openedElements = new ArrayList<>();
-		closedElements = new ArrayList<>();
 
 		try {
 			parser = parserFactory.newSAXParser();
@@ -61,6 +60,8 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 //			FileUtilImpl.getInstance().modify(dataFile);
 //		}
 
+		logger.info(String.format("start parsing '%1$s' ...", dataFile.getName()));
+
 		try (InputStream inputStream = new FileInputStream(dataFile)) {
 
 			Reader reader = new InputStreamReader(inputStream, "UTF-8");
@@ -69,9 +70,11 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 
 			parser.parse(source, this);
 		} catch (Exception e) {
-			logger.error(String.format("can not parse file '%1$s'", dataFile.getName()));
+			logger.error(String.format("cannot parse file '%1$s'", dataFile.getName()));
 			logger.trace("Reason: ", e);
 		}
+
+		logger.info(String.format("... finished parsing '%1$s'", dataFile.getName()));
 	}
 
 	/**
@@ -98,7 +101,6 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 		}
 
 		openedElements.remove(openedElements.size() - 1);
-		closedElements.add(qName);
 
 		endElement(qName);
 	}
@@ -121,16 +123,6 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 		int offset = Math.max(1, Math.min(openedElements.size(), topOffset + 1));
 
 		return openedElements.get(openedElements.size() - offset);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String latestClosedElement(int topOffset) {
-		int offset = Math.max(1, Math.min(closedElements.size(), topOffset + 1));
-
-		return closedElements.get(closedElements.size() - offset);
 	}
 
 	/**
