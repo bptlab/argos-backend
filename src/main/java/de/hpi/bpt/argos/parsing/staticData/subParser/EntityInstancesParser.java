@@ -82,8 +82,8 @@ public class EntityInstancesParser extends XMLSubParserImpl {
 		// close latest (child) instance?
 		if (element.equalsIgnoreCase(ENTITY_INSTANCE_ELEMENT) &&
 				(
-						parentParser.latestOpenedElement(1).equalsIgnoreCase(ENTITY_INSTANCE_CHILD_INSTANCES_ELEMENT)
-								|| parentParser.latestOpenedElement(1).equalsIgnoreCase(ENTITY_INSTANCES_ELEMENT)
+						parentParser.latestOpenedElement(0).equalsIgnoreCase(ENTITY_INSTANCE_CHILD_INSTANCES_ELEMENT)
+								|| parentParser.latestOpenedElement(0).equalsIgnoreCase(ENTITY_INSTANCES_ELEMENT)
 				)) {
 
 			if (!parserStack.isEmpty()) {

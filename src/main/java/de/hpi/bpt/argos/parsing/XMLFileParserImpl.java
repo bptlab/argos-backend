@@ -53,12 +53,12 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 			return;
 		}
 
-//		if (!FileUtilImpl.getInstance().wasModified(dataFile)) {
-//			logger.info(String.format("static data file '%1$s' was skipped, since it was loaded earlier", dataFile.getName()));
-//			return;
-//		} else {
-//			FileUtilImpl.getInstance().modify(dataFile);
-//		}
+		if (!FileUtilImpl.getInstance().wasModified(dataFile)) {
+			logger.info(String.format("static data file '%1$s' was skipped, since it was loaded earlier", dataFile.getName()));
+			return;
+		} else {
+			FileUtilImpl.getInstance().modify(dataFile);
+		}
 
 		logger.info(String.format("start parsing '%1$s' ...", dataFile.getName()));
 

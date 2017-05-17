@@ -17,14 +17,11 @@ import java.util.Map;
  * {@inheritDoc}
  * This subParser is responsible for parsing entityTypes.
  */
-public class EntityTypeParserImpl extends ArtifactParserImpl implements EntityTypeParser {
+public class EntityTypeParser extends ArtifactParserImpl<EntityType> {
 
 	private static final String NAME_ELEMENT = "name";
 	private static final String ATTRIBUTE_ELEMENT = "attribute";
 
-	private EntityTypeList entityTypes;
-	private EntityType parentEntityType;
-	private EntityType entityType;
 	private Map<String, TypeAttribute> entityTypeAttributes;
 
 	/**
@@ -33,16 +30,17 @@ public class EntityTypeParserImpl extends ArtifactParserImpl implements EntityTy
 	 * @param entityTypes - the list of all entityTypes parsed so far
 	 * @param parentType - the parent entityType of the entityType which will be parsed by this parser
 	 */
-	public EntityTypeParserImpl(XMLFileParser parent, EntityTypeList entityTypes, EntityType parentType) {
-		super(parent);
-		this.entityTypes = entityTypes;
-		parentEntityType = parentType;
+	public EntityTypeParser(XMLFileParser parent, EntityTypeList entityTypes, EntityType parentType) {
+		super(parent, entityTypes, parentType);
 		entityTypeAttributes = new HashMap<>();
 
-		entityType = new EntityTypeImpl();
-		entityType.setParentId(parentType.getId());
+		artifact = new EntityTypeImpl();
+		artifact.setParentId(parentType.getId());
 
-		PersistenceAdapterImpl.getInstance().saveArtifacts(entityType);
+		PersistenceAdapterImpl.getInstance().saveArtifacts(artifact);
+
+		// add name to attribute list to make it accessible in mappings, ...
+		entityTypeAttributes.put(NAME_ELEMENT, createTypeAttribute(NAME_ELEMENT));
 	}
 
 	/**
@@ -58,14 +56,12 @@ public class EntityTypeParserImpl extends ArtifactParserImpl implements EntityTy
 	 */
 	@Override
 	public void elementValue(String element, String value) {
-		if (element.equalsIgnoreCase(NAME_ELEMENT) && getParentParser().latestOpenedElement(1).equalsIgnoreCase(ATTRIBUTE_ELEMENT)) {
-			if (entityTypeAttributes.containsKey(value)) {
-				return;
-			}
-
+		if (element.equalsIgnoreCase(NAME_ELEMENT) && parentParser.latestOpenedElement(1).equalsIgnoreCase(ATTRIBUTE_ELEMENT)) {
 			entityTypeAttributes.put(value, createTypeAttribute(value));
+
 		} else if (element.equalsIgnoreCase(NAME_ELEMENT)) {
-			entityType.setName(value);
+			artifact.setName(artifact.getName() + value);
+
 		}
 	}
 
@@ -81,24 +77,12 @@ public class EntityTypeParserImpl extends ArtifactParserImpl implements EntityTy
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EntityType getParentEntityType() {
-		return parentEntityType;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public EntityType getEntityType() {
-		return entityType;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void finish() {
-		entityTypes.add(entityType, new ArrayList<>(entityTypeAttributes.values()), parentEntityType);
+		logger.info(String.format("'%1$s' -> new entityType '%2$s' with %3$d attributes",
+				parentArtifact.getName(),
+				artifact.getName(),
+				entityTypeAttributes.size()));
+		entityTypes.add(artifact, new ArrayList<>(entityTypeAttributes.values()), parentArtifact);
 	}
 
 	/**
@@ -109,7 +93,7 @@ public class EntityTypeParserImpl extends ArtifactParserImpl implements EntityTy
 	private TypeAttribute createTypeAttribute(String name) {
 		TypeAttribute newTypeAttribute = new TypeAttributeImpl();
 
-		newTypeAttribute.setTypeId(entityType.getId());
+		newTypeAttribute.setTypeId(artifact.getId());
 		newTypeAttribute.setName(name);
 
 		return newTypeAttribute;

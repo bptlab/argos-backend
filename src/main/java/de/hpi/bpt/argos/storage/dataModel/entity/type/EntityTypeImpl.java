@@ -18,7 +18,7 @@ public class EntityTypeImpl extends PersistenceArtifactImpl implements EntityTyp
 	protected long parentId;
 
 	@Column(name = "Name")
-	protected String name;
+	protected String name = "";
 
 	/**
 	 * {@inheritDoc}
