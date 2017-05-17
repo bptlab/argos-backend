@@ -6,6 +6,12 @@ package de.hpi.bpt.argos.parsing;
 public interface XMLSubParser {
 
 	/**
+	 * This method returns the parent parser for this subParser.
+	 * @return - the parent parser for this subParser
+	 */
+	XMLFileParser getParent();
+
+	/**
 	 * This method gets called whenever a new xml element is started.
 	 * @param element - the name of the new xml element
 	 */

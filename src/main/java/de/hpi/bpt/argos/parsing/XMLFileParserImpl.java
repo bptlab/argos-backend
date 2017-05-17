@@ -1,6 +1,5 @@
 package de.hpi.bpt.argos.parsing;
 
-import de.hpi.bpt.argos.parsing.util.FileUtilImpl;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,12 +54,12 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 			return;
 		}
 
-		if (!FileUtilImpl.getInstance().wasModified(dataFile)) {
-			logger.info(String.format("static data file '%1$s' was skipped, since it was loaded earlier", dataFile.getName()));
-			return;
-		} else {
-			FileUtilImpl.getInstance().modify(dataFile);
-		}
+//		if (!FileUtilImpl.getInstance().wasModified(dataFile)) {
+//			logger.info(String.format("static data file '%1$s' was skipped, since it was loaded earlier", dataFile.getName()));
+//			return;
+//		} else {
+//			FileUtilImpl.getInstance().modify(dataFile);
+//		}
 
 		try (InputStream inputStream = new FileInputStream(dataFile)) {
 
@@ -115,6 +114,26 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String latestOpenedElement(int topOffset) {
+		int offset = Math.max(1, Math.min(openedElements.size(), topOffset + 1));
+
+		return openedElements.get(openedElements.size() - offset);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String latestClosedElement(int topOffset) {
+		int offset = Math.max(1, Math.min(closedElements.size(), topOffset + 1));
+
+		return closedElements.get(closedElements.size() - offset);
+	}
+
+	/**
 	 * This method gets called when a new element in the XML stream was started.
 	 * @param elementName - the name of the new element
 	 */
@@ -131,26 +150,4 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 	 * @param elementName - the name of the closed element
 	 */
 	protected abstract void endElement(String elementName);
-
-	/**
-	 * This method return the latest opened element name.
-	 * @param topOffset - the element offset (0 -> latest, 1 -> one before latest, ...)
-	 * @return - the element name
-	 */
-	protected String latestOpenedElement(int topOffset) {
-		int offset = Math.max(1, Math.min(openedElements.size(), topOffset));
-
-		return openedElements.get(openedElements.size() - offset);
-	}
-
-	/**
-	 * This method returns the latest closed element name.
-	 * @param topOffset - the element offset (0 -> latest, 1 -> one before latest, ...)
-	 * @return - the element name
-	 */
-	protected String latestClosedElement(int topOffset) {
-		int offset = Math.max(1, Math.min(closedElements.size(), topOffset));
-
-		return closedElements.get(closedElements.size() - offset);
-	}
 }

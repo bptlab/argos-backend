@@ -15,10 +15,10 @@ import javax.persistence.Table;
 public class EntityTypeImpl extends PersistenceArtifactImpl implements EntityType {
 
 	@Column(name = "ParentId")
-	private long parentId;
+	protected long parentId;
 
 	@Column(name = "Name")
-	private String name;
+	protected String name;
 
 	/**
 	 * {@inheritDoc}

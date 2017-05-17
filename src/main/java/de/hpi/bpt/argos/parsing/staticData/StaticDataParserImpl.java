@@ -3,8 +3,8 @@ package de.hpi.bpt.argos.parsing.staticData;
 import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.parsing.XMLFileParserImpl;
 import de.hpi.bpt.argos.parsing.XMLSubParser;
+import de.hpi.bpt.argos.parsing.staticData.subParser.EntityInstancesParser;
 import de.hpi.bpt.argos.parsing.staticData.subParser.EntityTypesParser;
-import de.hpi.bpt.argos.util.LoggerUtilImpl;
 
 import java.io.File;
 
@@ -14,18 +14,20 @@ import java.io.File;
  */
 public class StaticDataParserImpl extends XMLFileParserImpl implements StaticDataParser {
 
-	private static final String ROOT_ELEMENT = "staticData";
 	private static final String ENTITY_TYPES_ROOT_ELEMENT = "types";
 	private static final String ENTITY_INSTANCES_ROOT_ELEMENT = "instances";
 
 	private static StaticDataParser instance;
 
 	private XMLSubParser activeSubParser;
+	private EntityTypeList entityTypes;
 
 	/**
 	 * This constructor hides the implicit public one to implement the singleton pattern.
 	 */
 	private StaticDataParserImpl() {
+		entityTypes = new EntityTypeListImpl();
+
 		/**
 		 * File format
 		 *
@@ -127,17 +129,24 @@ public class StaticDataParserImpl extends XMLFileParserImpl implements StaticDat
 		// since the path is delivered as URI, it is represented as a HTML string. Thus we need to replace %20 with file system spaces.
 		File dataDirectory = new File(staticDataDirectory.replaceAll("%20", " "));
 
-		try {
-			for (File staticDataFile : dataDirectory.listFiles()) {
-				if (!staticDataFile.getName().endsWith(".xml")) {
-					continue;
-				}
+		if (!dataDirectory.isDirectory()) {
+			logger.error("static data directory is not a directory");
+			return;
+		}
 
-				parse(staticDataFile);
+		File[] dataFiles = dataDirectory.listFiles();
+
+		if (dataFiles == null) {
+			logger.info("no static data files to parse");
+			return;
+		}
+
+		for (File staticDataFile : dataFiles) {
+			if (!staticDataFile.getName().endsWith(".xml")) {
+				continue;
 			}
 
-		} catch (NullPointerException e) {
-			LoggerUtilImpl.getInstance().error(logger, "cannot find static data directory", e);
+			parse(staticDataFile);
 		}
 	}
 
@@ -146,15 +155,21 @@ public class StaticDataParserImpl extends XMLFileParserImpl implements StaticDat
 	 */
 	@Override
 	protected void startElement(String elementName) {
-		if (activeSubParser != null) {
-			activeSubParser.startElement(elementName);
-			return;
-		}
-
 		switch (elementName) {
 			case ENTITY_TYPES_ROOT_ELEMENT:
-				activeSubParser = new EntityTypesParser();
+				activeSubParser = new EntityTypesParser(this, entityTypes);
+				return;
+
+			case ENTITY_INSTANCES_ROOT_ELEMENT:
+				activeSubParser = new EntityInstancesParser(this);
+				return;
+
+			default:
 				break;
+		}
+
+		if (activeSubParser != null) {
+			activeSubParser.startElement(elementName);
 		}
 	}
 
@@ -163,7 +178,11 @@ public class StaticDataParserImpl extends XMLFileParserImpl implements StaticDat
 	 */
 	@Override
 	protected void element(String elementData) {
+		if (activeSubParser == null) {
+			return;
+		}
 
+		activeSubParser.elementValue(latestOpenedElement(0), elementData);
 	}
 
 	/**
@@ -171,6 +190,29 @@ public class StaticDataParserImpl extends XMLFileParserImpl implements StaticDat
 	 */
 	@Override
 	protected void endElement(String elementName) {
+		if (activeSubParser == null) {
+			return;
+		}
 
+		switch (elementName) {
+			case ENTITY_TYPES_ROOT_ELEMENT:
+				if (activeSubParser instanceof EntityTypesParser) {
+					activeSubParser = null;
+				}
+				break;
+
+			case ENTITY_INSTANCES_ROOT_ELEMENT:
+				if (activeSubParser instanceof EntityInstancesParser) {
+					activeSubParser = null;
+				}
+				break;
+
+			default:
+				break;
+		}
+
+		if (activeSubParser != null) {
+			activeSubParser.endElement(elementName);
+		}
 	}
 }

@@ -12,8 +12,6 @@ import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQueryImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventTypeImpl;
-import de.hpi.bpt.argos.storage.util.DataFile;
-import de.hpi.bpt.argos.storage.util.DataFileImpl;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -15,6 +15,7 @@ import de.hpi.bpt.argos.eventProcessing.mapping.EventMappingObserver;
 import de.hpi.bpt.argos.eventProcessing.status.EntityStatusCalculatorImpl;
 import de.hpi.bpt.argos.notifications.ClientUpdateServiceImpl;
 import de.hpi.bpt.argos.parsing.eventType.EventTypeParserImpl;
+import de.hpi.bpt.argos.parsing.staticData.StaticDataParserImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import org.slf4j.Logger;
@@ -35,6 +36,16 @@ public class ArgosImpl implements Argos {
 	private EventReceiver eventReceiver;
 
 	/**
+	 * This method starts a new argos instance.
+	 * @return - the new argos instance
+	 */
+	public static Argos run() {
+		Argos argos = new ArgosImpl();
+		argos.start();
+		return argos;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -49,8 +60,8 @@ public class ArgosImpl implements Argos {
 			return;
 		}
 
-		// TODO: parse static data
 		EventTypeParserImpl.getInstance().loadEventTypes();
+		StaticDataParserImpl.getInstance().loadStaticData();
 
 		// keep this order, since web sockets should be registered before any web routes get registered
 		(new ClientUpdateServiceImpl()).setup(sparkService);

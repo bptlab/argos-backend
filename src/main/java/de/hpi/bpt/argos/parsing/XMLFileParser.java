@@ -5,7 +5,6 @@ import java.io.File;
 /**
  * This interface represents file parser for the XML data format.
  */
-@FunctionalInterface
 public interface XMLFileParser {
 
 	/**
@@ -13,4 +12,18 @@ public interface XMLFileParser {
 	 * @param dataFile - the file which contains entities to load
 	 */
 	void parse(File dataFile);
+
+	/**
+	 * This method return the latest opened element name.
+	 * @param topOffset - the element offset (0 -> latest, 1 -> one before latest, ...)
+	 * @return - the element name
+	 */
+	String latestOpenedElement(int topOffset);
+
+	/**
+	 * This method returns the latest closed element name.
+	 * @param topOffset - the element offset (0 -> latest, 1 -> one before latest, ...)
+	 * @return - the element name
+	 */
+	String latestClosedElement(int topOffset);
 }
