@@ -11,6 +11,7 @@ import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityTypeImpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -78,11 +79,11 @@ public class EntityTypeParser extends ArtifactParserImpl<EntityType> {
 	 */
 	@Override
 	public void finish() {
-		logger.info(String.format("'%1$s' -> new entityType '%2$s' with %3$d attributes",
-				parentArtifact.getName(),
-				artifact.getName(),
-				entityTypeAttributes.size()));
 		entityTypes.add(artifact, new ArrayList<>(entityTypeAttributes.values()), parentArtifact);
+
+		List<TypeAttribute> typeAttributes =new ArrayList<>(entityTypeAttributes.values());
+		parentParser.getArtifactBatch().add(artifact);
+		parentParser.getArtifactBatch().add(typeAttributes.toArray(new TypeAttribute[typeAttributes.size()]));
 	}
 
 	/**

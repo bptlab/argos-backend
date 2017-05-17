@@ -109,15 +109,9 @@ public class EntityInstanceParser extends ArtifactParserImpl<Entity> {
 		}
 		entityAttributes.put(NAME_ELEMENT, newAttribute);
 
-		logger.info(String.format("'%1$s' -> new entity '%2$s' with parent '%3$s'",
-				entityType.getKey().getName(),
-				artifact.getName(),
-				parentArtifact.getName()));
-
-		PersistenceAdapterImpl.getInstance().saveArtifacts(artifact);
-
 		List<Attribute> attributes = new ArrayList<>(entityAttributes.values());
-		PersistenceAdapterImpl.getInstance().saveArtifacts(attributes.toArray(new Attribute[attributes.size()]));
+		parentParser.getArtifactBatch().add(artifact);
+		parentParser.getArtifactBatch().add(attributes.toArray(new Attribute[attributes.size()]));
 	}
 
 	/**

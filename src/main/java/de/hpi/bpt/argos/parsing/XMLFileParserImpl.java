@@ -1,5 +1,7 @@
 package de.hpi.bpt.argos.parsing;
 
+import de.hpi.bpt.argos.parsing.util.ArtifactBatch;
+import de.hpi.bpt.argos.parsing.util.ArtifactBatchImpl;
 import de.hpi.bpt.argos.parsing.util.FileUtilImpl;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import org.slf4j.Logger;
@@ -29,12 +31,14 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 	private static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 	private SAXParser parser;
 	private List<String> openedElements;
+	private ArtifactBatch artifactBatch;
 
 	/**
 	 * This constructor initializes all members with default value.
 	 */
 	public XMLFileParserImpl() {
 		openedElements = new ArrayList<>();
+		artifactBatch = new ArtifactBatchImpl();
 
 		try {
 			parser = parserFactory.newSAXParser();
@@ -74,7 +78,8 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 			logger.trace("Reason: ", e);
 		}
 
-		logger.info(String.format("... finished parsing '%1$s'", dataFile.getName()));
+		artifactBatch.finish();
+		logger.info(String.format("... finished parsing '%1$s' -> %2$d artifacts stored", dataFile.getName(), artifactBatch.getTotalArtifactsStored()));
 	}
 
 	/**
@@ -123,6 +128,14 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 		int offset = Math.max(1, Math.min(openedElements.size(), topOffset + 1));
 
 		return openedElements.get(openedElements.size() - offset);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ArtifactBatch getArtifactBatch() {
+		return artifactBatch;
 	}
 
 	/**

@@ -58,9 +58,6 @@ public class EntityTypeListImpl implements EntityTypeList {
 		entityTypeParentNames.put(newType.getName(), parent.getName());
 		entityTypes.put(newType.getName(), newType);
 		entityTypeAttributes.put(newType.getName(), newTypeAttributes);
-
-		PersistenceAdapterImpl.getInstance().saveArtifacts(newType);
-		PersistenceAdapterImpl.getInstance().saveArtifacts(newTypeAttributes.toArray(new TypeAttribute[newTypeAttributes.size()]));
 	}
 
 	/**

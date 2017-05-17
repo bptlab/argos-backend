@@ -1,5 +1,7 @@
 package de.hpi.bpt.argos.parsing;
 
+import de.hpi.bpt.argos.parsing.util.ArtifactBatch;
+
 import java.io.File;
 
 /**
@@ -19,4 +21,10 @@ public interface XMLFileParser {
 	 * @return - the element name
 	 */
 	String latestOpenedElement(int topOffset);
+
+	/**
+	 * This method returns the artifactBatch for this parser.
+	 * @return - the artifactBatch for this parser
+	 */
+	ArtifactBatch getArtifactBatch();
 }
