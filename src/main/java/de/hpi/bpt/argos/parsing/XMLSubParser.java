@@ -18,7 +18,7 @@ public interface XMLSubParser {
 	void startElement(String element);
 
 	/**
-	 * This method gets called whenever a xml element contains data
+	 * This method gets called whenever a xml element contains data.
 	 * @param element - the name of the current xml element
 	 * @param value - the value of the current xml element
 	 */

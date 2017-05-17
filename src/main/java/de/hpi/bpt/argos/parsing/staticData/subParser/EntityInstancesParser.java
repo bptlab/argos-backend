@@ -39,8 +39,8 @@ public class EntityInstancesParser extends XMLSubParserImpl {
 	@Override
 	public void startElement(String element) {
 		// new (child) instance?
-		if (element.equalsIgnoreCase(ENTITY_INSTANCE_ELEMENT) &&
-				(
+		if (element.equalsIgnoreCase(ENTITY_INSTANCE_ELEMENT)
+				&& (
 						getParentParser().latestOpenedElement(1).equalsIgnoreCase(ENTITY_INSTANCES_ELEMENT)
 								|| getParentParser().latestOpenedElement(1).equalsIgnoreCase(ENTITY_INSTANCE_CHILD_INSTANCES_ELEMENT)
 				)) {
@@ -80,8 +80,8 @@ public class EntityInstancesParser extends XMLSubParserImpl {
 	@Override
 	public void endElement(String element) {
 		// close latest (child) instance?
-		if (element.equalsIgnoreCase(ENTITY_INSTANCE_ELEMENT) &&
-				(
+		if (element.equalsIgnoreCase(ENTITY_INSTANCE_ELEMENT)
+				&& (
 						parentParser.latestOpenedElement(0).equalsIgnoreCase(ENTITY_INSTANCE_CHILD_INSTANCES_ELEMENT)
 								|| parentParser.latestOpenedElement(0).equalsIgnoreCase(ENTITY_INSTANCES_ELEMENT)
 				)) {

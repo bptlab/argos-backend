@@ -48,7 +48,7 @@ public class EntityTypeParser extends ArtifactParserImpl<EntityType> {
 	 */
 	@Override
 	public void startElement(String element) {
-
+		// not needed in this parser
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class EntityTypeParser extends ArtifactParserImpl<EntityType> {
 	 */
 	@Override
 	public void endElement(String element) {
-
+		// not needed in this parser
 	}
 
 	/**

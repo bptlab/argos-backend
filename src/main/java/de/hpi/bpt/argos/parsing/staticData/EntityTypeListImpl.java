@@ -23,6 +23,9 @@ public class EntityTypeListImpl implements EntityTypeList {
 	Map<String, EntityType> entityTypes;
 	Map<String, List<TypeAttribute>> entityTypeAttributes;
 
+	/**
+	 * This constructor initializes all members with their default value.
+	 */
 	public EntityTypeListImpl() {
 		entityTypeParentNames = new HashMap<>();
 		entityTypes = new HashMap<>();

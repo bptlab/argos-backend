@@ -23,8 +23,9 @@ public class EntityTypesParser extends XMLSubParserImpl {
 	private EntityTypeList entityTypes;
 
 	/**
-	 * This constructor sets the parent parser.
+	 * This constructor sets all members according to the given values.
 	 * @param parent - the parent parser to be set
+	 * @param entityTypes - a list of all entityTypes, which will get filled during the parsing process
 	 */
 	public EntityTypesParser(XMLFileParser parent, EntityTypeList entityTypes) {
 		super(parent);
@@ -38,8 +39,8 @@ public class EntityTypesParser extends XMLSubParserImpl {
 	@Override
 	public void startElement(String element) {
 		// new entityType?
-		if (element.equalsIgnoreCase(ENTITY_TYPE_ROOT_ELEMENT) &&
-				(
+		if (element.equalsIgnoreCase(ENTITY_TYPE_ROOT_ELEMENT)
+				&& (
 						getParentParser().latestOpenedElement(1).equalsIgnoreCase(ENTITY_TYPES_ROOT_ELEMENT)
 							|| getParentParser().latestOpenedElement(1).equalsIgnoreCase(ENTITY_TYPE_CHILD_TYPES_ELEMENT)
 				)) {
@@ -80,8 +81,8 @@ public class EntityTypesParser extends XMLSubParserImpl {
 	@Override
 	public void endElement(String element) {
 		// close latest (child) entityType?
-		if (element.equalsIgnoreCase(ENTITY_TYPE_ROOT_ELEMENT) &&
-				(
+		if (element.equalsIgnoreCase(ENTITY_TYPE_ROOT_ELEMENT)
+				&& (
 						parentParser.latestOpenedElement(0).equalsIgnoreCase(ENTITY_TYPE_CHILD_TYPES_ELEMENT)
 								|| parentParser.latestOpenedElement(0).equalsIgnoreCase(ENTITY_TYPES_ROOT_ELEMENT)
 				)) {

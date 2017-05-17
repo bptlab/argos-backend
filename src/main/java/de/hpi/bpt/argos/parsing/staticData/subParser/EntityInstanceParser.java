@@ -32,8 +32,10 @@ public class EntityInstanceParser extends ArtifactParserImpl<Entity> {
 	private Pair<EntityType, List<TypeAttribute>> entityType;
 
 	/**
-	 * This constructor sets the parent parser.
+	 * This constructor sets all members according to the given values.
 	 * @param parent - the parent parser to be set
+	 * @param entityTypes - a list of all entityTypes, which are valid in the context of this parsing
+	 * @param parentEntity - the parentEntity of the entity, which this parser is responsible for
 	 */
 	public EntityInstanceParser(XMLFileParser parent, EntityTypeList entityTypes, Entity parentEntity) {
 		super(parent, entityTypes, parentEntity);
@@ -50,7 +52,7 @@ public class EntityInstanceParser extends ArtifactParserImpl<Entity> {
 	 */
 	@Override
 	public void startElement(String element) {
-
+		// not needed in this parser
 	}
 
 	/**
@@ -87,7 +89,7 @@ public class EntityInstanceParser extends ArtifactParserImpl<Entity> {
 	 */
 	@Override
 	public void endElement(String element) {
-
+		// not needed in this parser
 	}
 
 	/**

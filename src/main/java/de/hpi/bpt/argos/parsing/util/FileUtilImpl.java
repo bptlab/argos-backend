@@ -10,7 +10,7 @@ import java.io.File;
  * {@inheritDoc}
  * This is the implementation.
  */
-public class FileUtilImpl implements FileUtil {
+public final class FileUtilImpl implements FileUtil {
 
 	private static FileUtil instance;
 

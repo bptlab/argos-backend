@@ -14,7 +14,7 @@ import java.io.File;
  * {@inheritDoc}
  * This is the concrete implementation for static data.
  */
-public class StaticDataParserImpl extends XMLFileParserImpl implements StaticDataParser {
+public final class StaticDataParserImpl extends XMLFileParserImpl implements StaticDataParser {
 
 	private static final String ENTITY_TYPES_ROOT_ELEMENT = "types";
 	private static final String ENTITY_INSTANCES_ROOT_ELEMENT = "instances";
