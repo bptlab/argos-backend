@@ -23,7 +23,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.Table;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@inheritDoc}
@@ -151,6 +153,56 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 				.setParameter("ownerId", ownerId);
 
 		return databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<Long, List<Attribute>> getAttributes(List<Long> typeAttributes, PersistenceArtifact... artifacts) {
+		if (typeAttributes.isEmpty() || artifacts.length == 0) {
+			return new HashMap<>();
+		}
+
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		StringBuilder whereType = new StringBuilder();
+		whereType.append(String.format("(attribute.typeAttributeId = %1$d)", typeAttributes.get(0)));
+
+		for (int i = 1; i < typeAttributes.size(); i++) {
+			whereType.append(String.format(" OR (attribute.typeAttributeId = %1$d)", typeAttributes.get(i)));
+		}
+
+		StringBuilder whereOwner = new StringBuilder();
+		whereOwner.append(String.format("(attribute.ownerId = %1$d)", artifacts[0].getId()));
+
+		for (int i = 1; i < artifacts.length; i++) {
+			whereOwner.append(String.format(" OR (attribute.ownerId = %1$d)", artifacts[i].getId()));
+		}
+
+		String sql = String.format(
+				"FROM AttributeImpl attribute "
+				+ "WHERE (%1$s) AND (%2$s) ",
+				whereType.toString(),
+				whereOwner.toString()
+		);
+
+		Query<Attribute> query = session.createQuery(sql, Attribute.class);
+
+		List<Attribute> attributeList = databaseAccess.getArtifacts(session, query, transaction, query::getResultList, new ArrayList<>());
+
+		Map<Long, List<Attribute>> attributes = new HashMap<>();
+
+		for (Attribute attribute : attributeList) {
+			if (!attributes.containsKey(attribute.getOwnerId())) {
+				attributes.put(attribute.getOwnerId(), new ArrayList<>());
+			}
+
+			attributes.get(attribute.getOwnerId()).add(attribute);
+		}
+
+		return attributes;
 	}
 
 	/**

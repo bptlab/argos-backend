@@ -26,6 +26,7 @@ import spark.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static spark.Spark.halt;
 
@@ -222,6 +223,12 @@ public class EntityEndpointImpl implements EntityEndpoint {
      */
     private JsonArray getEntitiesJson(List<Entity> entities, List<Long> attributesTypeIdsToInclude) {
         JsonArray entitiesJson = new JsonArray();
+
+		Map<Long, List<Attribute>> entityAttributes = PersistenceAdapterImpl.getInstance()
+				.getAttributes(attributesTypeIdsToInclude, entities.toArray(new Entity[entities.size()]));
+
+		// todo: use this map to increase performance
+
         for (Entity entity : entities) {
             entitiesJson.add(getEntityJson(entity, getIncludedAttributes(entity, attributesTypeIdsToInclude)));
         }

@@ -14,6 +14,7 @@ import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.storage.util.DataFile;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * This interface offers methods to retrieve and store artifacts.
@@ -79,6 +80,14 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	 * @return - a list of all attributes, which belong to a specific owner
 	 */
 	List<Attribute> getAttributes(long ownerId);
+
+	/**
+	 * This method returns a map of artifact id -> list of attributes for a given artifacts.
+	 * @param typeAttributes - a list of typeAttributes ids, which should be included in the return value
+	 * @param artifacts - a list of artifacts for which the attributes are needed
+	 * @return - a map of artifact id -> list of attributes for a given artifacts
+	 */
+	Map<Long, List<Attribute>> getAttributes(List<Long> typeAttributes, PersistenceArtifact... artifacts);
 
 	/**
 	 * This method returns the typeAttribute, identified by its id.
