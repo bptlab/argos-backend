@@ -19,6 +19,7 @@ import de.hpi.bpt.argos.parsing.staticData.StaticDataParserImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.hierarchy.HierarchyBuilderImpl;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
+import de.hpi.bpt.argos.util.performance.WatchImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Service;
@@ -61,11 +62,10 @@ public class ArgosImpl implements Argos {
 			return;
 		}
 
-		EventTypeParserImpl.getInstance().loadEventTypes();
-		StaticDataParserImpl.getInstance().loadStaticData();
+		WatchImpl.start("load default event types", () -> EventTypeParserImpl.getInstance().loadEventTypes());
+		WatchImpl.then("load static data", () -> StaticDataParserImpl.getInstance().loadStaticData());
+		WatchImpl.then("build entity hierarchy", () -> HierarchyBuilderImpl.getInstance().getEntityHierarchyRootNode());
 
-		// cache hierarchy
-		HierarchyBuilderImpl.getInstance().getEntityHierarchyRootNode();
 
 		// keep this order, since web sockets should be registered before any web routes get registered
 		(new ClientUpdateServiceImpl()).setup(sparkService);
@@ -82,7 +82,7 @@ public class ArgosImpl implements Argos {
 		restEndpoints.add(new EventTypeEndpointImpl());
 
 		for (RestEndpoint restEndpoint : restEndpoints) {
-			setupRestEndpoint(restEndpoint);
+			WatchImpl.then(String.format("setup rest endpoint: '%1$s'", restEndpoint.getClass().getSimpleName()), () -> setupRestEndpoint(restEndpoint));
 		}
 
 		(new EventEntityMapperImpl()).setup(eventReceiver);
@@ -90,6 +90,8 @@ public class ArgosImpl implements Argos {
 
 		enableCORS(sparkService);
 		sparkService.awaitInitialization();
+
+		WatchImpl.printResult(logger);
 	}
 
 	/**

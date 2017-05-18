@@ -30,9 +30,7 @@ public class WatchTaskImpl implements WatchTask {
 		this.description = description;
 		finished = false;
 
-		long startMs = System.currentTimeMillis();
-		task.run();
-		executionTime = System.currentTimeMillis() - startMs;
+		run(task);
 	}
 
 	/**
@@ -64,6 +62,15 @@ public class WatchTaskImpl implements WatchTask {
 		subTasks.add(subTask);
 
 		return subTask;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public WatchTask also(Runnable task) {
+		run(task);
+		return this;
 	}
 
 	/**
@@ -157,5 +164,15 @@ public class WatchTaskImpl implements WatchTask {
 	@Override
 	public void finish() {
 		finished = true;
+	}
+
+	/**
+	 * This method executes a task and adds the execution time to the local member.
+	 * @param task - the task to execute
+	 */
+	private void run(Runnable task) {
+		long ms = System.currentTimeMillis();
+		task.run();
+		executionTime += System.currentTimeMillis() - ms;
 	}
 }

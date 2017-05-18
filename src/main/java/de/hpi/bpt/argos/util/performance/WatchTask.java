@@ -20,6 +20,13 @@ public interface WatchTask {
 	WatchTask executeTask(String description, Runnable task);
 
 	/**
+	 * This method executes another task and adds the execution time to this task.
+	 * @param task - the task to execute in the same context as this task
+	 * @return - this task
+	 */
+	WatchTask also(Runnable task);
+
+	/**
 	 * This method executes another task on the same execution level as this task.
 	 * @param description - the description of the task
 	 * @param task - the task to execute

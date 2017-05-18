@@ -7,6 +7,8 @@ import de.hpi.bpt.argos.parsing.staticData.subParser.EntityInstancesParser;
 import de.hpi.bpt.argos.parsing.staticData.subParser.EntityTypesParser;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
+import de.hpi.bpt.argos.util.performance.WatchImpl;
+import de.hpi.bpt.argos.util.performance.WatchTask;
 
 import java.io.File;
 
@@ -22,6 +24,7 @@ public final class StaticDataParserImpl extends XMLFileParserImpl implements Sta
 	private static StaticDataParser instance;
 
 	private XMLSubParser activeSubParser;
+	private WatchTask activeWatchTask;
 	private EntityTypeList entityTypes;
 
 	/**
@@ -156,7 +159,7 @@ public final class StaticDataParserImpl extends XMLFileParserImpl implements Sta
 				int oldEntityTypesCount = PersistenceAdapterImpl.getInstance().getEntityTypesCount();
 				int oldEntitiesCount = PersistenceAdapterImpl.getInstance().getEntitiesCount();
 
-				parse(staticDataFile);
+				WatchImpl.measure(String.format("parsing static data file: '%1$s'", staticDataFile.getName()),  () -> parse(staticDataFile));
 
 				int newEntityTypesCount = PersistenceAdapterImpl.getInstance().getEntityTypesCount();
 				int newEntitiesCount = PersistenceAdapterImpl.getInstance().getEntitiesCount();
@@ -181,10 +184,22 @@ public final class StaticDataParserImpl extends XMLFileParserImpl implements Sta
 		switch (elementName) {
 			case ENTITY_TYPES_ROOT_ELEMENT:
 				activeSubParser = new EntityTypesParser(this, entityTypes);
+
+				if (activeWatchTask != null) {
+					activeWatchTask.finish();
+				}
+
+				activeWatchTask = WatchImpl.start("parsing entity types", () -> {});
 				return;
 
 			case ENTITY_INSTANCES_ROOT_ELEMENT:
 				activeSubParser = new EntityInstancesParser(this, entityTypes);
+
+				if (activeWatchTask != null) {
+					activeWatchTask.finish();
+				}
+
+				activeWatchTask = WatchImpl.start("parsing entity instances", () -> {});
 				return;
 
 			default:
@@ -192,7 +207,7 @@ public final class StaticDataParserImpl extends XMLFileParserImpl implements Sta
 		}
 
 		if (activeSubParser != null) {
-			activeSubParser.startElement(elementName);
+			activeWatchTask.also(() -> activeSubParser.startElement(elementName));
 		}
 	}
 
@@ -209,7 +224,7 @@ public final class StaticDataParserImpl extends XMLFileParserImpl implements Sta
 			return;
 		}
 
-		activeSubParser.elementValue(latestOpenedElement(0), elementData);
+		activeWatchTask.also(() -> activeSubParser.elementValue(latestOpenedElement(0), elementData));
 	}
 
 	/**
@@ -226,20 +241,28 @@ public final class StaticDataParserImpl extends XMLFileParserImpl implements Sta
 				if (activeSubParser instanceof EntityTypesParser) {
 					activeSubParser = null;
 				}
+				if (activeWatchTask != null) {
+					activeWatchTask.finish();
+				}
+				activeWatchTask = null;
 				break;
 
 			case ENTITY_INSTANCES_ROOT_ELEMENT:
 				if (activeSubParser instanceof EntityInstancesParser) {
 					activeSubParser = null;
 				}
+				if (activeWatchTask != null) {
+					activeWatchTask.finish();
+				}
+				activeWatchTask = null;
 				break;
 
 			default:
 				break;
 		}
 
-		if (activeSubParser != null) {
-			activeSubParser.endElement(elementName);
+		if (activeSubParser != null && activeWatchTask != null) {
+			activeWatchTask.also(() -> activeSubParser.endElement(elementName));
 		}
 	}
 }

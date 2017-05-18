@@ -13,6 +13,7 @@ import de.hpi.bpt.argos.storage.dataModel.event.query.EventQueryImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventTypeImpl;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
+import de.hpi.bpt.argos.util.performance.WatchImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,18 +94,19 @@ public final class EventTypeParserImpl implements EventTypeParser {
 
 		// since the path is delivered as URI, it is represented as a HTML string. Thus we need to replace %20 with file system spaces.
 		File eventTypesDirectory = new File(eventTypesDirectoryPath.replaceAll("%20", " "));
+		File[] eventTypeFiles = eventTypesDirectory.listFiles();
 
-		try {
-			for (File eventTypeFile : eventTypesDirectory.listFiles()) {
-				if (!eventTypeFile.getName().endsWith(".json")) {
-					continue;
-				}
+		if (eventTypeFiles == null) {
+			logger.info("no event type files to load");
+			return;
+		}
 
-				loadDefaultEventType(eventTypeFile);
+		for (File eventTypeFile : eventTypeFiles) {
+			if (!eventTypeFile.getName().endsWith(".json")) {
+				continue;
 			}
 
-		} catch (NullPointerException e) {
-			LoggerUtilImpl.getInstance().error(logger, "cannot find event types directory", e);
+			WatchImpl.measure(String.format("parsing event type: '%1$s'", eventTypeFile.getName()), () -> loadDefaultEventType(eventTypeFile));
 		}
 	}
 
@@ -138,7 +140,8 @@ public final class EventTypeParserImpl implements EventTypeParser {
 				}
 			}
 
-			createEventType(jsonEventType);
+			WatchImpl.measure(String.format("creating event type from json: '%1$s'", jsonEventType.get(JSON_NAME)),
+					() -> createEventType(jsonEventType));
 
 		} catch (Exception e) {
 			LoggerUtilImpl.getInstance().error(logger, String.format("cannot load event type from file '%1$s'", eventTypeFile.getName()), e);

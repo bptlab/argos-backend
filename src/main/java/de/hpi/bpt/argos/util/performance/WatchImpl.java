@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.util.performance;
 
+import de.hpi.bpt.argos.core.Argos;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -35,6 +36,10 @@ public final class WatchImpl implements Watch {
 	 * @return - the watchTask after its execution
 	 */
 	public static WatchTask start(String description, Runnable task) {
+		if (!Argos.shouldMeasurePerformance()) {
+			return new NullWatchTask(task);
+		}
+
 		return getWatch().executeTask(description, task);
 	}
 
@@ -45,6 +50,10 @@ public final class WatchImpl implements Watch {
 	 * @return - the watchTask after its execution
 	 */
 	public static WatchTask then(String description, Runnable task) {
+		if (!Argos.shouldMeasurePerformance()) {
+			return new NullWatchTask(task);
+		}
+
 		return getWatch().andThen(description, task);
 	}
 
@@ -52,6 +61,10 @@ public final class WatchImpl implements Watch {
 	 * This method stops the time measurement for the currently active task.
 	 */
 	public static void stop() {
+		if (!Argos.shouldMeasurePerformance()) {
+			return;
+		}
+
 		getWatch().finish();
 	}
 
@@ -70,6 +83,11 @@ public final class WatchImpl implements Watch {
 	 * @param logger - the logger to use
 	 */
 	public static void printResult(Logger logger) {
+		if (!Argos.shouldMeasurePerformance()) {
+			return;
+		}
+
+		stop();
 		getWatch().logResult(logger);
 		watches.remove(Thread.currentThread().getId());
 	}
