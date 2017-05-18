@@ -76,6 +76,7 @@ public final class PropertyEditorImpl implements PropertyEditor {
 	 */
 	@Override
 	public void setProperty(String propertyKey, String propertyValue) {
+		logger.info(String.format("set property '%1$s' = '%2$s'", propertyKey, propertyValue));
 		properties.put(propertyKey, propertyValue);
 	}
 

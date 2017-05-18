@@ -24,7 +24,9 @@ public final class Application {
 
 		while (systemProperties.hasMoreElements()) {
 			String propertyKey = (String) systemProperties.nextElement();
-			PropertyEditorImpl.getInstance().setProperty(propertyKey, System.getProperty(propertyKey));
+			String propertyValue = System.getProperty(propertyKey);
+
+			PropertyEditorImpl.getInstance().setProperty(propertyKey, propertyValue);
 		}
 
 		(new ArgosImpl()).start();
