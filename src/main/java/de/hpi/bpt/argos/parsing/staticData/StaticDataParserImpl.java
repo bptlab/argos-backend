@@ -31,7 +31,7 @@ public final class StaticDataParserImpl extends XMLFileParserImpl implements Sta
 	 * This constructor hides the implicit public one to implement the singleton pattern.
 	 */
 	private StaticDataParserImpl() {
-		entityTypes = new EntityTypeListImpl();
+		entityTypes = new EntityTypeListImpl(getArtifactBatch());
 
 		/**
 		 * File format
@@ -157,11 +157,14 @@ public final class StaticDataParserImpl extends XMLFileParserImpl implements Sta
 				continue;
 			}
 
+			WatchTask parseFileTask = null;
+
 			try {
 				int oldEntityTypesCount = PersistenceAdapterImpl.getInstance().getEntityTypesCount();
 				int oldEntitiesCount = PersistenceAdapterImpl.getInstance().getEntitiesCount();
 
-				WatchImpl.measure(String.format("parsing static data file: '%1$s'", staticDataFile.getName()),  () -> parse(staticDataFile));
+				parseFileTask = WatchImpl.start(String.format("parsing static data file: '%1$s'", staticDataFile.getName()),
+						() -> parse(staticDataFile));
 
 				int newEntityTypesCount = PersistenceAdapterImpl.getInstance().getEntityTypesCount();
 				int newEntitiesCount = PersistenceAdapterImpl.getInstance().getEntitiesCount();
@@ -174,6 +177,10 @@ public final class StaticDataParserImpl extends XMLFileParserImpl implements Sta
 			} catch (Exception e) {
 				LoggerUtilImpl.getInstance().error(logger, String.format("cannot parse '%1$s'", staticDataFile.getName()), e);
 
+			} finally {
+				if (parseFileTask != null) {
+					parseFileTask.finish();
+				}
 			}
 		}
 	}
@@ -209,7 +216,7 @@ public final class StaticDataParserImpl extends XMLFileParserImpl implements Sta
 		}
 
 		if (activeSubParser != null) {
-			activeWatchTask.also(() -> activeSubParser.startElement(elementName));
+			activeWatchTask.run(() -> activeSubParser.startElement(elementName));
 		}
 	}
 
@@ -226,7 +233,7 @@ public final class StaticDataParserImpl extends XMLFileParserImpl implements Sta
 			return;
 		}
 
-		activeWatchTask.also(() -> activeSubParser.elementValue(latestOpenedElement(0), elementData));
+		activeWatchTask.run(() -> activeSubParser.elementValue(latestOpenedElement(0), elementData));
 	}
 
 	/**
@@ -264,7 +271,7 @@ public final class StaticDataParserImpl extends XMLFileParserImpl implements Sta
 		}
 
 		if (activeSubParser != null && activeWatchTask != null) {
-			activeWatchTask.also(() -> activeSubParser.endElement(elementName));
+			activeWatchTask.run(() -> activeSubParser.endElement(elementName));
 		}
 	}
 }

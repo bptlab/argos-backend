@@ -16,10 +16,12 @@ import de.hpi.bpt.argos.storage.hierarchy.EntityHierarchyNode;
 import de.hpi.bpt.argos.storage.hierarchy.HierarchyBuilderImpl;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
+import de.hpi.bpt.argos.util.ObjectWrapper;
 import de.hpi.bpt.argos.util.Pair;
 import de.hpi.bpt.argos.util.PairImpl;
 import de.hpi.bpt.argos.util.RestEndpointUtil;
 import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
+import de.hpi.bpt.argos.util.performance.WatchImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -101,9 +103,10 @@ public class EntityEndpointImpl implements EntityEndpoint {
         List<Entity> childEntities = PersistenceAdapterImpl.getInstance().getEntities(entityId, entityTypeId);
         List<TypeAttribute> typeAttributesToInclude = getAttributesTypeIdsToInclude(request);
 
-        JsonArray jsonEntities = getEntitiesJson(childEntities, typeAttributesToInclude);
+		ObjectWrapper<JsonArray> jsonEntities = new ObjectWrapper<>();
+		WatchImpl.measure("getEntitiesJson", () -> jsonEntities.set(getEntitiesJson(childEntities, typeAttributesToInclude)));
 
-        return serializer.toJson(jsonEntities);
+        return serializer.toJson(jsonEntities.get());
     }
 
     /**

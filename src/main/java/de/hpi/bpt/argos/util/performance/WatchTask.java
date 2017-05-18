@@ -20,11 +20,11 @@ public interface WatchTask {
 	WatchTask executeTask(String description, Runnable task);
 
 	/**
-	 * This method executes another task and adds the execution time to this task.
+	 * This method executes a task and adds the execution time to this task.
 	 * @param task - the task to execute in the same context as this task
 	 * @return - this task
 	 */
-	WatchTask also(Runnable task);
+	WatchTask run(Runnable task);
 
 	/**
 	 * This method executes another task on the same execution level as this task.
@@ -50,7 +50,7 @@ public interface WatchTask {
 	 * This method returns the execution time of this watchTask in ms.
 	 * @return - the execution time of this watchTask in ms
 	 */
-	long executionTimeInMs();
+	long getExecutionTimeInMs();
 
 	/**
 	 * This method returns the total execution time in ms of this task and all of its sub tasks.

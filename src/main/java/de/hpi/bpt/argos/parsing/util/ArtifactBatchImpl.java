@@ -73,11 +73,7 @@ public class ArtifactBatchImpl implements ArtifactBatch {
 	 * @param finish - indicates whether all remaining artifacts should be saved
 	 */
 	private void executeStore(boolean finish) {
-		storageTask.also(() -> store(finish));
-
-		if (finish) {
-			storageTask.finish();
-		}
+		storageTask.run(() -> store(finish));
 	}
 
 		/**

@@ -3,8 +3,6 @@ package de.hpi.bpt.argos.core;
 
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 
-import java.util.Enumeration;
-
 public final class Application {
 
 	private static final String PROPERTY_SEPARATOR = "=";

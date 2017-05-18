@@ -35,7 +35,7 @@ public class NullWatchTask implements WatchTask {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public WatchTask also(Runnable task) {
+	public WatchTask run(Runnable task) {
 		task.run();
 		return this;
 	}
@@ -69,7 +69,7 @@ public class NullWatchTask implements WatchTask {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public long executionTimeInMs() {
+	public long getExecutionTimeInMs() {
 		return 0;
 	}
 

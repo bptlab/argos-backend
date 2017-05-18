@@ -146,12 +146,13 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 	 */
 	@Override
 	public String executeRequest(Logger logger, Request request, Response response, Route route) {
+		long startMs = System.currentTimeMillis();
 		logReceivedRequest(logger, request);
 
 		WatchImpl.measure(String.format("execute request: [%1$s] '%2$s'", request.requestMethod(), request.uri()),
 				() -> executeRequest(request,response, route));
 
-		logSendingResponse(logger, request, response.status(), response.body());
+		logSendingResponse(logger, request, response.status(), response.body(), System.currentTimeMillis() - startMs);
 		WatchImpl.printResult(logger);
 
 		return response.body();
@@ -198,19 +199,20 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void logSendingResponse(Logger logger, Request request, int responseStatus, String responseMessage) {
+	public void logSendingResponse(Logger logger, Request request, int responseStatus, String responseMessage, long responseTimeInMs) {
 		String message = "";
 
 		if (responseMessage != null) {
 			message = responseMessage;
 		}
 
-		logger.info(String.format("%1$s\t<-\t[%2$s]\t'%3$s' -> %4$d -> %5$d bytes of response",
+		logger.info(String.format("%1$s\t<-\t[%2$s]\t'%3$s' -> %4$d -> %5$d bytes of response after %6$d ms",
 				request.ip(),
 				request.requestMethod(),
 				request.uri(),
 				responseStatus,
-				message.length()));
+				message.length(),
+				responseTimeInMs));
 		logger.trace(String.format("response body: '%1$s'", message));
 	}
 }

@@ -22,15 +22,12 @@ public class WatchTaskImpl implements WatchTask {
 	 * This constructor creates a new watchTask on first execution level.
 	 * @param parentWatch - the parent watch of this task
 	 * @param description - the description of the task to execute
-	 * @param task - the task to perform
 	 */
-	public WatchTaskImpl(Watch parentWatch, String description, Runnable task) {
+	public WatchTaskImpl(Watch parentWatch, String description) {
 		this.parentWatch = parentWatch;
 		subTasks = new ArrayList<>();
 		this.description = description;
 		finished = false;
-
-		run(task);
 	}
 
 	/**
@@ -38,10 +35,9 @@ public class WatchTaskImpl implements WatchTask {
 	 * @param parentWatch - the parent watch of this task
 	 * @param parentTask - the parent task of this task
 	 * @param description - the description of the task to execute
-	 * @param task - the task to perform
 	 */
-	public WatchTaskImpl(Watch parentWatch, WatchTask parentTask, String description, Runnable task) {
-		this(parentWatch, description, task);
+	public WatchTaskImpl(Watch parentWatch, WatchTask parentTask, String description) {
+		this(parentWatch, description);
 		this.parentTask = parentTask;
 	}
 
@@ -58,8 +54,9 @@ public class WatchTaskImpl implements WatchTask {
 	 */
 	@Override
 	public WatchTask executeTask(String description, Runnable task) {
-		WatchTask subTask = new WatchTaskImpl(parentWatch, this, description, task);
+		WatchTask subTask = new WatchTaskImpl(parentWatch, this, description);
 		subTasks.add(subTask);
+		subTask.run(task);
 
 		return subTask;
 	}
@@ -68,8 +65,10 @@ public class WatchTaskImpl implements WatchTask {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public WatchTask also(Runnable task) {
-		run(task);
+	public WatchTask run(Runnable task) {
+		long ms = System.currentTimeMillis();
+		task.run();
+		executionTime += System.currentTimeMillis() - ms;
 		return this;
 	}
 
@@ -78,7 +77,9 @@ public class WatchTaskImpl implements WatchTask {
 	 */
 	@Override
 	public WatchTask andThen(String description, Runnable task) {
-		finish();
+		for (WatchTask subTask : subTasks) {
+			subTask.finish();
+		}
 
 		if (parentTask != null) {
 			return parentTask.executeTask(description, task);
@@ -99,7 +100,7 @@ public class WatchTaskImpl implements WatchTask {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public long executionTimeInMs() {
+	public long getExecutionTimeInMs() {
 		return executionTime;
 	}
 
@@ -108,13 +109,12 @@ public class WatchTaskImpl implements WatchTask {
 	 */
 	@Override
 	public long getTotalExecutionTimeInMs() {
-		long time = executionTime;
-
+		long time = 0;
 		for (WatchTask subTask : subTasks) {
 			time += subTask.getTotalExecutionTimeInMs();
 		}
 
-		return time;
+		return Math.max(time, executionTime);
 	}
 
 	/**
@@ -124,12 +124,20 @@ public class WatchTaskImpl implements WatchTask {
 	public String getResult(long totalExecutionTimeInMs, String indent) {
 		StringBuilder result = new StringBuilder();
 
-		long subTime = getTotalExecutionTimeInMs();
-		result.append(String.format("%1$s- %2$s in %3$d ms (%4$,.2f %%)%n",
+		long parentExecutionTime = totalExecutionTimeInMs;
+
+		if (parentTask != null) {
+			parentExecutionTime = parentTask.getTotalExecutionTimeInMs();
+		}
+
+		long totalExecutionTime = getTotalExecutionTimeInMs();
+
+		result.append(String.format("%1$s- [%2$,.2f %%] %3$s in %4$d ms (%5$,.2f %%)%n",
 				indent,
+				((double) totalExecutionTime / Math.max(1, parentExecutionTime)) * TO_PERCENT,
 				description,
-				subTime,
-				((double) subTime / Math.max(1, totalExecutionTimeInMs)) * TO_PERCENT));
+				totalExecutionTime,
+				((double) totalExecutionTime / Math.max(1, totalExecutionTimeInMs)) * TO_PERCENT));
 
 		for (WatchTask subTask : subTasks) {
 			result.append(subTask.getResult(totalExecutionTimeInMs, indent + "    "));
@@ -164,15 +172,5 @@ public class WatchTaskImpl implements WatchTask {
 	@Override
 	public void finish() {
 		finished = true;
-	}
-
-	/**
-	 * This method executes a task and adds the execution time to the local member.
-	 * @param task - the task to execute
-	 */
-	private void run(Runnable task) {
-		long ms = System.currentTimeMillis();
-		task.run();
-		executionTime += System.currentTimeMillis() - ms;
 	}
 }

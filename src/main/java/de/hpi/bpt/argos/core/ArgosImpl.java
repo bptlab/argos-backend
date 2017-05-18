@@ -62,9 +62,11 @@ public class ArgosImpl implements Argos {
 			return;
 		}
 
-		WatchImpl.start("load default event types", () -> EventTypeParserImpl.getInstance().loadEventTypes());
-		WatchImpl.then("load static data", () -> StaticDataParserImpl.getInstance().loadStaticData());
-		WatchImpl.then("build entity hierarchy", () -> HierarchyBuilderImpl.getInstance().getEntityHierarchyRootNode());
+		WatchImpl.start("starting argos backend", () -> {});
+
+		WatchImpl.measure("load default event types", () -> EventTypeParserImpl.getInstance().loadEventTypes());
+		WatchImpl.measure("load static data", () -> StaticDataParserImpl.getInstance().loadStaticData());
+		WatchImpl.measure("build entity hierarchy", () -> HierarchyBuilderImpl.getInstance().getEntityHierarchyRootNode());
 
 
 		// keep this order, since web sockets should be registered before any web routes get registered
@@ -82,7 +84,8 @@ public class ArgosImpl implements Argos {
 		restEndpoints.add(new EventTypeEndpointImpl());
 
 		for (RestEndpoint restEndpoint : restEndpoints) {
-			WatchImpl.then(String.format("setup rest endpoint: '%1$s'", restEndpoint.getClass().getSimpleName()), () -> setupRestEndpoint(restEndpoint));
+			WatchImpl.measure(String.format("setup rest endpoint: '%1$s'", restEndpoint.getClass().getSimpleName()),
+					() -> setupRestEndpoint(restEndpoint));
 		}
 
 		(new EventEntityMapperImpl()).setup(eventReceiver);

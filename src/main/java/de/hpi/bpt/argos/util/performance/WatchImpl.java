@@ -107,8 +107,9 @@ public final class WatchImpl implements Watch {
 		WatchTask latestTask = getLatestTask();
 
 		if (latestTask == null) {
-			latestTask = new WatchTaskImpl(this, description, task);
+			latestTask = new WatchTaskImpl(this, description);
 			tasks.add(latestTask);
+			latestTask.run(task);
 		} else {
 			latestTask = latestTask.executeTask(description, task);
 		}
@@ -124,8 +125,9 @@ public final class WatchImpl implements Watch {
 		WatchTask latestTask = getLatestTask();
 
 		if (latestTask == null) {
-			latestTask = new WatchTaskImpl(this, description, task);
+			latestTask = new WatchTaskImpl(this, description);
 			tasks.add(latestTask);
+			latestTask.run(task);
 		} else {
 			latestTask = latestTask.andThen(description, task);
 		}
