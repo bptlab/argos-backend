@@ -32,7 +32,7 @@ public final class Application {
 
 			PropertyEditorImpl.getInstance().setProperty(splitArg[0], splitArg[1]);
 		}
-		Argos argos = ArgosImpl.run();
+		(new ArgosImpl()).start();
 
 		// you may add custom mappings and custom status logic here
 	}
