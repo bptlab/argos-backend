@@ -129,6 +129,8 @@ public final class StaticDataParserImpl extends XMLFileParserImpl implements Sta
 			return;
 		}
 
+		getArtifactBatch().setup();
+
 		String staticDataDirectory = Argos.getStaticDataDirectory();
 		if (staticDataDirectory.length() == 0) {
 			logger.info("static data directory not defined in properties");

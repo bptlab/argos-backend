@@ -8,6 +8,11 @@ import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifact;
 public interface ArtifactBatch {
 
 	/**
+	 * This method sets up the artifactBatch.
+	 */
+	void setup();
+
+	/**
 	 * This method adds a list of artifacts to the batch.
 	 * @param artifacts - a list of artifacts to store in the database
 	 */

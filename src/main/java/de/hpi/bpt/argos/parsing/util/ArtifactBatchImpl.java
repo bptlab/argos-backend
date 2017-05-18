@@ -30,7 +30,17 @@ public class ArtifactBatchImpl implements ArtifactBatch {
 	public ArtifactBatchImpl() {
 		artifactsToStore = new ArrayList<>();
 		totalArtifactsStored = 0;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setup() {
 		storageTask = WatchImpl.start("storing artifacts", () -> {});
+
+		// finish already so further actions will not get nested under this task
+		storageTask.finish();
 	}
 
 	/**
@@ -75,7 +85,7 @@ public class ArtifactBatchImpl implements ArtifactBatch {
 		 * @param finish - indicates whether all remaining artifacts should be saved
 		 */
 	private void store(boolean finish) {
-		while (finish || (!artifactsToStore.isEmpty() && artifactsToStore.size() >= BATCH_SIZE)) {
+		while (!artifactsToStore.isEmpty() && (finish || artifactsToStore.size() >= BATCH_SIZE)) {
 			List<PersistenceArtifact> artifacts = artifactsToStore.subList(0, Math.min(BATCH_SIZE, artifactsToStore.size()));
 			PersistenceAdapterImpl.getInstance().saveArtifacts(artifacts.toArray(new PersistenceArtifact[artifacts.size()]));
 
