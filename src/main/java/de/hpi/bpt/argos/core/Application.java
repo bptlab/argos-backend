@@ -7,6 +7,9 @@ import java.util.Enumeration;
 
 public final class Application {
 
+	private static final String PROPERTY_SEPARATOR = "=";
+	private static final int ARG_SPLIT_LENGTH = 2;
+
 	/**
 	 * This constructor hides the implicit public one. This way this class can be instanced from any other class.
 	 */
@@ -20,15 +23,17 @@ public final class Application {
 	 */
 	public static void main(String[] args) {
 
-		Enumeration systemProperties = System.getProperties().propertyNames();
+		for (String arg : args) {
+			String[] splitArg = arg.split(PROPERTY_SEPARATOR);
 
-		while (systemProperties.hasMoreElements()) {
-			String propertyKey = (String) systemProperties.nextElement();
-			String propertyValue = System.getProperty(propertyKey);
+			if (splitArg.length != ARG_SPLIT_LENGTH) {
+				continue;
+			}
 
-			PropertyEditorImpl.getInstance().setProperty(propertyKey, propertyValue);
+			PropertyEditorImpl.getInstance().setProperty(splitArg[0], splitArg[1]);
 		}
+		Argos argos = ArgosImpl.run();
 
-		(new ArgosImpl()).start();
+		// you may add custom mappings and custom status logic here
 	}
 }
