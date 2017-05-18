@@ -75,7 +75,7 @@ public class ArtifactBatchImpl implements ArtifactBatch {
 		 * @param finish - indicates whether all remaining artifacts should be saved
 		 */
 	private void store(boolean finish) {
-		while (finish || (!artifactsToStore.isEmpty() && artifactsToStore.size() >= BATCH_SIZE)) {
+		while (!artifactsToStore.isEmpty() && (finish || artifactsToStore.size() >= BATCH_SIZE)) {
 			List<PersistenceArtifact> artifacts = artifactsToStore.subList(0, Math.min(BATCH_SIZE, artifactsToStore.size()));
 			PersistenceAdapterImpl.getInstance().saveArtifacts(artifacts.toArray(new PersistenceArtifact[artifacts.size()]));
 
