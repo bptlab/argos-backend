@@ -159,7 +159,7 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Map<Long, List<Attribute>> getAttributes(List<Long> typeAttributes, PersistenceArtifact... artifacts) {
+	public Map<Long, List<Attribute>> getAttributes(List<TypeAttribute> typeAttributes, PersistenceArtifact... artifacts) {
 		if (typeAttributes.isEmpty() || artifacts.length == 0) {
 			return new HashMap<>();
 		}
@@ -168,10 +168,10 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 		Transaction transaction = session.beginTransaction();
 
 		StringBuilder whereType = new StringBuilder();
-		whereType.append(String.format("(attribute.typeAttributeId = %1$d)", typeAttributes.get(0)));
+		whereType.append(String.format("(attribute.typeAttributeId = %1$d)", typeAttributes.get(0).getId()));
 
 		for (int i = 1; i < typeAttributes.size(); i++) {
-			whereType.append(String.format(" OR (attribute.typeAttributeId = %1$d)", typeAttributes.get(i)));
+			whereType.append(String.format(" OR (attribute.typeAttributeId = %1$d)", typeAttributes.get(i).getId()));
 		}
 
 		StringBuilder whereOwner = new StringBuilder();

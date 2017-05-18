@@ -45,7 +45,12 @@ public final class PropertyEditorImpl implements PropertyEditor {
 	 */
 	@Override
 	public String getProperty(String propertyKey) {
-		return properties.get(propertyKey);
+		String property = properties.get(propertyKey);
+
+		if (property == null) {
+			return "";
+		}
+		return property;
 	}
 
 	/**

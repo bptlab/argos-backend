@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.util;
 
+import de.hpi.bpt.argos.util.performance.WatchImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.HaltException;
@@ -147,6 +148,16 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 	public String executeRequest(Logger logger, Request request, Response response, Route route) {
 		logReceivedRequest(logger, request);
 
+		WatchImpl.measure(String.format("execute request: [%1$s] '%2$s'", request.requestMethod(), request.uri()),
+				() -> executeRequest(request,response, route));
+
+		logSendingResponse(logger, request, response.status(), response.body());
+		WatchImpl.printResult(logger);
+
+		return response.body();
+	}
+
+	private void executeRequest(Request request, Response response, Route route) {
 		try {
 			response.body((String) route.handle(request, response));
 		} catch (HaltException e) {
@@ -168,9 +179,6 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 		} else if (response.body() == null) {
 			response.body("");
 		}
-
-		logSendingResponse(logger, request, response.status(), response.body());
-		return response.body();
 	}
 
 	/**
