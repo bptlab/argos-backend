@@ -32,4 +32,11 @@ public interface EntityTypeList {
 	 * @return - a tuple of entityType and all of its typeAttributes
 	 */
 	Pair<EntityType, List<TypeAttribute>> get(String typeName);
+
+	/**
+	 * This method indicates whether a entityType name is used already or not.
+	 * @param name - the name to check
+	 * @return - true, if the name is in use already
+	 */
+	boolean nameInUse(String name);
 }

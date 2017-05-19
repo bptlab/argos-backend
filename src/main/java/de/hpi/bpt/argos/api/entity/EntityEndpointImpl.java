@@ -83,14 +83,21 @@ public class EntityEndpointImpl implements EntityEndpoint {
         	halt(HttpStatusCodes.NOT_FOUND, "cannot find entity");
 		}
 
-        List<Attribute> attributes = PersistenceAdapterImpl.getInstance().getAttributes(entityId);
-        List<TypeAttribute> entityTypeAttributes = PersistenceAdapterImpl.getInstance().getTypeAttributes(entity.getTypeId());
+		ObjectWrapper<List<Attribute>> attributes = new ObjectWrapper<>();
+        WatchImpl.measure("get attributes",
+				() -> attributes.set(PersistenceAdapterImpl.getInstance().getAttributes(entityId)));
 
-        List<Pair<TypeAttribute, Attribute>> joinedAttributes = joinAttributes(entityTypeAttributes, attributes);
+        ObjectWrapper<List<TypeAttribute>> typeAttributes = new ObjectWrapper<>();
+        WatchImpl.measure("get type attributes",
+				() -> typeAttributes.set(PersistenceAdapterImpl.getInstance().getTypeAttributes(entity.getTypeId())));
 
-        JsonObject jsonEventType = getEntityJson(entity, joinedAttributes);
+        ObjectWrapper<List<Pair<TypeAttribute, Attribute>>> joinedAttributes = new ObjectWrapper<>();
+        WatchImpl.measure("join attributes", () -> joinedAttributes.set(joinAttributes(typeAttributes.get(), attributes.get())));
 
-        return serializer.toJson(jsonEventType);
+        ObjectWrapper<JsonObject> jsonEntity = new ObjectWrapper<>();
+        WatchImpl.measure("get entity json", () -> jsonEntity.set(getEntityJson(entity, joinedAttributes.get())));
+
+        return serializer.toJson(jsonEntity.get());
     }
 
     /**

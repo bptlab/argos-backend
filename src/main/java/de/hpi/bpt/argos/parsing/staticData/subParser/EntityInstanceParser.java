@@ -43,8 +43,6 @@ public class EntityInstanceParser extends ArtifactParserImpl<Entity> {
 
 		artifact = new EntityImpl();
 		artifact.setParentId(parentEntity.getId());
-
-		PersistenceAdapterImpl.getInstance().saveArtifacts(artifact);
 	}
 
 	/**
@@ -76,6 +74,10 @@ public class EntityInstanceParser extends ArtifactParserImpl<Entity> {
 			try {
 				entityType = entityTypes.get(value);
 				artifact.setTypeId(entityType.getKey().getId());
+
+				if (entityType.getKey().getId() != 0) {
+					PersistenceAdapterImpl.getInstance().saveArtifacts(artifact);
+				}
 
 			} catch (Exception e) {
 				LoggerUtilImpl.getInstance().error(logger, String.format("cannot find entity type '%1$s'", value), e);

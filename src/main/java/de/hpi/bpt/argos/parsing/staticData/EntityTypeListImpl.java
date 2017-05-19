@@ -74,4 +74,12 @@ public class EntityTypeListImpl implements EntityTypeList {
 	public Pair<EntityType, List<TypeAttribute>> get(String typeName) {
 		return new PairImpl<>(entityTypes.get(typeName), entityTypeAttributes.get(typeName));
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean nameInUse(String name) {
+		return existingEntityTypes.contains(name) || entityTypes.containsKey(name);
+	}
 }

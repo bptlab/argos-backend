@@ -167,28 +167,20 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
 
-		StringBuilder whereType = new StringBuilder();
-		whereType.append(String.format("(attribute.typeAttributeId = %1$d)", typeAttributes.get(0).getId()));
-
-		for (int i = 1; i < typeAttributes.size(); i++) {
-			whereType.append(String.format(" OR (attribute.typeAttributeId = %1$d)", typeAttributes.get(i).getId()));
+		List<Long> typeAttributeIds = new ArrayList<>();
+		List<Long> artifactIds = new ArrayList<>();
+		for (TypeAttribute typeAttribute : typeAttributes) {
+			typeAttributeIds.add(typeAttribute.getId());
+		}
+		for (PersistenceArtifact artifact : artifacts) {
+			artifactIds.add(artifact.getId());
 		}
 
-		StringBuilder whereOwner = new StringBuilder();
-		whereOwner.append(String.format("(attribute.ownerId = %1$d)", artifacts[0].getId()));
-
-		for (int i = 1; i < artifacts.length; i++) {
-			whereOwner.append(String.format(" OR (attribute.ownerId = %1$d)", artifacts[i].getId()));
-		}
-
-		String sql = String.format(
-				"FROM AttributeImpl attribute "
-				+ "WHERE (%1$s) AND (%2$s) ",
-				whereType.toString(),
-				whereOwner.toString()
-		);
-
-		Query<Attribute> query = session.createQuery(sql, Attribute.class);
+		Query<Attribute> query = session.createQuery("FROM AttributeImpl attribute "
+				+ "WHERE attribute.typeAttributeId IN (:typeAttributeIds) AND attribute.ownerId IN (:artifactIds)",
+				Attribute.class)
+				.setParameterList("typeAttributeIds", typeAttributeIds)
+				.setParameterList("artifactIds", artifactIds);
 
 		List<Attribute> attributeList = databaseAccess.getArtifacts(session, query, transaction, query::getResultList, new ArrayList<>());
 
