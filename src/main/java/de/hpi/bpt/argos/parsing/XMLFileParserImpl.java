@@ -60,8 +60,6 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 		if (!FileUtilImpl.getInstance().wasModified(dataFile)) {
 			logger.info(String.format("static data file '%1$s' was skipped, since it was loaded earlier", dataFile.getName()));
 			return;
-		} else {
-			FileUtilImpl.getInstance().modify(dataFile);
 		}
 
 		logger.info(String.format("start parsing '%1$s' ...", dataFile.getName()));
@@ -73,6 +71,7 @@ public abstract class XMLFileParserImpl extends DefaultHandler implements XMLFil
 			source.setEncoding("UTF-8");
 
 			parser.parse(source, this);
+			FileUtilImpl.getInstance().modify(dataFile);
 		} catch (Exception e) {
 			logger.error(String.format("cannot parse file '%1$s'", dataFile.getName()));
 			logger.trace("Reason: ", e);

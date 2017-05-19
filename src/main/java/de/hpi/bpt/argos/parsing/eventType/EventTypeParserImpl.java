@@ -119,8 +119,6 @@ public final class EventTypeParserImpl implements EventTypeParser {
 			if (!FileUtilImpl.getInstance().wasModified(eventTypeFile)) {
 				logger.info(String.format("file '%1$s' was loaded already and therefore skipped", eventTypeFile.getName()));
 				return;
-			} else {
-				FileUtilImpl.getInstance().modify(eventTypeFile);
 			}
 
 			String fileContent = new String(Files.readAllBytes(Paths.get(eventTypeFile.toURI())), StandardCharsets.UTF_8);
@@ -139,6 +137,8 @@ public final class EventTypeParserImpl implements EventTypeParser {
 					return;
 				}
 			}
+
+			FileUtilImpl.getInstance().modify(eventTypeFile);
 
 			WatchImpl.measure(String.format("creating event type from json: '%1$s'", jsonEventType.get(JSON_NAME)),
 					() -> createEventType(jsonEventType));
