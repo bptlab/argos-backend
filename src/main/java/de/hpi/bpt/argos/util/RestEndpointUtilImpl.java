@@ -158,6 +158,12 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 		return response.body();
 	}
 
+	/**
+	 * This method actually executes the executeRequest-method.
+	 * @param request - the spark request
+	 * @param response - the spark response
+	 * @param route - the route to execute
+	 */
 	private void executeRequest(Request request, Response response, Route route) {
 		try {
 			response.body((String) route.handle(request, response));

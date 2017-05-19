@@ -18,6 +18,13 @@ public final class WatchImpl implements Watch {
 	private List<WatchTask> tasks;
 
 	/**
+	 * This constructor initializes all members with their default values.
+	 */
+	private WatchImpl() {
+		tasks = new ArrayList<>();
+	}
+
+	/**
 	 * This method returns the watch, which is responsible for the current thread.
 	 * @return - the watch, which is responsible for the current thread
 	 */
@@ -90,13 +97,6 @@ public final class WatchImpl implements Watch {
 		stop();
 		getWatch().logResult(logger);
 		watches.remove(Thread.currentThread().getId());
-	}
-
-	/**
-	 * This constructor initializes all members with their default values.
-	 */
-	private WatchImpl() {
-		tasks = new ArrayList<>();
 	}
 
 	/**

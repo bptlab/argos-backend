@@ -2,7 +2,7 @@ package de.hpi.bpt.argos.util.performance;
 
 /**
  * {@inheritDoc}
- * This is a null implementation
+ * This is a null implementation.
  */
 public class NullWatchTask implements WatchTask {
 
