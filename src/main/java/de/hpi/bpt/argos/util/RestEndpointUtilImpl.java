@@ -150,7 +150,7 @@ public final class RestEndpointUtilImpl implements RestEndpointUtil {
 		logReceivedRequest(logger, request);
 
 		WatchImpl.measure(String.format("execute request: [%1$s] '%2$s'", request.requestMethod(), request.uri()),
-				() -> executeRequest(request,response, route));
+				() -> executeRequest(request, response, route));
 
 		logSendingResponse(logger, request, response.status(), response.body(), System.currentTimeMillis() - startMs);
 		WatchImpl.printResult(logger);

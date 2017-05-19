@@ -62,8 +62,6 @@ public class ArgosImpl implements Argos {
 			return;
 		}
 
-		WatchImpl.start("starting argos backend", () -> {});
-
 		WatchImpl.measure("load default event types", () -> EventTypeParserImpl.getInstance().loadEventTypes());
 		WatchImpl.measure("load static data", () -> StaticDataParserImpl.getInstance().loadStaticData());
 		WatchImpl.measure("build entity hierarchy", () -> HierarchyBuilderImpl.getInstance().getEntityHierarchyRootNode());

@@ -174,7 +174,7 @@ public class DatabaseAccessImpl implements DatabaseAccess {
 	}
 
 	/**
-	 * This method actually executes the getArtifact-method
+	 * This method actually executes the getArtifact-method.
 	 * @param session - the database session, which must be open
 	 * @param query - the query to execute and to retrieve the results from
 	 * @param transaction - the current transaction

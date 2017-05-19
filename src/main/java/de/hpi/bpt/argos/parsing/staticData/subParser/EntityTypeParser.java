@@ -68,10 +68,10 @@ public class EntityTypeParser extends ArtifactParserImpl<EntityType> {
 	 */
 	@Override
 	public void endElement(String element) {
-		if (element.equalsIgnoreCase(NAME_ELEMENT) && !parentParser.latestOpenedElement(1).equalsIgnoreCase(ATTRIBUTE_ELEMENT)) {
-			if (!entityTypes.nameInUse(artifact.getName())) {
-				PersistenceAdapterImpl.getInstance().saveArtifacts(artifact);
-			}
+		if (element.equalsIgnoreCase(NAME_ELEMENT)
+				&& !parentParser.latestOpenedElement(1).equalsIgnoreCase(ATTRIBUTE_ELEMENT)
+				&& !entityTypes.nameInUse(artifact.getName())) {
+			PersistenceAdapterImpl.getInstance().saveArtifacts(artifact);
 		}
 	}
 

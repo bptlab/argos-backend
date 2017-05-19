@@ -198,7 +198,7 @@ public final class StaticDataParserImpl extends XMLFileParserImpl implements Sta
 					activeWatchTask.finish();
 				}
 
-				activeWatchTask = WatchImpl.start("parsing entity types", () -> {});
+				activeWatchTask = WatchImpl.start("parsing entity types", () -> { /* empty, since only to group sub tasks */ });
 				return;
 
 			case ENTITY_INSTANCES_ROOT_ELEMENT:
@@ -208,7 +208,7 @@ public final class StaticDataParserImpl extends XMLFileParserImpl implements Sta
 					activeWatchTask.finish();
 				}
 
-				activeWatchTask = WatchImpl.start("parsing entity instances", () -> {});
+				activeWatchTask = WatchImpl.start("parsing entity instances", () -> { /* empty, since only to group sub tasks */ });
 				return;
 
 			default:
@@ -247,19 +247,8 @@ public final class StaticDataParserImpl extends XMLFileParserImpl implements Sta
 
 		switch (elementName) {
 			case ENTITY_TYPES_ROOT_ELEMENT:
-				if (activeSubParser instanceof EntityTypesParser) {
-					activeSubParser = null;
-				}
-				if (activeWatchTask != null) {
-					activeWatchTask.finish();
-				}
-				activeWatchTask = null;
-				break;
-
 			case ENTITY_INSTANCES_ROOT_ELEMENT:
-				if (activeSubParser instanceof EntityInstancesParser) {
-					activeSubParser = null;
-				}
+				activeSubParser = null;
 				if (activeWatchTask != null) {
 					activeWatchTask.finish();
 				}

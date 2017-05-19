@@ -37,7 +37,7 @@ public class ArtifactBatchImpl implements ArtifactBatch {
 	 */
 	@Override
 	public void setup() {
-		storageTask = WatchImpl.start("storing artifacts", () -> {});
+		storageTask = WatchImpl.start("storing artifacts", () -> { /* empty, since only for grouping sub tasks */ });
 
 		// finish already so further actions will not get nested under this task
 		storageTask.finish();
@@ -49,7 +49,7 @@ public class ArtifactBatchImpl implements ArtifactBatch {
 	@Override
 	public void add(PersistenceArtifact... artifacts) {
 		artifactsToStore.addAll(Arrays.asList(artifacts));
-		executeStore(false);
+		store(false);
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class ArtifactBatchImpl implements ArtifactBatch {
 	 */
 	@Override
 	public void finish() {
-		executeStore(true);
+		store(true);
 	}
 
 	/**
@@ -69,18 +69,18 @@ public class ArtifactBatchImpl implements ArtifactBatch {
 	}
 
 	/**
-	 * This method calls the store method and measures its time to execute
+	 * This method checks whether there are enough artifacts to store and, if so, stores them in the database.
+	 * @param finish - indicates whether all remaining artifacts should be saved
+	 */
+	private void store(boolean finish) {
+		storageTask.run(() -> executeStore(finish));
+	}
+
+	/**
+	 * This method actually executes the store-method.
 	 * @param finish - indicates whether all remaining artifacts should be saved
 	 */
 	private void executeStore(boolean finish) {
-		storageTask.run(() -> store(finish));
-	}
-
-		/**
-		 * This method checks whether there are enough artifacts to store and, if so, stores them in the database.
-		 * @param finish - indicates whether all remaining artifacts should be saved
-		 */
-	private void store(boolean finish) {
 		while (!artifactsToStore.isEmpty() && (finish || artifactsToStore.size() >= BATCH_SIZE)) {
 			List<PersistenceArtifact> artifacts = artifactsToStore.subList(0, Math.min(BATCH_SIZE, artifactsToStore.size()));
 			PersistenceAdapterImpl.getInstance().saveArtifacts(artifacts.toArray(new PersistenceArtifact[artifacts.size()]));
