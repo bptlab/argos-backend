@@ -18,6 +18,7 @@ public interface Argos {
 	String ARGOS_BACKEND_ALLOWED_ORIGIN_PROPERTY_KEY = "argosBackendAllowedOrigin";
 	String ARGOS_BACKEND_ALLOWED_REQUEST_METHOD_PROPERTY_KEY = "argosBackendAllowedRequestMethod";
 	String ARGOS_BACKEND_EVENT_TYPES_DIRECTORY_PROPERTY_KEY = "argosBackendEventTypesDirectory";
+	String ARGOS_BACKEND_LOAD_EVENT_TYPES_PROPERTY_KEY = "argosBackendLoadEventTypes";
 	String ARGOS_BACKEND_STATIC_DATA_DIRECTORY_PROPERTY_KEY = "argosBackendStaticDataDirectory";
 	String ARGOS_BACKEND_LOAD_STATIC_DATA_PROPERTY_KEY = "argosBackendLoadStaticData";
 	String ARGOS_BACKEND_MEASURE_PERFORMANCE_PROPERTY_KEY = "argosBackendMeasurePerformance";
@@ -132,6 +133,14 @@ public interface Argos {
 	 */
 	static String getEventTypesDirectory() {
 		return PropertyEditorImpl.getInstance().getProperty(ARGOS_BACKEND_EVENT_TYPES_DIRECTORY_PROPERTY_KEY);
+	}
+
+	/**
+	 * This method reads the loadEventTypes property from the properties-file and returns its value.
+	 * @return - the loadEventTypes, specified in the properties-file
+	 */
+	static boolean shouldLoadEventTypes() {
+		return PropertyEditorImpl.getInstance().getPropertyAsBoolean(ARGOS_BACKEND_LOAD_EVENT_TYPES_PROPERTY_KEY);
 	}
 
 	/**

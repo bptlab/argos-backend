@@ -115,6 +115,10 @@ public final class EventTypeParserImpl implements EventTypeParser {
 	 * @param eventTypeFile - the file to load
 	 */
 	private void loadDefaultEventType(File eventTypeFile) {
+		if (!Argos.shouldLoadEventTypes()) {
+			return;
+		}
+
 		try {
 			if (!FileUtilImpl.getInstance().wasModified(eventTypeFile)) {
 				logger.info(String.format("file '%1$s' was loaded already and therefore skipped", eventTypeFile.getName()));
