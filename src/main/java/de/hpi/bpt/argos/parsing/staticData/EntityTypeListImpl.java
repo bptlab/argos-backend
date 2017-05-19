@@ -1,6 +1,5 @@
 package de.hpi.bpt.argos.parsing.staticData;
 
-import de.hpi.bpt.argos.parsing.util.ArtifactBatch;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityType;
@@ -23,14 +22,11 @@ public class EntityTypeListImpl implements EntityTypeList {
 	private Map<String, String> entityTypeParentNames;
 	private Map<String, EntityType> entityTypes;
 	private Map<String, List<TypeAttribute>> entityTypeAttributes;
-	private ArtifactBatch artifactBatch;
 
 	/**
 	 * This constructor initializes all members with their default value.
-	 * @param artifactBatch - the artifactBatch to use for saving entityTypes
 	 */
-	public EntityTypeListImpl(ArtifactBatch artifactBatch) {
-		this.artifactBatch = artifactBatch;
+	public EntityTypeListImpl() {
 		entityTypeParentNames = new HashMap<>();
 		entityTypes = new HashMap<>();
 		entityTypeAttributes = new HashMap<>();
@@ -63,8 +59,8 @@ public class EntityTypeListImpl implements EntityTypeList {
 		entityTypes.put(newType.getName(), newType);
 		entityTypeAttributes.put(newType.getName(), newTypeAttributes);
 
-		artifactBatch.add(newType);
-		artifactBatch.add(newTypeAttributes.toArray(new TypeAttribute[newTypeAttributes.size()]));
+		PersistenceAdapterImpl.getInstance().saveArtifacts(newType);
+		PersistenceAdapterImpl.getInstance().saveArtifacts(newTypeAttributes.toArray(new TypeAttribute[newTypeAttributes.size()]));
 	}
 
 	/**

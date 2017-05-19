@@ -31,7 +31,7 @@ public final class StaticDataParserImpl extends XMLFileParserImpl implements Sta
 	 * This constructor hides the implicit public one to implement the singleton pattern.
 	 */
 	private StaticDataParserImpl() {
-		entityTypes = new EntityTypeListImpl(getArtifactBatch());
+		entityTypes = new EntityTypeListImpl();
 
 		/**
 		 * File format

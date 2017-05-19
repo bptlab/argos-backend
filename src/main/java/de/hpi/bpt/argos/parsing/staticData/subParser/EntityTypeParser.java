@@ -36,9 +36,6 @@ public class EntityTypeParser extends ArtifactParserImpl<EntityType> {
 
 		artifact = new EntityTypeImpl();
 		artifact.setParentId(parentType.getId());
-
-		// add name to attribute list to make it accessible in mappings, ...
-		entityTypeAttributes.put(NAME_ELEMENT, createTypeAttribute(NAME_ELEMENT));
 	}
 
 	/**
@@ -72,6 +69,9 @@ public class EntityTypeParser extends ArtifactParserImpl<EntityType> {
 				&& !parentParser.latestOpenedElement(1).equalsIgnoreCase(ATTRIBUTE_ELEMENT)
 				&& !entityTypes.nameInUse(artifact.getName())) {
 			PersistenceAdapterImpl.getInstance().saveArtifacts(artifact);
+
+			// add name to attribute list to make it accessible in mappings, ...
+			entityTypeAttributes.put(NAME_ELEMENT, createTypeAttribute(NAME_ELEMENT));
 		}
 	}
 

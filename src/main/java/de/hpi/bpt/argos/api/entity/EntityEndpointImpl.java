@@ -381,10 +381,6 @@ public class EntityEndpointImpl implements EntityEndpoint {
 	 * @return - a list of joined pairs
 	 */
     private List<Pair<TypeAttribute, Attribute>> joinAttributes(List<TypeAttribute> typeAttributes, List<Attribute> attributes) {
-    	if (typeAttributes.size() != attributes.size()) {
-    		return new ArrayList<>();
-		}
-
     	List<Pair<TypeAttribute, Attribute>> join = new ArrayList<>();
 
     	for (TypeAttribute typeAttribute : typeAttributes) {
@@ -393,10 +389,6 @@ public class EntityEndpointImpl implements EntityEndpoint {
     				join.add(new PairImpl<>(typeAttribute, attribute));
 				}
 			}
-		}
-
-		if (join.size() != typeAttributes.size()) {
-    		return new ArrayList<>();
 		}
 
 		return join;

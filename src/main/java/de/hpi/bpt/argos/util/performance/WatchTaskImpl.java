@@ -132,12 +132,11 @@ public class WatchTaskImpl implements WatchTask {
 
 		long totalExecutionTime = getTotalExecutionTimeInMs();
 
-		result.append(String.format("%1$s- [%2$,.2f %%] %3$s in %4$d ms (%5$,.2f %%)%n",
+		result.append(String.format("%1$s- %2$06d ms [%3$6s %%]\t%4$s%n",
 				indent,
-				((double) totalExecutionTime / Math.max(1, parentExecutionTime)) * TO_PERCENT,
-				description,
 				totalExecutionTime,
-				((double) totalExecutionTime / Math.max(1, totalExecutionTimeInMs)) * TO_PERCENT));
+				String.format("%1$,.2f", (double) totalExecutionTime / Math.max(1, parentExecutionTime) * TO_PERCENT),
+				description));
 
 		for (WatchTask subTask : subTasks) {
 			result.append(subTask.getResult(totalExecutionTimeInMs, indent + "    "));
