@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.properties;
 
+import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,16 +14,30 @@ import java.util.Properties;
  * {@inheritDoc}
  * This is the implementation.
  */
-public class PropertyEditorImpl implements PropertyEditor {
-	protected static final Logger logger = LoggerFactory.getLogger(PropertyEditorImpl.class);
+public final class PropertyEditorImpl implements PropertyEditor {
+	private static final Logger logger = LoggerFactory.getLogger(PropertyEditorImpl.class);
 
-	protected static Map<String, String> propertyMap;
+	private static PropertyEditor instance;
+	private Map<String, String> properties;
 
 	/**
-	 * This constructor loads the properties from the disk.
+	 * This constructor initializes all members with their default values.
 	 */
-	public PropertyEditorImpl() {
+	private PropertyEditorImpl() {
+		properties = new HashMap<>();
 		loadProperties();
+	}
+
+	/**
+	 * This method returns the singleton instance of this class.
+	 * @return - the singleton instance of this class
+	 */
+	public static PropertyEditor getInstance() {
+		if (instance == null) {
+			instance = new PropertyEditorImpl();
+		}
+
+		return instance;
 	}
 
 	/**
@@ -30,7 +45,35 @@ public class PropertyEditorImpl implements PropertyEditor {
 	 */
 	@Override
 	public String getProperty(String propertyKey) {
-		return propertyMap.get(propertyKey);
+		String property = properties.get(propertyKey);
+
+		if (property == null) {
+			return "";
+		}
+		return property;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean getPropertyAsBoolean(String propertyKey) {
+		try {
+			return Boolean.parseBoolean(getProperty(propertyKey));
+		} catch (Exception e) {
+			LoggerUtilImpl.getInstance().error(logger, String.format("cannot parse property value to boolean: '%1$s'", getProperty(propertyKey)), e);
+			return false;
+		}
+	}
+
+	@Override
+	public int getPropertyAsInt(String propertyKey) {
+		try {
+			return Integer.parseInt(getProperty(propertyKey));
+		} catch (Exception e) {
+			LoggerUtilImpl.getInstance().error(logger, String.format("cannot parse property value to int: '%1$s'", getProperty(propertyKey)), e);
+			return 0;
+		}
 	}
 
 	/**
@@ -38,36 +81,30 @@ public class PropertyEditorImpl implements PropertyEditor {
 	 */
 	@Override
 	public void setProperty(String propertyKey, String propertyValue) {
-		propertyMap.put(propertyKey, propertyValue);
+		logger.info(String.format("set property '%1$s' = '%2$s'", propertyKey, propertyValue));
+		properties.put(propertyKey, propertyValue);
 	}
 
 	/**
-	 * This method loads all properties from the disk.
+	 * This method reads the properties file and stores the content in the property member.
 	 */
-	protected void loadProperties() {
-		if (propertyMap != null) {
-			return;
-		}
+	private void loadProperties() {
+		Properties props = new Properties();
 
-		propertyMap = new HashMap<>();
-
-		Properties properties = new Properties();
-
-		InputStream inputStream = getClass().getClassLoader().getResourceAsStream(PropertyEditor.getPropertyFile());
+		InputStream inputStream = getClass().getClassLoader().getResourceAsStream(PropertyEditor.PROPERTIES_FILE);
 
 		if (inputStream != null) {
 			try {
-				properties.load(inputStream);
+				props.load(inputStream);
 			} catch (IOException e) {
-				logger.error("cannot read from property file");
-				logger.trace("Reason: ", e);
+				LoggerUtilImpl.getInstance().error(logger, "cannot read from property file", e);
 			}
 		} else {
-			logger.error(String.format("cannot find property file '%1$s'.", PropertyEditor.getPropertyFile()));
+			logger.error(String.format("cannot find property file '%1$s'.", PropertyEditor.PROPERTIES_FILE));
 		}
 
-		for (Object key : properties.keySet()) {
-			propertyMap.put(key.toString(), properties.getProperty(key.toString()));
+		for (Object key : props.keySet()) {
+			properties.put(key.toString(), props.getProperty(key.toString()));
 		}
 	}
 }

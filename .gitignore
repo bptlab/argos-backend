@@ -29,3 +29,7 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 src/main/resources/backbone_data/
+
+src/main/resources/static_data/
+
+src/main/resources/event_types/

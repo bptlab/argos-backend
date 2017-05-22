@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.notifications.socket;
 
+import de.hpi.bpt.argos.core.Argos;
 import org.eclipse.jetty.websocket.api.Session;
 import spark.Service;
 
@@ -42,10 +43,10 @@ public interface PushNotificationClientHandler {
 	void onMessage(Session client, String message);
 
 	/**
-	 * This method returns the base uri for the web socket notifications.
-	 * @return - the base uri for the web socket notifications
+	 * This method returns the basic uri for the notificationClientHandler.
+	 * @return - the basic uri for the notificationClientHandler
 	 */
-	static String getWebSocketUriBase() {
-		return "/notifications";
+	static String getWebSocketBaseUri() {
+		return String.format("%1$s/notifications", Argos.getRoutePrefix());
 	}
 }

@@ -1,662 +1,646 @@
-# Example YAML to get you started quickly.
-# Be aware that YAML has indentation based scoping.
-# Code completion support is available so start typing for available options.
 swagger: '2.0'
-
-# This is your document metadata
 info:
-  version: "1.3"
+  version: '2.0'
   title: Argos-Backend
-
-# Describe your paths here
 paths:
-  /api/productfamilies:
+  '/api/entitytype/hierarchy':
     get:
-      description: Gets an array of `ProductFamily` objects.
+      description: Returns the hierarchy overview of all `EntityTypes`.
       responses:
-        200:
-          description: Successful response
+        '200':
+          description: Successful response.
           schema:
-            title: ArrayOfProductFamilies
+            title: Hierarchy
             type: array
             items:
-              title: ProductFamily
+              title: HierarchyLayers
+              type: array
+              items:
+                title: EntityType
+                type: object
+                properties:
+                  Id:
+                    type: integer
+                    format: long
+                  ParentId:
+                    type: integer
+                    format: long
+                  Name:
+                    type: string
+                    
+  '/api/entitytype/{typeId}/attributes':
+    get:
+      description: Returns an array of `TypeAttributes`.
+      parameters:
+        - name: typeId
+          in: path
+          description: Unique identifier of the `EntityType`.
+          required: true
+          type: integer
+          format: long
+      responses:
+        '200':
+          description: Successful reponse.
+          schema:
+            title: TypeAttributes
+            type: array
+            items:
+              title: TypeAttribute
               type: object
               properties:
-                id:
+                Id:
                   type: integer
                   format: long
-                name:
+                Name:
                   type: string
-                brand:
+                  
+  '/api/entitytype/{typeId}/entitymappings':
+    get:
+      description: Returns an array of `EntityEventMappings`.
+      parameters:
+        - name: typeId
+          in: path
+          description: Unique identifier of the `EntityType`.
+          required: true
+          type: integer
+          format: long
+      responses:
+        '200':
+          description: Successful response.
+          schema:
+            title: EventEntityMappings
+            type: array
+            items:
+              title: EventEntityMapping
+              type: object
+              properties:
+                Id:
+                  type: integer
+                  format: long
+                EventTypeId:
+                  type: integer
+                  format: long
+                EntityTypeId:
+                  type: integer
+                  format: long
+                TargetStatus:
                   type: string
-                products:
-                  title: ArrayOfProducts
+                EventEntityMappingConditions:
                   type: array
                   items:
-                    title: Product
+                    title: EventEntityMappingCondition
                     type: object
                     properties:
-                      id:
+                      EventTypeAttributeId:
                         type: integer
                         format: long
-                      productFamilyId:
+                      EntityTypeAttributeId:
                         type: integer
                         format: long
-                      name:
-                        type: string
-                      numberOfDevices:
-                        type: integer
-                        format: long
-                      numberOfEvents:
-                        type: integer
-                        format: long
-                      productionStart:
-                        type: string
-                        format: date
-                      orderNumber:
-                        type: integer
-                        format: long
-                      state:
-                        type: string
-                      stateDescription:
-                        type: string
-                      configurations:
-                        title: ArrayOfConfigurationHeaders
-                        type: array
-                        items:
-                          title: ConfigurationHeader
-                          type: object
-                          properties:
-                            id:
-                              type: integer
-                              format: long
-                            codingPlugId:
-                              type: integer
-                            codingPlugSoftwareVersions:
-                              title: ArrayOfFloat
-                              type: array
-                              items:
-                                title: SoftwareVersion
-                                type: number
-                                format: float
-
-  /api/productfamilies/{productFamilyId}:
+                        
+  '/api/entity/{entityId}/children/type/{typeId}/{attributeNames}':
     get:
-      description: Gets a single `ProductFamily` object defined by its id.
+      description: >-
+        Returns an array of `Entities`, which are children of the `Entity` given
+        by it's id.
       parameters:
-        -
-          name: productFamilyId
+        - name: entityId
           in: path
-          description: Unique identifier for the `ProductFamily`
+          description: Unique identifier of the parent `Entity`.
           required: true
           type: integer
-      responses:
-        200:
-          description: Successful response
-          schema:
-            title: ProductFamily
-            type: object
-            properties:
-              id:
-                type: integer
-                format: long
-              name:
-                type: string
-              brand:
-                type: string
-                
-  /api/products/{productId}:
-    get:
-      description: Get a single `Product` object defined by its id.
-      parameters:
-        -
-          name: productId
+          format: long
+        - name: typeId
           in: path
-          description: Unique identifier for the `Product`
+          description: Unique identifier of the child `EntityType`.
           required: true
           type: integer
+          format: long
+        - name: attributeNames
+          in: path
+          description: >-
+            A list (plus ('+') separated strings), which contains the names of all
+            `TypeAttributes` to include in the response.
+          required: true
+          type: string
       responses:
-        200:
-          description: Successful response
+        '200':
+          description: Successful response.
           schema:
-            title: Product
+            title: Entities
+            type: array
+            items:
+              title: Entity
+              type: object
+              properties:
+                Id:
+                  type: integer
+                  format: long
+                TypeId:
+                  type: integer
+                  format: long
+                ParentId:
+                  type: integer
+                  format: long
+                Name:
+                  type: string
+                Status:
+                  type: string
+                HasChildren:
+                  type: boolean
+                Attributes:
+                  type: array
+                  items:
+                    title: Attribute
+                    type: object
+                    properties:
+                      Name:
+                        type: string
+                      Value:
+                        type: string
+                        
+  '/api/entity/{entityId}':
+    get:
+      description: Returns a single `Entity` including all the `TypeAttributes`.
+      parameters:
+        - name: entityId
+          in: path
+          description: Unique identifier of the `Entity`.
+          required: true
+          type: integer
+          format: long
+      responses:
+        '200':
+          description: Successful response.
+          schema:
+            title: Entity
             type: object
             properties:
-              id:
+              Id:
                 type: integer
                 format: long
-              productFamilyId:
+              TypeId:
                 type: integer
                 format: long
-              name:
+              ParentId:
+                type: integer
+                format: long
+              Name:
                 type: string
-              numberOfDevices:
-                type: integer
-                format: long
-              numberOfEvents:
-                type: integer
-                format: long
-              productionStart:
+              Status:
                 type: string
-                format: date
-              orderNumber:
-                type: integer
-                format: long
-              state:
-                type: string
-              stateDescription:
-                type: string
-              configurations:
-                title: ArrayOfConfigurationHeaders
+              HasChildren:
+                type: boolean
+              Attributes:
                 type: array
                 items:
-                  title: ConfigurationHeader
+                  title: Attribute
                   type: object
                   properties:
-                    id:
-                      type: integer
-                      format: long
-                    codingPlugId:
-                      type: integer
-                    codingPlugSoftwareVersions:
-                      title: ArrayOfFloat
-                      type: array
-                      items:
-                        title: SoftwareVersion
-                        type: number
-                        format: float
-
-  /api/products/{productId}/eventtypes:
+                    Name:
+                      type: string
+                    Value:
+                      type: string
+                      
+  '/api/entity/{entityId}/eventtypes/{inlcudeChildEvents}':
     get:
-      description: Gets an array of `EventType` objects for a defined `Product`.
+      description: >-
+        Returns an array of `EventTypes`, which occured for this specific
+        `Entity`.
       parameters:
-        -
-          name: productId
+        - name: entityId
           in: path
-          description: Unique identifier for the `Product`
+          description: Unique identifier of the `Entity`.
           required: true
           type: integer
+          format: long
+        - name: inlcudeChildEvents
+          in: path
+          description: Indicates, whether child events should be considered.
+          required: true
+          type: boolean
       responses:
-        200:
-          description: Successful response
+        '200':
+          description: Successful response.
           schema:
-            title: ArrayOfEventTypes
+            title: EventTypes
             type: array
             items:
               title: EventType
               type: object
               properties:
-                id:
+                Id:
                   type: integer
                   format: long
-                name:
+                Name:
                   type: string
-                numberOfEvents:
+                NumberOfEvents:
                   type: integer
-                timestampAttributeName:
-                  type: string
-                eventQuery:
-                  type: string
-                attributes:
-                  title: ArrayOfEventAttributes
-                  type: array
-                  items:
-                    title: EventAttribute
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                        format: long
-                      name:
-                        type: string
-                      type:
-                        type: string
-
-  /api/products/{productId}/events/{eventTypeId}/{indexFrom}/{indexTo}:
+                  format: long
+                TimestampAttributeId:
+                  type: integer
+                  format: long
+                  
+  '/api/entity/{entityId}/eventtype/{typeId}/events/{includeChildEvents}/{startIndex}/{endIndex}':
     get:
-      description: Gets an array of `Event` objects for a defined `Product` within a certain index range.
+      description: 'Returns an array of `Events`, which occured for the given `Entity`.'
       parameters:
-        -
-          name: productId
+        - name: entityId
           in: path
-          description: Unique identifier for the `Product`
+          description: Unique identifier of the `Entity`.
           required: true
           type: integer
-        -
-          name: eventTypeId
+          format: long
+        - name: typeId
           in: path
-          description: Unique identifier for the `EventType`
+          description: Unique identifier of the `EventType`.
           required: true
           type: integer
-        -
-          name: indexFrom
+          format: long
+        - name: includeChildEvents
           in: path
-          description: Start index for the `Event` objects to receive
+          description: Indicates, whether child events should be included.
+          required: true
+          type: boolean
+        - name: startIndex
+          in: path
+          description: First index of the `Events` to return.
           required: true
           type: integer
-        -
-          name: indexTo
+        - name: endIndex
           in: path
-          description: End index for the `Event` objects to receive
+          description: Last index of the `Events` to return.
           required: true
           type: integer
-
       responses:
-        200:
-          description: Successful response
+        '200':
+          description: Successful response.
           schema:
-            title: ArrayOfEvents
+            title: Events
             type: array
             items:
               title: Event
-              description: An object which contains all attributes specified in `EventType`
               type: object
-
-  /api/events/{eventId}:
-    get:
-      description: Gets a single `Event` object defined by its id.
-      parameters:
-        -
-          name: eventId
-          in: path
-          description: Unique identifier for the `Event`
-          required: true
-          type: integer
-
-      responses:
-        200:
-          description: Successful response
-          schema:
-            title: Event
-            type: object
-            description: An object which contains all attributes specified in `EventType`
-            
+              properties:
+                Attributes:
+                  type: array
+                  items:
+                    title: Attribute
+                    type: object
+                    properties:
+                      Name:
+                        type: string
+                      Value:
+                        type: string
+                        
   /api/eventtypes:
     get:
-      description: Gets an array of `EventType` objects.
-      
+      description: Returns an array of all `EventTypes`.
       responses:
-        200:
-          description: Successful response
+        '200':
+          description: Successful response.
           schema:
-            title: ArrayOfEventTypes
+            title: EventTypes
             type: array
             items:
               title: EventType
               type: object
               properties:
-                id:
+                Id:
                   type: integer
                   format: long
-                name:
+                Name:
                   type: string
-                timestampAttributeName:
-                  type: string
-                eventQuery:
-                  type: string
-                attributes:
-                  title: ArrayOfEventAttributes
-                  type: array
-                  items:
-                    title: EventAttribute
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                        format: long
-                      name:
-                        type: string
-                      type:
-                        type: string
-                        
-  /api/eventtypes/{eventTypeId}:
+                NumberOfEvents:
+                  type: integer
+                  format: long
+                TimestampAttributeId:
+                  type: integer
+                  format: long
+                  
+  '/api/eventtype/{typeId}':
     get:
-      description: Gets a single `EventType` object defined by its id.
+      description: Returns a single `EventType`.
       parameters:
-        -
-          name: eventTypeId
+        - name: typeId
           in: path
-          description: Unique identifier for the `EventType`
+          description: Unique identifier of the `EventType`.
           required: true
           type: integer
-      
+          format: long
       responses:
-        200:
-          description: Successful response
+        '200':
+          description: Successful response.
           schema:
             title: EventType
             type: object
             properties:
-              id:
+              Id:
                 type: integer
                 format: long
-              name:
+              Name:
                 type: string
-              timestampAttributeName:
-                type: string
-              eventQuery:
-                type: string
-              attributes:
-                title: ArrayOfEventAttributes
-                type: array
-                items:
-                  title: EventAttribute
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                      format: long
-                    name:
-                      type: string
-                    type:
-                      type: string
-                      
-  /api/eventtypes/create:
+              NumberOfEvents:
+                type: integer
+                format: long
+              TimestampAttributeId:
+                type: integer
+                format: long
+                
+  /api/eventtype/create:
     post:
-      description: Creates a new `EventType` object.
+      description: Creates a new `EventType`.
       parameters:
-        -
-          name: EventTypeMap
+        - name: EventType
           in: body
-          description: Contains the `EventQuery` and the corresponding `EventType` to create.
+          description: The `EventType` to create.
           required: true
           schema:
+            title: EventType
             type: object
             properties:
-              eventQuery:
+              Name:
                 type: string
-              eventType:
-                type: object
-                properties:
-                  name:
-                    type: string
-                  timestamp:
-                    description: Name of the timestamp `EventAttribute`
-                    type: string
-                  attributes:
-                    title: ArrayOfEventAttributes
-                    description: A map of Names -> Type
-                    type: array
-                    items:
-                      title: EventAttribute
-                      description: There must be four `EventAttributes` named "productId" (long), "productFamilyId" (string), "codingPlugId" (integer) and "codingPlugSoftwareVersion" (float).
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                        type:
-                          type: string
+              TimestampAttributeName:
+                type: string
+              TypeAttributes:
+                type: array
+                items:
+                  title: TypeAttribute
+                  type: object
+                  properties:
+                    Name:
+                      type: string
       responses:
-        200:
-          description: Successful response
+        '200':
+          description: Successful response.
           
-  /api/eventtypes/delete/{eventTypeId}:
+  '/api/eventtype/{typeId}/delete':
     delete:
-      description: Deletes an event query defined by the `EventType` id.
+      description: Deletes a given `EventType`.
       parameters:
-        - 
-          name: eventTypeId
+        - name: typeId
           in: path
+          description: Unique identifier of the `EventType`.
+          required: true
           type: integer
-          description: The id of the `EventType` object whose event query should be deleted.
-          required: true
+          format: long
       responses:
-        200:
-          description: Successful response
-        500:
-          description: Failure while deleting
-          schema:
-            type: array
-            title: ArrayOfEventTypeId
-            items:
-              title: EventTypeId
-              type: integer
-              format: long
-      
-  /api/eventqueries/update/{eventTypeId}:
-    post:
-      description: Updates an event query defined by the `EventType` id.
-      parameters:
-        - 
-          name: eventTypeId
-          in: path
-          type: integer
-          description: The id of the `EventType` object whose event query should be updated.
-          required: true
-        - 
-          name: eventQuery
-          in: body
-          description: The new event query that should be saved for the `EventType`
-          required: true
-          schema:
-            type: object
-            properties:
-              eventQuery:
-                type: string
-      responses:
-        200:
-          description: Successful response
+        '200':
+          description: Successful response.
           
-  /api/datatypes:
+  '/api/eventtype/{typeId}/attributes':
     get:
-      description: Returns a list of all supported DataTypes.
-      
-      responses:
-        200:
-          description: Successful response
-          schema:
-            type: array
-            title: ArrayOfDataTypes
-            items:
-              title: DataTypeName
-              type: string
-              
-  /api/productconfigurations/{productConfigurationId}/update/statuschange/{newProductStatus}:
-    post:
-      description: Updates an `EventQuery` which events will change the status of the specified `ProductConfiguration`.
+      description: Returns an array of `TypeAttributes`.
       parameters:
-        -
-          name: productConfigurationId
+        - name: typeId
           in: path
-          description: Unique identifier for the `ProductConfiguration`
+          description: Unique identifier of the `EventType`.
           required: true
           type: integer
-        -
-          name: newProductStatus
-          in: path
-          description: The new state of the `Product` after an `Event` for the given `EventQuery` is received
-          required: true
-          type: string
-        - 
-          name: eventQuery
-          in: body
-          description: The new event query that should be saved for the status change
-          required: true
-          schema:
-            type: object
-            properties:
-              eventQuery:
-                type: string
-      
+          format: long
       responses:
-        200:
-          description: Successful response
-          
-  /api/productconfigurations/{productConfigurationId}:
-    get:
-      description: Get a single `ProductConfiguration` object defined by its id.
-      parameters:
-        -
-          name: productConfigurationId
-          in: path
-          description: Unique identifier for the `ProductConfiguration`
-          required: true
-          type: integer
-      responses:
-        200:
-          description: Successful response
+        '200':
+          description: Successful reponse.
           schema:
-            title: ProductConfiguration
-            type: object
-            properties:
-              id:
-                type: integer
-                format: long
-              productId:
-                type: integer
-                format: long
-              state:
-                type: string
-              stateDescription:
-                type: string
-              codingPlugId:
-                type: integer
-              codingPlugSoftwareVersions:
-                title: ArrayOfFloat
-                type: array
-                items:
-                  title: SoftwareVersion
-                  type: number
-                  format: float
-              numberOfEvents:
-                type: integer
-                format: long
-              statusUpdateQueries:
-                type: object
-                properties:
-                  RUNNING:
-                    type: string
-                  WARNING:
-                    type: string
-                  ERROR:
-                    type: string
-              errorTypes:
-                title: ArrayOfErrorTypes
-                type: array
-                items:
-                  title: ErrorType
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                      format: long
-                    errorTypeId:
-                      type: string
-                    displayCode:
-                      type: string
-                    causeCode:
-                      type: integer
-                    errorDescription:
-                      type: string
-                    errorOccurrences:
-                      type: integer
-                      format: long
-                    errorCauses:
-                      title: ArrayOfErrorCauses
-                      type: array
-                      items:
-                        title: ErrorCause
-                        type: object
-                        properties:
-                          id:
-                            type: integer
-                            format: long
-                          causeDescription:
-                            type: string
-                          errorOccurrences:
-                            type: integer
-                            format: long
-                          errorPrediction:
-                            type: number
-                            format: float
-          
-  /api/productconfigurations/{productConfigurationId}/eventtypes:
-    get:
-      description: Gets an array of `EventType` objects for a defined `ProductConfiguration`.
-      parameters:
-        -
-          name: productConfigurationId
-          in: path
-          description: Unique identifier for the `ProductConfiguration`
-          required: true
-          type: integer
-      responses:
-        200:
-          description: Successful response
-          schema:
-            title: ArrayOfEventTypes
+            title: TypeAttributes
             type: array
             items:
-              title: EventType
+              title: TypeAttribute
               type: object
               properties:
-                id:
+                Id:
                   type: integer
                   format: long
-                name:
+                Name:
                   type: string
-                numberOfEvents:
-                  type: integer
-                timestampAttributeName:
-                  type: string
-                eventQuery:
-                  type: string
-                attributes:
-                  title: ArrayOfEventAttributes
-                  type: array
-                  items:
-                    title: EventAttribute
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                        format: long
-                      name:
-                        type: string
-                      type:
-                        type: string
-
-  /api/productconfigurations/{productConfigurationId}/events/{eventTypeId}/{indexFrom}/{indexTo}:
+                  
+  '/api/eventtype/{typeId}/queries':
     get:
-      description: Gets an array of `Event` objects for a defined `ProductConfiguration` within a certain index range.
+      description: Returns an array of `EventQueries`.
       parameters:
-        -
-          name: productConfigurationId
+        - name: typeId
           in: path
-          description: Unique identifier for the `ProductConfiguration`
+          description: Unique identifier of the `EventType`.
           required: true
           type: integer
-        -
-          name: eventTypeId
-          in: path
-          description: Unique identifier for the `EventType`
-          required: true
-          type: integer
-        -
-          name: indexFrom
-          in: path
-          description: Start index for the `Event` objects to receive
-          required: true
-          type: integer
-        -
-          name: indexTo
-          in: path
-          description: End index for the `Event` objects to receive
-          required: true
-          type: integer
-
+          format: long
       responses:
-        200:
-          description: Successful response
+        '200':
+          description: Successful reponse.
           schema:
-            title: ArrayOfEvents
+            title: EventQueries
             type: array
             items:
-              title: Event
-              description: An object which contains all attributes specified in `EventType`
+              title: EventQuery
               type: object
-              
-              
-              
-              
+              properties:
+                Id:
+                  type: integer
+                  format: long
+                TypeId:
+                  type: integer
+                  format: long
+                Description:
+                  type: string
+                Query:
+                  type: string
+                  
+  '/api/eventtype/{typeId}/entitymappings':
+    get:
+      description: Returns an array of `EventEntityMappings`.
+      parameters:
+        - name: typeId
+          in: path
+          description: Unique identifier of the `EventType`.
+          required: true
+          type: integer
+          format: long
+      responses:
+        '200':
+          description: Successful response.
+          schema:
+            title: EventEntityMappings
+            type: array
+            items:
+              title: EventEntityMapping
+              type: object
+              properties:
+                Id:
+                  type: integer
+                  format: long
+                EventTypeId:
+                  type: integer
+                  format: long
+                EntityTypeId:
+                  type: integer
+                  format: long
+                TargetStatus:
+                  type: string
+                EventEntityMappingConditions:
+                  type: array
+                  items:
+                    title: EventEntityMappingCondition
+                    type: object
+                    properties:
+                      EventTypeAttributeId:
+                        type: integer
+                        format: long
+                      EntityTypeAttributeId:
+                        type: integer
+                        format: long
+                        
+  '/api/eventquery/create':
+    post:
+      description: Creates a new `EventQuery`.
+      parameters:
+        - name: eventQuery
+          in: body
+          description: The `EventQuery` to create.
+          required: true
+          schema:
+            title: EventQuery
+            type: object
+            properties:
+              EventTypeId:
+                type: integer
+                format: long
+              Description:
+                type: string
+              Query:
+                type: string
+      responses:
+        '200':
+          description: Successful response.
+          
+  '/api/eventquery/{queryId}/delete':
+    delete:
+      description: Deletes a given `EventQuery`.
+      parameters:
+        - name: queryId
+          in: path
+          description: Unique identifier of the `EventQuery`.
+          required: true
+          type: integer
+          format: long
+      responses:
+        '200':
+          description: Successful response.
+          
+  '/api/eventquery/{queryId}/edit':
+    put:
+      description: Modifies a given `EventQuery`.
+      parameters:
+        - name: queryId
+          in: path
+          description: Unique identifier of the `EventQuery`.
+          required: true
+          type: integer
+          format: long
+        - name: eventQuery
+          in: body
+          description: The `EventQuery` to set.
+          required: true
+          schema:
+            title: EventQuery
+            type: object
+            properties:
+              Description:
+                type: string
+              Query:
+                type: string
+      responses:
+        '200':
+          description: Successful response.
+          
+  /api/entitymapping/create:
+    post:
+      description: Creates a new `EventEntityMapping`.
+      parameters:
+        - name: eventEntityMapping
+          in: body
+          description: The `EventEntityMapping` to create.
+          required: true
+          schema:
+            title: EventEntityMapping
+            type: object
+            properties:
+              EventTypeId:
+                type: integer
+                format: long
+              EntityTypeId:
+                type: integer
+                format: long
+              TargetStatus:
+                type: string
+              EventEntityMappingConditions:
+                type: array
+                items:
+                  title: EventEntityMappingCondition
+                  type: object
+                  properties:
+                    EventTypeAttributeId:
+                      type: integer
+                      format: long
+                    EntityTypeAttributeId:
+                      type: integer
+                      format: long
+      responses:
+        '200':
+          description: Successful response.
+          
+  '/api/entitymapping/{mappingId}/delete':
+    delete:
+      description: Deletes the given `EventEntityMapping`.
+      parameters:
+        - name: mappingId
+          in: path
+          description: Unique identifier of the `EventEntityMapping`.
+          required: true
+          type: integer
+          format: long
+      responses:
+        '200':
+          description: Successful response.
+          
+  '/api/entitymapping/{mappingId}/edit':
+    put:
+      description: Modifies a given `EventEntityMapping`.
+      parameters:
+        - name: mappingId
+          in: path
+          description: Unique identifier of the `EventEntityMapping`.
+          required: true
+          type: integer
+          format: long
+        - name: eventEntityMapping
+          in: body
+          description: The `EventEntityMapping` to set.
+          required: true
+          schema:
+            title: EventEntityMapping
+            type: object
+            properties:
+              EventTypeId:
+                type: integer
+                format: long
+              EntityTypeId:
+                type: integer
+                format: long
+              TargetStatus:
+                type: string
+              EventEntityMappingConditions:
+                type: array
+                items:
+                  title: EventEntityMappingCondition
+                  type: object
+                  properties:
+                    EventTypeAttributeId:
+                      type: integer
+                      format: long
+                    EntityTypeAttributeId:
+                      type: integer
+                      format: long
+      responses:
+        '200':
+          description: Successful response.

@@ -1,6 +1,6 @@
 package de.hpi.bpt.argos.common;
 
-import de.hpi.bpt.argos.api.response.ResponseFactory;
+import de.hpi.bpt.argos.util.HttpStatusCodes;
 
 /**
  * {@inheritDoc}
@@ -8,13 +8,16 @@ import de.hpi.bpt.argos.api.response.ResponseFactory;
  */
 public class NullRestRequestImpl implements RestRequest {
 
-	protected String content;
-	protected String response;
+	private int responseCode;
+	private String content;
+	private String response;
 
 	/**
 	 * This constructor initializes the members with default values.
+	 * @param responseCode - the response code to return in this request
 	 */
-	public NullRestRequestImpl() {
+	public NullRestRequestImpl(int responseCode) {
+		this.responseCode = responseCode;
 		response = "null request";
 	}
 
@@ -55,7 +58,7 @@ public class NullRestRequestImpl implements RestRequest {
 	 */
 	@Override
 	public int getResponseCode() {
-		return ResponseFactory.HTTP_SUCCESS_CODE;
+		return responseCode;
 	}
 
 	/**
@@ -71,6 +74,14 @@ public class NullRestRequestImpl implements RestRequest {
 	 */
 	@Override
 	public boolean isSuccessful() {
-		return true;
+		return getResponseCode() == HttpStatusCodes.SUCCESS;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isHostReachable() {
+		return false;
 	}
 }

@@ -28,7 +28,7 @@ public interface RestRequestFactory {
 
     /**
      * This method returns a RestRequest object using POST request method and default content and accept types. Other
-     * headers can be parameterized.
+     * headers can be parametrized.
      * @param host - the host to be requested as a string
      * @param uri - the uri to be requested as a string
      * @return - returns a RestRequest object using the request method POST and default content and accept types.
@@ -36,7 +36,7 @@ public interface RestRequestFactory {
     RestRequest createPostRequest(String host, String uri);
 
 	/**
-	 * This method returns a RestRequst object using GET request method.
+	 * This method returns a RestRequest object using GET request method.
 	 * @param host - the host to be requested as a string
 	 * @param uri - the uri to be requested as a string
 	 * @param acceptType - the content type value to be used as a string

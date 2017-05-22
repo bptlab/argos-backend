@@ -1,6 +1,7 @@
 package de.hpi.bpt.argos.common;
 
-import de.hpi.bpt.argos.api.response.ResponseFactory;
+import de.hpi.bpt.argos.util.HttpStatusCodes;
+import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,11 +18,12 @@ import java.net.URL;
  * This is the implementation.
  */
 public class RestRequestImpl implements RestRequest {
-	protected static final Logger logger = LoggerFactory.getLogger(RestRequestImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(RestRequestImpl.class);
 
-	protected HttpURLConnection connection;
-	protected String content;
-	protected String response;
+	private HttpURLConnection connection;
+	private String content;
+	private String response;
+	private boolean hostReachable;
 
 	/**
 	 * Constructor for RestRequest, instantiates new connection.
@@ -30,6 +32,7 @@ public class RestRequestImpl implements RestRequest {
 	 */
 	public RestRequestImpl(URL url) throws IOException {
 		connection = (HttpURLConnection) url.openConnection();
+		hostReachable = true;
 	}
 
 	/**
@@ -40,8 +43,7 @@ public class RestRequestImpl implements RestRequest {
 		try {
 			this.connection.setRequestMethod(method);
 		} catch (ProtocolException e) {
-			logger.error("cannot set request method to '" + method + "'");
-			logTrace(e);
+			LoggerUtilImpl.getInstance().error(logger, String.format("cannot set method of rest request: '$1%s'", method), e);
 		}
 	}
 
@@ -76,8 +78,7 @@ public class RestRequestImpl implements RestRequest {
 
 			content = requestContent;
 		} catch (IOException e) {
-			logger.error("Cannot set content of rest request");
-			logTrace(e);
+			LoggerUtilImpl.getInstance().error(logger, "cannot set content of rest request", e);
 		}
 	}
 
@@ -90,8 +91,7 @@ public class RestRequestImpl implements RestRequest {
 		try {
 			return connection.getResponseCode();
 		} catch (IOException e) {
-			logger.error("Cannot get response code of rest request");
-			logTrace(e);
+			LoggerUtilImpl.getInstance().error(logger, "cannot get response code of rest request", e);
 			return 0;
 		}
 	}
@@ -128,13 +128,12 @@ public class RestRequestImpl implements RestRequest {
 			responseReader.close();
 
 		} catch (IOException e) {
-			logger.error("Cannot read response of rest request");
-			logTrace(e);
-			return RestRequest.getErrorResponse();
+			LoggerUtilImpl.getInstance().error(logger, "cannot read response of rest request", e);
+			return RestRequest.ERROR_RESPONSE;
 		}
 
-		this.response = restResponse.toString();
-		return this.response;
+		response = restResponse.toString();
+		return response;
 	}
 
     /**
@@ -142,14 +141,14 @@ public class RestRequestImpl implements RestRequest {
      */
 	@Override
 	public boolean isSuccessful() {
-		return getResponseCode() == ResponseFactory.HTTP_SUCCESS_CODE;
+		return getResponseCode() == HttpStatusCodes.SUCCESS;
 	}
 
 	/**
-	 * Logs the stack trace of the exception on log level trace.
-	 * @param e - exception to log
+	 * {@inheritDoc}
 	 */
-	private void logTrace(Exception e) {
-		logger.trace("Reason: ", e);
+	@Override
+	public boolean isHostReachable() {
+		return hostReachable;
 	}
 }
