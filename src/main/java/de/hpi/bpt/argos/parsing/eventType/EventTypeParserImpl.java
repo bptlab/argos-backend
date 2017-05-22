@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.core.Argos;
+import de.hpi.bpt.argos.parsing.util.FileUtilImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttributeImpl;
@@ -11,9 +12,8 @@ import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQueryImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventTypeImpl;
-import de.hpi.bpt.argos.storage.util.DataFile;
-import de.hpi.bpt.argos.storage.util.DataFileImpl;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
+import de.hpi.bpt.argos.util.performance.WatchImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,8 +48,9 @@ public final class EventTypeParserImpl implements EventTypeParser {
 	private EventTypeParserImpl() {
 
 		/**
-		 * File format from unicorn
+		 * File format
 		 * Please note, that the given data-types are ignored.
+		 *
 		 *
 		 * {
 		 *     "name":"EventTypeName",
@@ -57,7 +58,7 @@ public final class EventTypeParserImpl implements EventTypeParser {
 		 *     "attributes":{
 		 *			"eventTypeAttribute1":"STRING",
 		 *			"eventTypeAttribute2":"STRING",
-		 *			"eventTypeAttribute3":"INTEGER",
+		 *			"eventTypeAttribute3":"STRING",
 		 *     },
 		 *     "queries":{
 		 *     		"Query1Description":"Query1",
@@ -93,18 +94,19 @@ public final class EventTypeParserImpl implements EventTypeParser {
 
 		// since the path is delivered as URI, it is represented as a HTML string. Thus we need to replace %20 with file system spaces.
 		File eventTypesDirectory = new File(eventTypesDirectoryPath.replaceAll("%20", " "));
+		File[] eventTypeFiles = eventTypesDirectory.listFiles();
 
-		try {
-			for (File eventTypeFile : eventTypesDirectory.listFiles()) {
-				if (!eventTypeFile.getName().endsWith(".json")) {
-					continue;
-				}
+		if (eventTypeFiles == null) {
+			logger.info("no event type files to load");
+			return;
+		}
 
-				loadDefaultEventType(eventTypeFile);
+		for (File eventTypeFile : eventTypeFiles) {
+			if (!eventTypeFile.getName().endsWith(".json")) {
+				continue;
 			}
 
-		} catch (NullPointerException e) {
-			LoggerUtilImpl.getInstance().error(logger, "cannot find event types directory", e);
+			WatchImpl.measure(String.format("parsing event type: '%1$s'", eventTypeFile.getName()), () -> loadDefaultEventType(eventTypeFile));
 		}
 	}
 
@@ -113,12 +115,14 @@ public final class EventTypeParserImpl implements EventTypeParser {
 	 * @param eventTypeFile - the file to load
 	 */
 	private void loadDefaultEventType(File eventTypeFile) {
+		if (!Argos.shouldLoadEventTypes()) {
+			return;
+		}
+
 		try {
-			if (!wasModified(eventTypeFile)) {
+			if (!FileUtilImpl.getInstance().wasModified(eventTypeFile)) {
 				logger.info(String.format("file '%1$s' was loaded already and therefore skipped", eventTypeFile.getName()));
 				return;
-			} else {
-				modify(eventTypeFile);
 			}
 
 			String fileContent = new String(Files.readAllBytes(Paths.get(eventTypeFile.toURI())), StandardCharsets.UTF_8);
@@ -138,39 +142,14 @@ public final class EventTypeParserImpl implements EventTypeParser {
 				}
 			}
 
-			createEventType(jsonEventType);
+			FileUtilImpl.getInstance().modify(eventTypeFile);
+
+			WatchImpl.measure(String.format("creating event type from json: '%1$s'", jsonEventType.get(JSON_NAME)),
+					() -> createEventType(jsonEventType));
 
 		} catch (Exception e) {
 			LoggerUtilImpl.getInstance().error(logger, String.format("cannot load event type from file '%1$s'", eventTypeFile.getName()), e);
 		}
-	}
-
-	/**
-	 * This method checks whether a file was modified since the last time it was loaded.
-	 * @param file - the file to check for modification
-	 * @return - true, if the file was modified and therefore should be loaded again
-	 */
-	private boolean wasModified(File file) {
-		DataFile dataFile = PersistenceAdapterImpl.getInstance().getDataFile(file.getAbsolutePath());
-
-		return dataFile == null || dataFile.getModificationTimestamp() != file.lastModified();
-	}
-
-	/**
-	 * This method updated the modificationTimestamp for a given file.
-	 * @param file - the file to be updated
-	 */
-	private void modify(File file) {
-		DataFile dataFile = PersistenceAdapterImpl.getInstance().getDataFile(file.getAbsolutePath());
-
-		if (dataFile == null) {
-			dataFile = new DataFileImpl();
-			dataFile.setPath(file.getAbsolutePath());
-		}
-
-		dataFile.setModificationTimestamp(file.lastModified());
-
-		PersistenceAdapterImpl.getInstance().saveArtifacts(dataFile);
 	}
 
 	/**

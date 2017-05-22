@@ -3,6 +3,8 @@ package de.hpi.bpt.argos.storage;
 import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifact;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
+import de.hpi.bpt.argos.util.ObjectWrapper;
+import de.hpi.bpt.argos.util.performance.WatchImpl;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -144,9 +146,51 @@ public class DatabaseAccessImpl implements DatabaseAccess {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <R, Q> R getArtifacts(Session session, Query<Q> query, Transaction transaction, Callable<R> getValue, R defaultValue) {
+	public <ResultType, QueryType> ResultType getArtifacts(Session session,
+														   Query<QueryType> query,
+														   Transaction transaction,
+														   Callable<ResultType> getValue,
+														   ResultType defaultValue) {
+
+		ObjectWrapper<ResultType> result = new ObjectWrapper<>();
+		WatchImpl.measure("get artifacts",
+				() -> result.set(executeGetArtifacts(session, query, transaction, getValue, defaultValue)));
+
+		return result.get();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <ResultType, ResultImplType extends ResultType> List<ResultType> getArtifactsById(Session session,
+																							 Class<ResultImplType> resultTypeClass,
+																							 Long... ids) {
+
+		ObjectWrapper<List<ResultType>> result = new ObjectWrapper<>();
+		WatchImpl.measure("get artifacts by id",
+				() -> result.set(executeGetArtifactsById(session, resultTypeClass, ids)));
+		return result.get();
+	}
+
+	/**
+	 * This method actually executes the getArtifact-method.
+	 * @param session - the database session, which must be open
+	 * @param query - the query to execute and to retrieve the results from
+	 * @param transaction - the current transaction
+	 * @param getValue - the function to get the results from the query
+	 * @param defaultValue - a fall back default value in case anything went wrong or no entities were found
+	 * @param <ResultType> - the result type
+	 * @param <QueryType> - the query type
+	 * @return - an object of the result value type
+	 */
+	private <ResultType, QueryType> ResultType executeGetArtifacts(Session session,
+																   Query<QueryType> query,
+																   Transaction transaction,
+																   Callable<ResultType> getValue,
+																   ResultType defaultValue) {
 		try {
-			R result = getValue.call();
+			ResultType result = getValue.call();
 			transaction.commit();
 			return result;
 		} catch (NoResultException e) {
@@ -165,10 +209,15 @@ public class DatabaseAccessImpl implements DatabaseAccess {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * This method actually executes the getArtifactsById-method.
+	 * @param <ResultType> - the result type
+	 * @param <ResultImplType> - the implementation type of the result type
+	 * @param session - the database session, which must be open
+	 * @param resultTypeClass - the class of the result type
+	 * @param ids - the ids to fetch from the database
+	 * @return - a list of all entities, which were contained in the ids
 	 */
-	@Override
-	public <ResultType, ResultImplType extends ResultType> List<ResultType> getArtifactsById(Session session,
+	private <ResultType, ResultImplType extends ResultType> List<ResultType> executeGetArtifactsById(Session session,
 																							 Class<ResultImplType> resultTypeClass,
 																							 Long... ids) {
 		try {

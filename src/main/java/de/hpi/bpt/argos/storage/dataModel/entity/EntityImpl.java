@@ -17,13 +17,13 @@ public class EntityImpl extends PersistenceArtifactImpl implements Entity {
     protected long parentId;
 
     @Column(name = "Name")
-    protected String name;
+    protected String name = "";
 
     @Column(name = "TypeId")
     protected long typeId;
 
     @Column(name = "Status")
-    protected String status;
+    protected String status = "";
 
     @Override
     public String getName() {

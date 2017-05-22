@@ -14,6 +14,7 @@ import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.storage.util.DataFile;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * This interface offers methods to retrieve and store artifacts.
@@ -81,6 +82,14 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	List<Attribute> getAttributes(long ownerId);
 
 	/**
+	 * This method returns a map of artifact id -> list of attributes for a given artifacts.
+	 * @param typeAttributes - a list of typeAttributes, which should be included in the return value
+	 * @param artifacts - a list of artifacts for which the attributes are needed
+	 * @return - a map of artifact id -> list of attributes for a given artifacts
+	 */
+	Map<Long, List<Attribute>> getAttributes(List<TypeAttribute> typeAttributes, PersistenceArtifact... artifacts);
+
+	/**
 	 * This method returns the typeAttribute, identified by its id.
 	 * @param id - the unique identifier of the typeAttribute
 	 * @return - the typeAttribute or null
@@ -99,6 +108,12 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	 * @return - a list of all entities in the database
 	 */
 	List<Entity> getEntities();
+
+	/**
+	 * This method returns the number of all entities in the database.
+	 * @return - the number of all entities in the database
+	 */
+	int getEntitiesCount();
 
 	/**
 	 * This method returns a specific entity, identified by it's id.
@@ -134,6 +149,12 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	 * @return - a list of all entityTypes
 	 */
 	List<EntityType> getEntityTypes();
+
+	/**
+	 * This method returns the number of all entityTypes in the database.
+	 * @return - the number of all entityTypes in the database
+	 */
+	int getEntityTypesCount();
 
 	/**
 	 * This method returns a list of events, which belong to at least one of the given entities.

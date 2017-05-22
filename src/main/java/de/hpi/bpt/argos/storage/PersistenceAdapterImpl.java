@@ -23,7 +23,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.Table;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@inheritDoc}
@@ -157,6 +159,48 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 	 * {@inheritDoc}
 	 */
 	@Override
+	public Map<Long, List<Attribute>> getAttributes(List<TypeAttribute> typeAttributes, PersistenceArtifact... artifacts) {
+		if (typeAttributes.isEmpty() || artifacts.length == 0) {
+			return new HashMap<>();
+		}
+
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		List<Long> typeAttributeIds = new ArrayList<>();
+		List<Long> artifactIds = new ArrayList<>();
+		for (TypeAttribute typeAttribute : typeAttributes) {
+			typeAttributeIds.add(typeAttribute.getId());
+		}
+		for (PersistenceArtifact artifact : artifacts) {
+			artifactIds.add(artifact.getId());
+		}
+
+		Query<Attribute> query = session.createQuery("FROM AttributeImpl attribute "
+				+ "WHERE attribute.typeAttributeId IN (:typeAttributeIds) AND attribute.ownerId IN (:artifactIds)",
+				Attribute.class)
+				.setParameterList("typeAttributeIds", typeAttributeIds)
+				.setParameterList("artifactIds", artifactIds);
+
+		List<Attribute> attributeList = databaseAccess.getArtifacts(session, query, transaction, query::getResultList, new ArrayList<>());
+
+		Map<Long, List<Attribute>> attributes = new HashMap<>();
+
+		for (Attribute attribute : attributeList) {
+			if (!attributes.containsKey(attribute.getOwnerId())) {
+				attributes.put(attribute.getOwnerId(), new ArrayList<>());
+			}
+
+			attributes.get(attribute.getOwnerId()).add(attribute);
+		}
+
+		return attributes;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public TypeAttribute getTypeAttribute(long id) {
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
@@ -195,6 +239,28 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 				Entity.class);
 
 		return databaseAccess.getArtifacts(session, query, transaction, query::getResultList, new ArrayList<>());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getEntitiesCount() {
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		Table entityTable = Entity.class.getAnnotation(Table.class);
+		String eventTableName = "Entity";
+
+		if (entityTable != null) {
+			eventTableName = entityTable.name();
+		}
+
+		String sqlQuery = String.format("SELECT count(*) FROM %1$s", eventTableName);
+		Query query = session.createNativeQuery(sqlQuery);
+
+		String stringResult = databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, 0).toString();
+		return Integer.parseInt(stringResult);
 	}
 
 	/**
@@ -279,6 +345,28 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 				EntityType.class);
 
 		return databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getEntityTypesCount() {
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		Table entityTypeTable = Entity.class.getAnnotation(Table.class);
+		String entityTypeTableName = "EntityType";
+
+		if (entityTypeTable != null) {
+			entityTypeTableName = entityTypeTable.name();
+		}
+
+		String sqlQuery = String.format("SELECT count(*) FROM %1$s", entityTypeTableName);
+		Query query = session.createNativeQuery(sqlQuery);
+
+		String stringResult = databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, 0).toString();
+		return Integer.parseInt(stringResult);
 	}
 
 	/**

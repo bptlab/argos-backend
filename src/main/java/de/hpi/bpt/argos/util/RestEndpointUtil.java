@@ -84,6 +84,7 @@ public interface RestEndpointUtil {
 	 * @param request - the received request
 	 * @param responseStatus - the http status code of the response
 	 * @param responseMessage - the generated response
+	 * @param responseTimeInMs - time it took to answer the request
 	 */
-    void logSendingResponse(Logger logger, Request request, int responseStatus, String responseMessage);
+    void logSendingResponse(Logger logger, Request request, int responseStatus, String responseMessage, long responseTimeInMs);
 }

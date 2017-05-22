@@ -12,7 +12,7 @@ public final class VirtualRoot extends EntityImpl {
 	 */
 	private VirtualRoot() {
 		id = -1;
-		parentId = 0;
+		parentId = -1;
 		name = "virtual root";
 		typeId = -1;
 		status = "";

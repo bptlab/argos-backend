@@ -18,8 +18,10 @@ public interface Argos {
 	String ARGOS_BACKEND_ALLOWED_ORIGIN_PROPERTY_KEY = "argosBackendAllowedOrigin";
 	String ARGOS_BACKEND_ALLOWED_REQUEST_METHOD_PROPERTY_KEY = "argosBackendAllowedRequestMethod";
 	String ARGOS_BACKEND_EVENT_TYPES_DIRECTORY_PROPERTY_KEY = "argosBackendEventTypesDirectory";
+	String ARGOS_BACKEND_LOAD_EVENT_TYPES_PROPERTY_KEY = "argosBackendLoadEventTypes";
 	String ARGOS_BACKEND_STATIC_DATA_DIRECTORY_PROPERTY_KEY = "argosBackendStaticDataDirectory";
 	String ARGOS_BACKEND_LOAD_STATIC_DATA_PROPERTY_KEY = "argosBackendLoadStaticData";
+	String ARGOS_BACKEND_MEASURE_PERFORMANCE_PROPERTY_KEY = "argosBackendMeasurePerformance";
 
 	/**
 	 * This method starts the argos backend.
@@ -62,7 +64,7 @@ public interface Argos {
 	void removeEntityStatusCalculator(EventMappingObserver statusCalculator) throws ArgosNotRunningException;
 
 	/**
-	 * This method reads the host property from the properties-file and returns it's value.
+	 * This method reads the host property from the properties-file and returns its value.
 	 * @return - the host, specified in the properties-file
 	 */
 	static String getExternalHost() {
@@ -70,7 +72,7 @@ public interface Argos {
 	}
 
 	/**
-	 * This method reads the port property from the properties-file and returns it's value.
+	 * This method reads the port property from the properties-file and returns its value.
 	 * @return - the port, specified in the properties-file
 	 */
 	static int getPort() {
@@ -78,7 +80,7 @@ public interface Argos {
 	}
 
 	/**
-	 * This method reads the routePrefix property from the properties-file and returns it's value.
+	 * This method reads the routePrefix property from the properties-file and returns its value.
 	 * @return - the routePrefix, specified in the properties-file
 	 */
 	static String getRoutePrefix() {
@@ -86,7 +88,7 @@ public interface Argos {
 	}
 
 	/**
-	 * This method reads the threads property from the properties-file and returns it's value.
+	 * This method reads the threads property from the properties-file and returns its value.
 	 * @return - the threads, specified in the properties-file
 	 */
 	static int getThreads() {
@@ -94,7 +96,7 @@ public interface Argos {
 	}
 
 	/**
-	 * This method reads the publicFiles property from the properties-file and returns it's value.
+	 * This method reads the publicFiles property from the properties-file and returns its value.
 	 * @return - the publicFiles, specified in the properties-file
 	 */
 	static String getPublicFiles() {
@@ -102,7 +104,7 @@ public interface Argos {
 	}
 
 	/**
-	 * This method reads the testMode property from the properties-file and returns it's value.
+	 * This method reads the testMode property from the properties-file and returns its value.
 	 * @return - the testMode, specified in the properties-file
 	 */
 	static boolean isInTestMode() {
@@ -110,7 +112,7 @@ public interface Argos {
 	}
 
 	/**
-	 * This method reads the allowedOrigin property from the properties-file and returns it's value.
+	 * This method reads the allowedOrigin property from the properties-file and returns its value.
 	 * @return - the allowedOrigin, specified in the properties-file
 	 */
 	static String getAllowedOrigin() {
@@ -118,7 +120,7 @@ public interface Argos {
 	}
 
 	/**
-	 * This method reads the allowedRequestMethod property from the properties-file and returns it's value.
+	 * This method reads the allowedRequestMethod property from the properties-file and returns its value.
 	 * @return - the allowedRequestMethod, specified in the properties-file
 	 */
 	static String getAllowedRequestMethod() {
@@ -126,7 +128,7 @@ public interface Argos {
 	}
 
 	/**
-	 * This method reads the eventTypeDirectory property from the properties-file and returns it's value.
+	 * This method reads the eventTypeDirectory property from the properties-file and returns its value.
 	 * @return - the eventTypeDirectory, specified in the properties-file
 	 */
 	static String getEventTypesDirectory() {
@@ -134,7 +136,15 @@ public interface Argos {
 	}
 
 	/**
-	 * This method reads the staticDataDirectory property from the properties-file and returns it's value.
+	 * This method reads the loadEventTypes property from the properties-file and returns its value.
+	 * @return - the loadEventTypes, specified in the properties-file
+	 */
+	static boolean shouldLoadEventTypes() {
+		return PropertyEditorImpl.getInstance().getPropertyAsBoolean(ARGOS_BACKEND_LOAD_EVENT_TYPES_PROPERTY_KEY);
+	}
+
+	/**
+	 * This method reads the staticDataDirectory property from the properties-file and returns its value.
 	 * @return - the staticDataDirectory, specified in the properties-file
 	 */
 	static String getStaticDataDirectory() {
@@ -142,10 +152,18 @@ public interface Argos {
 	}
 
 	/**
-	 * This method reads the loadStaticData property from the properties-file and returns it's value.
+	 * This method reads the loadStaticData property from the properties-file and returns its value.
 	 * @return - the loadStaticData, specified in the properties-file
 	 */
-	static boolean getLoadStaticData() {
+	static boolean shouldLoadStaticData() {
 		return PropertyEditorImpl.getInstance().getPropertyAsBoolean(ARGOS_BACKEND_LOAD_STATIC_DATA_PROPERTY_KEY);
+	}
+
+	/**
+	 * This method reads the measurePerformance property from the properties-file and returns its value.
+	 * @return - the measurePerformance, specified in the properties-file
+	 */
+	static boolean shouldMeasurePerformance() {
+		return PropertyEditorImpl.getInstance().getPropertyAsBoolean(ARGOS_BACKEND_MEASURE_PERFORMANCE_PROPERTY_KEY);
 	}
 }

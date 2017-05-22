@@ -15,8 +15,11 @@ import de.hpi.bpt.argos.eventProcessing.mapping.EventMappingObserver;
 import de.hpi.bpt.argos.eventProcessing.status.EntityStatusCalculatorImpl;
 import de.hpi.bpt.argos.notifications.ClientUpdateServiceImpl;
 import de.hpi.bpt.argos.parsing.eventType.EventTypeParserImpl;
+import de.hpi.bpt.argos.parsing.staticData.StaticDataParserImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
+import de.hpi.bpt.argos.storage.hierarchy.HierarchyBuilderImpl;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
+import de.hpi.bpt.argos.util.performance.WatchImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Service;
@@ -35,6 +38,16 @@ public class ArgosImpl implements Argos {
 	private EventReceiver eventReceiver;
 
 	/**
+	 * This method starts a new argos instance.
+	 * @return - the new argos instance
+	 */
+	public static Argos run() {
+		Argos argos = new ArgosImpl();
+		argos.start();
+		return argos;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -49,8 +62,10 @@ public class ArgosImpl implements Argos {
 			return;
 		}
 
-		// TODO: parse static data
-		EventTypeParserImpl.getInstance().loadEventTypes();
+		WatchImpl.measure("load default event types", () -> EventTypeParserImpl.getInstance().loadEventTypes());
+		WatchImpl.measure("load static data", () -> StaticDataParserImpl.getInstance().loadStaticData());
+		WatchImpl.measure("build entity hierarchy", () -> HierarchyBuilderImpl.getInstance().getEntityHierarchyRootNode());
+
 
 		// keep this order, since web sockets should be registered before any web routes get registered
 		(new ClientUpdateServiceImpl()).setup(sparkService);
@@ -67,7 +82,8 @@ public class ArgosImpl implements Argos {
 		restEndpoints.add(new EventTypeEndpointImpl());
 
 		for (RestEndpoint restEndpoint : restEndpoints) {
-			setupRestEndpoint(restEndpoint);
+			WatchImpl.measure(String.format("setup rest endpoint: '%1$s'", restEndpoint.getClass().getSimpleName()),
+					() -> setupRestEndpoint(restEndpoint));
 		}
 
 		(new EventEntityMapperImpl()).setup(eventReceiver);
@@ -75,6 +91,8 @@ public class ArgosImpl implements Argos {
 
 		enableCORS(sparkService);
 		sparkService.awaitInitialization();
+
+		WatchImpl.printResult(logger);
 	}
 
 	/**

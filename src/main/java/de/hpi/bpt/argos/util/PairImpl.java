@@ -2,7 +2,7 @@ package de.hpi.bpt.argos.util;
 
 /**
  * {@inheritDoc}
- * This is the implementation
+ * This is the implementation.
  */
 public class PairImpl<KeyType, ValueType> implements Pair<KeyType, ValueType> {
 

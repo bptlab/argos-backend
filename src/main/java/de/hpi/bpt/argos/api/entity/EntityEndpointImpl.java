@@ -16,8 +16,12 @@ import de.hpi.bpt.argos.storage.hierarchy.EntityHierarchyNode;
 import de.hpi.bpt.argos.storage.hierarchy.HierarchyBuilderImpl;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
+import de.hpi.bpt.argos.util.ObjectWrapper;
+import de.hpi.bpt.argos.util.Pair;
+import de.hpi.bpt.argos.util.PairImpl;
 import de.hpi.bpt.argos.util.RestEndpointUtil;
 import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
+import de.hpi.bpt.argos.util.performance.WatchImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -26,6 +30,7 @@ import spark.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static spark.Spark.halt;
 
@@ -78,10 +83,21 @@ public class EntityEndpointImpl implements EntityEndpoint {
         	halt(HttpStatusCodes.NOT_FOUND, "cannot find entity");
 		}
 
-        List<Attribute> attributes = PersistenceAdapterImpl.getInstance().getAttributes(entityId);
-        JsonObject jsonEventType = getEntityJson(entity, attributes);
+		ObjectWrapper<List<Attribute>> attributes = new ObjectWrapper<>();
+        WatchImpl.measure("get attributes",
+				() -> attributes.set(PersistenceAdapterImpl.getInstance().getAttributes(entityId)));
 
-        return serializer.toJson(jsonEventType);
+        ObjectWrapper<List<TypeAttribute>> typeAttributes = new ObjectWrapper<>();
+        WatchImpl.measure("get type attributes",
+				() -> typeAttributes.set(PersistenceAdapterImpl.getInstance().getTypeAttributes(entity.getTypeId())));
+
+        ObjectWrapper<List<Pair<TypeAttribute, Attribute>>> joinedAttributes = new ObjectWrapper<>();
+        WatchImpl.measure("join attributes", () -> joinedAttributes.set(joinAttributes(typeAttributes.get(), attributes.get())));
+
+        ObjectWrapper<JsonObject> jsonEntity = new ObjectWrapper<>();
+        WatchImpl.measure("get entity json", () -> jsonEntity.set(getEntityJson(entity, joinedAttributes.get())));
+
+        return serializer.toJson(jsonEntity.get());
     }
 
     /**
@@ -92,10 +108,12 @@ public class EntityEndpointImpl implements EntityEndpoint {
         long entityId = getEntityId(request);
         long entityTypeId = getEntityTypeId(request);
         List<Entity> childEntities = PersistenceAdapterImpl.getInstance().getEntities(entityId, entityTypeId);
-        List<Long> attributesTypeIdsToInclude = getAttributesTypeIdsToInclude(request);
-        JsonArray jsonEntities = getEntitiesJson(childEntities, attributesTypeIdsToInclude);
+        List<TypeAttribute> typeAttributesToInclude = getAttributesTypeIdsToInclude(request);
 
-        return serializer.toJson(jsonEntities);
+		ObjectWrapper<JsonArray> jsonEntities = new ObjectWrapper<>();
+		WatchImpl.measure("getEntitiesJson", () -> jsonEntities.set(getEntitiesJson(childEntities, typeAttributesToInclude)));
+
+        return serializer.toJson(jsonEntities.get());
     }
 
     /**
@@ -115,7 +133,7 @@ public class EntityEndpointImpl implements EntityEndpoint {
 		List<Long> entityIds = new ArrayList<>();
 
         if (includeChildEvents) {
-		 entityIds.addAll(entityNode.getChildIds());
+		 	entityIds.addAll(entityNode.getChildIds());
 		} else {
         	entityIds.add(entityId);
 		}
@@ -161,7 +179,7 @@ public class EntityEndpointImpl implements EntityEndpoint {
 
         List<Event> events = PersistenceAdapterImpl.getInstance()
 				.getEvents(eventTypeId, startIndex, endIndex, entityIds.toArray(new Long[entityIds.size()]));
-        JsonArray eventTypesJson = getEventsJson(events);
+        JsonArray eventTypesJson = getEventsJson(eventTypeId, events);
 
         return serializer.toJson(eventTypesJson);
     }
@@ -172,7 +190,7 @@ public class EntityEndpointImpl implements EntityEndpoint {
 	 * @param attributes the attributes to be returned in json
 	 * @return json object that represents the given entity
 	 */
-	private JsonObject getEntityJson(Entity entity, List<Attribute> attributes) {
+	private JsonObject getEntityJson(Entity entity, List<Pair<TypeAttribute, Attribute>> attributes) {
 		try {
 			JsonObject jsonEntity = new JsonObject();
 
@@ -194,37 +212,27 @@ public class EntityEndpointImpl implements EntityEndpoint {
 		}
 	}
 
-
-	/**
-	 * This method returns a list of attributes, which belong to a specific entity.
-	 * @param entity the owner entity of the attributes
-	 * @param attributeTypeIds - a list of unique identifiers of typeAttributes, which are the attributes to include in the returned list
-	 * @return a list of attributes, which belong to a specific entity
-	 */
-    private List<Attribute> getIncludedAttributes(Entity entity, List<Long> attributeTypeIds) {
-		List<Attribute> entityAttributes = PersistenceAdapterImpl.getInstance().getAttributes(entity.getId());
-		List<Attribute> attributesToInclude = new ArrayList<>();
-
-		for (Attribute entityAttribute : entityAttributes) {
-			if (attributeTypeIds.contains(entityAttribute.getTypeAttributeId())) {
-				attributesToInclude.add(entityAttribute);
-			}
-		}
-
-		return attributesToInclude;
-    }
-
     /**
      * This method returns a list of entities as a json array including the given attributes.
      * @param entities the entities to be returned as json
-     * @param attributesTypeIdsToInclude the unique identifiers of the typeAttributes to be returned in json
+     * @param typeAttributesToInclude the unique identifiers of the typeAttributes to be returned in json
      * @return json array that represents the given entities
      */
-    private JsonArray getEntitiesJson(List<Entity> entities, List<Long> attributesTypeIdsToInclude) {
+    private JsonArray getEntitiesJson(List<Entity> entities, List<TypeAttribute> typeAttributesToInclude) {
         JsonArray entitiesJson = new JsonArray();
-        for (Entity entity : entities) {
-            entitiesJson.add(getEntityJson(entity, getIncludedAttributes(entity, attributesTypeIdsToInclude)));
-        }
+
+		Map<Long, List<Attribute>> entityAttributes = PersistenceAdapterImpl.getInstance()
+				.getAttributes(typeAttributesToInclude, entities.toArray(new Entity[entities.size()]));
+
+		for (Entity entity : entities) {
+			if (!entityAttributes.containsKey(entity.getId())) {
+				continue;
+			}
+
+			List<Pair<TypeAttribute, Attribute>> joinedAttributes = joinAttributes(typeAttributesToInclude, entityAttributes.get(entity.getId()));
+			entitiesJson.add(getEntityJson(entity, joinedAttributes));
+		}
+
         return entitiesJson;
     }
 
@@ -243,14 +251,24 @@ public class EntityEndpointImpl implements EntityEndpoint {
 
     /**
      * This method returns events as a JsonArray.
-     * @param events - the events
-     * @return - a json representation of the events
+	 * @param eventTypeId - the typeId of the events
+	 * @param events - the events
+	 * @return - a json representation of the events
      */
-    private JsonArray getEventsJson(List<Event> events) {
+    private JsonArray getEventsJson(long eventTypeId, List<Event> events) {
         JsonArray eventsJson = new JsonArray();
+
+        List<TypeAttribute> eventTypeAttributes = PersistenceAdapterImpl.getInstance().getTypeAttributes(eventTypeId);
+        Map<Long, List<Attribute>> eventAttributes = PersistenceAdapterImpl.getInstance()
+				.getAttributes(eventTypeAttributes, events.toArray(new Event[events.size()]));
+
         for (Event event : events) {
-            List<Attribute> attributes = PersistenceAdapterImpl.getInstance().getAttributes(event.getId());
-            JsonArray jsonAttributes = getAttributesJson(attributes);
+        	if (!eventAttributes.containsKey(event.getId())) {
+        		continue;
+			}
+
+			List<Pair<TypeAttribute, Attribute>> joinedAttributes = joinAttributes(eventTypeAttributes, eventAttributes.get(event.getId()));
+            JsonArray jsonAttributes = getAttributesJson(joinedAttributes);
 
             JsonObject eventJson = new JsonObject();
             eventJson.add("Attributes", jsonAttributes);
@@ -265,13 +283,12 @@ public class EntityEndpointImpl implements EntityEndpoint {
      * @param attributes - the attributes
      * @return - a json representation of the attributes
      */
-    private JsonArray getAttributesJson(List<Attribute> attributes) {
+    private JsonArray getAttributesJson(List<Pair<TypeAttribute, Attribute>> attributes) {
         JsonArray jsonAttributes = new JsonArray();
-        for (Attribute attribute : attributes) {
+        for (Pair<TypeAttribute, Attribute> attribute : attributes) {
             JsonObject jsonAttribute = new JsonObject();
-            TypeAttribute typeAttribute = PersistenceAdapterImpl.getInstance().getTypeAttribute(attribute.getTypeAttributeId());
-            jsonAttribute.addProperty("Name", typeAttribute.getName());
-            jsonAttribute.addProperty("Value", attribute.getValue());
+            jsonAttribute.addProperty("Name", attribute.getKey().getName());
+            jsonAttribute.addProperty("Value", attribute.getValue().getValue());
             jsonAttributes.add(jsonAttribute);
         }
         return jsonAttributes;
@@ -335,7 +352,7 @@ public class EntityEndpointImpl implements EntityEndpoint {
      * @param request the request with attributes
      * @return requested attributes
      */
-    private List<Long> getAttributesTypeIdsToInclude(Request request) {
+    private List<TypeAttribute> getAttributesTypeIdsToInclude(Request request) {
         List<String> attributeNames =  endpointUtil.validateListOfString(
                 request.params(EntityEndpoint.getAttributeNamesParameter(false)),
                 (String input) -> input.matches("(\\w|-)+(\\s(\\w|-)+)*"));
@@ -343,17 +360,37 @@ public class EntityEndpointImpl implements EntityEndpoint {
         // check if entity type has all given attributes defined
         List<TypeAttribute> attributesOfEntityType = PersistenceAdapterImpl.getInstance().getTypeAttributes(getEntityTypeId(request));
         List<String> entityTypeAttributeNames = new ArrayList<>();
-        List<Long> entityTypeAttributeIds = new ArrayList<>();
+        List<TypeAttribute> typeAttributes = new ArrayList<>();
         for (TypeAttribute att : attributesOfEntityType) {
             entityTypeAttributeNames.add(att.getName());
 
             if (attributeNames.contains(att.getName())) {
-				entityTypeAttributeIds.add(att.getId());
+				typeAttributes.add(att);
 			}
         }
         if (!entityTypeAttributeNames.containsAll(attributeNames)) {
             halt(HttpStatusCodes.BAD_REQUEST, "invalid attribute name given");
         }
-        return entityTypeAttributeIds;
+        return typeAttributes;
     }
+
+	/**
+	 * This method joins a list of typeAttributes and a list of attributes.
+	 * @param typeAttributes - a list of typeAttributes
+	 * @param attributes - a list of attributes
+	 * @return - a list of joined pairs
+	 */
+    private List<Pair<TypeAttribute, Attribute>> joinAttributes(List<TypeAttribute> typeAttributes, List<Attribute> attributes) {
+    	List<Pair<TypeAttribute, Attribute>> join = new ArrayList<>();
+
+    	for (TypeAttribute typeAttribute : typeAttributes) {
+    		for (Attribute attribute : attributes) {
+    			if (attribute.getTypeAttributeId() == typeAttribute.getId()) {
+    				join.add(new PairImpl<>(typeAttribute, attribute));
+				}
+			}
+		}
+
+		return join;
+	}
 }
