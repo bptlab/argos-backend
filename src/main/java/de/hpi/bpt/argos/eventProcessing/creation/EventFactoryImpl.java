@@ -7,8 +7,6 @@ import de.hpi.bpt.argos.common.EventPlatformFeedbackImpl;
 import de.hpi.bpt.argos.common.EventProcessingPlatformUpdater;
 import de.hpi.bpt.argos.common.RestRequest;
 import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
-import de.hpi.bpt.argos.core.Argos;
-import de.hpi.bpt.argos.eventProcessing.EventReceiver;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.util.Pair;
 
@@ -63,15 +61,18 @@ public final class EventFactoryImpl implements EventFactory {
 		return jsonEvent;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String createEventXml(EventType eventType, String timestampName, Pair<String, Object>[] attributes) {
-		String eventString = attachProperty("", timestampName, dateFormat.format(new Date()));
+		String eventString = attachXmlProperty("", timestampName, dateFormat.format(new Date()));
 
 		for (Pair<String, Object> attribute : attributes) {
-			eventString = attachProperty(eventString, attribute.getKey(), String.valueOf(attribute.getValue()));
+			eventString = attachXmlProperty(eventString, attribute.getKey(), String.valueOf(attribute.getValue()));
 		}
 
-		return finishEvent(eventString, eventType.getName());
+		return finishXmlEvent(eventString, eventType.getName());
 	}
 
 	/**
@@ -81,14 +82,12 @@ public final class EventFactoryImpl implements EventFactory {
 	public EventPlatformFeedback postEvent(EventType eventType, String timestampName, Pair<String, Object>... attributes) {
 		String xmlEvent = createEventXml(eventType, timestampName, attributes);
 
-		EventPlatformFeedback feedback = postToProcessingPlatform(xmlEvent);
+		RestRequest postRequest = RestRequestFactoryImpl.getInstance()
+				.createPostRequest(EventProcessingPlatformUpdater.getHost(), EventFactory.getPostEventUri());
 
-		if (!feedback.isSuccessful()) {
-			JsonObject jsonEvent = createEventJson(eventType, timestampName, attributes);
-			postToEventReceiver(eventType, jsonEvent);
-		}
+		postRequest.setContent(xmlEvent);
 
-		return feedback;
+		return new EventPlatformFeedbackImpl(postRequest);
 	}
 
 	/**
@@ -97,7 +96,7 @@ public final class EventFactoryImpl implements EventFactory {
 	 * @param eventTypeName - the name of the eventType
 	 * @return - the finished event string
 	 */
-	private String finishEvent(String event, String eventTypeName) {
+	private String finishXmlEvent(String event, String eventTypeName) {
 		return String.format(
 				"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>"
 				+ "<cpoi xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
@@ -115,38 +114,12 @@ public final class EventFactoryImpl implements EventFactory {
 	 * @param propertyValue - the value of the property to attach
 	 * @return - the new event string
 	 */
-	private String attachProperty(String event, String propertyName, String propertyValue) {
+	private String attachXmlProperty(String event, String propertyName, String propertyValue) {
 		return String.format(
 				"%1$s"
 				+ "<%2$s>%3$s</%2$s>",
 				event,
 				propertyName,
 				propertyValue);
-	}
-
-	/**
-	 * This method posts a given event (in its xml representation) to the eventProcessingPlatform.
-	 * @param xmlEvent - the xml event to post
-	 * @return - the feedback of the eventProcessingPlatform
-	 */
-	private EventPlatformFeedback postToProcessingPlatform(String xmlEvent) {
-		RestRequest postRequest = RestRequestFactoryImpl.getInstance()
-				.createPostRequest(EventProcessingPlatformUpdater.getHost(), EventFactory.getPostEventUri());
-
-		postRequest.setContent(xmlEvent);
-
-		return new EventPlatformFeedbackImpl(postRequest);
-	}
-
-	/**
-	 * This method posts a given event (in its json representation) to the internal eventReceiver.
-	 * @param eventType - the eventType of the event
-	 * @param jsonEvent - the event to post
-	 */
-	private void postToEventReceiver(EventType eventType, JsonObject jsonEvent) {
-		RestRequest postRequest = RestRequestFactoryImpl.getInstance()
-				.createPostRequest(String.format("http://localhost:%1$d", Argos.getPort()), EventReceiver.getReceiveEventUri(eventType.getId()));
-
-		postRequest.setContent(serializer.toJson(jsonEvent));
 	}
 }
