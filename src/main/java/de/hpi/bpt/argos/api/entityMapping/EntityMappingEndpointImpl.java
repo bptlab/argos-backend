@@ -9,6 +9,7 @@ import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpointImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
+import de.hpi.bpt.argos.storage.dataModel.event.type.StatusUpdatedEventType;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMappingImpl;
 import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
@@ -19,7 +20,6 @@ import de.hpi.bpt.argos.util.RestEndpointUtil;
 import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import spark.HaltException;
 import spark.Request;
 import spark.Response;
 import spark.Service;
@@ -177,6 +177,10 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
 	 * @param mapping - the eventEntityMapping to check
 	 */
 	private void checkValidMapping(EventEntityMapping mapping) {
+		if (mapping.getEventTypeId() == StatusUpdatedEventType.getInstance().getId()) {
+			halt(HttpStatusCodes.FORBIDDEN, "you may not create mappings for this event type");
+		}
+
 		if (PersistenceAdapterImpl.getInstance().getEntityType(mapping.getEntityTypeId()) == null) {
 			halt(HttpStatusCodes.BAD_REQUEST, "the given entityType does not exist");
 		}
@@ -213,7 +217,7 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
 			String mappingsUri =  EventTypeEndpoint.getEventTypeEntityMappingsUri(newMapping.getEventTypeId());
 			PersistenceAdapterImpl.getInstance().createArtifact(newMapping, mappingsUri);
 
-        } catch (ClassCastException | IllegalStateException | HaltException e) {
+        } catch (ClassCastException | IllegalStateException e) {
             LoggerUtilImpl.getInstance().error(logger, JSON_PARSE_ERROR_MESSAGE, e);
 
             if (newMapping.getId() != 0) {
@@ -256,6 +260,11 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
 	 * @param conditions - the list of mappingConditions to check
 	 */
 	private void checkValidMappingConditions(EventEntityMapping mapping, List<MappingCondition> conditions) {
+
+		if (mapping.getEventTypeId() == StatusUpdatedEventType.getInstance().getId()) {
+			halt(HttpStatusCodes.FORBIDDEN, "you may not create mappings for this event type");
+		}
+
 		List<Long> eventTypeAttributeIds = new ArrayList<>();
 		List<Long> entityTypeAttributeIds = new ArrayList<>();
 

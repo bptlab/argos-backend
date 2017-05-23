@@ -10,6 +10,7 @@ import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.PersistenceArtifactUpdateType;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
+import de.hpi.bpt.argos.storage.dataModel.event.type.StatusUpdatedEventType;
 import de.hpi.bpt.argos.testUtil.ArgosTestUtil;
 import de.hpi.bpt.argos.testUtil.WebSocket;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
@@ -63,6 +64,19 @@ public class EventQueryEndpointTest extends ArgosTestParent {
 		assertEquals(newEventQuery.getTypeId(), createdQuery.getTypeId());
 		assertEquals(newEventQuery.getDescription(), createdQuery.getDescription());
 		assertEquals(newEventQuery.getQuery(), createdQuery.getQuery());
+	}
+
+	@Test
+	public void testCreateEventQuery_StatusUpdateEventType_Forbidden() {
+		EventQuery newEventQuery = ArgosTestUtil.createEventQuery(StatusUpdatedEventType.getInstance(), false);
+
+		RestRequest request = RestRequestFactoryImpl.getInstance().createPostRequest(ARGOS_REST_HOST, getCreateEventQueryUri());
+
+		JsonObject eventQueryJson = createEventQueryJson(newEventQuery, true);
+
+		request.setContent(serializer.toJson(eventQueryJson));
+
+		assertEquals(HttpStatusCodes.FORBIDDEN, request.getResponseCode());
 	}
 
 	@Test

@@ -11,6 +11,7 @@ import de.hpi.bpt.argos.storage.PersistenceArtifactUpdateType;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityType;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
+import de.hpi.bpt.argos.storage.dataModel.event.type.StatusUpdatedEventType;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.testUtil.ArgosTestUtil;
@@ -70,6 +71,21 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 
 		EventEntityMapping createdMapping = PersistenceAdapterImpl.getInstance().getEventEntityMapping(notification.get("ArtifactId").getAsLong());
 		assertMapping(createdMapping, targetStatus);
+	}
+
+	@Test
+	public void testCreateEntityMapping_StatusUpdateEventType_Forbidden() {
+		EventType statusUpdatedEventType = StatusUpdatedEventType.getInstance();
+		List<TypeAttribute> statusUpdatedTypeAttributes = PersistenceAdapterImpl.getInstance()
+				.getTypeAttributes(statusUpdatedEventType.getId());
+
+		RestRequest request = RestRequestFactoryImpl.getInstance().createPostRequest(ARGOS_REST_HOST, getCreateEntityMappingUri());
+
+		JsonObject newMapping = createNewMappingJson(statusUpdatedEventType, statusUpdatedTypeAttributes, testEntityType, testEntityTypeAttributes);
+
+		request.setContent(serializer.toJson(newMapping));
+
+		assertEquals(HttpStatusCodes.FORBIDDEN, request.getResponseCode());
 	}
 
 	@Test
@@ -211,6 +227,25 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 	}
 
 	@Test
+	public void testEditEntityMapping_StatusUpdateEventType_Forbidden() {
+		EventType statusUpdatedEventType = StatusUpdatedEventType.getInstance();
+		List<TypeAttribute> statusUpdatedTypeAttributes = PersistenceAdapterImpl.getInstance().getTypeAttributes(statusUpdatedEventType.getId());
+		EventEntityMapping testMapping = ArgosTestUtil.createEventEntityMapping(testEventType, testEntityType, "", true);
+
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createPutRequest(ARGOS_REST_HOST, getEditEntityMappingUri(testMapping.getId()));
+
+		JsonObject updatedMapping = createNewMappingJson(statusUpdatedEventType,
+				statusUpdatedTypeAttributes,
+				testEntityType,
+				testEntityTypeAttributes);
+
+		request.setContent(serializer.toJson(updatedMapping));
+
+		assertEquals(HttpStatusCodes.FORBIDDEN, request.getResponseCode());
+	}
+
+	@Test
 	public void testEditEntityMapping_InvalidEntityTypeId_BadRequest() {
 		EventEntityMapping testMapping = createMappingWithConditions();
 		String oldStatus = testMapping.getTargetStatus();
@@ -328,17 +363,24 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 	}
 
 	private JsonObject createNewMappingJson() {
+		return createNewMappingJson(testEventType, testEventTypeAttributes, testEntityType, testEntityTypeAttributes);
+	}
+
+	private JsonObject createNewMappingJson(EventType eventType,
+											List<TypeAttribute> eventTypeAttributes,
+											EntityType entityType,
+											List<TypeAttribute> entityTypeAttributes) {
 		JsonObject newMapping = new JsonObject();
 
-		newMapping.addProperty("EventTypeId", testEventType.getId());
-		newMapping.addProperty("EntityTypeId", testEntityType.getId());
+		newMapping.addProperty("EventTypeId", eventType.getId());
+		newMapping.addProperty("EntityTypeId", entityType.getId());
 		newMapping.addProperty("TargetStatus", "NewStatus_" + ArgosTestUtil.getCurrentTimestamp());
 
 		JsonArray mappingConditions = new JsonArray();
 
 		JsonObject newMappingCondition = new JsonObject();
-		newMappingCondition.addProperty("EventTypeAttributeId", testEventTypeAttributes.get(0).getId());
-		newMappingCondition.addProperty("EntityTypeAttributeId", testEntityTypeAttributes.get(0).getId());
+		newMappingCondition.addProperty("EventTypeAttributeId", eventTypeAttributes.get(0).getId());
+		newMappingCondition.addProperty("EntityTypeAttributeId", entityTypeAttributes.get(0).getId());
 
 		mappingConditions.add(newMappingCondition);
 

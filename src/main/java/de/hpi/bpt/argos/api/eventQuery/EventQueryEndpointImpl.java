@@ -11,6 +11,7 @@ import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQueryImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
+import de.hpi.bpt.argos.storage.dataModel.event.type.StatusUpdatedEventType;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import de.hpi.bpt.argos.util.RestEndpointUtil;
@@ -195,6 +196,10 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
 	 * @param eventQuery - the query to check
 	 */
 	private void checkEventTypeExists(EventQuery eventQuery) {
+		if (eventQuery.getTypeId() == StatusUpdatedEventType.getInstance().getId()) {
+			halt(HttpStatusCodes.FORBIDDEN, "you may not create queries for this event type");
+		}
+
 		if (PersistenceAdapterImpl.getInstance().getEventType(eventQuery.getTypeId()) == null) {
 			halt(HttpStatusCodes.BAD_REQUEST, "event type id invalid");
 		}
