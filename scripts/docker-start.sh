@@ -2,8 +2,8 @@
 
 mvn clean install -DskipTests
 java -jar target/argos-backend.jar \
-    -DargosBackendExternalHost=${HOST} \
-    -DeventProcessingPlatformHost=${HOST} \
-    -DdatabaseConnectionHost=database \
-    -DdatabaseConnectionUsername=${MYSQL_USER} \
-    -DdatabaseConnectionPassword=${MYSQL_ROOT_PASSWORD}
+    argosBackendExternalHost=${HOST} \
+    eventProcessingPlatformHost=${HOST} \
+    databaseConnectionHost=database:3306 \
+    databaseConnectionUsername=${MYSQL_USER} \
+    databaseConnectionPassword=${MYSQL_ROOT_PASSWORD}
