@@ -178,6 +178,7 @@ public final class EventTypeParserImpl implements EventTypeParser {
 		PersistenceAdapterImpl.getInstance().saveArtifacts(newEventType);
 
 		Set<String> usedNames = new HashSet<>();
+		usedNames.add(timestampAttribute.getName());
 		Set<TypeAttribute> eventTypeAttributes = new HashSet<>();
 		for (Map.Entry<String, JsonElement> typeAttribute : jsonEventType.get(JSON_ATTRIBUTES).getAsJsonObject().entrySet()) {
 			if (usedNames.contains(typeAttribute.getKey())) {
