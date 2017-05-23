@@ -212,13 +212,7 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
 		List<EventQuery> queries = PersistenceAdapterImpl.getInstance().getEventQueries(eventTypeId);
 
 		for (EventQuery query : queries) {
-			JsonObject jsonTypeAttribute = new JsonObject();
-
-			jsonTypeAttribute.addProperty("Id", query.getId());
-			jsonTypeAttribute.addProperty("Description", query.getDescription());
-			jsonTypeAttribute.addProperty("Query", query.getQuery());
-
-			jsonTypeQueriesArray.add(jsonTypeAttribute);
+			jsonTypeQueriesArray.add(RestEndpointCommon.getEventQueryJson(query));
 		}
 
 		return serializer.toJson(jsonTypeQueriesArray);

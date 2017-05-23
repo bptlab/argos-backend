@@ -14,6 +14,14 @@ import java.util.Objects;
 public interface EventQueryEndpoint extends RestEndpoint {
 
     /**
+     * This method is called via API and returns a single eventQuery, specified by its id.
+     * @param request - Spark defined parameter containing request object
+     * @param response - Spark defined parameter containing response object
+     * @return - the eventQuery as json
+     */
+    String getEventQuery(Request request, Response response);
+
+    /**
      * This method is called via API and creates an event query to an event type.
      * @param request - Spark defined parameter containing request object
      * @param response - Spark defined parameter containing response object
@@ -46,6 +54,14 @@ public interface EventQueryEndpoint extends RestEndpoint {
     }
 
     /**
+     * This method returns the basic URI to get an event query.
+     * @return - the URI to get an event query
+     */
+    static String getEventQueryBasiUri() {
+	    return String.format("%1$s/%2$s", getEventQueryEndpointBaseUri(), getEventQueryIdParameter(true));
+    }
+
+    /**
      * This method returns the basic URI to create an event query for an event type.
      * @return - the URI to create an event query
      */
@@ -67,6 +83,15 @@ public interface EventQueryEndpoint extends RestEndpoint {
      */
     static String getEditEventQueryBaseUri() {
         return  String.format("%1$s/%2$s/edit", getEventQueryEndpointBaseUri(), getEventQueryIdParameter(true));
+    }
+
+    /**
+     * This method returns the URI to get an event query.
+     * @param eventQueryId - the id of the event query to be searched for
+     * @return - the URI to get an event query
+     */
+    static String getEventQueryUri(long eventQueryId) {
+        return getEventQueryBasiUri().replaceAll(getEventQueryIdParameter(true), Objects.toString(eventQueryId, "0"));
     }
 
     /**

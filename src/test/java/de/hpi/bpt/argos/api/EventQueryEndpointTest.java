@@ -32,6 +32,33 @@ public class EventQueryEndpointTest extends ArgosTestParent {
 	}
 
 	@Test
+	public void testGetEventQuery() {
+		EventQuery testQuery = ArgosTestUtil.createEventQuery(testEventType, true);
+
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createGetRequest(ARGOS_REST_HOST, getEventQueryUri(testQuery.getId()));
+
+		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+
+		JsonObject jsonQuery = jsonParser.parse(request.getResponse()).getAsJsonObject();
+
+		assertEquals(testQuery.getId(), jsonQuery.get("Id").getAsLong());
+		assertEquals(testEventType.getId(), jsonQuery.get("TypeId").getAsLong());
+		assertEquals(testQuery.getDescription(), jsonQuery.get("Description").getAsString());
+		assertEquals(testQuery.getQuery(), jsonQuery.get("Query").getAsString());
+	}
+
+	@Test
+	public void testGetEventQuery_InvalidId_NotFound() {
+		EventQuery testQuery = ArgosTestUtil.createEventQuery(testEventType, true);
+
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createGetRequest(ARGOS_REST_HOST, getEventQueryUri(testQuery.getId() + 1));
+
+		assertEquals(HttpStatusCodes.NOT_FOUND, request.getResponseCode());
+	}
+
+	@Test
 	public void testCreateEventQuery() throws Exception {
 		EventQuery newEventQuery = ArgosTestUtil.createEventQuery(testEventType, false);
 
@@ -259,6 +286,11 @@ public class EventQueryEndpointTest extends ArgosTestParent {
 
 	private int getEventQueriesCount(long eventTypeId) {
 		return PersistenceAdapterImpl.getInstance().getEventQueries(eventTypeId).size();
+	}
+
+	private String getEventQueryUri(Object eventQueryId) {
+		return EventQueryEndpoint.getEventQueryBasiUri()
+				.replaceAll(EventQueryEndpoint.getEventQueryIdParameter(true), eventQueryId.toString());
 	}
 
 	private String getCreateEventQueryUri() {

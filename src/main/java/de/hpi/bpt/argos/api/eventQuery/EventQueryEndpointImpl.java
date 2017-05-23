@@ -1,8 +1,10 @@
 package de.hpi.bpt.argos.api.eventQuery;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import de.hpi.bpt.argos.api.RestEndpointCommon;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpointImpl;
 import de.hpi.bpt.argos.common.EventPlatformFeedback;
@@ -28,7 +30,7 @@ import static spark.Spark.halt;
  * This is the implementation.
  */
 public class EventQueryEndpointImpl  implements EventQueryEndpoint {
-
+	private static final Gson serializer = new Gson();
 
     private static final Logger logger = LoggerFactory.getLogger(EventTypeEndpointImpl.class);
     private static final RestEndpointUtil endpointUtil = RestEndpointUtilImpl.getInstance();
@@ -41,6 +43,10 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
      */
     @Override
     public void setup(Service sparkService) {
+    	sparkService.get(EventQueryEndpoint.getEventQueryBasiUri(),
+				(Request request, Response response) ->
+						endpointUtil.executeRequest(logger, request, response, this::getEventQuery));
+
         sparkService.post(EventQueryEndpoint.getCreateEventQueryBaseUri(),
 				(Request request, Response response) ->
 						endpointUtil.executeRequest(logger, request, response, this::createEventQuery));
@@ -54,7 +60,22 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
 						endpointUtil.executeRequest(logger, request, response, this::editEventQuery));
     }
 
-    /**
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEventQuery(Request request, Response response) {
+		long eventQueryId = getEventQueryId(request);
+		EventQuery eventQuery = PersistenceAdapterImpl.getInstance().getEventQuery(eventQueryId);
+
+		if (eventQuery == null) {
+			halt(HttpStatusCodes.NOT_FOUND, "cannot find event query");
+		}
+
+		return serializer.toJson(RestEndpointCommon.getEventQueryJson(eventQuery));
+	}
+
+	/**
      * {@inheritDoc}
      */
     @Override

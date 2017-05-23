@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
+import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
@@ -88,6 +89,22 @@ public final class RestEndpointCommon {
 		}
 
 		return jsonEventEntityMappings;
+	}
+
+	/**
+	 * This method returns the json representation of an eventQuery.
+	 * @param eventQuery - the eventQuery to convert
+	 * @return - the json representation of the given eventQuery
+	 */
+	public static JsonObject getEventQueryJson(EventQuery eventQuery) {
+		JsonObject jsonQuery = new JsonObject();
+
+		jsonQuery.addProperty("Id", eventQuery.getId());
+		jsonQuery.addProperty("TypeId", eventQuery.getTypeId());
+		jsonQuery.addProperty("Description", eventQuery.getDescription());
+		jsonQuery.addProperty("Query", eventQuery.getQuery());
+
+		return jsonQuery;
 	}
 
 	/**
