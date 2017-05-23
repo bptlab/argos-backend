@@ -97,7 +97,7 @@ public final class StatusUpdatedEventType extends EventTypeImpl {
 	}
 
 	/**
-	 * This method creates the statusUpdatedEventType in the database
+	 * This method creates the statusUpdatedEventType in the database.
 	 * @return - the newly created statusUpdateEventType
 	 */
 	private static EventType create() {
@@ -150,13 +150,12 @@ public final class StatusUpdatedEventType extends EventTypeImpl {
 	 * @param argos - the argos instance to use for mapping
 	 */
 	private static void registerCustomMapping(Argos argos) {
-		EventCreationObserver customMapping = new EventCreationObserver() {
-			@Override
-			public void onEventCreated(EventEntityMappingStatus mappingStatus,
-									   EventType eventType,
-									   List<TypeAttribute> eventTypeAttributes,
-									   Event event,
-									   List<Attribute> eventAttributes) {
+		EventCreationObserver customMapping =
+				(EventEntityMappingStatus mappingStatus,
+				 EventType eventType,
+				 List<TypeAttribute> eventTypeAttributes,
+				 Event event,
+				 List<Attribute> eventAttributes) -> {
 
 				if (mappingStatus.isMapped() || eventType.getId() != getInstance().getId()) {
 					return;
@@ -177,9 +176,7 @@ public final class StatusUpdatedEventType extends EventTypeImpl {
 				Entity entity = PersistenceAdapterImpl.getInstance().getEntity(entityId);
 				mappingStatus.setEventOwner(entity);
 				mappingStatus.getStatusUpdateStatus().setNewStatus(newStatusAttribute.getValue());
-
-			}
-		};
+			};
 
 		try {
 			argos.addEventEntityMapper(customMapping);
