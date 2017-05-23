@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.eventProcessing.creation;
 
+import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.common.EventPlatformFeedback;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
@@ -8,10 +9,27 @@ import de.hpi.bpt.argos.util.Pair;
 /**
  * This interface offers method to create events, which can be send to the eventProcessingPlatform.
  */
-@FunctionalInterface
 public interface EventFactory {
 
 	String EVENT_PROCESSING_PLATFORM_POST_EVENT_URI_PROPERTY_KEY = "eventProcessingPlatformPostEventUri";
+
+	/**
+	 * This method creates a json representation of an event.
+	 * @param eventType - the eventType of the event to create
+	 * @param timestampName - the name of the timestampAttribute
+	 * @param attributes - a list of Name -> Value attributes for the event
+	 * @return - a json representation of an event
+	 */
+	JsonObject createEventJson(EventType eventType, String timestampName, Pair<String, Object>... attributes);
+
+	/**
+	 * This method creates a xml representation of an event.
+	 * @param eventType - the eventType of the event to create
+	 * @param timestampName - the name of the timestampAttribute
+	 * @param attributes - a list of Name -> Value attributes for the event
+	 * @return - a xml representation of an event
+	 */
+	String createEventXml(EventType eventType, String timestampName, Pair<String, Object>... attributes);
 
 	/**
 	 * This method creates and sends an event to the eventProcessingPlatform.

@@ -13,6 +13,7 @@ import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.testUtil.ArgosTestUtil;
 import de.hpi.bpt.argos.testUtil.WebSocket;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -28,7 +29,13 @@ public class EventQueryEndpointTest extends ArgosTestParent {
 
 	@BeforeClass
 	public static void initialize() {
+		ArgosTestParent.setup();
 		testEventType = ArgosTestUtil.createEventType(true, true);
+	}
+
+	@AfterClass
+	public static void tearDown() {
+		ArgosTestParent.tearDown();
 	}
 
 	@Test

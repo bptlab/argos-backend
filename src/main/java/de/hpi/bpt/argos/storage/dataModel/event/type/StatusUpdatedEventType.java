@@ -29,14 +29,14 @@ import java.util.List;
 public final class StatusUpdatedEventType extends EventTypeImpl {
 	private static final Logger logger = LoggerFactory.getLogger(StatusUpdatedEventType.class);
 
-	private static final String NAME = "StatusUpdatedEventType";
+	public static final String NAME = "StatusUpdatedEventType";
+
 	private static final String TIMESTAMP_ATTRIBUTE_NAME = "Timestamp";
 	private static final String OLD_STATUS_ATTRIBUTE_NAME = "OldStatus";
 	private static final String NEW_STATUS_ATTRIBUTE_NAME = "NewStatus";
 	private static final String CAUSE_EVENT_ID_ATTRIBUTE_NAME = "CauseEventId";
 	private static final String CAUSE_EVENT_TYPE_ID_ATTRIBUTE_NAME = "CauseEventTypeId";
 	private static final String ENTITY_ID_ATTRIBUTE_NAME = "EntityId";
-	private static EventType instance;
 
 	/**
 	 * This constructor hides the default public one to implement the singleton pattern.
@@ -51,17 +51,14 @@ public final class StatusUpdatedEventType extends EventTypeImpl {
 	 * @return - the statusUpdatedEventType
 	 */
 	public static EventType setup(Argos argos) {
+		EventType instance = getInstance();
+
 		if (instance != null) {
 			return instance;
 		}
 
-		instance = PersistenceAdapterImpl.getInstance().getEventType(NAME);
-
-		if (instance == null) {
-			instance = create();
-			registerCustomMapping(argos);
-		}
-
+		instance = create();
+		registerCustomMapping(argos);
 		return instance;
 	}
 
@@ -70,12 +67,7 @@ public final class StatusUpdatedEventType extends EventTypeImpl {
 	 * @return - the statusUpdatedEventType
 	 */
 	public static EventType getInstance() {
-		if (instance != null) {
-			return instance;
-		}
-
-		instance = PersistenceAdapterImpl.getInstance().getEventType(NAME);
-		return instance;
+		return PersistenceAdapterImpl.getInstance().getEventType(NAME);
 	}
 
 	/**
@@ -88,12 +80,20 @@ public final class StatusUpdatedEventType extends EventTypeImpl {
 	 */
 	public static EventPlatformFeedback postEvent(Entity entity, String oldStatus, String newStatus, Event statusUpdateTrigger) {
 
-		return EventFactoryImpl.getInstance().postEvent(getInstance(), TIMESTAMP_ATTRIBUTE_NAME,
+		EventPlatformFeedback feedback = EventFactoryImpl.getInstance().postEvent(getInstance(), TIMESTAMP_ATTRIBUTE_NAME,
 				new PairImpl<>(OLD_STATUS_ATTRIBUTE_NAME, oldStatus),
 				new PairImpl<>(NEW_STATUS_ATTRIBUTE_NAME, newStatus),
 				new PairImpl<>(CAUSE_EVENT_ID_ATTRIBUTE_NAME, statusUpdateTrigger.getId()),
 				new PairImpl<>(CAUSE_EVENT_TYPE_ID_ATTRIBUTE_NAME, statusUpdateTrigger.getTypeId()),
 				new PairImpl<>(ENTITY_ID_ATTRIBUTE_NAME, entity.getId()));
+
+		logger.info(String.format("sending status update event: entity: '%1$s' status: '%2$s' -> '%3$s' : response '%4$s'",
+				entity.getName(),
+				oldStatus,
+				newStatus,
+				feedback.getResponseText()));
+
+		return feedback;
 	}
 
 	/**
@@ -158,7 +158,7 @@ public final class StatusUpdatedEventType extends EventTypeImpl {
 									   Event event,
 									   List<Attribute> eventAttributes) {
 
-				if (mappingStatus.isMapped() || eventType.getId() != instance.getId()) {
+				if (mappingStatus.isMapped() || eventType.getId() != getInstance().getId()) {
 					return;
 				}
 
@@ -182,7 +182,7 @@ public final class StatusUpdatedEventType extends EventTypeImpl {
 		};
 
 		try {
-			argos.removeEventEntityMapper(customMapping);
+			argos.addEventEntityMapper(customMapping);
 		} catch (ArgosNotRunningException e) {
 			LoggerUtilImpl.getInstance().error(logger, "cannot register custom mapping for statusUpdatedEventType", e);
 		}

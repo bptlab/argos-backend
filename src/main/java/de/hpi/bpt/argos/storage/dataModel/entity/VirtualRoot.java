@@ -1,5 +1,7 @@
 package de.hpi.bpt.argos.storage.dataModel.entity;
 
+import de.hpi.bpt.argos.storage.dataModel.event.Event;
+
 /**
  * This is the virtual root node for the entity hierarchy.
  */
@@ -58,7 +60,7 @@ public final class VirtualRoot extends EntityImpl {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setStatus(String status) {
+	public void setStatus(String status, Event statusUpdateTrigger) {
 		// empty, since this should not be changed
 	}
 }

@@ -17,6 +17,7 @@ import de.hpi.bpt.argos.storage.dataModel.event.Event;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.testUtil.ArgosTestUtil;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -41,6 +42,7 @@ public class EntityEndpointTest extends ArgosTestParent {
 
 	@BeforeClass
 	public static void initialize() {
+		ArgosTestParent.setup();
 		testEntityType = ArgosTestUtil.createEntityType(true);
 		testEntityTypeAttributes = ArgosTestUtil.createEntityTypeAttributes(testEntityType, true);
 		testEntity = ArgosTestUtil.createEntity(testEntityType, true);
@@ -49,6 +51,11 @@ public class EntityEndpointTest extends ArgosTestParent {
 		testEventTypeAttributes = ArgosTestUtil.createEventTypeAttributes(testEventType, true);
 		testEvent = ArgosTestUtil.createEvent(testEventType, testEntity, true);
 		testEventAttributes = ArgosTestUtil.createEventAttributes(testEventType, testEvent, true);
+	}
+
+	@AfterClass
+	public static void tearDown() {
+		ArgosTestParent.tearDown();
 	}
 
 	@Test

@@ -16,6 +16,7 @@ import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.testUtil.ArgosTestUtil;
 import de.hpi.bpt.argos.testUtil.WebSocket;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -32,10 +33,16 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 
 	@BeforeClass
 	public static void initialize() {
+		ArgosTestParent.setup();
 		testEntityType = ArgosTestUtil.createEntityType(true);
 		testEntityTypeAttributes = ArgosTestUtil.createEntityTypeAttributes(testEntityType, true);
 		testEventType = ArgosTestUtil.createEventType(false, true);
 		testEventTypeAttributes = ArgosTestUtil.createEventTypeAttributes(testEventType, true);
+	}
+
+	@AfterClass
+	public static void tearDown() {
+		ArgosTestParent.tearDown();
 	}
 
 	@Test

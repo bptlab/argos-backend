@@ -14,6 +14,7 @@ import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.testUtil.ArgosTestUtil;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
 import de.hpi.bpt.argos.util.PairImpl;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -33,12 +34,18 @@ public class EntityTypeEndpointTest extends ArgosTestParent {
 
     @BeforeClass
     public static void initialize() {
+        ArgosTestParent.setup();
         root1 = ArgosTestUtil.createEntityType(true);
         root2 = ArgosTestUtil.createEntityType(true);
         childFirstLayer11 = ArgosTestUtil.createEntityType(root1, true);
         childFirstLayer12 = ArgosTestUtil.createEntityType(root1, true);
         childFirstLayer21 = ArgosTestUtil.createEntityType(root2, true);
         childSecondLayer111 = ArgosTestUtil.createEntityType(childFirstLayer11, true);
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        ArgosTestParent.tearDown();
     }
 
     @Test
@@ -82,11 +89,12 @@ public class EntityTypeEndpointTest extends ArgosTestParent {
     }
 
     @Test
-    public void testGetAttributes_InvalidId_BadRequest() {
+    public void testGetAttributes_InvalidId_Success() {
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createGetRequest(ARGOS_REST_HOST, EntityTypeEndpoint.getEntityTypeAttributesUri(root1.getId() - 1));
 
-        assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
+        assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+        assertEquals("[]", request.getResponse());
     }
 
     @Test
@@ -126,11 +134,12 @@ public class EntityTypeEndpointTest extends ArgosTestParent {
     }
 
     @Test
-    public void testGetMappings_InvalidId_BadRequest() {
+    public void testGetMappings_InvalidId_Success() {
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createGetRequest(ARGOS_REST_HOST, EntityTypeEndpoint.getEntityTypeEntityMappingsUri(root1.getId() - 1));
 
-        assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
+        assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+        assertEquals("[]", request.getResponse());
     }
 
     private void assertAllAttributesIncluded(List<TypeAttribute> attributes, JsonArray attributesArray) {

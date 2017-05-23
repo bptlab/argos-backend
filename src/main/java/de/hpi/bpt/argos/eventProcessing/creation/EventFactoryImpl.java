@@ -1,10 +1,14 @@
 package de.hpi.bpt.argos.eventProcessing.creation;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.common.EventPlatformFeedback;
 import de.hpi.bpt.argos.common.EventPlatformFeedbackImpl;
 import de.hpi.bpt.argos.common.EventProcessingPlatformUpdater;
 import de.hpi.bpt.argos.common.RestRequest;
 import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
+import de.hpi.bpt.argos.core.Argos;
+import de.hpi.bpt.argos.eventProcessing.EventReceiver;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.util.Pair;
 
@@ -17,6 +21,7 @@ import java.util.TimeZone;
  * This is the implementation.
  */
 public final class EventFactoryImpl implements EventFactory {
+	private static final Gson serializer = new Gson();
 
 	private static EventFactory instance;
 
@@ -46,21 +51,44 @@ public final class EventFactoryImpl implements EventFactory {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public EventPlatformFeedback postEvent(EventType eventType, String timestampName, Pair<String, Object>... attributes) {
+	public JsonObject createEventJson(EventType eventType, String timestampName, Pair<String, Object>[] attributes) {
+		JsonObject jsonEvent = new JsonObject();
+
+		jsonEvent.addProperty(timestampName, dateFormat.format(new Date()));
+
+		for (Pair<String, Object> attribute : attributes) {
+			jsonEvent.addProperty(attribute.getKey(), String.valueOf(attribute.getValue()));
+		}
+
+		return jsonEvent;
+	}
+
+	@Override
+	public String createEventXml(EventType eventType, String timestampName, Pair<String, Object>[] attributes) {
 		String eventString = attachProperty("", timestampName, dateFormat.format(new Date()));
 
 		for (Pair<String, Object> attribute : attributes) {
 			eventString = attachProperty(eventString, attribute.getKey(), String.valueOf(attribute.getValue()));
 		}
 
-		eventString = finishEvent(eventString, eventType.getName());
+		return finishEvent(eventString, eventType.getName());
+	}
 
-		RestRequest postRequest = RestRequestFactoryImpl.getInstance()
-				.createPostRequest(EventProcessingPlatformUpdater.getHost(), EventFactory.getPostEventUri());
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public EventPlatformFeedback postEvent(EventType eventType, String timestampName, Pair<String, Object>... attributes) {
+		String xmlEvent = createEventXml(eventType, timestampName, attributes);
 
-		postRequest.setContent(eventString);
+		EventPlatformFeedback feedback = postToProcessingPlatform(xmlEvent);
 
-		return new EventPlatformFeedbackImpl(postRequest);
+		if (!feedback.isSuccessful()) {
+			JsonObject jsonEvent = createEventJson(eventType, timestampName, attributes);
+			postToEventReceiver(eventType, jsonEvent);
+		}
+
+		return feedback;
 	}
 
 	/**
@@ -94,5 +122,31 @@ public final class EventFactoryImpl implements EventFactory {
 				event,
 				propertyName,
 				propertyValue);
+	}
+
+	/**
+	 * This method posts a given event (in its xml representation) to the eventProcessingPlatform.
+	 * @param xmlEvent - the xml event to post
+	 * @return - the feedback of the eventProcessingPlatform
+	 */
+	private EventPlatformFeedback postToProcessingPlatform(String xmlEvent) {
+		RestRequest postRequest = RestRequestFactoryImpl.getInstance()
+				.createPostRequest(EventProcessingPlatformUpdater.getHost(), EventFactory.getPostEventUri());
+
+		postRequest.setContent(xmlEvent);
+
+		return new EventPlatformFeedbackImpl(postRequest);
+	}
+
+	/**
+	 * This method posts a given event (in its json representation) to the internal eventReceiver.
+	 * @param eventType - the eventType of the event
+	 * @param jsonEvent - the event to post
+	 */
+	private void postToEventReceiver(EventType eventType, JsonObject jsonEvent) {
+		RestRequest postRequest = RestRequestFactoryImpl.getInstance()
+				.createPostRequest(String.format("http://localhost:%1$d", Argos.getPort()), EventReceiver.getReceiveEventUri(eventType.getId()));
+
+		postRequest.setContent(serializer.toJson(jsonEvent));
 	}
 }

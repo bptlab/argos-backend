@@ -1,6 +1,8 @@
 package de.hpi.bpt.argos.storage.dataModel.entity;
 
 import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifactImpl;
+import de.hpi.bpt.argos.storage.dataModel.event.Event;
+import de.hpi.bpt.argos.storage.dataModel.event.type.StatusUpdatedEventType;
 
 import javax.persistence.Column;
 import javax.persistence.Table;
@@ -82,7 +84,24 @@ public class EntityImpl extends PersistenceArtifactImpl implements Entity {
      * {@inheritDoc}
      */
     @Override
-    public void setStatus(String status) {
-        this.status = status;
+    public void setStatus(String status, Event statusChangeTrigger) {
+        if (this.status.equals(status)) {
+            return;
+        }
+
+		this.status = status;
+
+        // if we receive a statusUpdatedEvent from the eventProcessingPlatform we don't need to re-throw that event
+        if (statusChangeTrigger.getTypeId() != StatusUpdatedEventType.getInstance().getId()) {
+			StatusUpdatedEventType.postEvent(this, this.status, status, statusChangeTrigger);
+		}
     }
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setStatus(String status) {
+		this.status = status;
+	}
 }
