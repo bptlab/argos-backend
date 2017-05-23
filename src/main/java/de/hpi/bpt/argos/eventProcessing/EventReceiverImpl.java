@@ -3,8 +3,11 @@ package de.hpi.bpt.argos.eventProcessing;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.api.entity.EntityEndpoint;
+import de.hpi.bpt.argos.common.EventPlatformFeedback;
 import de.hpi.bpt.argos.common.Observable;
 import de.hpi.bpt.argos.common.ObservableImpl;
+import de.hpi.bpt.argos.common.RestRequest;
+import de.hpi.bpt.argos.common.RestRequestFactoryImpl;
 import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMappingStatus;
 import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMappingStatusImpl;
 import de.hpi.bpt.argos.eventProcessing.mapping.EventMappingObserver;
@@ -15,6 +18,7 @@ import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.event.Event;
 import de.hpi.bpt.argos.storage.dataModel.event.EventImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
+import de.hpi.bpt.argos.storage.dataModel.event.type.StatusUpdatedEventType;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
 import de.hpi.bpt.argos.util.RestEndpointUtil;
 import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
@@ -147,6 +151,7 @@ public class EventReceiverImpl implements EventReceiver {
 			int numberOfEvents = PersistenceAdapterImpl.getInstance().getEventCountOfEntity(eventCreationStatus.getEventOwner().getId(), eventType.getId());
 
 			if (eventCreationStatus.getStatusUpdateStatus().isStatusUpdated()) {
+				sendStatusUpdatedEvent(eventCreationStatus);
 				eventCreationStatus.getEventOwner().setStatus(eventCreationStatus.getStatusUpdateStatus().getNewStatus());
 				PersistenceAdapterImpl.getInstance()
 						.updateArtifact(eventCreationStatus.getEventOwner(), EntityEndpoint.getEntityUri(eventCreationStatus.getEventOwner().getId()));
@@ -163,5 +168,27 @@ public class EventReceiverImpl implements EventReceiver {
 
 			PersistenceAdapterImpl.getInstance().createEvent(event, eventCreationStatus.getEventOwner(), fetchUri);
 		}
+	}
+
+	/**
+	 * This method sends a statusUpdatedEvent to the eventProcessingPlatform.
+	 * @param mappingStatus - the mappingStatus
+	 */
+	private void sendStatusUpdatedEvent(EventEntityMappingStatus mappingStatus) {
+		if (!mappingStatus.getStatusUpdateStatus().isStatusUpdated()) {
+			return;
+		}
+
+		String oldStatus = mappingStatus.getStatusUpdateStatus().getOldStatus();
+		String newStatus = mappingStatus.getStatusUpdateStatus().getNewStatus();
+
+		EventPlatformFeedback feedback = StatusUpdatedEventType
+				.postEvent(mappingStatus.getEventOwner(), oldStatus, newStatus, mappingStatus.getEvent());
+
+		logger.info(String.format("sending status update event: entity: '%1$s' status: '%2$s' -> '%3$s' : response '%4$s'",
+				mappingStatus.getEventOwner().getName(),
+				oldStatus,
+				newStatus,
+				feedback.getResponseText()));
 	}
 }
