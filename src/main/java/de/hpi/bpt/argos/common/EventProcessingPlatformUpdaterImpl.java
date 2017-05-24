@@ -195,6 +195,7 @@ public final class EventProcessingPlatformUpdaterImpl implements EventProcessing
 				Thread.sleep(retryTime);
 			} catch (InterruptedException e) {
 				LoggerUtilImpl.getInstance().error(logger, "thread sleep was interrupted", e);
+				Thread.currentThread().interrupt();
 			}
 
 			reachable = RestRequestFactoryImpl.getInstance().isReachable(EventProcessingPlatformUpdater.getHost());
