@@ -4,7 +4,6 @@ package de.hpi.bpt.argos.common;
 import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
-import jdk.nashorn.internal.runtime.options.LoggingOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

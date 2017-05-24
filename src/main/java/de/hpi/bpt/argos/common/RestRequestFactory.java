@@ -1,7 +1,5 @@
 package de.hpi.bpt.argos.common;
 
-import java.net.URL;
-
 /**
  * This interface defines the factory used for creating RestRequest objects of different flavour. This implements the
  * factory pattern.
