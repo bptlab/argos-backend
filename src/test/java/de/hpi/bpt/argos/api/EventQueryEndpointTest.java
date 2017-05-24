@@ -289,7 +289,7 @@ public class EventQueryEndpointTest extends ArgosTestParent {
 	}
 
 	private String getEventQueryUri(Object eventQueryId) {
-		return EventQueryEndpoint.getEventQueryBasiUri()
+		return EventQueryEndpoint.getEventQueryBaseUri()
 				.replaceAll(EventQueryEndpoint.getEventQueryIdParameter(true), eventQueryId.toString());
 	}
 
