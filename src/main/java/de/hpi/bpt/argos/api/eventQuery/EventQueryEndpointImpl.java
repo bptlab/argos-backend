@@ -11,6 +11,7 @@ import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQueryImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
+import de.hpi.bpt.argos.storage.dataModel.event.type.StatusUpdatedEventType;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import de.hpi.bpt.argos.util.RestEndpointUtil;
@@ -70,7 +71,7 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
 			halt(HttpStatusCodes.BAD_REQUEST, "cannot parse event query");
 		}
 
-		checkEventTypeExists(eventQuery);
+		checkValidEventType(eventQuery);
 
 		EventPlatformFeedback feedback = EventProcessingPlatformUpdaterImpl.getInstance().registerEventQuery(eventQuery.getTypeId(), eventQuery);
 
@@ -191,10 +192,14 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
     }
 
 	/**
-	 * This method checks whether the eventType for a given eventQuery exists.
+	 * This method checks whether the eventType for a given eventQuery is valid.
 	 * @param eventQuery - the query to check
 	 */
-	private void checkEventTypeExists(EventQuery eventQuery) {
+	private void checkValidEventType(EventQuery eventQuery) {
+		if (eventQuery.getTypeId() == StatusUpdatedEventType.getInstance().getId()) {
+			halt(HttpStatusCodes.FORBIDDEN, "you may not create queries for this event type");
+		}
+
 		if (PersistenceAdapterImpl.getInstance().getEventType(eventQuery.getTypeId()) == null) {
 			halt(HttpStatusCodes.BAD_REQUEST, "event type id invalid");
 		}

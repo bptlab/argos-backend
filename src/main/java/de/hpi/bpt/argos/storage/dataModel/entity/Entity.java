@@ -1,6 +1,7 @@
 package de.hpi.bpt.argos.storage.dataModel.entity;
 
 import de.hpi.bpt.argos.storage.dataModel.PersistenceArtifact;
+import de.hpi.bpt.argos.storage.dataModel.event.Event;
 
 /**
  * This interface represents an entity. (e.g. Configurations of products)
@@ -49,7 +50,14 @@ public interface Entity extends PersistenceArtifact {
     String getStatus();
 
     /**
-     * This method sets the status of this entity.
+     * This method sets the status of this entity and sends a corresponding event to the eventProcessingPlatform.
+     * @param status - the status of this entity to be set
+     * @param statusChangeTrigger - the event, which caused the status change
+     */
+    void setStatus(String status, Event statusChangeTrigger);
+
+    /**
+     * This method sets the status of this entity. NOTE: This method will *NOT* send an event to the eventProcessingPlatform.
      * @param status - the status of this entity to be set
      */
     void setStatus(String status);

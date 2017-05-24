@@ -8,6 +8,8 @@ import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityType;
 import de.hpi.bpt.argos.storage.hierarchy.EntityHierarchyNode;
 import de.hpi.bpt.argos.storage.hierarchy.HierarchyBuilderImpl;
 import de.hpi.bpt.argos.testUtil.ArgosTestUtil;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -19,6 +21,16 @@ import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
 
 public class EntityHierarchyTest extends ArgosTestParent {
+
+	@BeforeClass
+	public static void initialize() {
+		ArgosTestParent.setup();
+	}
+
+	@AfterClass
+	public static void tearDown() {
+		ArgosTestParent.tearDown();
+	}
 
 	@Test
 	public void testGetEntityHierarchyRootNode() {

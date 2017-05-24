@@ -203,11 +203,18 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	int getEventCountOfEventType(long eventTypeId);
 
 	/**
-	 * This method returns a specific eventType, identified by it's id.
+	 * This method returns a specific eventType, identified by its id.
 	 * @param id - the unique identifier of the eventType
 	 * @return - the eventType or null
 	 */
 	EventType getEventType(long id);
+
+	/**
+	 * This method returns a specific eventType, identified by its name.
+	 * @param name - the name of the requested eventType
+	 * @return - the requested eventType or null
+	 */
+	EventType getEventType(String name);
 
 	/**
 	 * This method returns a list of all eventTypes.

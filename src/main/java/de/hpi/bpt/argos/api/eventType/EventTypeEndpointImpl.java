@@ -100,6 +100,11 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
     public String getEventType(Request request, Response response) {
         long eventTypeId = getEventTypeId(request);
         EventType eventType = PersistenceAdapterImpl.getInstance().getEventType(eventTypeId);
+
+        if (eventType == null) {
+        	halt(HttpStatusCodes.NOT_FOUND, "cannot find event type");
+		}
+
         JsonObject jsonEventType = RestEndpointCommon.getEventTypeJson(eventType);
 
         return serializer.toJson(jsonEventType);

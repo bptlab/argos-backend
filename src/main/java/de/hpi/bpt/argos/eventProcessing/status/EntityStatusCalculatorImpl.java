@@ -1,10 +1,7 @@
 package de.hpi.bpt.argos.eventProcessing.status;
 
-import de.hpi.bpt.argos.api.entity.EntityEndpoint;
 import de.hpi.bpt.argos.eventProcessing.EventReceiver;
 import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMappingStatus;
-import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
-import de.hpi.bpt.argos.storage.dataModel.entity.Entity;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 
 /**
@@ -31,20 +28,19 @@ public class EntityStatusCalculatorImpl implements EntityStatusCalculator {
 			return;
 		}
 
-		changeStatusBasedOnMapping(processStatus.getEventOwner(), processStatus.getUsedMapping());
+		changeStatusBasedOnMapping(processStatus);
 	}
 
 	/**
 	 * This method sets the new entity status according to the used mapping.
-	 * @param entity - the affected entity
-	 * @param mapping - the applied eventEntityMapping
+	 * @param processStatus - the current status of the mapping process
 	 */
-	private void changeStatusBasedOnMapping(Entity entity, EventEntityMapping mapping) {
-		if (mapping.getTargetStatus() == null || mapping.getTargetStatus().length() == 0) {
+	private void changeStatusBasedOnMapping(EventEntityMappingStatus processStatus) {
+		String targetStatus = processStatus.getUsedMapping().getTargetStatus();
+		if (targetStatus == null || targetStatus.length() == 0) {
 			return;
 		}
 
-		entity.setStatus(mapping.getTargetStatus());
-		PersistenceAdapterImpl.getInstance().updateArtifact(entity, EntityEndpoint.getEntityUri(entity.getId()));
+		processStatus.getStatusUpdateStatus().setNewStatus(targetStatus);
 	}
 }

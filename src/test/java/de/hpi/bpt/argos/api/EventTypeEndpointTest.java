@@ -14,12 +14,14 @@ import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityTypeImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
+import de.hpi.bpt.argos.storage.dataModel.event.type.StatusUpdatedEventType;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.testUtil.ArgosTestUtil;
 import de.hpi.bpt.argos.testUtil.WebSocket;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
 import de.hpi.bpt.argos.util.PairImpl;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -27,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -35,24 +38,38 @@ public class EventTypeEndpointTest extends ArgosTestParent {
 
     @BeforeClass
     public static void initialize() {
+        ArgosTestParent.setup();
         testEventType = ArgosTestUtil.createEventType(false, true);
     }
 
+	@AfterClass
+	public static void tearDown() {
+		ArgosTestParent.tearDown();
+	}
+
     @Test
     public void testGetEventTypes() {
+    	int eventTypesCount = PersistenceAdapterImpl.getInstance().getEventTypes().size();
+
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createGetRequest(ARGOS_REST_HOST, EventTypeEndpoint.getEventTypesBaseUri());
 
         assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
         JsonArray eventTypesArray = jsonParser.parse(request.getResponse()).getAsJsonArray();
-        assertEquals(1, eventTypesArray.size());
+        assertEquals(eventTypesCount, eventTypesArray.size());
 
-        JsonObject jsonEventType = eventTypesArray.get(0).getAsJsonObject();
-        assertEquals(testEventType.getId(), jsonEventType.get("Id").getAsLong());
-        assertEquals(testEventType.getName(), jsonEventType.get("Name").getAsString());
-        assertEquals(testEventType.getTimeStampAttributeId(), jsonEventType.get("TimestampAttributeId").getAsLong());
-        assertEquals(0, jsonEventType.get("NumberOfEvents").getAsInt());
+        for (JsonElement element : eventTypesArray) {
+        	JsonObject jsonEventType = element.getAsJsonObject();
+
+        	if (jsonEventType.get("Name").getAsString().equals(testEventType.getName())) {
+        		assertEventType(testEventType, jsonEventType);
+			} else if (jsonEventType.get("Name").getAsString().equals(StatusUpdatedEventType.NAME)) {
+        		assertEventType(StatusUpdatedEventType.getInstance(), jsonEventType);
+			} else {
+        		fail();
+			}
+		}
     }
 
     @Test
@@ -64,18 +81,15 @@ public class EventTypeEndpointTest extends ArgosTestParent {
 
         JsonObject responseJson =  jsonParser.parse(request.getResponse()).getAsJsonObject();
 
-        assertEquals(testEventType.getId(), responseJson.get("Id").getAsLong());
-        assertEquals(testEventType.getName(), responseJson.get("Name").getAsString());
-        assertEquals(testEventType.getTimeStampAttributeId(), responseJson.get("TimestampAttributeId").getAsLong());
-        assertEquals(0, responseJson.get("NumberOfEvents").getAsInt());
+        assertEventType(testEventType, responseJson);
     }
 
     @Test
-    public void testGetEventType_InvalidEventTypeId_BadRequest() {
+    public void testGetEventType_InvalidEventTypeId_NotFound() {
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createGetRequest(ARGOS_REST_HOST, EventTypeEndpoint.getEventTypeUri(testEventType.getId() - 1));
 
-        assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
+        assertEquals(HttpStatusCodes.NOT_FOUND, request.getResponseCode());
     }
 
     @Test
@@ -229,11 +243,12 @@ public class EventTypeEndpointTest extends ArgosTestParent {
     }
 
     @Test
-    public void testGetEventTypesAttributes_InvalidId_BadRequest() {
+    public void testGetEventTypesAttributes_InvalidId_Success() {
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createGetRequest(ARGOS_REST_HOST, EventTypeEndpoint.getEventTypeAttributesUri(testEventType.getId() - 1));
 
-        assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
+        assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+        assertEquals("[]", request.getResponse());
     }
 
     @Test
@@ -266,11 +281,12 @@ public class EventTypeEndpointTest extends ArgosTestParent {
     }
 
     @Test
-    public void testGetEventTypeQueries_InvalidId_BadRequest() {
+    public void testGetEventTypeQueries_InvalidId_Success() {
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createGetRequest(ARGOS_REST_HOST, EventTypeEndpoint.getEventTypeQueriesUri(testEventType.getId() - 1));
 
-        assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
+        assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+        assertEquals("[]", request.getResponse());
     }
 
     @Test
@@ -309,11 +325,12 @@ public class EventTypeEndpointTest extends ArgosTestParent {
     }
 
     @Test
-    public void testGetEventTypeEntityMappings_InvalidId_BadRequest() {
+    public void testGetEventTypeEntityMappings_InvalidId_Success() {
         RestRequest request = RestRequestFactoryImpl.getInstance()
                 .createGetRequest(ARGOS_REST_HOST, EventTypeEndpoint.getEventTypeEntityMappingsUri(testEventType.getId() - 1));
 
-        assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
+        assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+        assertEquals("[]", request.getResponse());
     }
 
     private JsonObject createEventTypeJson(EventType newEventType, boolean valid) {
@@ -358,4 +375,13 @@ public class EventTypeEndpointTest extends ArgosTestParent {
         }
         return artifactDeleted;
     }
+
+    private void assertEventType(EventType expected, JsonObject actual) {
+    	int eventsCount = PersistenceAdapterImpl.getInstance().getEventCountOfEventType(expected.getId());
+
+		assertEquals(expected.getId(), actual.get("Id").getAsLong());
+		assertEquals(expected.getName(), actual.get("Name").getAsString());
+		assertEquals(expected.getTimeStampAttributeId(), actual.get("TimestampAttributeId").getAsLong());
+		assertEquals(eventsCount, actual.get("NumberOfEvents").getAsInt());
+	}
 }

@@ -4,8 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.common.EventProcessingPlatformUpdater;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 
 public class ArgosTestParent {
 	public static final int ARGOS_PORT = 9001;
@@ -18,7 +16,6 @@ public class ArgosTestParent {
 
 	protected static Argos argos;
 
-	@BeforeClass
 	public static void setup() {
 		argos = new ArgosImpl();
 
@@ -34,7 +31,6 @@ public class ArgosTestParent {
 		argos.start();
 	}
 
-	@AfterClass
 	public static void tearDown() {
 		argos.stop();
 	}

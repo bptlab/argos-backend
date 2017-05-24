@@ -8,6 +8,7 @@ import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
+import de.hpi.bpt.argos.storage.dataModel.event.type.StatusUpdatedEventType;
 import de.hpi.bpt.argos.util.XSDParserImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,8 +48,9 @@ public final class EventProcessingPlatformUpdaterImpl implements EventProcessing
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setup() {
+	public void setup(Argos argos) {
 		List<EventType> eventTypes = PersistenceAdapterImpl.getInstance().getEventTypes();
+		eventTypes.add(StatusUpdatedEventType.setup(argos));
 
 		for (EventType eventType : eventTypes) {
 			if (!registerEventType(eventType).isSuccessful()) {
