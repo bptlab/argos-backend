@@ -89,11 +89,12 @@ public class EntityImpl extends PersistenceArtifactImpl implements Entity {
             return;
         }
 
+        String oldStatus = this.status;
 		this.status = status;
 
         // if we receive a statusUpdatedEvent from the eventProcessingPlatform we don't need to re-throw that event
         if (statusChangeTrigger.getTypeId() != StatusUpdatedEventType.getInstance().getId()) {
-			StatusUpdatedEventType.postEvent(this, this.status, status, statusChangeTrigger);
+			StatusUpdatedEventType.postEvent(this, oldStatus, status, statusChangeTrigger);
 		}
     }
 

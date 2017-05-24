@@ -38,6 +38,8 @@ public final class StatusUpdatedEventType extends EventTypeImpl {
 	private static final String CAUSE_EVENT_TYPE_ID_ATTRIBUTE_NAME = "CauseEventTypeId";
 	private static final String ENTITY_ID_ATTRIBUTE_NAME = "EntityId";
 
+	private static EventType instance;
+
 	/**
 	 * This constructor hides the default public one to implement the singleton pattern.
 	 */
@@ -51,7 +53,7 @@ public final class StatusUpdatedEventType extends EventTypeImpl {
 	 * @return - the statusUpdatedEventType
 	 */
 	public static EventType setup(Argos argos) {
-		EventType instance = getInstance();
+		instance = PersistenceAdapterImpl.getInstance().getEventType(NAME);
 
 		if (instance != null) {
 			return instance;
@@ -67,7 +69,7 @@ public final class StatusUpdatedEventType extends EventTypeImpl {
 	 * @return - the statusUpdatedEventType
 	 */
 	public static EventType getInstance() {
-		return PersistenceAdapterImpl.getInstance().getEventType(NAME);
+		return instance;
 	}
 
 	/**
@@ -161,7 +163,7 @@ public final class StatusUpdatedEventType extends EventTypeImpl {
 					return;
 				}
 
-				long entityId = getAsLong(getAttribute(ENTITY_ID_ATTRIBUTE_NAME, eventTypeAttributes, eventAttributes));
+				long entityId = getValueAsLong(getAttribute(ENTITY_ID_ATTRIBUTE_NAME, eventTypeAttributes, eventAttributes));
 
 				if (entityId == 0) {
 					return;
@@ -213,7 +215,7 @@ public final class StatusUpdatedEventType extends EventTypeImpl {
 	 * @param attribute - the attribute which value should be converted
 	 * @return - the converted attribute value
 	 */
-	private static long getAsLong(Attribute attribute) {
+	private static long getValueAsLong(Attribute attribute) {
 		if (attribute == null) {
 			return 0;
 		}

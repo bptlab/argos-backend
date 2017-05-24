@@ -1,6 +1,5 @@
 package de.hpi.bpt.argos.eventProcessing.creation;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import de.hpi.bpt.argos.common.EventPlatformFeedback;
 import de.hpi.bpt.argos.common.EventPlatformFeedbackImpl;
@@ -19,8 +18,6 @@ import java.util.TimeZone;
  * This is the implementation.
  */
 public final class EventFactoryImpl implements EventFactory {
-	private static final Gson serializer = new Gson();
-
 	private static EventFactory instance;
 
 	private SimpleDateFormat dateFormat;

@@ -2,6 +2,7 @@ package de.hpi.bpt.argos.eventProcessing.status;
 
 import de.hpi.bpt.argos.eventProcessing.EventReceiver;
 import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMappingStatus;
+import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 
 /**
  * {@inheritDoc}
@@ -35,10 +36,11 @@ public class EntityStatusCalculatorImpl implements EntityStatusCalculator {
 	 * @param processStatus - the current status of the mapping process
 	 */
 	private void changeStatusBasedOnMapping(EventEntityMappingStatus processStatus) {
-		if (processStatus.getUsedMapping().getTargetStatus() == null || processStatus.getUsedMapping().getTargetStatus().length() == 0) {
+		EventEntityMapping mapping = processStatus.getUsedMapping();
+		if (mapping.getTargetStatus() == null || mapping.getTargetStatus().length() == 0) {
 			return;
 		}
 
-		processStatus.getStatusUpdateStatus().setNewStatus(processStatus.getUsedMapping().getTargetStatus());
+		processStatus.getStatusUpdateStatus().setNewStatus(mapping.getTargetStatus());
 	}
 }

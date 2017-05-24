@@ -71,7 +71,7 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
 			halt(HttpStatusCodes.BAD_REQUEST, "cannot parse event query");
 		}
 
-		checkEventTypeExists(eventQuery);
+		checkValidEventType(eventQuery);
 
 		EventPlatformFeedback feedback = EventProcessingPlatformUpdaterImpl.getInstance().registerEventQuery(eventQuery.getTypeId(), eventQuery);
 
@@ -192,10 +192,10 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
     }
 
 	/**
-	 * This method checks whether the eventType for a given eventQuery exists.
+	 * This method checks whether the eventType for a given eventQuery is valid.
 	 * @param eventQuery - the query to check
 	 */
-	private void checkEventTypeExists(EventQuery eventQuery) {
+	private void checkValidEventType(EventQuery eventQuery) {
 		if (eventQuery.getTypeId() == StatusUpdatedEventType.getInstance().getId()) {
 			halt(HttpStatusCodes.FORBIDDEN, "you may not create queries for this event type");
 		}

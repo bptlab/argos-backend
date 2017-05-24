@@ -63,4 +63,12 @@ public final class VirtualRoot extends EntityImpl {
 	public void setStatus(String status, Event statusUpdateTrigger) {
 		// empty, since this should not be changed
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setStatus(String status) {
+		// empty, since this should not be changed
+	}
 }

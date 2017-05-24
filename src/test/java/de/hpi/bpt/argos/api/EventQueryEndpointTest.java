@@ -68,6 +68,7 @@ public class EventQueryEndpointTest extends ArgosTestParent {
 
 	@Test
 	public void testCreateEventQuery_StatusUpdateEventType_Forbidden() {
+		int eventQueriesCount = getEventQueriesCount(StatusUpdatedEventType.getInstance().getId());
 		EventQuery newEventQuery = ArgosTestUtil.createEventQuery(StatusUpdatedEventType.getInstance(), false);
 
 		RestRequest request = RestRequestFactoryImpl.getInstance().createPostRequest(ARGOS_REST_HOST, getCreateEventQueryUri());
@@ -77,6 +78,7 @@ public class EventQueryEndpointTest extends ArgosTestParent {
 		request.setContent(serializer.toJson(eventQueryJson));
 
 		assertEquals(HttpStatusCodes.FORBIDDEN, request.getResponseCode());
+		assertEquals(eventQueriesCount, getEventQueriesCount(StatusUpdatedEventType.getInstance().getId()));
 	}
 
 	@Test
