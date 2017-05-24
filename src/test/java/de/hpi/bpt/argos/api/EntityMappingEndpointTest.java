@@ -47,6 +47,38 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 	}
 
 	@Test
+	public void testGetMapping() {
+		EventEntityMapping testMapping = createMappingWithConditions();
+
+		RestRequest request = RestRequestFactoryImpl.getInstance().createGetRequest(ARGOS_REST_HOST, getEntityMappingUri(testMapping.getId()));
+
+		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+
+		JsonObject jsonMapping = jsonParser.parse(request.getResponse()).getAsJsonObject();
+
+		assertEquals(testMapping.getId(), jsonMapping.get("Id").getAsLong());
+		assertEquals(testEventType.getId(), jsonMapping.get("EventTypeId").getAsLong());
+		assertEquals(testEntityType.getId(), jsonMapping.get("EntityTypeId").getAsLong());
+		assertEquals(testMapping.getTargetStatus(), jsonMapping.get("TargetStatus").getAsString());
+
+		JsonArray jsonConditions = jsonMapping.get("EventEntityMappingConditions").getAsJsonArray();
+		assertEquals(1, jsonConditions.size());
+
+		JsonObject jsonCondition = jsonConditions.get(0).getAsJsonObject();
+		assertEquals(testEventTypeAttributes.get(0).getId(), jsonCondition.get("EventTypeAttributeId").getAsLong());
+		assertEquals(testEntityTypeAttributes.get(0).getId(), jsonCondition.get("EntityTypeAttributeId").getAsLong());
+	}
+
+	@Test
+	public void testGetMapping_InvalidId_NotFound() {
+		EventEntityMapping testMapping = createMappingWithConditions();
+
+		RestRequest request = RestRequestFactoryImpl.getInstance().createGetRequest(ARGOS_REST_HOST, getEntityMappingUri(testMapping.getId() + 1));
+
+		assertEquals(HttpStatusCodes.NOT_FOUND, request.getResponseCode());
+	}
+
+	@Test
 	public void testCreateEntityMapping() throws Exception {
 		String targetStatus = "TargetStatus_" + ArgosTestUtil.getCurrentTimestamp();
 		int entityMappingsCount = getMappingsCount();
@@ -387,6 +419,11 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 		newMapping.add("EventEntityMappingConditions", mappingConditions);
 
 		return newMapping;
+	}
+
+	private String getEntityMappingUri(Object entityMappingId) {
+		return EntityMappingEndpoint.getEntityMappingBaseUri()
+				.replaceAll(EntityMappingEndpoint.getEntityMappingIdParameter(true), entityMappingId.toString());
 	}
 
 	private String getCreateEntityMappingUri() {

@@ -581,6 +581,48 @@ paths:
         '200':
           description: Successful response.
           
+  '/api/entitymapping/{mappingId}':
+    get:
+      description: Returns one specific `EventEntityMapping`, identified by its id.
+      parameters:
+        - name: mappingId
+          in: path
+          description: Unique identifier of the `EventEntityMapping`.
+          required: true
+          type: integer
+          format: long
+          
+      responses:
+        '200':
+          description: Successful response.
+          schema:
+            title: EventEntityMapping
+            type: object
+            properties:
+              Id:
+                type: integer
+                format: long
+              EventTypeId:
+                type: integer
+                format: long
+              EntityTypeId:
+                type: integer
+                format: long
+              TargetStatus:
+                type: string
+              EventEntityMappingConditions:
+                type: array
+                items:
+                  title: EventEntityMappingCondition
+                  type: object
+                  properties:
+                    EventTypeAttributeId:
+                      type: integer
+                      format: long
+                    EntityTypeAttributeId:
+                      type: integer
+                      format: long
+            
   /api/entitymapping/create:
     post:
       description: Creates a new `EventEntityMapping`.

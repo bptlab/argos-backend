@@ -2,7 +2,6 @@ package de.hpi.bpt.argos.eventProcessing.status;
 
 import de.hpi.bpt.argos.eventProcessing.EventReceiver;
 import de.hpi.bpt.argos.eventProcessing.mapping.EventEntityMappingStatus;
-import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 
 /**
  * {@inheritDoc}

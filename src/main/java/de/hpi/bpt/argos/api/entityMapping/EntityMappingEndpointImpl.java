@@ -1,10 +1,12 @@
 package de.hpi.bpt.argos.api.entityMapping;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import de.hpi.bpt.argos.api.RestEndpointCommon;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpointImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
@@ -34,10 +36,11 @@ import static spark.Spark.halt;
  * This is the implementation.
  */
 public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
-
     private static final Logger logger = LoggerFactory.getLogger(EventTypeEndpointImpl.class);
+    private static final Gson serializer = new Gson();
     private static final RestEndpointUtil endpointUtil = RestEndpointUtilImpl.getInstance();
     private static final JsonParser jsonParser = new JsonParser();
+
     private static final String EVENT_TYPE_ID_ATTRIBUTE = "EventTypeId";
     private static final String ENTITY_TYPE_ID_ATTRIBUTE = "EntityTypeId";
     private static final String MAPPING_CONDITIONS_ATTRIBUTE = "EventEntityMappingConditions";
@@ -52,6 +55,10 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
      */
     @Override
     public void setup(Service sparkService) {
+		sparkService.get(EntityMappingEndpoint.getEntityMappingBaseUri(),
+				(Request request, Response response) ->
+						endpointUtil.executeRequest(logger, request, response, this::getEntityMapping));
+
         sparkService.post(EntityMappingEndpoint.getCreateEntityMappingBaseUri(),
 				(Request request, Response response) ->
 						endpointUtil.executeRequest(logger, request, response, this::createEntityMapping));
@@ -65,7 +72,22 @@ public class EntityMappingEndpointImpl implements  EntityMappingEndpoint {
 						endpointUtil.executeRequest(logger, request, response, this::editEntityMapping));
     }
 
-    /**
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEntityMapping(Request request, Response response) {
+		long entityMappingId = getMappingId(request);
+		EventEntityMapping mapping = PersistenceAdapterImpl.getInstance().getEventEntityMapping(entityMappingId);
+
+		if (mapping == null) {
+			halt(HttpStatusCodes.NOT_FOUND, "cannot find event entity mapping");
+		}
+
+		return serializer.toJson(RestEndpointCommon.getEventEntityMappingJson(mapping));
+	}
+
+	/**
      * {@inheritDoc}
      */
     @Override

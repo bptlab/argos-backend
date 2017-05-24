@@ -67,6 +67,26 @@ public final class RestEndpointCommon {
 	}
 
 	/**
+	 * This method returns the json representation of a eventEntityMapping.
+	 * @param entityMapping - the mapping to convert
+	 * @return - the json representation of the given eventEntityMapping
+	 */
+	public static JsonObject getEventEntityMappingJson(EventEntityMapping entityMapping) {
+		JsonObject jsonEntityMapping = new JsonObject();
+
+		jsonEntityMapping.addProperty("Id", entityMapping.getId());
+		jsonEntityMapping.addProperty("EventTypeId", entityMapping.getEventTypeId());
+		jsonEntityMapping.addProperty("EntityTypeId", entityMapping.getEntityTypeId());
+		jsonEntityMapping.addProperty("TargetStatus", entityMapping.getTargetStatus());
+
+		// add mapping conditions as array
+		List<MappingCondition> mappingConditions = PersistenceAdapterImpl.getInstance().getMappingConditions(entityMapping.getId());
+		jsonEntityMapping.add("EventEntityMappingConditions", RestEndpointCommon.getMappingConditionsJson(mappingConditions));
+
+		return jsonEntityMapping;
+	}
+
+	/**
 	 * This method returns the json representation of a list of eventEntityMappings.
 	 * @param eventEntityMappings - the eventEntityMappings to convert
 	 * @return - the json representation of the given eventEntityMappings
@@ -74,18 +94,7 @@ public final class RestEndpointCommon {
 	public static JsonArray getEventEntityMappingsJson(List<EventEntityMapping> eventEntityMappings) {
 		JsonArray jsonEventEntityMappings = new JsonArray();
 		for (EventEntityMapping entityMapping : eventEntityMappings) {
-			JsonObject jsonEntityMapping = new JsonObject();
-
-			jsonEntityMapping.addProperty("Id", entityMapping.getId());
-			jsonEntityMapping.addProperty("EventTypeId", entityMapping.getEventTypeId());
-			jsonEntityMapping.addProperty("EntityTypeId", entityMapping.getEntityTypeId());
-			jsonEntityMapping.addProperty("TargetStatus", entityMapping.getTargetStatus());
-
-			// add mapping conditions as array
-			List<MappingCondition> mappingConditions = PersistenceAdapterImpl.getInstance().getMappingConditions(entityMapping.getId());
-			jsonEntityMapping.add("EventEntityMappingConditions", RestEndpointCommon.getMappingConditionsJson(mappingConditions));
-
-			jsonEventEntityMappings.add(jsonEntityMapping);
+			jsonEventEntityMappings.add(getEventEntityMappingJson(entityMapping));
 		}
 
 		return jsonEventEntityMappings;
