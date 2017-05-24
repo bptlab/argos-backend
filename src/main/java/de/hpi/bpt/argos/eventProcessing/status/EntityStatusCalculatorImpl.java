@@ -36,11 +36,11 @@ public class EntityStatusCalculatorImpl implements EntityStatusCalculator {
 	 * @param processStatus - the current status of the mapping process
 	 */
 	private void changeStatusBasedOnMapping(EventEntityMappingStatus processStatus) {
-		EventEntityMapping mapping = processStatus.getUsedMapping();
-		if (mapping.getTargetStatus() == null || mapping.getTargetStatus().length() == 0) {
+		String targetStatus = processStatus.getUsedMapping().getTargetStatus();
+		if (targetStatus == null || targetStatus.length() == 0) {
 			return;
 		}
 
-		processStatus.getStatusUpdateStatus().setNewStatus(mapping.getTargetStatus());
+		processStatus.getStatusUpdateStatus().setNewStatus(targetStatus);
 	}
 }
