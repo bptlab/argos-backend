@@ -4,6 +4,7 @@ package de.hpi.bpt.argos.common;
 import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
+import jdk.nashorn.internal.runtime.options.LoggingOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,19 +122,26 @@ public final class RestRequestFactoryImpl implements RestRequestFactory {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isReachable(String host) {
+		URL url = toUrl(host);
+
+		return url != null && isReachable(url);
+	}
+
+	/**
 	 * This method creates a basic RestRequest object and sets host and uri.
 	 * @param host - host as a string to be set
 	 * @param uri - uri as a string to be set
 	 * @return - returns a RestRequest object to be worked with later on
 	 */
 	private RestRequest createBasicRequest(String host, String uri) {
-		URL requestURL;
+		URL requestURL = toUrl(host + uri);
 		RestRequest request;
 
-		try {
-			requestURL = new URL(host + uri);
-		} catch (MalformedURLException e) {
-			LoggerUtilImpl.getInstance().error(logger, "cannot create rest request: url malformed", e);
+		if (requestURL == null) {
 			return new NullRestRequestImpl(HttpStatusCodes.REQUEST_TIMEOUT);
 		}
 
@@ -171,6 +179,20 @@ public final class RestRequestFactoryImpl implements RestRequestFactory {
 		} catch (IOException e) {
 			LoggerUtilImpl.getInstance().error(logger, String.format("unable to reach host: '%1$s'", host.toString()), e);
 			return false;
+		}
+	}
+
+	/**
+	 * This method tries to convert a given string to a URL.
+	 * @param url - the string to convert
+	 * @return - the URL object, or null
+	 */
+	private URL toUrl(String url) {
+		try {
+			return new URL(url);
+		} catch (MalformedURLException e) {
+			LoggerUtilImpl.getInstance().error(logger, "cannot create rest request: url malformed", e);
+			return null;
 		}
 	}
 }

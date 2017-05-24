@@ -1,5 +1,7 @@
 package de.hpi.bpt.argos.common;
 
+import java.net.URL;
+
 /**
  * This interface defines the factory used for creating RestRequest objects of different flavour. This implements the
  * factory pattern.
@@ -88,4 +90,11 @@ public interface RestRequestFactory {
 	 * @return - returns a RestRequest object using the request method PUT
 	 */
 	RestRequest createPutRequest(String host, String uri, String contentType, String acceptType);
+
+	/**
+	 * This connection checks whether a host is reachable.
+	 * @param host - the host URL to connect to
+	 * @return - true, if host is reachable
+	 */
+	boolean isReachable(String host);
 }

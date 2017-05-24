@@ -9,6 +9,7 @@ import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.storage.dataModel.event.type.StatusUpdatedEventType;
+import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import de.hpi.bpt.argos.util.XSDParserImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,8 @@ public final class EventProcessingPlatformUpdaterImpl implements EventProcessing
 	 */
 	@Override
 	public void setup(Argos argos) {
+		waitForEventProcessingPlatform();
+
 		List<EventType> eventTypes = PersistenceAdapterImpl.getInstance().getEventTypes();
 		eventTypes.add(StatusUpdatedEventType.setup(argos));
 
@@ -175,5 +178,26 @@ public final class EventProcessingPlatformUpdaterImpl implements EventProcessing
 		}
 
 		return new EventPlatformFeedbackImpl(request);
+	}
+
+	/**
+	 * This method waits until the eventProcessingPlatform is reachable.
+	 */
+	private void waitForEventProcessingPlatform() {
+		boolean reachable = RestRequestFactoryImpl.getInstance().isReachable(EventProcessingPlatformUpdater.getHost());
+		final long retryTime = 5000;
+		long startTime = System.currentTimeMillis();
+
+		while (!reachable) {
+			logger.info(String.format("waiting for event processing platform to be up ... (%1$d ms)", System.currentTimeMillis() - startTime));
+
+			try {
+				Thread.sleep(retryTime);
+			} catch (InterruptedException e) {
+				LoggerUtilImpl.getInstance().error(logger, "thread sleep was interrupted", e);
+			}
+
+			reachable = RestRequestFactoryImpl.getInstance().isReachable(EventProcessingPlatformUpdater.getHost());
+		}
 	}
 }
