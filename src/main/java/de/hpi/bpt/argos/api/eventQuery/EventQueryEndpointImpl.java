@@ -43,7 +43,7 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
      */
     @Override
     public void setup(Service sparkService) {
-    	sparkService.get(EventQueryEndpoint.getEventQueryBasiUri(),
+    	sparkService.get(EventQueryEndpoint.getEventQueryBaseUri(),
 				(Request request, Response response) ->
 						endpointUtil.executeRequest(logger, request, response, this::getEventQuery));
 

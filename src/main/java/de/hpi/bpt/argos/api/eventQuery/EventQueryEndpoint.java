@@ -57,7 +57,7 @@ public interface EventQueryEndpoint extends RestEndpoint {
      * This method returns the basic URI to get an event query.
      * @return - the URI to get an event query
      */
-    static String getEventQueryBasiUri() {
+    static String getEventQueryBaseUri() {
 	    return String.format("%1$s/%2$s", getEventQueryEndpointBaseUri(), getEventQueryIdParameter(true));
     }
 
@@ -91,7 +91,7 @@ public interface EventQueryEndpoint extends RestEndpoint {
      * @return - the URI to get an event query
      */
     static String getEventQueryUri(long eventQueryId) {
-        return getEventQueryBasiUri().replaceAll(getEventQueryIdParameter(true), Objects.toString(eventQueryId, "0"));
+        return getEventQueryBaseUri().replaceAll(getEventQueryIdParameter(true), Objects.toString(eventQueryId, "0"));
     }
 
     /**
