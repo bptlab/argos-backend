@@ -18,6 +18,10 @@ public class ArgosTestParent {
 	protected static Argos argos;
 
 	public static void setup() {
+		setup(0);
+	}
+
+	public static void setup(long notificationInterval) {
 		argos = new ArgosImpl();
 
 		PropertyEditorImpl.getInstance().setProperty(Argos.ARGOS_BACKEND_EXTERNAL_HOST_PROPERTY_KEY, ARGOS_REST_HOST);
@@ -28,7 +32,7 @@ public class ArgosTestParent {
 		PropertyEditorImpl.getInstance().setProperty(Argos.ARGOS_BACKEND_LOAD_STATIC_DATA_PROPERTY_KEY, Boolean.FALSE.toString());
 		PropertyEditorImpl.getInstance().setProperty(EventProcessingPlatformUpdater.EVENT_PROCESSING_PLATFORM_HOST_PROPERTY_KEY,
 				"http://localhost:0"); // make event processing platform unreachable
-		PropertyEditorImpl.getInstance().setProperty(ClientUpdateService.ARGOS_NOTIFICATION_SERVICE_INTERVAL_PROPERTY_KEY, String.valueOf(0));
+		PropertyEditorImpl.getInstance().setProperty(ClientUpdateService.ARGOS_NOTIFICATION_SERVICE_INTERVAL_PROPERTY_KEY, String.valueOf(notificationInterval));
 
 		argos.start();
 	}
