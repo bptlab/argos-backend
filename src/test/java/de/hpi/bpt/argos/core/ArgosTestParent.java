@@ -3,6 +3,7 @@ package de.hpi.bpt.argos.core;
 import com.google.gson.Gson;
 import com.google.gson.JsonParser;
 import de.hpi.bpt.argos.common.EventProcessingPlatformUpdater;
+import de.hpi.bpt.argos.notifications.ClientUpdateService;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 
 public class ArgosTestParent {
@@ -27,6 +28,7 @@ public class ArgosTestParent {
 		PropertyEditorImpl.getInstance().setProperty(Argos.ARGOS_BACKEND_LOAD_STATIC_DATA_PROPERTY_KEY, Boolean.FALSE.toString());
 		PropertyEditorImpl.getInstance().setProperty(EventProcessingPlatformUpdater.EVENT_PROCESSING_PLATFORM_HOST_PROPERTY_KEY,
 				"http://localhost:0"); // make event processing platform unreachable
+		PropertyEditorImpl.getInstance().setProperty(ClientUpdateService.ARGOS_NOTIFICATION_SERVICE_INTERVAL_PROPERTY_KEY, String.valueOf(0));
 
 		argos.start();
 	}
