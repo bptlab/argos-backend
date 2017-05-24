@@ -126,6 +126,10 @@ public final class RestRequestFactoryImpl implements RestRequestFactory {
 	 */
 	@Override
 	public boolean isReachable(String host) {
+		if (Argos.isInTestMode()) {
+			return true;
+		}
+
 		URL url = toUrl(host);
 
 		return url != null && isReachable(url);
