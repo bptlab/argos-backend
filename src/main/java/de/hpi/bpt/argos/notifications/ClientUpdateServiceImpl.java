@@ -90,6 +90,10 @@ public class ClientUpdateServiceImpl implements ClientUpdateService {
 	 * This method sends all cached entity updates to the clients.
 	 */
 	private void sendArtifactUpdates() {
+		if (artifactUpdates.isEmpty()) {
+			return;
+		}
+
 		// clone map to avoid threading problems
 		Map<Long, JsonObject> notifications = new HashMap<>(artifactUpdates);
 		artifactUpdates.clear();
