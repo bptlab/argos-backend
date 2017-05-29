@@ -80,7 +80,7 @@ public final class EventFactoryImpl implements EventFactory {
 		String xmlEvent = createEventXml(eventType, timestampName, attributes);
 
 		RestRequest postRequest = RestRequestFactoryImpl.getInstance()
-				.createPostRequest(EventProcessingPlatformUpdater.getHost(), EventFactory.getPostEventUri());
+				.createPostRequest(EventProcessingPlatformUpdater.getHost(),EventFactory.getPostEventUri(), "application/xml", "text/plain");
 
 		postRequest.setContent(xmlEvent);
 
@@ -96,7 +96,7 @@ public final class EventFactoryImpl implements EventFactory {
 	private String finishXmlEvent(String event, String eventTypeName) {
 		return String.format(
 				"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>"
-				+ "<cpoi xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
+				+ "<cpoi xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
 				+ "xsi:noNamespaceSchemaLocation=\"%1$s.xsd\">"
 				+ "%2$s"
 				+ "</cpoi>",
