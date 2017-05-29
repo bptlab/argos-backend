@@ -239,6 +239,22 @@ public class EntityEndpointTest extends ArgosTestParent {
 	}
 
 	@Test
+	public void testGetEventTypesOfEntity_NoEvents_Success() {
+		Entity newEntity = ArgosTestUtil.createEntity(testEntityType, testEntity, true);
+
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createGetRequest(ARGOS_REST_HOST, getEventTypesOfEntityUri(newEntity.getId(), false));
+
+		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+
+		// delete those artifacts, to not disturb other tests
+		PersistenceAdapterImpl.getInstance().deleteArtifacts(newEntity);
+
+		JsonArray eventTypes = jsonParser.parse(request.getResponse()).getAsJsonArray();
+		assertEquals(0, eventTypes.size());
+	}
+
+	@Test
 	public void testGetEventsOfEntity() {
 		RestRequest request = RestRequestFactoryImpl.getInstance()
 				.createGetRequest(ARGOS_REST_HOST,

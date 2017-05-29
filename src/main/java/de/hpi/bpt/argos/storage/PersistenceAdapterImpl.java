@@ -439,11 +439,11 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 	 */
 	@Override
 	public Map<EventType, Long> getEventTypesAndEventCount(Long... entityIds) {
-		if (entityIds.length == 0) {
+		List<EventType> eventTypes = getEventTypes(entityIds);
+
+		if (entityIds.length == 0 || eventTypes.isEmpty()) {
 			return new HashMap<>();
 		}
-
-		List<EventType> eventTypes = getEventTypes(entityIds);
 
 		Map<EventType, Long> eventTypesAndEventCount = new HashMap<>();
 
