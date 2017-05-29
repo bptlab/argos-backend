@@ -184,6 +184,10 @@ public final class EventProcessingPlatformUpdaterImpl implements EventProcessing
 	 * This method waits until the eventProcessingPlatform is reachable.
 	 */
 	private void waitForEventProcessingPlatform() {
+		if (!Argos.shouldWaitForEventProcessingPlatform()) {
+			return;
+		}
+
 		boolean reachable = RestRequestFactoryImpl.getInstance().isReachable(EventProcessingPlatformUpdater.getHost());
 		final long retryTime = 5000;
 		long startTime = System.currentTimeMillis();
