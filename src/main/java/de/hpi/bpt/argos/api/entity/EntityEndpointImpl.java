@@ -3,7 +3,6 @@ package de.hpi.bpt.argos.api.entity;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import de.hpi.bpt.argos.api.RestEndpointCommon;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpointImpl;
 import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.attribute.Attribute;
@@ -138,10 +137,10 @@ public class EntityEndpointImpl implements EntityEndpoint {
         	entityIds.add(entityId);
 		}
 
-		List<EventType> eventTypes = PersistenceAdapterImpl.getInstance()
-				.getEventTypes(entityIds.toArray(new Long[entityIds.size()]));
+		Map<EventType, Long> eventTypesAndEventCount = PersistenceAdapterImpl.getInstance()
+				.getEventTypesAndEventCount(entityIds.toArray(new Long[entityIds.size()]));
 
-        JsonArray eventTypesJson = getEventTypesJson(eventTypes);
+        JsonArray eventTypesJson = getEventTypesJson(eventTypesAndEventCount);
 
         return serializer.toJson(eventTypesJson);
     }
@@ -238,16 +237,38 @@ public class EntityEndpointImpl implements EntityEndpoint {
 
     /**
      * This method returns event types as a JsonArray.
-     * @param eventTypes - the event types
+     * @param eventTypes - the event types and their number of events
      * @return - a json representation of the event types
      */
-    private JsonArray getEventTypesJson(List<EventType> eventTypes) {
+    private JsonArray getEventTypesJson(Map<EventType, Long> eventTypes) {
         JsonArray eventTypesJson = new JsonArray();
-        for (EventType eventType : eventTypes) {
-            eventTypesJson.add(RestEndpointCommon.getEventTypeJson(eventType));
+        for (Map.Entry<EventType, Long> eventTypeEntry : eventTypes.entrySet()) {
+            eventTypesJson.add(getEventTypeJson(eventTypeEntry.getKey(), eventTypeEntry.getValue()));
         }
         return eventTypesJson;
     }
+
+	/**
+	 * This method returns the json representation of a given eventType.
+	 * @param eventType - the eventType to serialize
+	 * @param numberOfEvents - the number of events for this eventType
+	 * @return - the json representation of the given eventType
+	 */
+    private JsonObject getEventTypeJson(EventType eventType, long numberOfEvents) {
+		try {
+			JsonObject jsonEventType = new JsonObject();
+
+			jsonEventType.addProperty("Id", eventType.getId());
+			jsonEventType.addProperty("Name", eventType.getName());
+			jsonEventType.addProperty("NumberOfEvents", numberOfEvents);
+			jsonEventType.addProperty("TimestampAttributeId", eventType.getTimeStampAttributeId());
+
+			return jsonEventType;
+		} catch (Exception e) {
+			LoggerUtilImpl.getInstance().error(logger, "cannot parse event type", e);
+			return new JsonObject();
+		}
+	}
 
     /**
      * This method returns events as a JsonArray.
