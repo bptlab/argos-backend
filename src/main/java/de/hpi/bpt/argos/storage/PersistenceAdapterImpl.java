@@ -463,12 +463,10 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 		}
 
 		String sqlQuery = String.format(
-				"SELECT TypeId, NumberOfEvents "
-				+ "FROM ("
-				+ "SELECT *, COUNT(*) as NumberOfEvents "
+				"SELECT TypeId, COUNT(*) "
 				+ "FROM %1$s AS event "
 				+ "WHERE event.TypeId IN %2$s AND event.EntityId IN %3$s "
-				+ "GROUP BY event.EntityId) AS EVENT_TABLE",
+				+ "GROUP BY event.TypeId",
 				eventTableName,
 				getIdsList(eventTypes.toArray(new EventType[eventTypes.size()])),
 				toString(entityIds)
