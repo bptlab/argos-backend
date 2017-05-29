@@ -422,7 +422,6 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 
 	/**
 	 * {@inheritDoc}
-	 * @param entityIds
 	 */
 	@Override
 	public List<EventType> getEventTypes(Long... entityIds) {
@@ -433,6 +432,71 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 		List<Long> eventTypeIds = getEventTypeIds(entityIds);
 		Session session = databaseAccess.getSessionFactory().openSession();
 		return databaseAccess.getArtifactsById(session, EventTypeImpl.class, eventTypeIds.toArray(new Long[eventTypeIds.size()]));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<EventType, Long> getEventTypesAndEventCount(Long... entityIds) {
+		if (entityIds.length == 0) {
+			return new HashMap<>();
+		}
+
+		List<EventType> eventTypes = getEventTypes(entityIds);
+
+		Map<EventType, Long> eventTypesAndEventCount = new HashMap<>();
+
+		for (EventType eventType : eventTypes) {
+			if (eventTypesAndEventCount.containsKey(eventType)) {
+				continue;
+			}
+
+			eventTypesAndEventCount.put(eventType, 0L);
+		}
+
+		Table eventTable = EventImpl.class.getAnnotation(Table.class);
+		String eventTableName = "Event";
+
+		if (eventTable != null) {
+			eventTableName = eventTable.name();
+		}
+
+		String sqlQuery = String.format(
+				"SELECT TypeId, NumberOfEvents "
+				+ "FROM ("
+				+ "SELECT *, COUNT(*) as NumberOfEvents "
+				+ "FROM %1$s AS event "
+				+ "WHERE event.TypeId IN %2$s AND event.EntityId IN %3$s "
+				+ "GROUP BY event.EntityId) AS EVENT_TABLE",
+				eventTableName,
+				getIdsList(eventTypes.toArray(new EventType[eventTypes.size()])),
+				toString(entityIds)
+		);
+
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		Query query = session.createNativeQuery(sqlQuery);
+
+		List<Object> queryResult = databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
+
+
+		for (Object resultEntry : queryResult) {
+			Object[] entry = (Object[]) resultEntry;
+
+			Long eventTypeId = Long.parseLong(entry[0].toString());
+			Long eventCount = Long.parseLong(entry[1].toString());
+
+			for (Map.Entry<EventType, Long> returnEntry : eventTypesAndEventCount.entrySet()) {
+				if (returnEntry.getKey().getId() == eventTypeId) {
+					eventTypesAndEventCount.put(returnEntry.getKey(), returnEntry.getValue() + eventCount);
+					break;
+				}
+			}
+		}
+
+		return eventTypesAndEventCount;
 	}
 
 	/**
@@ -699,5 +763,47 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 		}
 
 		return eventTypeIds;
+	}
+
+	/**
+	 * This method returns a list of ids for a given list of artifacts as string.
+	 * @param artifacts - the list of artifacts to get the ids from
+	 * @return - a list of ids for a given list of artifacts as string
+	 */
+	private String getIdsList(PersistenceArtifact... artifacts) {
+		if (artifacts.length == 0) {
+			return "()";
+		}
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(artifacts[0].getId());
+
+		for (int i = 1; i < artifacts.length; i++) {
+			sb.append(", ");
+			sb.append(artifacts[i].getId());
+		}
+
+		return String.format("(%1$s)", sb.toString());
+	}
+
+	/**
+	 * This method converts a list of ids to a string.
+	 * @param ids - the ids to convert
+	 * @return - the converted list of ids as string
+	 */
+	private String toString(Long... ids) {
+		if (ids.length == 0) {
+			return "()";
+		}
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(ids[0]);
+
+		for (int i = 1; i < ids.length; i++) {
+			sb.append(", ");
+			sb.append(ids[i]);
+		}
+
+		return String.format("(%1$s)", sb.toString());
 	}
 }

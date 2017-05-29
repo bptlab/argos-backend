@@ -17,6 +17,8 @@ import de.hpi.bpt.argos.storage.dataModel.event.Event;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.testUtil.ArgosTestUtil;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
+import de.hpi.bpt.argos.util.Pair;
+import de.hpi.bpt.argos.util.PairImpl;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -166,7 +168,26 @@ public class EntityEndpointTest extends ArgosTestParent {
 		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
 		JsonArray eventTypes = jsonParser.parse(request.getResponse()).getAsJsonArray();
-		assertEventTypes(eventTypes, testEventType);
+		assertEventTypes(eventTypes, new PairImpl<>(testEventType, 1L));
+	}
+
+	@Test
+	public void testGetEventTypesOfEntity_MoreEvents_Success() {
+		Entity newEntity = ArgosTestUtil.createEntity(testEntityType, true);
+		Event newEvent = ArgosTestUtil.createEvent(testEventType, newEntity, true);
+
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createGetRequest(ARGOS_REST_HOST, getEventTypesOfEntityUri(testEntity.getId(), false));
+
+		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+
+		// delete those artifacts, to not disturb other tests
+		PersistenceAdapterImpl.getInstance().deleteArtifacts(newEntity, newEvent);
+
+		JsonArray eventTypes = jsonParser.parse(request.getResponse()).getAsJsonArray();
+
+		// assert that the numberOfEvents-attribute is still 1 although there are 2 events of this eventType in the database
+		assertEventTypes(eventTypes, new PairImpl<>(testEventType, 1L));
 	}
 
 	@Test
@@ -186,7 +207,7 @@ public class EntityEndpointTest extends ArgosTestParent {
 		PersistenceAdapterImpl.getInstance().deleteArtifacts(newEventTypeAttributes.toArray(new TypeAttribute[newEventTypeAttributes.size()]));
 
 		JsonArray eventTypes = jsonParser.parse(request.getResponse()).getAsJsonArray();
-		assertEventTypes(eventTypes, testEventType, newEventType);
+		assertEventTypes(eventTypes, new PairImpl<>(testEventType, 1L), new PairImpl<>(newEventType, 1L));
 	}
 
 	@Test
@@ -206,7 +227,7 @@ public class EntityEndpointTest extends ArgosTestParent {
 		PersistenceAdapterImpl.getInstance().deleteArtifacts(newEventTypeAttributes.toArray(new TypeAttribute[newEventTypeAttributes.size()]));
 
 		JsonArray eventTypes = jsonParser.parse(request.getResponse()).getAsJsonArray();
-		assertEventTypes(eventTypes, testEventType);
+		assertEventTypes(eventTypes, new PairImpl<>(testEventType, 1L));
 	}
 
 	@Test
@@ -379,15 +400,15 @@ public class EntityEndpointTest extends ArgosTestParent {
 		}
 	}
 
-	private void assertEventType(EventType expected, JsonObject actual) {
+	private void assertEventType(Pair<EventType, Long> expected, JsonObject actual) {
 		assertNotNull(actual);
-		assertEquals(expected.getId(), actual.get("Id").getAsLong());
-		assertEquals(expected.getName(), actual.get("Name").getAsString());
-		assertEquals(1, actual.get("NumberOfEvents").getAsLong());
-		assertEquals(expected.getTimeStampAttributeId(), actual.get("TimestampAttributeId").getAsLong());
+		assertEquals(expected.getKey().getId(), actual.get("Id").getAsLong());
+		assertEquals(expected.getKey().getName(), actual.get("Name").getAsString());
+		assertEquals((long) expected.getValue(), actual.get("NumberOfEvents").getAsLong());
+		assertEquals(expected.getKey().getTimeStampAttributeId(), actual.get("TimestampAttributeId").getAsLong());
 	}
 
-	private void assertEventTypes(JsonArray jsonEventTypes, EventType... eventTypes) {
+	private void assertEventTypes(JsonArray jsonEventTypes, Pair<EventType, Long>... eventTypes) {
 		assertNotNull(jsonEventTypes);
 		assertEquals(eventTypes.length, jsonEventTypes.size());
 
@@ -395,8 +416,8 @@ public class EntityEndpointTest extends ArgosTestParent {
 			JsonObject jsonEventType = element.getAsJsonObject();
 
 			boolean eventTypeFound = false;
-			for (EventType eventType : eventTypes) {
-				if (jsonEventType.get("Id").getAsLong() == eventType.getId()) {
+			for (Pair<EventType, Long> eventType : eventTypes) {
+				if (jsonEventType.get("Id").getAsLong() == eventType.getKey().getId()) {
 					eventTypeFound = true;
 					assertEventType(eventType, jsonEventType);
 					break;

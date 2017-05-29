@@ -181,6 +181,13 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	List<EventType> getEventTypes(Long... entityIds);
 
 	/**
+	 * This method returns a map of eventType -> numberOfEvents for a given list of entities.
+	 * @param entityIds - a list of unique identifiers of entities
+	 * @return - a map of eventType -> numberOfEvents for a given list of entities
+	 */
+	Map<EventType, Long> getEventTypesAndEventCount(Long... entityIds);
+
+	/**
 	 * This method returns the number of events for a specific entity and a specific eventType.
 	 * @param entityId - the unique identifier of the entity
 	 * @param eventTypeId - the unique identifier of the eventType
