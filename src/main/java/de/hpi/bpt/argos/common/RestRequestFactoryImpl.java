@@ -153,7 +153,7 @@ public final class RestRequestFactoryImpl implements RestRequestFactory {
 				return new NullRestRequestImpl(HttpStatusCodes.SUCCESS);
 			}
 			else {
-				return new NullRestRequestImpl(HttpStatusCodes.REQUEST_TIMEOUT);
+				return new NullRestRequestImpl(HttpStatusCodes.REQUEST_TIMEOUT, host + uri + " is not reachable");
 			}
 		}
 

@@ -17,8 +17,17 @@ public class NullRestRequestImpl implements RestRequest {
 	 * @param responseCode - the response code to return in this request
 	 */
 	public NullRestRequestImpl(int responseCode) {
+		this(responseCode, "null request");
+	}
+
+	/**
+	 * This constructor initializes this nullRestRequest according to the given parameters.
+	 * @param responseCode - the response code to return in this request
+	 * @param response - the response text to return in this request
+	 */
+	public NullRestRequestImpl(int responseCode, String response) {
 		this.responseCode = responseCode;
-		response = "null request";
+		this.response = response;
 	}
 
 	/**
