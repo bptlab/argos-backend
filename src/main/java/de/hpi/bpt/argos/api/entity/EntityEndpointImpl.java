@@ -255,19 +255,14 @@ public class EntityEndpointImpl implements EntityEndpoint {
 	 * @return - the json representation of the given eventType
 	 */
     private JsonObject getEventTypeJson(EventType eventType, long numberOfEvents) {
-		try {
-			JsonObject jsonEventType = new JsonObject();
+		JsonObject jsonEventType = new JsonObject();
 
-			jsonEventType.addProperty("Id", eventType.getId());
-			jsonEventType.addProperty("Name", eventType.getName());
-			jsonEventType.addProperty("NumberOfEvents", numberOfEvents);
-			jsonEventType.addProperty("TimestampAttributeId", eventType.getTimeStampAttributeId());
+		jsonEventType.addProperty("Id", eventType.getId());
+		jsonEventType.addProperty("Name", eventType.getName());
+		jsonEventType.addProperty("NumberOfEvents", numberOfEvents);
+		jsonEventType.addProperty("TimestampAttributeId", eventType.getTimeStampAttributeId());
 
-			return jsonEventType;
-		} catch (Exception e) {
-			LoggerUtilImpl.getInstance().error(logger, "cannot parse event type", e);
-			return new JsonObject();
-		}
+		return jsonEventType;
 	}
 
     /**

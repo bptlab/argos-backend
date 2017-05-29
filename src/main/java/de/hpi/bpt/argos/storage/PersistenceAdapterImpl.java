@@ -455,7 +455,7 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 			eventTypesAndEventCount.put(eventType, 0L);
 		}
 
-		Table eventTable = Event.class.getAnnotation(Table.class);
+		Table eventTable = EventImpl.class.getAnnotation(Table.class);
 		String eventTableName = "Event";
 
 		if (eventTable != null) {
@@ -796,14 +796,14 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 			return "()";
 		}
 
-		StringBuilder inClause = new StringBuilder();
-		inClause.append(ids[0]);
+		StringBuilder sb = new StringBuilder();
+		sb.append(ids[0]);
 
 		for (int i = 1; i < ids.length; i++) {
-			inClause.append(", ");
-			inClause.append(ids[i]);
+			sb.append(", ");
+			sb.append(ids[i]);
 		}
 
-		return String.format("(%1$s)", inClause.toString());
+		return String.format("(%1$s)", sb.toString());
 	}
 }
