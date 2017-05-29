@@ -13,6 +13,7 @@ public final class HttpStatusCodes {
 	public static final int REQUEST_TIMEOUT = 408;
 
 	public static final int ERROR = 500;
+	public static final int BAD_GAETEWAY = 502;
 
 	/**
 	 * This constructor hides the public one and hinders anyone to create a concrete instance.

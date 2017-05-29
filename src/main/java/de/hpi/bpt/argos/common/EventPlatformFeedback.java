@@ -28,4 +28,16 @@ public interface EventPlatformFeedback {
 	 * @param responseText - the response text to be set
 	 */
 	void setResponseText(String responseText);
+
+	/**
+	 * This method returns the response code of the initial request.
+	 * @return - the response code of the initial request
+	 */
+	int getResponseCode();
+
+	/**
+	 * This method sets the response code of this feedback.
+	 * @param responseCode - the response code to be set
+	 */
+	void setResponseCode(int responseCode);
 }

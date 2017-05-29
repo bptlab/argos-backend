@@ -9,6 +9,7 @@ import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.storage.dataModel.event.type.StatusUpdatedEventType;
+import de.hpi.bpt.argos.util.HttpStatusCodes;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import de.hpi.bpt.argos.util.XSDParserImpl;
 import org.slf4j.Logger;
@@ -77,14 +78,14 @@ public final class EventProcessingPlatformUpdaterImpl implements EventProcessing
 	@Override
 	public EventPlatformFeedback registerEventType(EventType eventType) {
 		if (!eventType.shouldBeRegistered()) {
-			return new EventPlatformFeedbackImpl("event type should not be registered", true);
+			return new EventPlatformFeedbackImpl("event type should not be registered", HttpStatusCodes.SUCCESS);
 		}
 
 		TypeAttribute timestampAttribute = PersistenceAdapterImpl.getInstance().getTypeAttribute(eventType.getTimeStampAttributeId());
 		List<TypeAttribute> eventTypeAttributes = PersistenceAdapterImpl.getInstance().getTypeAttributes(eventType.getId());
 
 		if (timestampAttribute == null) {
-			return new EventPlatformFeedbackImpl("event type has no valid timestamp attribute", false);
+			return new EventPlatformFeedbackImpl("event type has no valid timestamp attribute", HttpStatusCodes.ERROR);
 		}
 
 		String host = EventProcessingPlatformUpdater.getHost();
@@ -110,7 +111,7 @@ public final class EventProcessingPlatformUpdaterImpl implements EventProcessing
 	@Override
 	public EventPlatformFeedback deleteEventType(EventType eventType) {
 		if (eventType.getName() == null || eventType.getName().length() == 0) {
-			return new EventPlatformFeedbackImpl("event type has no name", false);
+			return new EventPlatformFeedbackImpl("event type has no name", HttpStatusCodes.ERROR);
 		}
 
 		String host = EventProcessingPlatformUpdater.getHost();
@@ -129,7 +130,7 @@ public final class EventProcessingPlatformUpdaterImpl implements EventProcessing
 	@Override
 	public EventPlatformFeedback registerEventQuery(long eventTypeId, EventQuery eventQuery) {
 		if (eventQuery.getQuery() == null || eventQuery.getQuery().length() == 0) {
-			return new EventPlatformFeedbackImpl("event query was empty", false);
+			return new EventPlatformFeedbackImpl("event query was empty", HttpStatusCodes.ERROR);
 		}
 
 		if (eventQuery.getUuid() != null && eventQuery.getUuid().length() > 0) {
@@ -163,7 +164,7 @@ public final class EventProcessingPlatformUpdaterImpl implements EventProcessing
 	@Override
 	public EventPlatformFeedback deleteEventQuery(EventQuery eventQuery) {
 		if (eventQuery.getUuid() == null || eventQuery.getUuid().length() == 0) {
-			return new EventPlatformFeedbackImpl("event query was not registered yet", false);
+			return new EventPlatformFeedbackImpl("event query was not registered yet", HttpStatusCodes.ERROR);
 		}
 
 		String host = EventProcessingPlatformUpdater.getHost();

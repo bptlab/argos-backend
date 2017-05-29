@@ -97,7 +97,7 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
 		EventPlatformFeedback feedback = EventProcessingPlatformUpdaterImpl.getInstance().registerEventQuery(eventQuery.getTypeId(), eventQuery);
 
 		if (!feedback.isSuccessful()) {
-			halt(HttpStatusCodes.ERROR, String.format("cannot register event type: %1$s", feedback.getResponseText()));
+			halt(feedback.getResponseCode(), String.format("cannot register event type: %1$s", feedback.getResponseText()));
 		}
 
 		PersistenceAdapterImpl.getInstance().createArtifact(eventQuery, EventTypeEndpoint.getEventTypeQueriesUri(eventQuery.getId()));
@@ -128,7 +128,7 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
 
         EventPlatformFeedback feedback = EventProcessingPlatformUpdaterImpl.getInstance().deleteEventQuery(eventQuery);
         if (!feedback.isSuccessful()) {
-            halt(HttpStatusCodes.ERROR, String.format("cannot unregister event query: %1$s", feedback.getResponseText()));
+            halt(feedback.getResponseCode(), String.format("cannot unregister event query: %1$s", feedback.getResponseText()));
         }
 
         if (!PersistenceAdapterImpl.getInstance().deleteArtifact(eventQuery,
@@ -169,7 +169,7 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
 
         EventPlatformFeedback deleteFeedback = EventProcessingPlatformUpdaterImpl.getInstance().deleteEventQuery(oldEventQuery);
         if (!deleteFeedback.isSuccessful()) {
-            halt(HttpStatusCodes.ERROR, "given query could not be unregistered");
+            halt(deleteFeedback.getResponseCode(), "given query could not be unregistered");
         }
 
         oldEventQuery.setDescription(newEventQuery.getDescription());
@@ -178,7 +178,7 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
         EventPlatformFeedback createFeedback = EventProcessingPlatformUpdaterImpl.getInstance()
                 .registerEventQuery(oldEventQuery.getTypeId(), oldEventQuery);
         if (!createFeedback.isSuccessful()) {
-            halt(HttpStatusCodes.ERROR, "given query could not be newly registered");
+            halt(createFeedback.getResponseCode(), "given query could not be newly registered");
         }
 
         if (!PersistenceAdapterImpl.getInstance().updateArtifact(oldEventQuery, EventTypeEndpoint.getEventTypeQueriesUri(oldEventQuery.getId()))) {

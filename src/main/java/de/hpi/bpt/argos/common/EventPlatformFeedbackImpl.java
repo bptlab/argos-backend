@@ -1,5 +1,7 @@
 package de.hpi.bpt.argos.common;
 
+import de.hpi.bpt.argos.util.HttpStatusCodes;
+
 /**
  * {@inheritDoc}
  * This is the implementation.
@@ -8,15 +10,17 @@ public class EventPlatformFeedbackImpl implements EventPlatformFeedback {
 
 	private boolean succeeded = false;
 	private String responseText = "";
+	private int responseCode = HttpStatusCodes.ERROR;
 
 	/**
 	 * This constructor initializes all members according to the parameters.
 	 * @param responseText - the response text from the event platform
-	 * @param succeeded - the status of the event platform response
+	 * @param responseCode - the response code of the initial request
 	 */
-	public EventPlatformFeedbackImpl(String responseText, boolean succeeded) {
+	public EventPlatformFeedbackImpl(String responseText, int responseCode) {
 		this.responseText = responseText;
-		this.succeeded = succeeded;
+		this.responseCode = responseCode;
+		succeeded = responseCode == HttpStatusCodes.SUCCESS;
 	}
 
 	/**
@@ -24,7 +28,7 @@ public class EventPlatformFeedbackImpl implements EventPlatformFeedback {
 	 * @param baseRequest - the base restRequest to create this feedback from
 	 */
 	public EventPlatformFeedbackImpl(RestRequest baseRequest) {
-		this(baseRequest.getResponse(), baseRequest.isSuccessful());
+		this(baseRequest.getResponse(), baseRequest.getResponseCode());
 	}
 
 	/**
@@ -37,7 +41,6 @@ public class EventPlatformFeedbackImpl implements EventPlatformFeedback {
 
 	/**
 	 * {@inheritDoc}
-	 * @param succeeded
 	 */
 	@Override
 	public void setSuccessful(boolean succeeded) {
@@ -58,5 +61,21 @@ public class EventPlatformFeedbackImpl implements EventPlatformFeedback {
 	@Override
 	public void setResponseText(String responseText) {
 		this.responseText = responseText;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getResponseCode() {
+		return responseCode;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setResponseCode(int responseCode) {
+		this.responseCode = responseCode;
 	}
 }
