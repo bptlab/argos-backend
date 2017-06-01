@@ -57,11 +57,12 @@ public final class EventProcessingPlatformUpdaterImpl implements EventProcessing
 		eventTypes.add(StatusUpdatedEventType.setup(argos));
 
 		for (EventType eventType : eventTypes) {
-			registerEventType(eventType);
+			EventPlatformFeedback registerEventTypeFeedback = registerEventType(eventType);
 
 			List<EventQuery> eventQueries = PersistenceAdapterImpl.getInstance().getEventQueries(eventType.getId());
 			for (EventQuery eventQuery : eventQueries) {
-				if (eventQuery.getUuid() != null && eventQuery.getUuid().length() > 0) {
+				if (!registerEventTypeFeedback.isSuccessful()
+						&& eventQuery.getUuid() != null && eventQuery.getUuid().length() > 0) {
 					continue;
 				}
 

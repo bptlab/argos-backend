@@ -378,26 +378,14 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 			return new ArrayList<>();
 		}
 
-		StringBuilder sqlWhere = new StringBuilder();
-		sqlWhere.append(String.format("(event.entityId = %1$d)", entityIds[0]));
-
-		for (int i = 1; i < entityIds.length; i++) {
-			sqlWhere.append(String.format(" OR (event.entityId = %1$d)", entityIds[i]));
-		}
-
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
 
-		String sqlQuery = String.format(
-				"FROM EventImpl event "
-						+ "WHERE event.typeId = %1$d"
-						+ "AND (%2$s)",
-				eventTypeId,
-				sqlWhere.toString()
-		);
-
-		Query<Event> query = session.createQuery(sqlQuery,
+		Query<Event> query = session.createQuery("FROM EventImpl event "
+				+ "WHERE event.typeId = :typeId AND event.entityId IN (:entityIds)",
 				Event.class)
+				.setParameter("typeId", eventTypeId)
+				.setParameterList("entityIds", entityIds)
 				.setFirstResult(listStartIndex)
 				.setMaxResults(listEndIndex);
 
