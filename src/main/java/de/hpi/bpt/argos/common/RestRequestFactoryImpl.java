@@ -153,7 +153,7 @@ public final class RestRequestFactoryImpl implements RestRequestFactory {
 				return new NullRestRequestImpl(HttpStatusCodes.SUCCESS);
 			}
 			else {
-				return new NullRestRequestImpl(HttpStatusCodes.REQUEST_TIMEOUT, host + uri + " is not reachable");
+				return new NullRestRequestImpl(HttpStatusCodes.BAD_GAETEWAY, host + uri + " is not reachable");
 			}
 		}
 
@@ -161,7 +161,7 @@ public final class RestRequestFactoryImpl implements RestRequestFactory {
 			request = new RestRequestImpl(requestURL);
 		} catch (IOException e) {
 			LoggerUtilImpl.getInstance().error(logger, "cannot create rest request", e);
-			return new NullRestRequestImpl(HttpStatusCodes.REQUEST_TIMEOUT);
+			return new NullRestRequestImpl(HttpStatusCodes.ERROR);
 		}
 
 		return request;
