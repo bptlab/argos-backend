@@ -22,6 +22,7 @@ public interface Argos {
 	String ARGOS_BACKEND_STATIC_DATA_DIRECTORY_PROPERTY_KEY = "argosBackendStaticDataDirectory";
 	String ARGOS_BACKEND_LOAD_STATIC_DATA_PROPERTY_KEY = "argosBackendLoadStaticData";
 	String ARGOS_BACKEND_MEASURE_PERFORMANCE_PROPERTY_KEY = "argosBackendMeasurePerformance";
+	String ARGOS_BACKEND_WAIT_FOR_DATABASE_PROPERTY_KEY = "argosBackendWaitForDatabase";
 	String ARGOS_BACKEND_WAIT_FOR_EVENT_PROCESSING_PLATFORM_PROPERTY_KEY = "argosBackendWaitForEventProcessingPlatform";
 
 	/**
@@ -158,6 +159,14 @@ public interface Argos {
 	 */
 	static boolean shouldLoadStaticData() {
 		return PropertyEditorImpl.getInstance().getPropertyAsBoolean(ARGOS_BACKEND_LOAD_STATIC_DATA_PROPERTY_KEY);
+	}
+
+	/**
+	 * This method reads the waitForDatabase property from the properties-file and returns its value.
+	 * @return - the waitForDatabase, specified in the properties-file
+	 */
+	static boolean shouldWaitForDatabase() {
+		return PropertyEditorImpl.getInstance().getPropertyAsBoolean(ARGOS_BACKEND_WAIT_FOR_DATABASE_PROPERTY_KEY);
 	}
 
 	/**
