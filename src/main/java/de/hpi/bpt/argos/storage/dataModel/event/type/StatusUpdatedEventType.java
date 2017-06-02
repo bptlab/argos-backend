@@ -54,13 +54,13 @@ public final class StatusUpdatedEventType extends EventTypeImpl {
 	 */
 	public static EventType setup(Argos argos) {
 		instance = PersistenceAdapterImpl.getInstance().getEventType(NAME);
+		registerCustomMapping(argos);
 
 		if (instance != null) {
 			return instance;
 		}
 
 		instance = create();
-		registerCustomMapping(argos);
 		return instance;
 	}
 

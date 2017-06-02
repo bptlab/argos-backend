@@ -118,7 +118,12 @@ public class EventReceiverImpl implements EventReceiver {
 
 			attribute.setOwnerId(event.getId());
 			attribute.setTypeAttributeId(typeAttribute.getId());
-			attribute.setValue(serializedEvent.get(typeAttribute.getName()).getAsString());
+
+			if (!serializedEvent.has(typeAttribute.getName())) {
+				attribute.setValue("");
+			} else {
+				attribute.setValue(serializedEvent.get(typeAttribute.getName()).getAsString());
+			}
 
 			eventAttributes.add(attribute);
 		}
