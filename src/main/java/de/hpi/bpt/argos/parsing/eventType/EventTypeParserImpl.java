@@ -119,7 +119,7 @@ public final class EventTypeParserImpl implements EventTypeParser {
 			return;
 		}
 
-		logger.info(String.format("start paring '%1$s' ...", eventTypeFile.getName()));
+		logger.info(String.format("start parsing '%1$s' ...", eventTypeFile.getName()));
 
 		try {
 			if (!FileUtilImpl.getInstance().wasModified(eventTypeFile)) {
