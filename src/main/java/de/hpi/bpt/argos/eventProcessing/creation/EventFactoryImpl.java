@@ -80,7 +80,7 @@ public final class EventFactoryImpl implements EventFactory {
 		String xmlEvent = createEventXml(eventType, timestampName, attributes);
 
 		RestRequest postRequest = RestRequestFactoryImpl.getInstance()
-				.createPostRequest(EventProcessingPlatformUpdater.getHost(),EventFactory.getPostEventUri(), "application/xml", "text/plain");
+				.createPostRequest(EventProcessingPlatformUpdater.getHost(), EventFactory.getPostEventUri(), "application/xml", "text/plain");
 
 		postRequest.setContent(xmlEvent);
 

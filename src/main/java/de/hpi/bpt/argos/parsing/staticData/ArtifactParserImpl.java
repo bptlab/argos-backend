@@ -12,7 +12,6 @@ public abstract class ArtifactParserImpl<ArtifactType> extends XMLSubParserImpl 
 	protected ArtifactType parentArtifact;
 	protected ArtifactType artifact;
 	protected EntityTypeList entityTypes;
-	
 
 	/**
 	 * This constructor initializes all members with their given values.
