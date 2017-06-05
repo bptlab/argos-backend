@@ -12,27 +12,27 @@ public class ObservableImpl<Observer> implements Observable<Observer> {
 
 	public enum ObserverCallOrder {
 		FIRST_IN_FIRST_OUT,
-		FIRST_IN_LAST_OUT,
+		LAST_IN_FIRST_OUT,
 	}
 
 	private List<Observer> observers;
-	protected ObserverCallOrder insertStrategy;
+	protected ObserverCallOrder processingStrategy;
 
 	/**
 	 * This constructor initializes all members with their default value.
 	 */
 	public ObservableImpl() {
 		observers = new ArrayList<>();
-		insertStrategy = ObserverCallOrder.FIRST_IN_FIRST_OUT;
+		processingStrategy = ObserverCallOrder.FIRST_IN_FIRST_OUT;
 	}
 
 	/**
-	 * This constructor initializes the insertStrategy member with the given parameters.
+	 * This constructor initializes the processingStrategy member with the given parameters.
 	 * @param insertStrategy - the insert strategy to use
 	 */
 	public ObservableImpl(ObserverCallOrder insertStrategy) {
 		this();
-		this.insertStrategy = insertStrategy;
+		this.processingStrategy = insertStrategy;
 	}
 
 	/**
@@ -40,19 +40,7 @@ public class ObservableImpl<Observer> implements Observable<Observer> {
 	 */
 	@Override
 	public void subscribe(Observer observer) {
-		switch (insertStrategy) {
-			case FIRST_IN_FIRST_OUT:
-				observers.add(observer);
-				break;
-
-			case FIRST_IN_LAST_OUT:
-				observers.add(0, observer);
-				break;
-
-			default:
-				observers.add(observer);
-				break;
-		}
+		observers.add(observer);
 	}
 
 	/**
@@ -68,8 +56,14 @@ public class ObservableImpl<Observer> implements Observable<Observer> {
 	 * @param notifyMethod - the method to invoke for each observer
 	 */
 	public void notifyObservers(Consumer<Observer> notifyMethod) {
-		for (Observer observer : observers) {
-			notifyMethod.accept(observer);
+		if (processingStrategy == ObserverCallOrder.FIRST_IN_FIRST_OUT) {
+			for (Observer observer : observers) {
+				notifyMethod.accept(observer);
+			}
+		} else if (processingStrategy == ObserverCallOrder.LAST_IN_FIRST_OUT) {
+			for (int i = observers.size() - 1; i >= 0; i--) {
+				notifyMethod.accept(observers.get(i));
+			}
 		}
 	}
 }

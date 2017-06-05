@@ -73,6 +73,8 @@ public class ArgosImpl implements Argos {
 		eventReceiver = new EventReceiverImpl();
 
 		// keep this after eventReceiver creation, since we need to register a new eventCreation-Observer for statusUpdatedEvents
+		(new EventEntityMapperImpl()).setup(eventReceiver);
+		(new EntityStatusCalculatorImpl()).setup(eventReceiver);
 		EventProcessingPlatformUpdaterImpl.getInstance().setup(this);
 
 		Set<RestEndpoint> restEndpoints = new HashSet<>();
@@ -87,9 +89,6 @@ public class ArgosImpl implements Argos {
 			WatchImpl.measure(String.format("setup rest endpoint: '%1$s'", restEndpoint.getClass().getSimpleName()),
 					() -> setupRestEndpoint(restEndpoint));
 		}
-
-		(new EventEntityMapperImpl()).setup(eventReceiver);
-		(new EntityStatusCalculatorImpl()).setup(eventReceiver);
 
 		enableCORS(sparkService);
 		sparkService.awaitInitialization();
