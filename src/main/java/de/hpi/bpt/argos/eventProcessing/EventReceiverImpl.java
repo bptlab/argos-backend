@@ -27,7 +27,9 @@ import spark.Request;
 import spark.Response;
 import spark.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static spark.Spark.halt;
@@ -126,7 +128,12 @@ public class EventReceiverImpl implements EventReceiver {
 			attribute.setTypeAttributeId(typeAttribute.getId());
 
 			if (!serializedEvent.has(typeAttribute.getName())) {
-				attribute.setValue("");
+				if (eventType.getTimeStampAttributeId() == typeAttribute.getId()) {
+					SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+					attribute.setValue(dateFormat.format(new Date()));
+				} else {
+					attribute.setValue("");
+				}
 			} else {
 				attribute.setValue(serializedEvent.get(typeAttribute.getName()).getAsString());
 			}
