@@ -12,8 +12,6 @@ import java.util.function.Consumer;
  * This is the implementation.
  */
 public class BackgroundWorkerImpl<DataType> implements BackgroundWorker<DataType> {
-	private static final Logger logger = LoggerFactory.getLogger(BackgroundWorkerImpl.class);
-
 	private List<DataType> workload;
 	private Consumer<DataType> action;
 	private Thread backgroundThread;
