@@ -14,11 +14,14 @@ import de.hpi.bpt.argos.storage.dataModel.entity.Entity;
 import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityType;
 import de.hpi.bpt.argos.storage.dataModel.event.Event;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
+import de.hpi.bpt.argos.storage.dataModel.event.type.StatusUpdatedEventType;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.testUtil.ArgosTestUtil;
 import de.hpi.bpt.argos.testUtil.WebSocket;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
+import de.hpi.bpt.argos.util.ObjectWrapper;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -41,6 +44,7 @@ public class EventReceiverTest extends ArgosTestParent {
 
 	@BeforeClass
 	public static void initialize() {
+		ArgosTestParent.setup();
 		testEntityType = ArgosTestUtil.createEntityType(true);
 		testEntityTypeAttributes = ArgosTestUtil.createEntityTypeAttributes(testEntityType, true);
 		testEntity = ArgosTestUtil.createEntity(testEntityType, true);
@@ -50,6 +54,11 @@ public class EventReceiverTest extends ArgosTestParent {
 		testMapping = ArgosTestUtil.createEventEntityMapping(testEventType, testEntityType, "", true);
 
 		testMappingConditions = ArgosTestUtil.createMappingConditions(testMapping, testEventTypeAttributes, testEntityTypeAttributes, true);
+	}
+
+	@AfterClass
+	public static void tearDown() {
+		ArgosTestParent.tearDown();
 	}
 
 	@Test
@@ -71,8 +80,6 @@ public class EventReceiverTest extends ArgosTestParent {
 
 		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
-		assertEquals(eventsCount + 1, getEventsCount());
-
 		assertEquals(oldStatus, getEntityStatus());
 
 		List<String> webSocketMessages = webSocket.awaitMessages(1, 1000);
@@ -82,6 +89,8 @@ public class EventReceiverTest extends ArgosTestParent {
 		assertEquals(testEntity.getId(), message.get("EntityId").getAsLong());
 		assertEquals(testEventType.getId(), message.get("EventTypeId").getAsLong());
 		assertEquals("Event", message.get("ArtifactType").getAsString());
+
+		assertEquals(eventsCount + 1, getEventsCount());
 	}
 
 	@Test
@@ -105,7 +114,7 @@ public class EventReceiverTest extends ArgosTestParent {
 	}
 
 	@Test
-	public void testReceiveEvent_InvalidMapping_BadRequest() {
+	public void testReceiveEvent_InvalidMapping_Success() {
 		String targetStatus = "UnreachableStatus_" + ArgosTestUtil.getCurrentTimestamp();
 		String oldStatus = getEntityStatus();
 		testMapping.setTargetStatus(targetStatus);
@@ -118,7 +127,7 @@ public class EventReceiverTest extends ArgosTestParent {
 
 		setInvalidMapping(event);
 		request.setContent(serializer.toJson(event));
-		assertEquals(HttpStatusCodes.BAD_REQUEST, request.getResponseCode());
+		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
 		// the entity status was not updated, although the mapping has a target status
 		assertEquals(oldStatus, getEntityStatus());
@@ -142,10 +151,10 @@ public class EventReceiverTest extends ArgosTestParent {
 		request.setContent(serializer.toJson(event));
 		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
+		assertWebSocketMessages(webSocket, testEventType.getId(), testEntity.getId());
+
 		assertEquals(eventsCount + 1, getEventsCount());
 		assertEquals(newStatus, getEntityStatus());
-
-		assertWebSocketMessages(webSocket, testEventType.getId(), testEntity.getId());
 	}
 
 	@Test
@@ -157,6 +166,9 @@ public class EventReceiverTest extends ArgosTestParent {
 		PersistenceAdapterImpl.getInstance().saveArtifacts(testMapping);
 		int eventsCount = getEventsCount();
 
+		ObjectWrapper<Boolean> mapperExecuted = new ObjectWrapper<>();
+		mapperExecuted.set(false);
+
 		EventCreationObserver customEventMapper = new EventCreationObserver() {
 			@Override
 			public void onEventCreated(EventEntityMappingStatus mappingStatus,
@@ -166,6 +178,7 @@ public class EventReceiverTest extends ArgosTestParent {
 									   List<Attribute> eventAttributes) {
 
 				assertFalse(mappingStatus.isMapped());
+				mapperExecuted.set(true);
 
 				mappingStatus.setEventOwner(newEntity);
 				mappingStatus.getStatusUpdateStatus().setNewStatus(targetStatus);
@@ -184,13 +197,14 @@ public class EventReceiverTest extends ArgosTestParent {
 		request.setContent(serializer.toJson(event));
 		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
+		assertWebSocketMessages(webSocket, testEventType.getId(), newEntity.getId());
 		argos.removeEventEntityMapper(customEventMapper);
+
+		assertTrue(mapperExecuted.get());
 
 		assertEquals(eventsCount + 1, getEventsCount());
 		assertEquals(targetStatus, getEntityStatus(newEntity.getId()));
 		assertEquals(testEntityStatus, getEntityStatus());
-
-		assertWebSocketMessages(webSocket, testEventType.getId(), newEntity.getId());
 	}
 
 	@Test
@@ -200,9 +214,14 @@ public class EventReceiverTest extends ArgosTestParent {
 		PersistenceAdapterImpl.getInstance().saveArtifacts(testMapping);
 		int eventsCount = getEventsCount();
 
+		ObjectWrapper<Boolean> statusLogicExecuted = new ObjectWrapper<>();
+		statusLogicExecuted.set(false);
+
 		EventMappingObserver customStatusLogic = new EventMappingObserver() {
 			@Override
 			public void onEventMapped(EventEntityMappingStatus processStatus) {
+				statusLogicExecuted.set(true);
+
 				assertTrue(processStatus.isMapped());
 				assertFalse(processStatus.getStatusUpdateStatus().isStatusUpdated());
 
@@ -222,12 +241,43 @@ public class EventReceiverTest extends ArgosTestParent {
 		request.setContent(serializer.toJson(event));
 		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
+		assertWebSocketMessages(webSocket, testEventType.getId(), testEntity.getId());
 		argos.removeEntityStatusCalculator(customStatusLogic);
 
+		assertTrue(statusLogicExecuted.get());
 		assertEquals(eventsCount + 1, getEventsCount());
 		assertEquals(targetStatus, getEntityStatus());
+	}
 
-		assertWebSocketMessages(webSocket, testEventType.getId(), testEntity.getId());
+	@Test
+	public void testReceiveEvent_StatusUpdatedEvent_Success() throws Exception {
+		StatusUpdatedEventType.setup(argos);
+
+		String oldStatus = getEntityStatus();
+		String newStatus = oldStatus + "_Updated";
+		int statusUpdateEventsCount = getEventsCount(StatusUpdatedEventType.getInstance().getId());
+
+		WebSocket webSocket = WebSocket.buildWebSocket();
+
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createPostRequest(ARGOS_REST_HOST, getReceiveEventUri(StatusUpdatedEventType.getInstance().getId()));
+
+		JsonObject event = new JsonObject();
+		event.addProperty("Timestamp", ArgosTestUtil.getCurrentTimestamp());
+		event.addProperty("OldStatus", oldStatus);
+		event.addProperty("NewStatus", newStatus);
+		event.addProperty("CauseEventId", 0);
+		event.addProperty("CauseEventTypeId", testEventType.getId());
+		event.addProperty("EntityId", testEntity.getId());
+
+		request.setContent(serializer.toJson(event));
+
+		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+
+		assertWebSocketMessages(webSocket, StatusUpdatedEventType.getInstance().getId(), testEntity.getId());
+
+		assertEquals(statusUpdateEventsCount + 1, getEventsCount(StatusUpdatedEventType.getInstance().getId()));
+		assertEquals(newStatus, getEntityStatus());
 	}
 
 	private JsonObject getJsonEvent() {
@@ -262,7 +312,11 @@ public class EventReceiverTest extends ArgosTestParent {
 	}
 
 	private int getEventsCount() {
-		return PersistenceAdapterImpl.getInstance().getEventCountOfEventType(testEventType.getId());
+		return getEventsCount(testEventType.getId());
+	}
+
+	private int getEventsCount(long eventTypeId) {
+		return PersistenceAdapterImpl.getInstance().getEventCountOfEventType(eventTypeId);
 	}
 
 	private String getTypeAttributeName(List<TypeAttribute> typeAttributes, long typeAttributeId) {

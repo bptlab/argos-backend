@@ -11,11 +11,13 @@ import de.hpi.bpt.argos.storage.PersistenceArtifactUpdateType;
 import de.hpi.bpt.argos.storage.dataModel.attribute.type.TypeAttribute;
 import de.hpi.bpt.argos.storage.dataModel.entity.type.EntityType;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
+import de.hpi.bpt.argos.storage.dataModel.event.type.StatusUpdatedEventType;
 import de.hpi.bpt.argos.storage.dataModel.mapping.EventEntityMapping;
 import de.hpi.bpt.argos.storage.dataModel.mapping.MappingCondition;
 import de.hpi.bpt.argos.testUtil.ArgosTestUtil;
 import de.hpi.bpt.argos.testUtil.WebSocket;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -32,10 +34,48 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 
 	@BeforeClass
 	public static void initialize() {
+		ArgosTestParent.setup();
 		testEntityType = ArgosTestUtil.createEntityType(true);
 		testEntityTypeAttributes = ArgosTestUtil.createEntityTypeAttributes(testEntityType, true);
 		testEventType = ArgosTestUtil.createEventType(false, true);
 		testEventTypeAttributes = ArgosTestUtil.createEventTypeAttributes(testEventType, true);
+	}
+
+	@AfterClass
+	public static void tearDown() {
+		ArgosTestParent.tearDown();
+	}
+
+	@Test
+	public void testGetMapping() {
+		EventEntityMapping testMapping = createMappingWithConditions();
+
+		RestRequest request = RestRequestFactoryImpl.getInstance().createGetRequest(ARGOS_REST_HOST, getEntityMappingUri(testMapping.getId()));
+
+		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
+
+		JsonObject jsonMapping = jsonParser.parse(request.getResponse()).getAsJsonObject();
+
+		assertEquals(testMapping.getId(), jsonMapping.get("Id").getAsLong());
+		assertEquals(testEventType.getId(), jsonMapping.get("EventTypeId").getAsLong());
+		assertEquals(testEntityType.getId(), jsonMapping.get("EntityTypeId").getAsLong());
+		assertEquals(testMapping.getTargetStatus(), jsonMapping.get("TargetStatus").getAsString());
+
+		JsonArray jsonConditions = jsonMapping.get("EventEntityMappingConditions").getAsJsonArray();
+		assertEquals(1, jsonConditions.size());
+
+		JsonObject jsonCondition = jsonConditions.get(0).getAsJsonObject();
+		assertEquals(testEventTypeAttributes.get(0).getId(), jsonCondition.get("EventTypeAttributeId").getAsLong());
+		assertEquals(testEntityTypeAttributes.get(0).getId(), jsonCondition.get("EntityTypeAttributeId").getAsLong());
+	}
+
+	@Test
+	public void testGetMapping_InvalidId_NotFound() {
+		EventEntityMapping testMapping = createMappingWithConditions();
+
+		RestRequest request = RestRequestFactoryImpl.getInstance().createGetRequest(ARGOS_REST_HOST, getEntityMappingUri(testMapping.getId() + 1));
+
+		assertEquals(HttpStatusCodes.NOT_FOUND, request.getResponseCode());
 	}
 
 	@Test
@@ -63,6 +103,21 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 
 		EventEntityMapping createdMapping = PersistenceAdapterImpl.getInstance().getEventEntityMapping(notification.get("ArtifactId").getAsLong());
 		assertMapping(createdMapping, targetStatus);
+	}
+
+	@Test
+	public void testCreateEntityMapping_StatusUpdateEventType_Forbidden() {
+		EventType statusUpdatedEventType = StatusUpdatedEventType.getInstance();
+		List<TypeAttribute> statusUpdatedTypeAttributes = PersistenceAdapterImpl.getInstance()
+				.getTypeAttributes(statusUpdatedEventType.getId());
+
+		RestRequest request = RestRequestFactoryImpl.getInstance().createPostRequest(ARGOS_REST_HOST, getCreateEntityMappingUri());
+
+		JsonObject newMapping = createNewMappingJson(statusUpdatedEventType, statusUpdatedTypeAttributes, testEntityType, testEntityTypeAttributes);
+
+		request.setContent(serializer.toJson(newMapping));
+
+		assertEquals(HttpStatusCodes.FORBIDDEN, request.getResponseCode());
 	}
 
 	@Test
@@ -204,6 +259,25 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 	}
 
 	@Test
+	public void testEditEntityMapping_StatusUpdateEventType_Forbidden() {
+		EventType statusUpdatedEventType = StatusUpdatedEventType.getInstance();
+		List<TypeAttribute> statusUpdatedTypeAttributes = PersistenceAdapterImpl.getInstance().getTypeAttributes(statusUpdatedEventType.getId());
+		EventEntityMapping testMapping = ArgosTestUtil.createEventEntityMapping(testEventType, testEntityType, "", true);
+
+		RestRequest request = RestRequestFactoryImpl.getInstance()
+				.createPutRequest(ARGOS_REST_HOST, getEditEntityMappingUri(testMapping.getId()));
+
+		JsonObject updatedMapping = createNewMappingJson(statusUpdatedEventType,
+				statusUpdatedTypeAttributes,
+				testEntityType,
+				testEntityTypeAttributes);
+
+		request.setContent(serializer.toJson(updatedMapping));
+
+		assertEquals(HttpStatusCodes.FORBIDDEN, request.getResponseCode());
+	}
+
+	@Test
 	public void testEditEntityMapping_InvalidEntityTypeId_BadRequest() {
 		EventEntityMapping testMapping = createMappingWithConditions();
 		String oldStatus = testMapping.getTargetStatus();
@@ -321,23 +395,35 @@ public class EntityMappingEndpointTest extends ArgosTestParent {
 	}
 
 	private JsonObject createNewMappingJson() {
+		return createNewMappingJson(testEventType, testEventTypeAttributes, testEntityType, testEntityTypeAttributes);
+	}
+
+	private JsonObject createNewMappingJson(EventType eventType,
+											List<TypeAttribute> eventTypeAttributes,
+											EntityType entityType,
+											List<TypeAttribute> entityTypeAttributes) {
 		JsonObject newMapping = new JsonObject();
 
-		newMapping.addProperty("EventTypeId", testEventType.getId());
-		newMapping.addProperty("EntityTypeId", testEntityType.getId());
+		newMapping.addProperty("EventTypeId", eventType.getId());
+		newMapping.addProperty("EntityTypeId", entityType.getId());
 		newMapping.addProperty("TargetStatus", "NewStatus_" + ArgosTestUtil.getCurrentTimestamp());
 
 		JsonArray mappingConditions = new JsonArray();
 
 		JsonObject newMappingCondition = new JsonObject();
-		newMappingCondition.addProperty("EventTypeAttributeId", testEventTypeAttributes.get(0).getId());
-		newMappingCondition.addProperty("EntityTypeAttributeId", testEntityTypeAttributes.get(0).getId());
+		newMappingCondition.addProperty("EventTypeAttributeId", eventTypeAttributes.get(0).getId());
+		newMappingCondition.addProperty("EntityTypeAttributeId", entityTypeAttributes.get(0).getId());
 
 		mappingConditions.add(newMappingCondition);
 
 		newMapping.add("EventEntityMappingConditions", mappingConditions);
 
 		return newMapping;
+	}
+
+	private String getEntityMappingUri(Object entityMappingId) {
+		return EntityMappingEndpoint.getEntityMappingBaseUri()
+				.replaceAll(EntityMappingEndpoint.getEntityMappingIdParameter(true), entityMappingId.toString());
 	}
 
 	private String getCreateEntityMappingUri() {

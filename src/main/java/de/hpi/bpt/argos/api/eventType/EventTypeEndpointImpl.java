@@ -100,6 +100,11 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
     public String getEventType(Request request, Response response) {
         long eventTypeId = getEventTypeId(request);
         EventType eventType = PersistenceAdapterImpl.getInstance().getEventType(eventTypeId);
+
+        if (eventType == null) {
+        	halt(HttpStatusCodes.NOT_FOUND, "cannot find event type");
+		}
+
         JsonObject jsonEventType = RestEndpointCommon.getEventTypeJson(eventType);
 
         return serializer.toJson(jsonEventType);
@@ -212,13 +217,7 @@ public class EventTypeEndpointImpl implements EventTypeEndpoint {
 		List<EventQuery> queries = PersistenceAdapterImpl.getInstance().getEventQueries(eventTypeId);
 
 		for (EventQuery query : queries) {
-			JsonObject jsonTypeAttribute = new JsonObject();
-
-			jsonTypeAttribute.addProperty("Id", query.getId());
-			jsonTypeAttribute.addProperty("Description", query.getDescription());
-			jsonTypeAttribute.addProperty("Query", query.getQuery());
-
-			jsonTypeQueriesArray.add(jsonTypeAttribute);
+			jsonTypeQueriesArray.add(RestEndpointCommon.getEventQueryJson(query));
 		}
 
 		return serializer.toJson(jsonTypeQueriesArray);

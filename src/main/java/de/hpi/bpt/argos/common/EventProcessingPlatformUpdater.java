@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.common;
 
+import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
@@ -17,8 +18,9 @@ public interface EventProcessingPlatformUpdater {
 
 	/**
 	 * This method sets up the eventProcessingPlatform by registering all eventTypes and eventQueries.
+	 * @param argos - the argos instance
 	 */
-	void setup();
+	void setup(Argos argos);
 
 	/**
 	 * This method registers a given eventType in the eventProcessingPlatform.

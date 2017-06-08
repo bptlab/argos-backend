@@ -119,6 +119,8 @@ public final class EventTypeParserImpl implements EventTypeParser {
 			return;
 		}
 
+		logger.info(String.format("start parsing '%1$s' ...", eventTypeFile.getName()));
+
 		try {
 			if (!FileUtilImpl.getInstance().wasModified(eventTypeFile)) {
 				logger.info(String.format("file '%1$s' was loaded already and therefore skipped", eventTypeFile.getName()));
@@ -150,6 +152,8 @@ public final class EventTypeParserImpl implements EventTypeParser {
 		} catch (Exception e) {
 			LoggerUtilImpl.getInstance().error(logger, String.format("cannot load event type from file '%1$s'", eventTypeFile.getName()), e);
 		}
+
+		logger.info(String.format("... finished paring '%1$s'", eventTypeFile.getName()));
 	}
 
 	/**

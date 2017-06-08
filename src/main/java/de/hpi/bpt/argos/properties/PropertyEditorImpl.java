@@ -66,10 +66,26 @@ public final class PropertyEditorImpl implements PropertyEditor {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getPropertyAsInt(String propertyKey) {
 		try {
 			return Integer.parseInt(getProperty(propertyKey));
+		} catch (Exception e) {
+			LoggerUtilImpl.getInstance().error(logger, String.format("cannot parse property value to int: '%1$s'", getProperty(propertyKey)), e);
+			return 0;
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public long getPropertyAsLong(String propertyKey) {
+		try {
+			return Long.parseLong(getProperty(propertyKey));
 		} catch (Exception e) {
 			LoggerUtilImpl.getInstance().error(logger, String.format("cannot parse property value to int: '%1$s'", getProperty(propertyKey)), e);
 			return 0;

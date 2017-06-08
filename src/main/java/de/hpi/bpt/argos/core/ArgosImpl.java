@@ -69,9 +69,13 @@ public class ArgosImpl implements Argos {
 
 		// keep this order, since web sockets should be registered before any web routes get registered
 		(new ClientUpdateServiceImpl()).setup(sparkService);
-		EventProcessingPlatformUpdaterImpl.getInstance().setup();
 
 		eventReceiver = new EventReceiverImpl();
+
+		// keep this after eventReceiver creation, since we need to register a new eventCreation-Observer for statusUpdatedEvents
+		(new EventEntityMapperImpl()).setup(eventReceiver);
+		(new EntityStatusCalculatorImpl()).setup(eventReceiver);
+		EventProcessingPlatformUpdaterImpl.getInstance().setup(this);
 
 		Set<RestEndpoint> restEndpoints = new HashSet<>();
 		restEndpoints.add(eventReceiver);
@@ -85,9 +89,6 @@ public class ArgosImpl implements Argos {
 			WatchImpl.measure(String.format("setup rest endpoint: '%1$s'", restEndpoint.getClass().getSimpleName()),
 					() -> setupRestEndpoint(restEndpoint));
 		}
-
-		(new EventEntityMapperImpl()).setup(eventReceiver);
-		(new EntityStatusCalculatorImpl()).setup(eventReceiver);
 
 		enableCORS(sparkService);
 		sparkService.awaitInitialization();

@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  version: '2.0'
+  version: '2.1.0'
   title: Argos-Backend
 paths:
   '/api/entitytype/hierarchy':
@@ -490,6 +490,34 @@ paths:
                         type: integer
                         format: long
                         
+  '/api/eventquery/{queryId}':
+    get:
+      description: Returns one specfic 'EventQuery'.
+      parameters:
+        - name: queryId
+          in: path
+          description: Unique identifier of the `EventQuery`.
+          required: true
+          type: integer
+          format: long
+      responses:
+        '200':
+          description: Successful response.
+          schema:
+            title: EventQuery
+            type: object
+            properties:
+              Id:
+                type: integer
+                format: long
+              TypeId:
+                type: integer
+                format: long
+              Description:
+                type: string
+              Query:
+                type: string
+                        
   '/api/eventquery/create':
     post:
       description: Creates a new `EventQuery`.
@@ -553,6 +581,48 @@ paths:
         '200':
           description: Successful response.
           
+  '/api/entitymapping/{mappingId}':
+    get:
+      description: Returns one specific `EventEntityMapping`, identified by its id.
+      parameters:
+        - name: mappingId
+          in: path
+          description: Unique identifier of the `EventEntityMapping`.
+          required: true
+          type: integer
+          format: long
+          
+      responses:
+        '200':
+          description: Successful response.
+          schema:
+            title: EventEntityMapping
+            type: object
+            properties:
+              Id:
+                type: integer
+                format: long
+              EventTypeId:
+                type: integer
+                format: long
+              EntityTypeId:
+                type: integer
+                format: long
+              TargetStatus:
+                type: string
+              EventEntityMappingConditions:
+                type: array
+                items:
+                  title: EventEntityMappingCondition
+                  type: object
+                  properties:
+                    EventTypeAttributeId:
+                      type: integer
+                      format: long
+                    EntityTypeAttributeId:
+                      type: integer
+                      format: long
+            
   /api/entitymapping/create:
     post:
       description: Creates a new `EventEntityMapping`.

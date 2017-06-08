@@ -42,35 +42,32 @@ public class DatabaseAccessImpl implements DatabaseAccess {
 	 */
 	@Override
 	public boolean establishConnection() {
-		try {
-			Configuration configuration = new Configuration();
-			configuration.configure();
 
-			sessionBatchSize = Integer.parseInt(configuration.getProperty("hibernate.jdbc.batch_size"));
+		Configuration configuration = configureDatabaseConnection();
+		sessionBatchSize = Integer.parseInt(configuration.getProperty("hibernate.jdbc.batch_size"));
 
-			configuration.setProperty("hibernate.connection.username", DatabaseAccess.getConnectionUsername());
-			configuration.setProperty("hibernate.connection.password", DatabaseAccess.getConnectionPassword());
+		if (Argos.shouldWaitForDatabase()) {
+			boolean connected = tryConnect(configuration);
+			final long retryTime = 5000;
+			long startTime = System.currentTimeMillis();
 
-			if (Argos.isInTestMode()) {
-				configuration.setProperty("hibernate.connection.url",
-						String.format("jdbc:mysql://%1$s/argosbackend_test?createDatabaseIfNotExist=true", DatabaseAccess.getConnectionHost()));
+			while (!connected) {
+				logger.info(String.format("waiting for database to be up ... (%1$d ms)", System.currentTimeMillis() - startTime));
 
-				// drop existing schema and re-create
-				configuration.setProperty("hibernate.hbm2ddl.auto", "create");
-			} else {
-				configuration.setProperty("hibernate.connection.url",
-						String.format("jdbc:mysql://%1$s/argosbackend?createDatabaseIfNotExist=true", DatabaseAccess.getConnectionHost()));
+				try {
+					Thread.sleep(retryTime);
+				} catch (InterruptedException e) {
+					LoggerUtilImpl.getInstance().error(logger, "thread sleep was interrupted", e);
+					Thread.currentThread().interrupt();
+				}
 
-				configuration.setProperty("hibernate.hbm2ddl.auto", "update");
+				connected = tryConnect(configuration);
 			}
 
-			sessionFactory = configuration.buildSessionFactory();
-		} catch (ServiceException e) {
-			LoggerUtilImpl.getInstance().error(logger, "cannot connect to database server", e);
-			return false;
+			return true;
+		} else {
+			return tryConnect(configuration);
 		}
-
-		return true;
 	}
 
 	/**
@@ -231,5 +228,48 @@ public class DatabaseAccessImpl implements DatabaseAccess {
 		} finally {
 			session.close();
 		}
+	}
+
+	/**
+	 * This method configures the database connector.
+	 * @return - the configuration for the database connector
+	 */
+	private Configuration configureDatabaseConnection() {
+		Configuration configuration = new Configuration();
+		configuration.configure();
+
+		configuration.setProperty("hibernate.connection.username", DatabaseAccess.getConnectionUsername());
+		configuration.setProperty("hibernate.connection.password", DatabaseAccess.getConnectionPassword());
+
+		if (Argos.isInTestMode()) {
+			configuration.setProperty("hibernate.connection.url",
+					String.format("jdbc:mysql://%1$s/argosbackend_test?createDatabaseIfNotExist=true", DatabaseAccess.getConnectionHost()));
+
+			// drop existing schema and re-create
+			configuration.setProperty("hibernate.hbm2ddl.auto", "create");
+		} else {
+			configuration.setProperty("hibernate.connection.url",
+					String.format("jdbc:mysql://%1$s/argosbackend?createDatabaseIfNotExist=true", DatabaseAccess.getConnectionHost()));
+
+			configuration.setProperty("hibernate.hbm2ddl.auto", "update");
+		}
+
+		return configuration;
+	}
+
+	/**
+	 * This method tries to connect to the database service.
+	 * @param configuration - the configuration to use for the connection
+	 * @return - the status of the connection process
+	 */
+	private boolean tryConnect(Configuration configuration) {
+		try {
+			sessionFactory = configuration.buildSessionFactory();
+		} catch (ServiceException e) {
+			LoggerUtilImpl.getInstance().error(logger, "cannot connect to database server", e);
+			return false;
+		}
+
+		return true;
 	}
 }

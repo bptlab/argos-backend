@@ -16,15 +16,20 @@ import de.hpi.bpt.argos.storage.dataModel.event.Event;
 import de.hpi.bpt.argos.storage.dataModel.event.EventImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
+import de.hpi.bpt.argos.util.Pair;
+import de.hpi.bpt.argos.util.PairImpl;
 import de.hpi.bpt.argos.util.RestEndpointUtil;
 import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
+import de.hpi.bpt.argos.util.threading.BackgroundWorkerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
 import spark.Response;
 import spark.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static spark.Spark.halt;
@@ -40,13 +45,16 @@ public class EventReceiverImpl implements EventReceiver {
 
 	private ObservableImpl<EventCreationObserver> eventCreationObservable;
 	private ObservableImpl<EventMappingObserver> eventMappingObservable;
+	private BackgroundWorkerImpl<Pair<EventType, String>> eventCreationWorker;
 
 	/**
 	 * This constructor initializes all members with their default values.
 	 */
 	public EventReceiverImpl() {
-		eventCreationObservable = new ObservableImpl<>(ObservableImpl.ObserverCallOrder.FIRST_IN_LAST_OUT);
-		eventMappingObservable = new ObservableImpl<>(ObservableImpl.ObserverCallOrder.FIRST_IN_LAST_OUT);
+		eventCreationObservable = new ObservableImpl<>(ObservableImpl.ObserverCallOrder.LAST_IN_FIRST_OUT);
+		eventMappingObservable = new ObservableImpl<>(ObservableImpl.ObserverCallOrder.LAST_IN_FIRST_OUT);
+		eventCreationWorker = new BackgroundWorkerImpl<>(
+				(Pair<EventType, String> eventData) -> createEvent(eventData.getValue(), eventData.getKey()));
 	}
 
 	/**
@@ -73,7 +81,7 @@ public class EventReceiverImpl implements EventReceiver {
 		if (eventType == null) {
 			halt(HttpStatusCodes.NOT_FOUND, "event type id was not found");
 		} else {
-			createEvent(request.body(), eventType);
+			eventCreationWorker.addWorkload(new PairImpl<>(eventType, request.body()));
 		}
 
 		return "";
@@ -118,7 +126,17 @@ public class EventReceiverImpl implements EventReceiver {
 
 			attribute.setOwnerId(event.getId());
 			attribute.setTypeAttributeId(typeAttribute.getId());
-			attribute.setValue(serializedEvent.get(typeAttribute.getName()).getAsString());
+
+			if (!serializedEvent.has(typeAttribute.getName())) {
+				if (eventType.getTimeStampAttributeId() == typeAttribute.getId()) {
+					SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+					attribute.setValue(dateFormat.format(new Date()));
+				} else {
+					attribute.setValue("");
+				}
+			} else {
+				attribute.setValue(serializedEvent.get(typeAttribute.getName()).getAsString());
+			}
 
 			eventAttributes.add(attribute);
 		}
@@ -147,7 +165,8 @@ public class EventReceiverImpl implements EventReceiver {
 			int numberOfEvents = PersistenceAdapterImpl.getInstance().getEventCountOfEntity(eventCreationStatus.getEventOwner().getId(), eventType.getId());
 
 			if (eventCreationStatus.getStatusUpdateStatus().isStatusUpdated()) {
-				eventCreationStatus.getEventOwner().setStatus(eventCreationStatus.getStatusUpdateStatus().getNewStatus());
+				eventCreationStatus.getEventOwner()
+						.setStatus(eventCreationStatus.getStatusUpdateStatus().getNewStatus(), eventCreationStatus.getEvent());
 				PersistenceAdapterImpl.getInstance()
 						.updateArtifact(eventCreationStatus.getEventOwner(), EntityEndpoint.getEntityUri(eventCreationStatus.getEventOwner().getId()));
 			}

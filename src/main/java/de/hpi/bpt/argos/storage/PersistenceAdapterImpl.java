@@ -378,26 +378,14 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 			return new ArrayList<>();
 		}
 
-		StringBuilder sqlWhere = new StringBuilder();
-		sqlWhere.append(String.format("(event.entityId = %1$d)", entityIds[0]));
-
-		for (int i = 1; i < entityIds.length; i++) {
-			sqlWhere.append(String.format(" OR (event.entityId = %1$d)", entityIds[i]));
-		}
-
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
 
-		String sqlQuery = String.format(
-				"FROM EventImpl event "
-						+ "WHERE event.typeId = %1$d"
-						+ "AND (%2$s)",
-				eventTypeId,
-				sqlWhere.toString()
-		);
-
-		Query<Event> query = session.createQuery(sqlQuery,
+		Query<Event> query = session.createQuery("FROM EventImpl event "
+				+ "WHERE event.typeId = :typeId AND event.entityId IN (:entityIds)",
 				Event.class)
+				.setParameter("typeId", eventTypeId)
+				.setParameterList("entityIds", entityIds)
 				.setFirstResult(listStartIndex)
 				.setMaxResults(listEndIndex);
 
@@ -422,7 +410,6 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 
 	/**
 	 * {@inheritDoc}
-	 * @param entityIds
 	 */
 	@Override
 	public List<EventType> getEventTypes(Long... entityIds) {
@@ -433,6 +420,69 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 		List<Long> eventTypeIds = getEventTypeIds(entityIds);
 		Session session = databaseAccess.getSessionFactory().openSession();
 		return databaseAccess.getArtifactsById(session, EventTypeImpl.class, eventTypeIds.toArray(new Long[eventTypeIds.size()]));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<EventType, Long> getEventTypesAndEventCount(Long... entityIds) {
+		List<EventType> eventTypes = getEventTypes(entityIds);
+
+		if (entityIds.length == 0 || eventTypes.isEmpty()) {
+			return new HashMap<>();
+		}
+
+		Map<EventType, Long> eventTypesAndEventCount = new HashMap<>();
+
+		for (EventType eventType : eventTypes) {
+			if (eventTypesAndEventCount.containsKey(eventType)) {
+				continue;
+			}
+
+			eventTypesAndEventCount.put(eventType, 0L);
+		}
+
+		Table eventTable = EventImpl.class.getAnnotation(Table.class);
+		String eventTableName = "Event";
+
+		if (eventTable != null) {
+			eventTableName = eventTable.name();
+		}
+
+		String sqlQuery = String.format(
+				"SELECT TypeId, COUNT(*) "
+				+ "FROM %1$s AS event "
+				+ "WHERE event.TypeId IN %2$s AND event.EntityId IN %3$s "
+				+ "GROUP BY event.TypeId",
+				eventTableName,
+				getIdsList(eventTypes.toArray(new EventType[eventTypes.size()])),
+				toString(entityIds)
+		);
+
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		Query query = session.createNativeQuery(sqlQuery);
+
+		List<Object> queryResult = databaseAccess.getArtifacts(session, query, transaction, query::list, new ArrayList<>());
+
+
+		for (Object resultEntry : queryResult) {
+			Object[] entry = (Object[]) resultEntry;
+
+			Long eventTypeId = Long.parseLong(entry[0].toString());
+			Long eventCount = Long.parseLong(entry[1].toString());
+
+			for (Map.Entry<EventType, Long> returnEntry : eventTypesAndEventCount.entrySet()) {
+				if (returnEntry.getKey().getId() == eventTypeId) {
+					eventTypesAndEventCount.put(returnEntry.getKey(), returnEntry.getValue() + eventCount);
+					break;
+				}
+			}
+		}
+
+		return eventTypesAndEventCount;
 	}
 
 	/**
@@ -507,6 +557,21 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 		Query<EventType> query = session.createQuery("FROM EventTypeImpl eventType WHERE eventType.id = :id",
 				EventType.class)
 				.setParameter("id", id);
+
+		return databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public EventType getEventType(String name) {
+		Session session = databaseAccess.getSessionFactory().openSession();
+		Transaction transaction = session.beginTransaction();
+
+		Query<EventType> query = session.createQuery("FROM EventTypeImpl eventType WHERE eventType.name = :name",
+				EventType.class)
+				.setParameter("name", name);
 
 		return databaseAccess.getArtifacts(session, query, transaction, query::getSingleResult, null);
 	}
@@ -684,5 +749,47 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 		}
 
 		return eventTypeIds;
+	}
+
+	/**
+	 * This method returns a list of ids for a given list of artifacts as string.
+	 * @param artifacts - the list of artifacts to get the ids from
+	 * @return - a list of ids for a given list of artifacts as string
+	 */
+	private String getIdsList(PersistenceArtifact... artifacts) {
+		if (artifacts.length == 0) {
+			return "()";
+		}
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(artifacts[0].getId());
+
+		for (int i = 1; i < artifacts.length; i++) {
+			sb.append(", ");
+			sb.append(artifacts[i].getId());
+		}
+
+		return String.format("(%1$s)", sb.toString());
+	}
+
+	/**
+	 * This method converts a list of ids to a string.
+	 * @param ids - the ids to convert
+	 * @return - the converted list of ids as string
+	 */
+	private String toString(Long... ids) {
+		if (ids.length == 0) {
+			return "()";
+		}
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(ids[0]);
+
+		for (int i = 1; i < ids.length; i++) {
+			sb.append(", ");
+			sb.append(ids[i]);
+		}
+
+		return String.format("(%1$s)", sb.toString());
 	}
 }

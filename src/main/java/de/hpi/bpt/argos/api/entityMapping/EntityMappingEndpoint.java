@@ -13,8 +13,16 @@ import java.util.Objects;
  */
 public interface EntityMappingEndpoint extends RestEndpoint {
 
+	/**
+	 * This method is called via API and gets an event entity mapping.
+	 * @param request - Spark defined parameter containing request object
+	 * @param response - Spark defined parameter containing response object
+	 * @return - the requested entityMapping
+	 */
+	String getEntityMapping(Request request, Response response);
+
     /**
-     * This method is called via API and creates a event entity mapping.
+     * This method is called via API and creates an event entity mapping.
      * @param request - Spark defined parameter containing request object
      * @param response - Spark defined parameter containing response object
      * @return - the response for the creation process
@@ -46,6 +54,14 @@ public interface EntityMappingEndpoint extends RestEndpoint {
     }
 
     /**
+     * This method returns the basic URI to get an entity mapping.
+     * @return - the URI to get an entity mapping
+     */
+    static String getEntityMappingBaseUri() {
+	    return String.format("%1$s/%2$s", getEntityMappingEndpointBaseUri(), getEntityMappingIdParameter(true));
+    }
+
+    /**
      * This method returns the basic URI to create an entity mapping.
      * @return - the URI to create an entity mapping
      */
@@ -70,7 +86,16 @@ public interface EntityMappingEndpoint extends RestEndpoint {
     }
 
     /**
-     * This method returns the basic URI to delete an entity mapping.
+     * This method returns the URI to get an entity mapping.
+     * @param entityMappingId - the id of the entity mapping to be searched for
+     * @return - the URI to get an entity mapping
+     */
+    static String getEntityMappingUri(long entityMappingId) {
+        return getEntityMappingBaseUri().replaceAll(getEntityMappingIdParameter(true), Objects.toString(entityMappingId));
+    }
+
+    /**
+     * This method returns the URI to delete an entity mapping.
      * @param entityMappingId - the id of the entity mapping to be searched for
      * @return - the URI to delete an entity mapping
      */
@@ -79,7 +104,7 @@ public interface EntityMappingEndpoint extends RestEndpoint {
     }
 
     /**
-     * This method returns the basic URI to edit an entity mapping.
+     * This method returns the URI to edit an entity mapping.
      * @param entityMappingId - the id of the entity mapping to be searched for
      * @return - the URI to edit an entity mapping
      */

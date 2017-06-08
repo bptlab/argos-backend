@@ -121,19 +121,30 @@ public final class RestRequestFactoryImpl implements RestRequestFactory {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean isReachable(String host) {
+		if (Argos.isInTestMode()) {
+			return true;
+		}
+
+		URL url = toUrl(host);
+
+		return url != null && isReachable(url);
+	}
+
+	/**
 	 * This method creates a basic RestRequest object and sets host and uri.
 	 * @param host - host as a string to be set
 	 * @param uri - uri as a string to be set
 	 * @return - returns a RestRequest object to be worked with later on
 	 */
 	private RestRequest createBasicRequest(String host, String uri) {
-		URL requestURL;
+		URL requestURL = toUrl(host + uri);
 		RestRequest request;
 
-		try {
-			requestURL = new URL(host + uri);
-		} catch (MalformedURLException e) {
-			LoggerUtilImpl.getInstance().error(logger, "cannot create rest request: url malformed", e);
+		if (requestURL == null) {
 			return new NullRestRequestImpl(HttpStatusCodes.REQUEST_TIMEOUT);
 		}
 
@@ -142,7 +153,7 @@ public final class RestRequestFactoryImpl implements RestRequestFactory {
 				return new NullRestRequestImpl(HttpStatusCodes.SUCCESS);
 			}
 			else {
-				return new NullRestRequestImpl(HttpStatusCodes.REQUEST_TIMEOUT);
+				return new NullRestRequestImpl(HttpStatusCodes.BAD_GAETEWAY, host + uri + " is not reachable");
 			}
 		}
 
@@ -150,7 +161,7 @@ public final class RestRequestFactoryImpl implements RestRequestFactory {
 			request = new RestRequestImpl(requestURL);
 		} catch (IOException e) {
 			LoggerUtilImpl.getInstance().error(logger, "cannot create rest request", e);
-			return new NullRestRequestImpl(HttpStatusCodes.REQUEST_TIMEOUT);
+			return new NullRestRequestImpl(HttpStatusCodes.ERROR);
 		}
 
 		return request;
@@ -171,6 +182,20 @@ public final class RestRequestFactoryImpl implements RestRequestFactory {
 		} catch (IOException e) {
 			LoggerUtilImpl.getInstance().error(logger, String.format("unable to reach host: '%1$s'", host.toString()), e);
 			return false;
+		}
+	}
+
+	/**
+	 * This method tries to convert a given string to a URL.
+	 * @param url - the string to convert
+	 * @return - the URL object, or null
+	 */
+	private URL toUrl(String url) {
+		try {
+			return new URL(url);
+		} catch (MalformedURLException e) {
+			LoggerUtilImpl.getInstance().error(logger, "cannot create rest request: url malformed", e);
+			return null;
 		}
 	}
 }

@@ -1,8 +1,10 @@
 package de.hpi.bpt.argos.api.eventQuery;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import de.hpi.bpt.argos.api.RestEndpointCommon;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpoint;
 import de.hpi.bpt.argos.api.eventType.EventTypeEndpointImpl;
 import de.hpi.bpt.argos.common.EventPlatformFeedback;
@@ -11,6 +13,7 @@ import de.hpi.bpt.argos.storage.PersistenceAdapterImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQuery;
 import de.hpi.bpt.argos.storage.dataModel.event.query.EventQueryImpl;
 import de.hpi.bpt.argos.storage.dataModel.event.type.EventType;
+import de.hpi.bpt.argos.storage.dataModel.event.type.StatusUpdatedEventType;
 import de.hpi.bpt.argos.util.HttpStatusCodes;
 import de.hpi.bpt.argos.util.LoggerUtilImpl;
 import de.hpi.bpt.argos.util.RestEndpointUtil;
@@ -28,7 +31,7 @@ import static spark.Spark.halt;
  * This is the implementation.
  */
 public class EventQueryEndpointImpl  implements EventQueryEndpoint {
-
+	private static final Gson serializer = new Gson();
 
     private static final Logger logger = LoggerFactory.getLogger(EventTypeEndpointImpl.class);
     private static final RestEndpointUtil endpointUtil = RestEndpointUtilImpl.getInstance();
@@ -41,6 +44,10 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
      */
     @Override
     public void setup(Service sparkService) {
+    	sparkService.get(EventQueryEndpoint.getEventQueryBaseUri(),
+				(Request request, Response response) ->
+						endpointUtil.executeRequest(logger, request, response, this::getEventQuery));
+
         sparkService.post(EventQueryEndpoint.getCreateEventQueryBaseUri(),
 				(Request request, Response response) ->
 						endpointUtil.executeRequest(logger, request, response, this::createEventQuery));
@@ -54,7 +61,22 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
 						endpointUtil.executeRequest(logger, request, response, this::editEventQuery));
     }
 
-    /**
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getEventQuery(Request request, Response response) {
+		long eventQueryId = getEventQueryId(request);
+		EventQuery eventQuery = PersistenceAdapterImpl.getInstance().getEventQuery(eventQueryId);
+
+		if (eventQuery == null) {
+			halt(HttpStatusCodes.NOT_FOUND, "cannot find event query");
+		}
+
+		return serializer.toJson(RestEndpointCommon.getEventQueryJson(eventQuery));
+	}
+
+	/**
      * {@inheritDoc}
      */
     @Override
@@ -70,12 +92,12 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
 			halt(HttpStatusCodes.BAD_REQUEST, "cannot parse event query");
 		}
 
-		checkEventTypeExists(eventQuery);
+		checkValidEventType(eventQuery);
 
 		EventPlatformFeedback feedback = EventProcessingPlatformUpdaterImpl.getInstance().registerEventQuery(eventQuery.getTypeId(), eventQuery);
 
 		if (!feedback.isSuccessful()) {
-			halt(HttpStatusCodes.ERROR, String.format("cannot register event type: %1$s", feedback.getResponseText()));
+			halt(feedback.getResponseCode(), String.format("cannot register event type: %1$s", feedback.getResponseText()));
 		}
 
 		PersistenceAdapterImpl.getInstance().createArtifact(eventQuery, EventTypeEndpoint.getEventTypeQueriesUri(eventQuery.getId()));
@@ -106,7 +128,7 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
 
         EventPlatformFeedback feedback = EventProcessingPlatformUpdaterImpl.getInstance().deleteEventQuery(eventQuery);
         if (!feedback.isSuccessful()) {
-            halt(HttpStatusCodes.ERROR, String.format("cannot unregister event query: %1$s", feedback.getResponseText()));
+            halt(feedback.getResponseCode(), String.format("cannot unregister event query: %1$s", feedback.getResponseText()));
         }
 
         if (!PersistenceAdapterImpl.getInstance().deleteArtifact(eventQuery,
@@ -147,7 +169,7 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
 
         EventPlatformFeedback deleteFeedback = EventProcessingPlatformUpdaterImpl.getInstance().deleteEventQuery(oldEventQuery);
         if (!deleteFeedback.isSuccessful()) {
-            halt(HttpStatusCodes.ERROR, "given query could not be unregistered");
+            halt(deleteFeedback.getResponseCode(), "given query could not be unregistered");
         }
 
         oldEventQuery.setDescription(newEventQuery.getDescription());
@@ -156,7 +178,7 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
         EventPlatformFeedback createFeedback = EventProcessingPlatformUpdaterImpl.getInstance()
                 .registerEventQuery(oldEventQuery.getTypeId(), oldEventQuery);
         if (!createFeedback.isSuccessful()) {
-            halt(HttpStatusCodes.ERROR, "given query could not be newly registered");
+            halt(createFeedback.getResponseCode(), "given query could not be newly registered");
         }
 
         if (!PersistenceAdapterImpl.getInstance().updateArtifact(oldEventQuery, EventTypeEndpoint.getEventTypeQueriesUri(oldEventQuery.getId()))) {
@@ -191,10 +213,14 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
     }
 
 	/**
-	 * This method checks whether the eventType for a given eventQuery exists.
+	 * This method checks whether the eventType for a given eventQuery is valid.
 	 * @param eventQuery - the query to check
 	 */
-	private void checkEventTypeExists(EventQuery eventQuery) {
+	private void checkValidEventType(EventQuery eventQuery) {
+		if (eventQuery.getTypeId() == StatusUpdatedEventType.getInstance().getId()) {
+			halt(HttpStatusCodes.FORBIDDEN, "you may not create queries for this event type");
+		}
+
 		if (PersistenceAdapterImpl.getInstance().getEventType(eventQuery.getTypeId()) == null) {
 			halt(HttpStatusCodes.BAD_REQUEST, "event type id invalid");
 		}
