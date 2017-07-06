@@ -29,7 +29,7 @@ public class ClientUpdateServiceTest extends ArgosTestParent {
 
 	@BeforeClass
 	public static void initialize() {
-		ArgosTestParent.setup(1000);
+		ArgosTestParent.setup(2000);
 
 		testEntityType = ArgosTestUtil.createEntityType(true);
 	}
@@ -65,7 +65,7 @@ public class ClientUpdateServiceTest extends ArgosTestParent {
 		request.setContent(serializer.toJson(createStatusUpdatedEventJson(testEntity2)));
 		assertEquals(HttpStatusCodes.SUCCESS, request.getResponseCode());
 
-		List<String> webSocketMessages = webSocket.awaitMessages(1, 2000);
+		List<String> webSocketMessages = webSocket.awaitMessages(1, 4000);
 		JsonArray notifications = jsonParser.parse(webSocketMessages.get(0)).getAsJsonArray();
 
 		assertEquals(4, notifications.size());
