@@ -390,8 +390,7 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 		Transaction transaction = session.beginTransaction();
 
 		Query<Event> query = session.createQuery("FROM EventImpl event "
-				+ "WHERE event.typeId = :typeId AND event.entityId IN (:entityIds) "
-				+ "ORDER BY event.creationTimestamp DESC",
+				+ "WHERE event.typeId = :typeId AND event.entityId IN (:entityIds) ",
 				Event.class)
 				.setParameter("typeId", eventTypeId)
 				.setParameterList("entityIds", limitedEntityIds)
