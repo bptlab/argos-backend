@@ -34,6 +34,7 @@ import java.util.Map;
 public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArtifactUpdateObserver> implements PersistenceAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(PersistenceAdapterImpl.class);
 
+	private static final int EVENT_ENTITY_LIMIT = 1024;
 	private static PersistenceAdapter instance;
 	private DatabaseAccess databaseAccess;
 
@@ -378,6 +379,12 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 			return new ArrayList<>();
 		}
 
+		List<Long> limitedEntityIds = new ArrayList<>();
+
+		for (int i = 0; i < Math.min(entityIds.length, EVENT_ENTITY_LIMIT); i++) {
+			limitedEntityIds.add(entityIds[i]);
+		}
+
 		Session session = databaseAccess.getSessionFactory().openSession();
 		Transaction transaction = session.beginTransaction();
 
@@ -385,7 +392,7 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 				+ "WHERE event.typeId = :typeId AND event.entityId IN (:entityIds)",
 				Event.class)
 				.setParameter("typeId", eventTypeId)
-				.setParameterList("entityIds", entityIds)
+				.setParameterList("entityIds", limitedEntityIds)
 				.setFirstResult(listStartIndex)
 				.setMaxResults(listEndIndex);
 
