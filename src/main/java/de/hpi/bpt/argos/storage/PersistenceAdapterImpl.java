@@ -397,7 +397,31 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 				.setFirstResult(listStartIndex)
 				.setMaxResults(listEndIndex);
 
-		return databaseAccess.getArtifacts(session, query, transaction, query::getResultList, new ArrayList<>());
+		List<Event> events = databaseAccess.getArtifacts(session, query, transaction, query::getResultList, new ArrayList<>());
+
+		// we need to fetch more events, because there are still entityIds, which are not covered and we did not get enough events yet
+		if (events.size() < Math.abs(listEndIndex - listStartIndex) && limitedEntityIds.size() < entityIds.length) {
+			List<Long> entityIdsLeft = Arrays.asList(entityIds);
+			entityIdsLeft.removeAll(limitedEntityIds);
+
+			events.addAll(getEvents(eventTypeId, 0, Math.abs(listEndIndex - listStartIndex) - events.size(), entityIdsLeft.toArray(new Long[entityIdsLeft.size()])));
+		}
+
+		events.sort(new Comparator<Event>() {
+			@Override
+			public int compare(Event lhs, Event rhs) {
+				// -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
+				if (rhs.getCreationTimestamp() < lhs.getCreationTimestamp()) {
+					return -1;
+				} else if (rhs.getCreationTimestamp() > lhs.getCreationTimestamp()) {
+					return 1;
+				} else {
+					return 0;
+				}
+			}
+		});
+
+		return events;
 	}
 
 	/**
