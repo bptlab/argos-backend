@@ -406,20 +406,20 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 			List<Long> entityIdsLeft = Arrays.asList(entityIds);
 			entityIdsLeft.removeAll(limitedEntityIds);
 
-			events.addAll(getEvents(eventTypeId, 0, Math.abs(listEndIndex - listStartIndex) - events.size(), entityIdsLeft.toArray(new Long[entityIdsLeft.size()])));
+			events.addAll(getEvents(eventTypeId,
+					0,
+					Math.abs(listEndIndex - listStartIndex) - events.size(),
+					entityIdsLeft.toArray(new Long[entityIdsLeft.size()])));
 		}
 
-		events.sort(new Comparator<Event>() {
-			@Override
-			public int compare(Event lhs, Event rhs) {
-				// -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
-				if (rhs.getCreationTimestamp() < lhs.getCreationTimestamp()) {
-					return -1;
-				} else if (rhs.getCreationTimestamp() > lhs.getCreationTimestamp()) {
-					return 1;
-				} else {
-					return 0;
-				}
+		events.sort((Event lhs, Event rhs) -> {
+			// -1: less than, 1: greater than, 0: equal, all inversed for descending
+			if (rhs.getCreationTimestamp() < lhs.getCreationTimestamp()) {
+				return -1;
+			} else if (rhs.getCreationTimestamp() > lhs.getCreationTimestamp()) {
+				return 1;
+			} else {
+				return 0;
 			}
 		});
 
