@@ -20,7 +20,9 @@ import de.hpi.bpt.argos.util.Pair;
 import de.hpi.bpt.argos.util.PairImpl;
 import de.hpi.bpt.argos.util.RestEndpointUtil;
 import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
-import de.hpi.bpt.argos.util.threading.BackgroundWorkerImpl;
+import de.hpi.bpt.argos.util.performance.WatchImpl;
+import de.hpi.bpt.argos.util.threading.BackgroundWorkerPool;
+import de.hpi.bpt.argos.util.threading.BackgroundWorkerPoolImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -45,7 +47,7 @@ public class EventReceiverImpl implements EventReceiver {
 
 	private ObservableImpl<EventCreationObserver> eventCreationObservable;
 	private ObservableImpl<EventMappingObserver> eventMappingObservable;
-	private BackgroundWorkerImpl<Pair<EventType, String>> eventCreationWorker;
+	private BackgroundWorkerPool<Pair<EventType, String>> eventProcessingPool;
 
 	/**
 	 * This constructor initializes all members with their default values.
@@ -53,8 +55,9 @@ public class EventReceiverImpl implements EventReceiver {
 	public EventReceiverImpl() {
 		eventCreationObservable = new ObservableImpl<>(ObservableImpl.ObserverCallOrder.LAST_IN_FIRST_OUT);
 		eventMappingObservable = new ObservableImpl<>(ObservableImpl.ObserverCallOrder.LAST_IN_FIRST_OUT);
-		eventCreationWorker = new BackgroundWorkerImpl<>(
-				(Pair<EventType, String> eventData) -> createEvent(eventData.getValue(), eventData.getKey()));
+		eventProcessingPool = BackgroundWorkerPoolImpl.Create(EventReceiver.getEventProcessingThreads(),
+				(Pair<EventType, String> eventData)
+						-> WatchImpl.measure("process event", () -> createEvent(eventData.getValue(), eventData.getKey())));
 	}
 
 	/**
@@ -81,7 +84,7 @@ public class EventReceiverImpl implements EventReceiver {
 		if (eventType == null) {
 			halt(HttpStatusCodes.NOT_FOUND, "event type id was not found");
 		} else {
-			eventCreationWorker.addWorkload(new PairImpl<>(eventType, request.body()));
+			eventProcessingPool.addWorkload(new PairImpl<>(eventType, request.body()));
 		}
 
 		return "";
