@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.Table;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -389,15 +390,38 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 		Transaction transaction = session.beginTransaction();
 
 		Query<Event> query = session.createQuery("FROM EventImpl event "
-				+ "WHERE event.typeId = :typeId AND event.entityId IN (:entityIds) "
-				+ "ORDER BY event.creationTimestamp DESC",
+				+ "WHERE event.typeId = :typeId AND event.entityId IN (:entityIds) ",
 				Event.class)
 				.setParameter("typeId", eventTypeId)
 				.setParameterList("entityIds", limitedEntityIds)
 				.setFirstResult(listStartIndex)
 				.setMaxResults(listEndIndex);
 
-		return databaseAccess.getArtifacts(session, query, transaction, query::getResultList, new ArrayList<>());
+		List<Event> events = databaseAccess.getArtifacts(session, query, transaction, query::getResultList, new ArrayList<>());
+
+		// we need to fetch more events, because there are still entityIds, which are not covered and we did not get enough events yet
+		if (events.size() < Math.abs(listEndIndex - listStartIndex) && limitedEntityIds.size() < entityIds.length) {
+			List<Long> entityIdsLeft = Arrays.asList(entityIds);
+			entityIdsLeft.removeAll(limitedEntityIds);
+
+			events.addAll(getEvents(eventTypeId,
+					0,
+					Math.abs(listEndIndex - listStartIndex) - events.size(),
+					entityIdsLeft.toArray(new Long[entityIdsLeft.size()])));
+		}
+
+		events.sort((Event lhs, Event rhs) -> {
+			// -1: less than, 1: greater than, 0: equal, all inversed for descending
+			if (rhs.getCreationTimestamp() < lhs.getCreationTimestamp()) {
+				return -1;
+			} else if (rhs.getCreationTimestamp() > lhs.getCreationTimestamp()) {
+				return 1;
+			} else {
+				return 0;
+			}
+		});
+
+		return events;
 	}
 
 	/**
