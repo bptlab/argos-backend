@@ -410,7 +410,7 @@ public final class PersistenceAdapterImpl extends ObservableImpl<PersistenceArti
 
 		Query<Event> query = session.createQuery("FROM EventImpl event "
 				+ "WHERE event.entityId = :entityOwnerId "
-				+ "ORDER BY DATE(event.creationDate) DESC",
+				+ "ORDER BY event.creationTimestamp DESC",
 				Event.class)
 				.setParameter("entityOwnerId", entityOwnerId);
 
