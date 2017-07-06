@@ -295,7 +295,7 @@ public class EntityEndpointTest extends ArgosTestParent {
 		PersistenceAdapterImpl.getInstance().deleteArtifacts(newEventAttributes.toArray(new Attribute[newEventAttributes.size()]));
 
 		JsonArray events = jsonParser.parse(request.getResponse()).getAsJsonArray();
-		assertEvents(events, testEventAttributes, newEventAttributes);
+		assertEvents(events, newEventAttributes, testEventAttributes);
 	}
 
 	@Test

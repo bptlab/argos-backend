@@ -1,5 +1,6 @@
 package de.hpi.bpt.argos.storage.dataModel;
 
+import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -16,11 +17,22 @@ public abstract class PersistenceArtifactImpl implements PersistenceArtifact {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	protected long id;
 
+	@Column(name = "CreationTimestamp")
+	private long creationTimestamp = System.currentTimeMillis();
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public long getId() {
 		return id;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public long getCreationTimestamp() {
+		return creationTimestamp;
 	}
 }
