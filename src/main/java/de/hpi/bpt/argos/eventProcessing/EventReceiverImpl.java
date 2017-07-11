@@ -20,7 +20,6 @@ import de.hpi.bpt.argos.util.Pair;
 import de.hpi.bpt.argos.util.PairImpl;
 import de.hpi.bpt.argos.util.RestEndpointUtil;
 import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
-import de.hpi.bpt.argos.util.performance.WatchImpl;
 import de.hpi.bpt.argos.util.threading.BackgroundWorkerPool;
 import de.hpi.bpt.argos.util.threading.BackgroundWorkerPoolImpl;
 import org.slf4j.Logger;
