@@ -16,7 +16,7 @@ import java.util.Objects;
  */
 public interface EventReceiver extends RestEndpoint {
 
-	final String EVENT_PROCESSING_THREADS_PROPERTY_KEY = "eventProcessingThreads";
+	String EVENT_PROCESSING_THREADS_PROPERTY_KEY = "eventProcessingThreads";
 
 	/**
 	 * This method is responsible for receiving events by reacting to the spark request sent from the event

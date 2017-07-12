@@ -1,5 +1,7 @@
 package de.hpi.bpt.argos.common;
 
+import java.util.function.Consumer;
+
 /**
  * This interface represents observable objects.
  * @param <Observer> - the class of the observers
@@ -17,4 +19,10 @@ public interface Observable<Observer> {
 	 * @param observer - the observer, which does no longer want to be notified
 	 */
 	void unsubscribe(Observer observer);
+
+	/**
+	 * This method invokes a method for each observer.
+	 * @param notifyMethod - the method to invoke for each observer
+	 */
+	void notifyObservers(Consumer<Observer> notifyMethod);
 }
