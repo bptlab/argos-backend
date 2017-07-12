@@ -28,7 +28,7 @@ public class BackgroundWorkerPoolImpl<DataType> implements BackgroundWorkerPool<
 	 * @param <DataType> - the dataType of the data objects, which will be processed by the workers
 	 * @return - the new backgroundWorkerPool
 	 */
-	public static <DataType> BackgroundWorkerPool<DataType> Create(int workers, Consumer<DataType> action) {
+	public static <DataType> BackgroundWorkerPool<DataType> create(int workers, Consumer<DataType> action) {
 		BackgroundWorkerPool<DataType> pool = new BackgroundWorkerPoolImpl<>();
 		pool.setup(workers, action);
 

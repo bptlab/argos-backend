@@ -54,7 +54,7 @@ public class EventReceiverImpl implements EventReceiver {
 	public EventReceiverImpl() {
 		eventCreationObservable = new ObservableImpl<>(ObservableImpl.ObserverCallOrder.LAST_IN_FIRST_OUT);
 		eventMappingObservable = new ObservableImpl<>(ObservableImpl.ObserverCallOrder.LAST_IN_FIRST_OUT);
-		eventProcessingPool = BackgroundWorkerPoolImpl.Create(EventReceiver.getEventProcessingThreads(),
+		eventProcessingPool = BackgroundWorkerPoolImpl.create(EventReceiver.getEventProcessingThreads(),
 				(Pair<EventType, String> eventData) -> createEvent(eventData.getValue(), eventData.getKey()));
 	}
 
