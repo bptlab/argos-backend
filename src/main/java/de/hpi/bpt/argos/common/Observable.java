@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 /**
  * This interface represents observable objects.
- * @param <Observer> - the class of the observers
+ * @param <Observer> - the observer type
  */
 public interface Observable<Observer> {
 

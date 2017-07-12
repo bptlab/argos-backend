@@ -263,12 +263,12 @@ public class EventReceiverTest extends ArgosTestParent {
 				.createPostRequest(ARGOS_REST_HOST, getReceiveEventUri(StatusUpdatedEventType.getInstance().getId()));
 
 		JsonObject event = new JsonObject();
-		event.addProperty("Timestamp", ArgosTestUtil.getCurrentTimestamp());
-		event.addProperty("OldStatus", oldStatus);
-		event.addProperty("NewStatus", newStatus);
-		event.addProperty("CauseEventId", 0);
-		event.addProperty("CauseEventTypeId", testEventType.getId());
-		event.addProperty("EntityId", testEntity.getId());
+		event.addProperty("timestamp", ArgosTestUtil.getCurrentTimestamp());
+		event.addProperty("oldStatus", oldStatus);
+		event.addProperty("newStatus", newStatus);
+		event.addProperty("causeEventId", 0);
+		event.addProperty("causeEventTypeId", testEventType.getId());
+		event.addProperty("entityId", testEntity.getId());
 
 		request.setContent(serializer.toJson(event));
 

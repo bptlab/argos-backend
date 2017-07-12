@@ -249,6 +249,7 @@ public interface PersistenceAdapter extends Observable<PersistenceArtifactUpdate
 	 * @return - the mapping with matching id
 	 */
 	EventEntityMapping getEventEntityMapping(long mappingId);
+
 	/**
 	 * This method returns a list of all eventEntityMappings, which belong to a specific entityType.
 	 * @param entityTypeId - the unique identifier of the entityType

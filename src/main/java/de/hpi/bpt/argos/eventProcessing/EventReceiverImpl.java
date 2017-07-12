@@ -44,8 +44,8 @@ public class EventReceiverImpl implements EventReceiver {
 	private static final RestEndpointUtil endpointUtil = RestEndpointUtilImpl.getInstance();
 	private static final JsonParser jsonParser = new JsonParser();
 
-	private ObservableImpl<EventCreationObserver> eventCreationObservable;
-	private ObservableImpl<EventMappingObserver> eventMappingObservable;
+	private Observable<EventCreationObserver> eventCreationObservable;
+	private Observable<EventMappingObserver> eventMappingObservable;
 	private BackgroundWorkerPool<Pair<EventType, String>> eventProcessingPool;
 
 	/**

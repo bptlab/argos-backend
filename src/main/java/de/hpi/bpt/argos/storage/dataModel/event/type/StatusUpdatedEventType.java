@@ -31,12 +31,12 @@ public final class StatusUpdatedEventType extends EventTypeImpl {
 
 	public static final String NAME = "StatusUpdatedEventType";
 
-	private static final String TIMESTAMP_ATTRIBUTE_NAME = "Timestamp";
-	private static final String OLD_STATUS_ATTRIBUTE_NAME = "OldStatus";
-	private static final String NEW_STATUS_ATTRIBUTE_NAME = "NewStatus";
-	private static final String CAUSE_EVENT_ID_ATTRIBUTE_NAME = "CauseEventId";
-	private static final String CAUSE_EVENT_TYPE_ID_ATTRIBUTE_NAME = "CauseEventTypeId";
-	private static final String ENTITY_ID_ATTRIBUTE_NAME = "EntityId";
+	private static final String TIMESTAMP_ATTRIBUTE_NAME = "timestamp";
+	private static final String OLD_STATUS_ATTRIBUTE_NAME = "oldStatus";
+	private static final String NEW_STATUS_ATTRIBUTE_NAME = "newStatus";
+	private static final String CAUSE_EVENT_ID_ATTRIBUTE_NAME = "causeEventId";
+	private static final String CAUSE_EVENT_TYPE_ID_ATTRIBUTE_NAME = "causeEventTypeId";
+	private static final String ENTITY_ID_ATTRIBUTE_NAME = "entityId";
 
 	private static EventType instance;
 
