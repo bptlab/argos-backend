@@ -4,6 +4,7 @@ import de.hpi.bpt.argos.common.Observable;
 import de.hpi.bpt.argos.common.RestEndpoint;
 import de.hpi.bpt.argos.core.Argos;
 import de.hpi.bpt.argos.eventProcessing.mapping.EventMappingObserver;
+import de.hpi.bpt.argos.properties.PropertyEditorImpl;
 import de.hpi.bpt.argos.util.RestEndpointUtilImpl;
 import spark.Request;
 import spark.Response;
@@ -14,6 +15,8 @@ import java.util.Objects;
  * This class offers an interface for the eventProcessingPlatform to send events to.
  */
 public interface EventReceiver extends RestEndpoint {
+
+	String EVENT_PROCESSING_THREADS_PROPERTY_KEY = "eventProcessingThreads";
 
 	/**
 	 * This method is responsible for receiving events by reacting to the spark request sent from the event
@@ -68,5 +71,13 @@ public interface EventReceiver extends RestEndpoint {
 	 */
 	static String getEventTypeIdParameter(boolean includePrefix) {
 		return RestEndpointUtilImpl.getInstance().getParameter("eventTypeId", includePrefix);
+	}
+
+	/**
+	 * This method reads the eventProcessingThreads property from the properties-file and returns its value.
+	 * @return - the eventProcessingThreads, specified in the properties-file
+	 */
+	static int getEventProcessingThreads() {
+		return Math.max(1, PropertyEditorImpl.getInstance().getPropertyAsInt(EVENT_PROCESSING_THREADS_PROPERTY_KEY));
 	}
 }

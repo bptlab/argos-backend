@@ -52,9 +52,9 @@ public class ObservableImpl<Observer> implements Observable<Observer> {
 	}
 
 	/**
-	 * This method invokes a method for each observer.
-	 * @param notifyMethod - the method to invoke for each observer
+	 * {@inheritDoc}
 	 */
+	@Override
 	public void notifyObservers(Consumer<Observer> notifyMethod) {
 		if (processingStrategy == ObserverCallOrder.FIRST_IN_FIRST_OUT) {
 			for (Observer observer : observers) {
