@@ -89,12 +89,12 @@ public class ClientUpdateServiceTest extends ArgosTestParent {
 	private JsonObject createStatusUpdatedEventJson(Entity updatedEntity) {
 		JsonObject event = new JsonObject();
 
-		event.addProperty("Timestamp", ArgosTestUtil.getCurrentTimestamp());
-		event.addProperty("OldStatus", updatedEntity.getStatus());
-		event.addProperty("NewStatus", updatedEntity.getStatus() + "_Updated");
-		event.addProperty("CauseEventId", ArgosTestUtil.getRandomInteger(1, 10));
-		event.addProperty("CauseEventTypeId", ArgosTestUtil.getRandomInteger(1, 10));
-		event.addProperty("EntityId", updatedEntity.getId());
+		event.addProperty("timestamp", ArgosTestUtil.getCurrentTimestamp());
+		event.addProperty("oldStatus", updatedEntity.getStatus());
+		event.addProperty("newStatus", updatedEntity.getStatus() + "_Updated");
+		event.addProperty("causeEventId", ArgosTestUtil.getRandomInteger(1, 10));
+		event.addProperty("causeEventTypeId", ArgosTestUtil.getRandomInteger(1, 10));
+		event.addProperty("entityId", updatedEntity.getId());
 
 		return event;
 	}
