@@ -165,7 +165,7 @@ public final class EventProcessingPlatformUpdaterImpl implements EventProcessing
 	@Override
 	public EventPlatformFeedback deleteEventQuery(EventQuery eventQuery) {
 		if (eventQuery.getUuid() == null || eventQuery.getUuid().length() == 0) {
-			return new EventPlatformFeedbackImpl("event query was not registered yet", HttpStatusCodes.ERROR);
+			return new EventPlatformFeedbackImpl("event query was not registered yet", HttpStatusCodes.SUCCESS);
 		}
 
 		String host = EventProcessingPlatformUpdater.getHost();
