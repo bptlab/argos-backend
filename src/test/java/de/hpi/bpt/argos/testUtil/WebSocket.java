@@ -73,9 +73,9 @@ public class WebSocket {
 				break;
 			}
 
-//			if (System.currentTimeMillis() >= startMs + timeoutInMs) {
-//				throw new Exception("timeout passed");
-//			}
+			if (System.currentTimeMillis() >= startMs + timeoutInMs) {
+				throw new Exception("timeout passed");
+			}
 		}
 
 		if (receivedMessages.size() > expectedMessages) {

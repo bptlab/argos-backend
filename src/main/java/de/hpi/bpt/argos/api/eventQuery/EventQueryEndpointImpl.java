@@ -163,6 +163,8 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
 
         long oldEventQueryId = getEventQueryId(request);
         EventQuery oldEventQuery = PersistenceAdapterImpl.getInstance().getEventQuery(oldEventQueryId);
+				String oldEventQueryString = oldEventQuery.getQuery();
+
         if (oldEventQuery == null) {
             halt(HttpStatusCodes.BAD_REQUEST, "given query was not found");
         }
@@ -178,7 +180,12 @@ public class EventQueryEndpointImpl  implements EventQueryEndpoint {
         EventPlatformFeedback createFeedback = EventProcessingPlatformUpdaterImpl.getInstance()
                 .registerEventQuery(oldEventQuery.getTypeId(), oldEventQuery);
         if (!createFeedback.isSuccessful()) {
-            halt(createFeedback.getResponseCode(), "given query could not be newly registered");
+						// register the old query again, so nothing gets lost
+						oldEventQuery.setQuery(oldEventQueryString);
+						EventProcessingPlatformUpdaterImpl.getInstance().registerEventQuery(oldEventQuery.getTypeId(), oldEventQuery);
+						PersistenceAdapterImpl.getInstance().saveArtifacts(oldEventQuery);
+
+            halt(createFeedback.getResponseCode(), "given query could not be registered");
         }
 
         if (!PersistenceAdapterImpl.getInstance().updateArtifact(oldEventQuery, EventTypeEndpoint.getEventTypeQueriesUri(oldEventQuery.getId()))) {

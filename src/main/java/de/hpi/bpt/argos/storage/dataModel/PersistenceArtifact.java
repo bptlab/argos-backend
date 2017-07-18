@@ -3,7 +3,6 @@ package de.hpi.bpt.argos.storage.dataModel;
 /**
  * This interface represents all kinds of storeable artifact.
  */
-@FunctionalInterface
 public interface PersistenceArtifact {
 
 	/**
@@ -11,4 +10,10 @@ public interface PersistenceArtifact {
 	 * @return - the unique identifier for this artifact.
 	 */
 	long getId();
+
+	/**
+	 * This method returns the timestamp, when this artifact was created.
+	 * @return - the timestamp, when this artifact was created
+	 */
+	long getCreationTimestamp();
 }

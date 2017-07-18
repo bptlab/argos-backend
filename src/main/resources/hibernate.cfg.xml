@@ -11,7 +11,7 @@
             org.mariadb.jdbc.Driver
         </property>
         <property name="hibernate.connection.pool_size">
-            10
+            16
         </property>
         <property name="hibernate.jdbc.batch_size">
             50
